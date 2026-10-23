@@ -14,7 +14,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     bundleIdentifier: 'nl.linkandlead.mobileapp',
     buildNumber: '1',
-    supportsTablet: true,
+    supportsTablet: false,
     infoPlist: {
       NSCameraUsageDescription:
         'Mooove gebruikt je camera om je missie te controleren, zoals het tellen van squats. Beelden blijven op je toestel.',
