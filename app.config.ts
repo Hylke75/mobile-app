@@ -8,7 +8,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   scheme: 'mooov',
   version: '1.0.0',
   orientation: 'portrait',
-  // Placeholder-icoon en -splash; vervangen door definitieve assets vóór de store-release
+  // Conceptlogo uit docs/ontwerp; het merk is nog niet definitief vastgelegd
   icon: './assets/icon.png',
   userInterfaceStyle: 'light',
   ios: {
@@ -20,9 +20,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: 'nl.linkandlead.mobileapp',
     versionCode: 1,
     adaptiveIcon: {
-      backgroundColor: '#E6F4FE',
+      backgroundColor: '#D8FB59',
       foregroundImage: './assets/android-icon-foreground.png',
-      backgroundImage: './assets/android-icon-background.png',
       monochromeImage: './assets/android-icon-monochrome.png',
     },
     predictiveBackGestureEnabled: false,
@@ -38,7 +37,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         image: './assets/splash-icon.png',
         imageWidth: 200,
         resizeMode: 'contain',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#F3F3ED',
       },
     ],
   ],

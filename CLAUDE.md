@@ -13,7 +13,16 @@ Appconfiguratie staat in `app.config.ts` (naam, slug `mobile-app`, bundle ID / p
 
 - `app/` — routes en layouts (geen andere code)
 - `src/components`, `src/lib`, `src/hooks`, `src/constants`, `src/types` — importeren via `@/…`
-- `docs/ontwerp/` — visuele overdracht van het Moov-ontwerp (designsysteem, schermspecificaties, prototype). Alleen als bron gebruiken wanneer daar expliciet om gevraagd wordt.
+- `docs/ontwerp/` — visuele overdracht van het Moov-ontwerp (designsysteem, schermspecificaties, prototype). Dit is de visuele bron voor de app.
+
+## Huidige status van de app
+
+De zeven schermen uit het ontwerp (Vandaag, Alarmen, Nieuw alarm, Live missie, Progressie, Profiel, Moov Coach) en het testalarm zijn gebouwd als **demo**:
+
+- Alle data staat in `src/constants/demo.ts` (mockdata) en de state in `src/hooks/useDemo.tsx`; niets wordt opgeslagen.
+- Camera-feedback, alarmplanning, Niet-storen-test en statistieken zijn gesimuleerd. Doe niet alsof dit werkt.
+- Moov Coach is een toekomstconcept (V2).
+- Design tokens: `src/constants/theme.ts`; iconen: `src/components/Icon.tsx`.
 
 ## Commando's
 
@@ -45,5 +54,5 @@ Draai `lint` en `typecheck` voordat een taak af is.
 - [ ] Google Play Data safety-formulier ingevuld
 - [ ] Screenshots voor alle vereiste formaten (iPhone, iPad indien `supportsTablet`, Android telefoon)
 - [ ] Testaccount met inloggegevens voor de reviewers van Apple en Google
-- [ ] Definitief icoon en splash (nu placeholders in `assets/`)
+- [ ] Definitief icoon en splash (nu het conceptlogo `m.` uit `docs/ontwerp/`)
 - [ ] `version` en `ios.buildNumber` / `android.versionCode` in `app.config.ts` opgehoogd per release

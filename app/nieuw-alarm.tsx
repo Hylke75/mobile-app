@@ -1,0 +1,303 @@
+import DateTimePicker, {
+  DateTimePickerAndroid,
+  type DateTimePickerEvent,
+} from '@react-native-community/datetimepicker';
+import { router } from 'expo-router';
+import { useState } from 'react';
+import { Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+
+import { Icon } from '@/components/Icon';
+import { Screen } from '@/components/Screen';
+import { gedeeld, PrimaryButton } from '@/components/ui';
+import { DAG_LETTERS, DAG_NAMEN, NIVEAUS, OEFENINGEN } from '@/constants/demo';
+import { em, fonts, kleuren } from '@/constants/theme';
+import { useDemo } from '@/hooks/useDemo';
+import type { Niveau } from '@/types/demo';
+
+const NIVEAU_RIJEN: (Niveau | null)[][] = [
+  ['Vrij', 'Flexibel', 'Uitstelbaar'],
+  ['Verplicht', 'Hardcore', null],
+];
+
+const naarDatum = (tijd: string) => {
+  const [uur, minuut] = tijd.split(':').map(Number);
+  const d = new Date();
+  d.setHours(uur ?? 7, minuut ?? 0, 0, 0);
+  return d;
+};
+
+const naarTijd = (d: Date) =>
+  `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+
+export default function NieuwAlarmScherm() {
+  const { addAlarm, showToast } = useDemo();
+  const [time, setTime] = useState('07:00');
+  const [days, setDays] = useState<number[]>([0, 1, 2, 3, 4]);
+  const [level, setLevel] = useState<Niveau>('Verplicht');
+  const [exercises, setExercises] = useState<string[]>(['Squats', 'Bed opmaken']);
+  const [iosPickerOpen, setIosPickerOpen] = useState(false);
+
+  const wissel = <T,>(lijst: T[], waarde: T) =>
+    lijst.includes(waarde) ? lijst.filter((x) => x !== waarde) : [...lijst, waarde];
+
+  const onTijdGekozen = (event: DateTimePickerEvent, datum?: Date) => {
+    if (event.type === 'set' && datum) setTime(naarTijd(datum));
+  };
+
+  const openTijdkiezer = () => {
+    if (Platform.OS === 'android') {
+      DateTimePickerAndroid.open({
+        value: naarDatum(time),
+        mode: 'time',
+        is24Hour: true,
+        onChange: onTijdGekozen,
+      });
+    } else {
+      setIosPickerOpen((open) => !open);
+    }
+  };
+
+  const opslaan = () => {
+    if (!days.length) return showToast('Kies minimaal één dag.');
+    if (!exercises.length) return showToast('Kies minimaal één missie.');
+    addAlarm({ time, days, level, exercises });
+    router.dismissTo('/alarmen');
+    showToast('Je nieuwe alarm staat in de lijst!');
+  };
+
+  return (
+    <Screen>
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => router.dismissTo('/alarmen')}
+        style={gedeeld.backLink}
+      >
+        <Icon name="chevron" color={kleuren.ink} />
+        <Text style={gedeeld.backLinkText}>Terug naar alarmen</Text>
+      </Pressable>
+      <Text style={styles.title}>
+        Nieuw alarm<Text style={{ color: '#91B755' }}>.</Text>
+      </Text>
+
+      <View style={styles.timeEditor}>
+        <Text style={styles.timeLabel}>KIES JE TIJDSTIP</Text>
+        {Platform.OS === 'web' ? (
+          <TextInput
+            accessibilityLabel="Alarmtijd"
+            value={time}
+            onChangeText={setTime}
+            maxLength={5}
+            style={styles.timeValue}
+          />
+        ) : (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Alarmtijd"
+            onPress={openTijdkiezer}
+          >
+            <Text style={styles.timeValue}>{time}</Text>
+          </Pressable>
+        )}
+        {Platform.OS === 'ios' && iosPickerOpen && (
+          <DateTimePicker
+            value={naarDatum(time)}
+            mode="time"
+            display="spinner"
+            is24Hour
+            locale="nl-NL"
+            themeVariant="light"
+            onChange={onTijdGekozen}
+          />
+        )}
+      </View>
+
+      <Text style={styles.formLabel}>Herhaal op</Text>
+      <View style={styles.days}>
+        {DAG_LETTERS.map((letter, i) => {
+          const actief = days.includes(i);
+          return (
+            <Pressable
+              key={DAG_NAMEN[i]}
+              accessibilityRole="button"
+              accessibilityState={{ selected: actief }}
+              accessibilityLabel={DAG_NAMEN[i]}
+              onPress={() => setDays((d) => wissel(d, i))}
+              style={[styles.dayChip, actief && styles.dayChipActive]}
+            >
+              <Text style={[styles.dayChipText, actief && styles.dayChipTextActive]}>{letter}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      <View style={styles.formLabelRow}>
+        <Text style={styles.formLabelInRow}>Strengheidsniveau</Text>
+        <Text style={styles.formLabelHint}>5 opties</Text>
+      </View>
+      <View style={styles.levelGrid}>
+        {NIVEAU_RIJEN.map((rij, r) => (
+          <View key={r} style={styles.levelRow}>
+            {rij.map((l, k) =>
+              l ? (
+                <Pressable
+                  key={l}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: level === l }}
+                  onPress={() => setLevel(l)}
+                  style={[styles.levelChoice, level === l && styles.levelChoiceSelected]}
+                >
+                  <Text
+                    style={[styles.levelChoiceText, level === l && styles.levelChoiceTextSelected]}
+                  >
+                    {l}
+                  </Text>
+                </Pressable>
+              ) : (
+                <View key={`leeg-${k}`} style={styles.levelPlaceholder} />
+              ),
+            )}
+          </View>
+        ))}
+      </View>
+      <View style={styles.levelExplain}>
+        <Icon name={level === 'Verplicht' ? 'lock' : 'info'} color="#657265" />
+        <Text style={styles.levelExplainText}>{NIVEAUS[level]}</Text>
+      </View>
+
+      <View style={styles.formLabelRow}>
+        <Text style={styles.formLabelInRow}>Kies jouw missies</Text>
+        <Text style={styles.formLabelHint}>Meerdere mogelijk</Text>
+      </View>
+      <View style={styles.exerciseOptions}>
+        {OEFENINGEN.map((o) => {
+          const gekozen = exercises.includes(o);
+          return (
+            <Pressable
+              key={o}
+              accessibilityRole="button"
+              accessibilityState={{ selected: gekozen }}
+              onPress={() => setExercises((e) => wissel(e, o))}
+              style={[styles.exercise, gekozen && styles.exerciseSelected]}
+            >
+              <Text style={[styles.exerciseText, gekozen && styles.exerciseTextSelected]}>
+                {gekozen ? '✓ ' : ''}
+                {o}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      <PrimaryButton label="Alarm opslaan" onPress={opslaan} style={styles.save} />
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  title: {
+    fontFamily: fonts.head700,
+    fontSize: 31,
+    letterSpacing: em(-0.06, 31),
+    marginBottom: 14,
+    color: kleuren.ink,
+  },
+  timeEditor: {
+    backgroundColor: kleuren.white,
+    borderRadius: 19,
+    paddingVertical: 20,
+    paddingHorizontal: 15,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: kleuren.line,
+  },
+  timeLabel: {
+    fontFamily: fonts.body800,
+    fontSize: 10,
+    letterSpacing: em(0.14, 10),
+    color: '#7C8C7E',
+    marginBottom: 8,
+  },
+  timeValue: {
+    fontFamily: fonts.head700,
+    fontSize: 55,
+    letterSpacing: em(-0.09, 55),
+    color: kleuren.ink,
+    textAlign: 'center',
+    minWidth: 215,
+  },
+  formLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  formLabel: {
+    fontFamily: fonts.body800,
+    fontSize: 11,
+    color: kleuren.ink,
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  formLabelInRow: { fontFamily: fonts.body800, fontSize: 11, color: kleuren.ink },
+  formLabelHint: { fontFamily: fonts.body600, fontSize: 10, color: '#879486' },
+  days: { flexDirection: 'row', justifyContent: 'space-between', gap: 5 },
+  dayChip: {
+    width: 37,
+    height: 37,
+    borderRadius: 12,
+    backgroundColor: '#E8ECE4',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dayChipActive: { backgroundColor: kleuren.ink },
+  dayChipText: { fontFamily: fonts.body800, fontSize: 11, color: '#819080' },
+  dayChipTextActive: { color: kleuren.lime },
+  levelGrid: { gap: 6 },
+  levelRow: { flexDirection: 'row', gap: 6 },
+  levelChoice: {
+    flex: 1,
+    flexBasis: 0,
+    backgroundColor: kleuren.white,
+    borderWidth: 1,
+    borderColor: kleuren.line,
+    borderRadius: 12,
+    paddingVertical: 11,
+    paddingHorizontal: 5,
+    alignItems: 'center',
+  },
+  levelChoiceSelected: { backgroundColor: kleuren.lime, borderColor: kleuren.lime },
+  levelChoiceText: { fontFamily: fonts.body800, fontSize: 10, color: '#8B978C' },
+  levelChoiceTextSelected: { color: kleuren.ink },
+  levelPlaceholder: { flex: 1, flexBasis: 0 },
+  levelExplain: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#E9EEE5',
+    borderRadius: 12,
+    paddingVertical: 11,
+    paddingHorizontal: 13,
+    marginTop: 8,
+  },
+  levelExplainText: {
+    flex: 1,
+    fontFamily: fonts.body400,
+    fontSize: 10,
+    lineHeight: 14,
+    color: '#657265',
+  },
+  exerciseOptions: { flexDirection: 'row', flexWrap: 'wrap', gap: 7 },
+  exercise: {
+    borderWidth: 1,
+    borderColor: '#DCE1D8',
+    borderRadius: 100,
+    backgroundColor: kleuren.white,
+    paddingVertical: 9,
+    paddingHorizontal: 12,
+  },
+  exerciseSelected: { borderColor: kleuren.ink, backgroundColor: '#EDF4D5' },
+  exerciseText: { fontFamily: fonts.body800, fontSize: 11, color: '#7E8E7F' },
+  exerciseTextSelected: { color: kleuren.ink },
+  save: { marginTop: 22 },
+});
