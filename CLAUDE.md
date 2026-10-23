@@ -1,4 +1,4 @@
-# Mooov — projectafspraken
+# Mooove — projectafspraken
 
 ## Stack
 
@@ -13,16 +13,22 @@ Appconfiguratie staat in `app.config.ts` (naam, slug `mobile-app`, bundle ID / p
 
 - `app/` — routes en layouts (geen andere code)
 - `src/components`, `src/lib`, `src/hooks`, `src/constants`, `src/types` — importeren via `@/…`
-- `docs/ontwerp/` — visuele overdracht van het Moov-ontwerp (designsysteem, schermspecificaties, prototype). Dit is de visuele bron voor de app.
+- `docs/ontwerp/` — visuele overdracht van het Mooove-ontwerp (designsysteem, schermspecificaties, prototype). Dit is de visuele bron voor de app.
 
 ## Huidige status van de app
 
-De zeven schermen uit het ontwerp (Vandaag, Alarmen, Nieuw alarm, Live missie, Progressie, Profiel, Moov Coach) en het testalarm zijn gebouwd als **demo**:
+De app wordt in fases van demo naar volledig werkend gebracht:
 
-- Alle data staat in `src/constants/demo.ts` (mockdata) en de state in `src/hooks/useDemo.tsx`; niets wordt opgeslagen.
-- Camera-feedback, alarmplanning, Niet-storen-test en statistieken zijn gesimuleerd. Doe niet alsof dit werkt.
-- Moov Coach is een toekomstconcept (V2).
-- Design tokens: `src/constants/theme.ts`; iconen: `src/components/Icon.tsx`.
+1. **Inloggen en account** — klaar: e-mail met code (Supabase OTP), voornaam in `profiles`, uitloggen en account verwijderen (Edge Function `delete-account`).
+2. Database en echte opslag van alarmen — nog te doen.
+3. Echte alarmen (iOS AlarmKit / Android exact alarm, eigen build) — nog te doen.
+4. Missies met camera (pose-herkenning op het toestel, lichtmeting voor gordijnen, foto voor bed) — nog te doen.
+5. Progressie uit echte data — nog te doen.
+6. Profiel en rechten-check — nog te doen.
+
+Wat nog demo is: alarmen, missie, progressie en de alarm-check (`src/constants/demo.ts`, `src/hooks/useDemo.tsx`). Mooove Coach blijft een toekomstconcept (V2).
+
+Supabase: migraties in `supabase/migrations/`, Edge Functions in `supabase/functions/`, types in `src/types/database.ts` (bijwerken na elke migratie). Design tokens: `src/constants/theme.ts`; iconen: `src/components/Icon.tsx`.
 
 ## Commando's
 

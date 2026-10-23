@@ -2,10 +2,10 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: 'Mooov',
+  name: 'Mooove',
   slug: 'mobile-app',
   owner: 'link-and-lead',
-  scheme: 'mooov',
+  scheme: 'mooove',
   version: '1.0.0',
   orientation: 'portrait',
   // Conceptlogo uit docs/ontwerp; het merk is nog niet definitief vastgelegd

@@ -27,7 +27,7 @@ export default function CoachScherm() {
         <Icon name="chevron" color={kleuren.ink} />
         <Text style={gedeeld.backLinkText}>Terug naar profiel</Text>
       </Pressable>
-      <ScreenHeader kicker="FUTURE FEATURE / V2" titel="Moov Coach" puntKleur="#6BA7AA" />
+      <ScreenHeader kicker="FUTURE FEATURE / V2" titel="Mooove Coach" puntKleur="#6BA7AA" />
 
       <View style={styles.hero}>
         <View style={styles.swirl} />
@@ -76,7 +76,7 @@ export default function CoachScherm() {
       </Text>
       <SecondaryButton
         label="Houd me op de hoogte ↗"
-        onPress={() => showToast('Moov Coach staat op de roadmap.')}
+        onPress={() => showToast('Mooove Coach staat op de roadmap.')}
       />
     </Screen>
   );

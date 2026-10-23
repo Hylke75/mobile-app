@@ -20,7 +20,7 @@ export default function AlarmenScherm() {
         rechts={<RoundPlus onPress={nieuwAlarm} label="Nieuw alarm" />}
       />
       <Text style={styles.description}>
-        Jouw momenten om in beweging te komen. Kies zelf hoe streng Moov voor je is.
+        Jouw momenten om in beweging te komen. Kies zelf hoe streng Mooove voor je is.
       </Text>
 
       {alarms.map((a) => (

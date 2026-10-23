@@ -17,7 +17,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { Toast } from '@/components/Toast';
 import { kleuren } from '@/constants/theme';
-import { AuthProvider } from '@/hooks/useAuth';
+import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { DemoProvider } from '@/hooks/useDemo';
 
 SplashScreen.preventAutoHideAsync();
@@ -35,35 +35,62 @@ export default function RootLayout() {
     SpaceGrotesk_700Bold,
   });
 
-  useEffect(() => {
-    if (fontsGeladen || fontFout) SplashScreen.hideAsync();
-  }, [fontsGeladen, fontFout]);
-
   if (!fontsGeladen && !fontFout) return null;
 
   return (
     <SafeAreaProvider>
       <AuthProvider>
         <DemoProvider>
-          <View style={{ flex: 1, backgroundColor: kleuren.paper }}>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: kleuren.paper },
-              }}
-            >
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="nieuw-alarm" />
-              <Stack.Screen
-                name="missie"
-                options={{ contentStyle: { backgroundColor: kleuren.ink } }}
-              />
-            </Stack>
-            <Toast />
-          </View>
-          <StatusBar style="dark" />
+          <RootNavigator />
         </DemoProvider>
       </AuthProvider>
     </SafeAreaProvider>
+  );
+}
+
+function RootNavigator() {
+  const { status, profiel } = useAuth();
+  const ingelogd = status === 'ingelogd';
+  const heeftNaam = Boolean(profiel?.voornaam);
+
+  useEffect(() => {
+    if (status !== 'laden') SplashScreen.hideAsync();
+  }, [status]);
+
+  if (status === 'laden') return null;
+
+  return (
+    <View style={{ flex: 1, backgroundColor: kleuren.paper }}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: kleuren.paper },
+        }}
+      >
+        <Stack.Protected guard={!ingelogd}>
+          <Stack.Screen
+            name="inloggen"
+            options={{ contentStyle: { backgroundColor: kleuren.ink } }}
+          />
+          <Stack.Screen name="code" options={{ contentStyle: { backgroundColor: kleuren.ink } }} />
+        </Stack.Protected>
+        <Stack.Protected guard={ingelogd && !heeftNaam}>
+          <Stack.Screen
+            name="welkom"
+            options={{ contentStyle: { backgroundColor: kleuren.ink } }}
+          />
+        </Stack.Protected>
+        <Stack.Protected guard={ingelogd && heeftNaam}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="nieuw-alarm" />
+          <Stack.Screen
+            name="missie"
+            options={{ contentStyle: { backgroundColor: kleuren.ink } }}
+          />
+        </Stack.Protected>
+      </Stack>
+      <Toast />
+      <StatusBar style="dark" />
+    </View>
   );
 }

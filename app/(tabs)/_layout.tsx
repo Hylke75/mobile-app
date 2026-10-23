@@ -9,7 +9,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="alarmen" options={{ title: 'Alarmen' }} />
       <Tabs.Screen name="progressie" options={{ title: 'Progressie' }} />
       <Tabs.Screen name="profiel" options={{ title: 'Profiel' }} />
-      <Tabs.Screen name="coach" options={{ title: 'Moov Coach' }} />
+      <Tabs.Screen name="coach" options={{ title: 'Mooove Coach' }} />
     </Tabs>
   );
 }

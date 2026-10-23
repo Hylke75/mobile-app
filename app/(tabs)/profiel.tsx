@@ -2,13 +2,13 @@
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Icon, type IconNaam } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import { PrimaryButton, ScreenHeader, SecondaryButton, SectionTitleRow } from '@/components/ui';
-import { DEMO_GEBRUIKER, DEMO_STREAK } from '@/constants/demo';
 import { em, fonts, kleuren } from '@/constants/theme';
+import { useAuth } from '@/hooks/useAuth';
 import { useDemo } from '@/hooks/useDemo';
 
 const CHECKS = [
@@ -26,25 +26,55 @@ const INSTELLINGEN: { icon: IconNaam; label: string; waarde: string }[] = [
 
 export default function ProfielScherm() {
   const { showToast } = useDemo();
+  const { profiel, user, uitloggen, verwijderAccount } = useAuth();
   const [testOpen, setTestOpen] = useState(false);
+  const voornaam = profiel?.voornaam ?? '';
+  const lidSinds = profiel ? lidSindsTekst(profiel.created_at) : '';
+
+  const bevestig = (titel: string, tekst: string, knop: string, actie: () => void) => {
+    if (Platform.OS === 'web') {
+      if (window.confirm(`${titel}\n\n${tekst}`)) actie();
+      return;
+    }
+    Alert.alert(titel, tekst, [
+      { text: 'Annuleren', style: 'cancel' },
+      { text: knop, style: 'destructive', onPress: actie },
+    ]);
+  };
+
+  const onUitloggen = () =>
+    bevestig('Uitloggen?', 'Je kunt altijd weer inloggen met je e-mailadres.', 'Uitloggen', () => {
+      uitloggen();
+    });
+
+  const onVerwijderen = () =>
+    bevestig(
+      'Account verwijderen?',
+      'Je account en al je gegevens worden definitief verwijderd. Dit kun je niet ongedaan maken.',
+      'Verwijderen',
+      async () => {
+        const fout = await verwijderAccount();
+        if (fout) showToast(fout);
+      },
+    );
 
   return (
     <Screen>
-      <ScreenHeader kicker="YOUR MOOV SPACE" titel="Profiel" puntKleur="#9FBC63" />
+      <ScreenHeader kicker="YOUR MOOOVE SPACE" titel="Profiel" puntKleur="#9FBC63" />
       <View style={styles.profileCard}>
         <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{DEMO_GEBRUIKER.initiaal}</Text>
+          <Text style={styles.avatarText}>{voornaam.charAt(0).toUpperCase()}</Text>
         </View>
         <View>
-          <Text style={styles.profileName}>{DEMO_GEBRUIKER.naam}</Text>
-          <Text style={styles.profileSub}>Moov member · {DEMO_STREAK} dagen actief</Text>
+          <Text style={styles.profileName}>{voornaam}</Text>
+          <Text style={styles.profileSub}>Mooove member · {lidSinds}</Text>
         </View>
       </View>
 
       <SectionTitleRow titel="Alarm-check" rechts="ALLES GEREED" />
       <View style={styles.setupCard}>
         <View style={styles.setupTop}>
-          <Text style={styles.setupTitle}>Ready to Moov.</Text>
+          <Text style={styles.setupTitle}>Ready to Mooove.</Text>
           <View style={styles.secureTag}>
             <Text style={styles.secureTagText}>✓ Veilig ingesteld</Text>
           </View>
@@ -65,7 +95,7 @@ export default function ProfielScherm() {
         />
       </View>
 
-      <Text style={styles.sectionHeading}>MEER MOOV</Text>
+      <Text style={styles.sectionHeading}>MEER MOOOVE</Text>
       <Pressable
         accessibilityRole="button"
         onPress={() => router.navigate('/coach')}
@@ -82,6 +112,23 @@ export default function ProfielScherm() {
           <Text style={styles.settingValue}>{s.waarde}</Text>
         </View>
       ))}
+
+      <Text style={styles.sectionHeading}>ACCOUNT</Text>
+      <View style={styles.setting}>
+        <Icon name="user" color={kleuren.ink} />
+        <Text style={styles.settingLabel}>E-mailadres</Text>
+        <Text style={styles.settingValue}>{user?.email}</Text>
+      </View>
+      <Pressable accessibilityRole="button" onPress={onUitloggen} style={styles.setting}>
+        <Icon name="arrow" color={kleuren.ink} />
+        <Text style={styles.settingLabel}>Uitloggen</Text>
+        <Text style={styles.settingValue}>→</Text>
+      </Pressable>
+      <Pressable accessibilityRole="button" onPress={onVerwijderen} style={styles.setting}>
+        <Icon name="close" color="#C2462F" />
+        <Text style={[styles.settingLabel, styles.gevaar]}>Account verwijderen</Text>
+        <Text style={styles.settingValue}>Definitief</Text>
+      </Pressable>
       <Text style={styles.disclaimer}>
         Deze demo gebruikt fictieve statistieken en simulaties. Er worden geen echte alarmen gepland
         of camerabeelden verwerkt.
@@ -96,7 +143,7 @@ export default function ProfielScherm() {
       >
         <StatusBar style="light" />
         <View style={styles.overlay}>
-          <Text style={styles.testLabel}>MOOV SYSTEM CHECK</Text>
+          <Text style={styles.testLabel}>MOOOVE SYSTEM CHECK</Text>
           <Text style={styles.testClock}>00:30</Text>
           <Text style={styles.testTitle}>Even testen.</Text>
           <Text style={styles.testText}>
@@ -190,6 +237,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   settingLabel: { fontFamily: fonts.body800, fontSize: 12, color: kleuren.ink },
+  gevaar: { color: '#C2462F' },
   settingValue: { fontFamily: fonts.body800, fontSize: 10, color: '#8B9A8A' },
   disclaimer: {
     fontFamily: fonts.body400,
@@ -235,3 +283,23 @@ const styles = StyleSheet.create({
   },
   testCta: { marginTop: 30 },
 });
+
+const MAANDEN = [
+  'januari',
+  'februari',
+  'maart',
+  'april',
+  'mei',
+  'juni',
+  'juli',
+  'augustus',
+  'september',
+  'oktober',
+  'november',
+  'december',
+];
+
+function lidSindsTekst(iso: string): string {
+  const d = new Date(iso);
+  return `lid sinds ${d.getDate()} ${MAANDEN[d.getMonth()]} ${d.getFullYear()}`;
+}

@@ -36,7 +36,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       {
         id: Date.now(),
         time,
-        name: 'Mijn Moov-missie',
+        name: 'Mijn Mooove-missie',
         days:
           gesorteerd.length === 7
             ? 'Elke dag'

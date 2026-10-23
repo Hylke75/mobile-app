@@ -1,4 +1,4 @@
-# Mooov
+# Mooove
 
 Mobiele app voor iOS en Android, gebouwd met Expo, Expo Router en Supabase.
 
@@ -19,6 +19,12 @@ npx expo start
 ```
 
 Controleren: `npm run lint` en `npm run typecheck`.
+
+## Supabase instellen (eenmalig)
+
+- **Inlogcode in de e-mail:** Supabase-dashboard → Authentication → Email Templates → _Magic Link_. Zet `{{ .Token }}` in de tekst, bijvoorbeeld: `<p>Je Mooove-code: <strong>{{ .Token }}</strong></p>`. Zonder `{{ .Token }}` krijgt de gebruiker een link in plaats van een code.
+- **Eigen SMTP:** de standaard-mailserver van Supabase verstuurt alleen naar leden van je organisatie en maar een paar mails per uur. Stel onder Authentication → SMTP Settings een eigen provider in (bijvoorbeeld Resend).
+- Migraties staan in `supabase/migrations/`, Edge Functions in `supabase/functions/`.
 
 ## Testen in Expo Go
 

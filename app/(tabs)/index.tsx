@@ -5,17 +5,21 @@ import Svg, { Circle } from 'react-native-svg';
 import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import { gedeeld, PrimaryButton, SectionTitleRow } from '@/components/ui';
-import { DEMO_GEBRUIKER, DEMO_STREAK, OCHTENDMISSIE } from '@/constants/demo';
+import { DEMO_STREAK, OCHTENDMISSIE } from '@/constants/demo';
 import { em, fonts, kleuren } from '@/constants/theme';
+import { useAuth } from '@/hooks/useAuth';
 import { datumKicker } from '@/lib/datum';
 
 export default function VandaagScherm() {
+  const { profiel } = useAuth();
+  const voornaam = profiel?.voornaam ?? '';
+
   return (
     <Screen>
       <View style={[gedeeld.rowBetween, styles.helloRow]}>
         <View>
           <Text style={[gedeeld.sectionKicker, styles.helloKicker]}>{datumKicker()}</Text>
-          <Text style={styles.helloName}>Hey {DEMO_GEBRUIKER.voornaam} ✌️</Text>
+          <Text style={styles.helloName}>Hey {voornaam} ✌️</Text>
         </View>
         <Pressable
           accessibilityRole="button"
@@ -23,7 +27,7 @@ export default function VandaagScherm() {
           onPress={() => router.navigate('/profiel')}
           style={styles.avatar}
         >
-          <Text style={styles.avatarText}>{DEMO_GEBRUIKER.initiaal}</Text>
+          <Text style={styles.avatarText}>{voornaam.charAt(0).toUpperCase()}</Text>
         </Pressable>
       </View>
 

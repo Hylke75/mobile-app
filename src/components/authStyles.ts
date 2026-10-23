@@ -1,0 +1,63 @@
+import { StyleSheet } from 'react-native';
+
+import { em, fonts, kleuren } from '@/constants/theme';
+
+export const authStyles = StyleSheet.create({
+  kicker: {
+    fontFamily: fonts.body800,
+    fontSize: 11,
+    letterSpacing: em(0.12, 11),
+    color: kleuren.lime,
+  },
+  titel: {
+    fontFamily: fonts.head700,
+    fontSize: 48,
+    lineHeight: 47,
+    letterSpacing: em(-0.07, 48),
+    color: kleuren.white,
+    marginTop: 18,
+    marginBottom: 12,
+  },
+  accent: { color: kleuren.lime },
+  tekst: {
+    fontFamily: fonts.body400,
+    fontSize: 14,
+    lineHeight: 22,
+    color: '#B2C2B0',
+    marginBottom: 28,
+  },
+  label: {
+    fontFamily: fonts.body800,
+    fontSize: 10,
+    letterSpacing: em(0.14, 10),
+    color: '#9CB09C',
+    marginBottom: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#415C42',
+    backgroundColor: '#283B2D',
+    borderRadius: 15,
+    minHeight: 51,
+    paddingHorizontal: 18,
+    fontFamily: fonts.body600,
+    fontSize: 16,
+    color: kleuren.white,
+  },
+  codeInput: {
+    fontFamily: fonts.head700,
+    fontSize: 34,
+    letterSpacing: em(0.2, 34),
+    textAlign: 'center',
+    minHeight: 72,
+  },
+  fout: { fontFamily: fonts.body600, fontSize: 12, color: kleuren.coral, marginTop: 10 },
+  knop: { marginTop: 18 },
+  link: { alignSelf: 'center', marginTop: 18, padding: 4 },
+  linkTekst: {
+    fontFamily: fonts.body400,
+    fontSize: 12,
+    color: '#819181',
+    textDecorationLine: 'underline',
+  },
+});
