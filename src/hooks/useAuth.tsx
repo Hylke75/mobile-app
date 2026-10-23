@@ -13,6 +13,7 @@ type AuthContextWaarde = {
   profiel: Profiel | null;
   vraagCodeAan: (email: string) => Promise<string | null>;
   controleerCode: (email: string, code: string) => Promise<string | null>;
+  loginMetWachtwoord: (email: string, wachtwoord: string) => Promise<string | null>;
   slaVoornaamOp: (voornaam: string) => Promise<string | null>;
   werkProfielBij: (
     wijziging: Partial<Pick<Profiel, 'voornaam' | 'weekdoel' | 'alarmtest_geslaagd_op'>>,
@@ -66,6 +67,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [laadProfiel],
   );
 
+  // Alleen bedoeld voor het reviewer-account van Apple en Google
+  const loginMetWachtwoord = useCallback(
+    async (email: string, wachtwoord: string) => {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password: wachtwoord,
+      });
+      if (error || !data.session) return 'E-mailadres of wachtwoord klopt niet.';
+      await laadProfiel(data.session.user.id);
+      return null;
+    },
+    [laadProfiel],
+  );
+
   const werkProfielBij = useCallback(
     async (
       wijziging: Partial<Pick<Profiel, 'voornaam' | 'weekdoel' | 'alarmtest_geslaagd_op'>>,
@@ -111,6 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         profiel,
         vraagCodeAan,
         controleerCode,
+        loginMetWachtwoord,
         slaVoornaamOp,
         werkProfielBij,
         uitloggen,

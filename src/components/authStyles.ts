@@ -33,6 +33,7 @@ export const authStyles = StyleSheet.create({
     color: '#9CB09C',
     marginBottom: 8,
   },
+  labelExtra: { marginTop: 16 },
   input: {
     borderWidth: 1,
     borderColor: '#415C42',

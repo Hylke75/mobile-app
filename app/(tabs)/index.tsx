@@ -12,6 +12,7 @@ import { useAlarmCheck } from '@/hooks/useAlarmCheck';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useAuth } from '@/hooks/useAuth';
 import { useSessies } from '@/hooks/useSessies';
+import { alarmenBeschikbaar } from '@/lib/alarmen';
 import { datumKicker } from '@/lib/datum';
 import { dagSleutel, startVanDag, volgendAlarm } from '@/lib/tijd';
 import type { Oefening } from '@/types/app';
@@ -199,21 +200,23 @@ export default function VandaagScherm() {
         }
         style={styles.homeStart}
       />
-      <Pressable onPress={() => router.navigate('/profiel')} style={styles.insight}>
-        <Icon name="shield" size={17} color={allesInOrde ? '#679E5E' : '#C2462F'} />
-        <Text style={styles.insightText}>
-          {allesInOrde ? (
-            <>
-              <Text style={styles.insightStrong}>Ready to go.</Text> Je alarm-check is in orde.
-            </>
-          ) : (
-            <>
-              <Text style={styles.insightStrong}>Let op.</Text> Rond je alarm-check af in je
-              profiel.
-            </>
-          )}
-        </Text>
-      </Pressable>
+      {alarmenBeschikbaar && (
+        <Pressable onPress={() => router.navigate('/profiel')} style={styles.insight}>
+          <Icon name="shield" size={17} color={allesInOrde ? '#679E5E' : '#C2462F'} />
+          <Text style={styles.insightText}>
+            {allesInOrde ? (
+              <>
+                <Text style={styles.insightStrong}>Ready to go.</Text> Je alarm-check is in orde.
+              </>
+            ) : (
+              <>
+                <Text style={styles.insightStrong}>Let op.</Text> Rond je alarm-check af in je
+                profiel.
+              </>
+            )}
+          </Text>
+        </Pressable>
+      )}
     </Screen>
   );
 }
