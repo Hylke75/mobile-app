@@ -4,6 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Mooov',
   slug: 'mobile-app',
+  owner: 'link-and-lead',
   scheme: 'mooov',
   version: '1.0.0',
   orientation: 'portrait',
@@ -41,6 +42,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
   ],
+  extra: {
+    eas: {
+      projectId: '46bc55fa-0937-4b34-889d-e9b5e62afff8',
+    },
+  },
   experiments: {
     typedRoutes: true,
   },
