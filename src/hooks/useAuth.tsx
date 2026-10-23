@@ -1,6 +1,8 @@
 import type { Session, User } from '@supabase/supabase-js';
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 
+import { annuleerAlles } from '@/lib/alarmen';
+import { leesLokaal, schrijfLokaal, SLEUTELS, wisLokaal } from '@/lib/opslag';
 import { supabase } from '@/lib/supabase';
 import type { Profiel } from '@/types/database';
 
@@ -30,8 +32,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [laden, setLaden] = useState(true);
 
   const laadProfiel = useCallback(async (userId: string) => {
-    const { data } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle();
+    if (error) {
+      // Offline: val terug op het laatst bekende profiel van deze gebruiker
+      const lokaal = await leesLokaal<Profiel>(SLEUTELS.profiel);
+      if (lokaal?.id === userId) setProfiel(lokaal);
+      return;
+    }
     setProfiel(data);
+    await schrijfLokaal(SLEUTELS.profiel, data);
   }, []);
 
   useEffect(() => {
@@ -94,6 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .single();
       if (error) return 'Opslaan is niet gelukt. Probeer het opnieuw.';
       setProfiel(data);
+      await schrijfLokaal(SLEUTELS.profiel, data);
       return null;
     },
     [session],
@@ -105,12 +119,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const uitloggen = useCallback(async () => {
+    await annuleerAlles().catch(() => {});
+    await wisLokaal();
     await supabase.auth.signOut();
   }, []);
 
   const verwijderAccount = useCallback(async () => {
     const { error } = await supabase.functions.invoke('delete-account', { method: 'POST' });
     if (error) return 'Verwijderen is niet gelukt. Probeer het later opnieuw.';
+    await annuleerAlles().catch(() => {});
+    await wisLokaal();
     await supabase.auth.signOut({ scope: 'local' });
     return null;
   }, []);

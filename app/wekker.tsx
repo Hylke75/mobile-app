@@ -1,7 +1,7 @@
-import { router, useLocalSearchParams } from 'expo-router';
+import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { BackHandler, StyleSheet, Text, View } from 'react-native';
 
 import { Screen } from '@/components/Screen';
 import { LevelTag, PrimaryButton, SecondaryButton } from '@/components/ui';
@@ -9,8 +9,10 @@ import { dagenTekst, MAX_SNOOZES, missiesTekst, SNOOZE_MINUTEN } from '@/constan
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useAuth } from '@/hooks/useAuth';
+import { useStartDoel } from '@/hooks/useStartDoel';
 import { useToast } from '@/hooks/useToast';
 import {
+  contextVoor,
   rondWekkerAf,
   startMissieVanuitWekker,
   stelUit,
@@ -18,6 +20,7 @@ import {
   type Wekker,
   type WekkerType,
 } from '@/lib/alarmen';
+import { actieveMissie } from '@/lib/missieStatus';
 
 function tijdNu(): string {
   const d = new Date();
@@ -31,27 +34,51 @@ export default function WekkerScherm() {
     type?: WekkerType;
     snoozes?: string;
     missieBezig?: string;
+    niveau?: string;
+    naam?: string;
+    oefeningen?: string;
   }>();
-  const { alarms } = useAlarmen();
+  const { alarms, herplan } = useAlarmen();
   const { werkProfielBij } = useAuth();
   const { showToast } = useToast();
   const [tijd, setTijd] = useState(tijdNu);
   const [bezig, setBezig] = useState(false);
+
+  const [native, setNative] = useState<Wekker | null>(null);
+  const startDoel = useStartDoel();
 
   useEffect(() => {
     const t = setInterval(() => setTijd(tijdNu()), 10000);
     return () => clearInterval(t);
   }, []);
 
+  // Het alarm loopt door tot de gebruiker een keuze maakt; terug mag niet
+  useEffect(() => {
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => true);
+    return () => sub.remove();
+  }, []);
+
+  useEffect(() => {
+    if (!params.alarmId) return;
+    contextVoor(params.alarmId)
+      .then(setNative)
+      .catch(() => {});
+  }, [params.alarmId, params.occurrenceId]);
+
+  const alarm = alarms.find((a) => a.id === params.alarmId);
   const wekker: Wekker = {
     alarmId: params.alarmId,
-    occurrenceId: params.occurrenceId || undefined,
-    type: params.type ?? 'alarm',
-    snoozes: Number(params.snoozes ?? 0),
-    missieBezig: params.missieBezig === '1',
-    doorSysteemGestopt: false,
+    occurrenceId: params.occurrenceId || native?.occurrenceId,
+    type: params.type ?? native?.type ?? 'alarm',
+    snoozes: Number(params.snoozes || native?.snoozes || 0),
+    missieBezig: params.missieBezig === '1' || Boolean(native?.missieBezig),
+    niveau: alarm?.niveau ?? ((params.niveau || native?.niveau) as Wekker['niveau']),
+    naam: alarm?.naam ?? (params.naam || native?.naam),
+    oefeningen:
+      alarm?.oefeningen ??
+      ((params.oefeningen ? params.oefeningen.split(',') : native?.oefeningen) as
+        Wekker['oefeningen'] | undefined),
   };
-  const alarm = alarms.find((a) => a.id === wekker.alarmId);
 
   const voerUit = async (actie: () => Promise<void>) => {
     if (bezig) return;
@@ -68,12 +95,19 @@ export default function WekkerScherm() {
   const startMissie = () =>
     voerUit(async () => {
       const vervolgId = await startMissieVanuitWekker(wekker);
+      // Loopt de missie voor dit alarm al, dan gaan we daar gewoon mee verder
+      if (actieveMissie()?.alarmId === wekker.alarmId) {
+        router.back();
+        return;
+      }
       router.replace({
         pathname: '/missie',
         params: {
           alarmId: wekker.alarmId,
           vervolgId: vervolgId ?? '',
           vanWekker: '1',
+          niveau: wekker.niveau ?? '',
+          oefeningen: wekker.oefeningen?.join(',') ?? '',
         },
       });
     });
@@ -88,8 +122,11 @@ export default function WekkerScherm() {
   const stop = () =>
     voerUit(async () => {
       await rondWekkerAf(wekker.alarmId, wekker.occurrenceId);
+      herplan();
       router.dismissTo('/');
     });
+
+  if (!params.alarmId) return <Redirect href={startDoel ?? '/'} />;
 
   if (wekker.type === 'test') {
     return (
@@ -136,23 +173,25 @@ export default function WekkerScherm() {
     );
   }
 
-  const niveau = alarm?.niveau ?? 'Verplicht';
+  // Zonder bekend niveau gedragen we ons streng: liever een missie te veel dan een gemist alarm
+  const niveau = wekker.niveau ?? 'Verplicht';
   const snoozesOver = MAX_SNOOZES - wekker.snoozes;
 
   return (
     <WekkerLayout
       tijd={tijd}
       kicker={wekker.missieBezig ? 'JE MISSIE IS NOG NIET KLAAR' : 'WAKE UP & MOVE'}
-      titel={alarm?.naam ?? 'Tijd om te bewegen.'}
+      titel={wekker.naam ?? 'Tijd om te bewegen.'}
     >
-      {alarm && (
-        <View style={styles.info}>
-          <LevelTag level={niveau} />
+      <View style={styles.info}>
+        <LevelTag level={niveau} />
+        {(alarm || wekker.oefeningen) && (
           <Text style={styles.infoTekst}>
-            {dagenTekst(alarm.dagen)} · {missiesTekst(alarm.oefeningen.length)}
+            {alarm ? `${dagenTekst(alarm.dagen)} · ` : ''}
+            {missiesTekst((alarm?.oefeningen ?? wekker.oefeningen ?? []).length)}
           </Text>
-        </View>
-      )}
+        )}
+      </View>
       <PrimaryButton
         label={wekker.missieBezig ? 'Ga verder met je missie' : 'Start missie'}
         onPress={startMissie}

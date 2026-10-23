@@ -91,13 +91,26 @@ export function StapDetector(props: StapDetectorProps) {
   return <FotoStap {...props} />;
 }
 
+function useLaatste<T>(waarde: T) {
+  const ref = useRef(waarde);
+  useEffect(() => {
+    ref.current = waarde;
+  });
+  return ref;
+}
+
 function PoseStap({ oefening, onVoortgang, onFeedback, onKlaar }: StapDetectorProps) {
   const info = OEFENING_INFO[oefening];
   const runner = useAsyncRunner();
   const [gestart, setGestart] = useState(false);
   const isIos = Platform.OS === 'ios';
+  // Callbacks via refs: een nieuwe callback (bijv. spraak aan/uit) mag de sessie niet herstarten
+  const voortgang = useLaatste(onVoortgang);
+  const feedback = useLaatste(onFeedback);
+  const klaar = useLaatste(onKlaar);
 
   useEffect(() => {
+    const stap = OEFENING_INFO[oefening];
     let interval: ReturnType<typeof setInterval> | undefined;
     let actief = true;
 
@@ -105,20 +118,20 @@ function PoseStap({ oefening, onVoortgang, onFeedback, onKlaar }: StapDetectorPr
       await nitroPoseExercises.initialize('');
       if (!actief) return;
       nitroPoseExercises.loadExercise(poseConfig(oefening));
-      nitroPoseExercises.onRepComplete = (data) => onVoortgang(data.repNumber);
-      nitroPoseExercises.onHoldProgress = (p) => onVoortgang(Math.floor(p.elapsedMs / 1000));
-      nitroPoseExercises.onSessionComplete = () => onKlaar('camera');
-      nitroPoseExercises.onPostureLost = () => onFeedback('Ga weer in positie.');
-      nitroPoseExercises.onPostureRegained = () => onFeedback('Top, ga door!');
+      nitroPoseExercises.onRepComplete = (data) => voortgang.current(data.repNumber);
+      nitroPoseExercises.onHoldProgress = (p) => voortgang.current(Math.floor(p.elapsedMs / 1000));
+      nitroPoseExercises.onSessionComplete = () => klaar.current('camera');
+      nitroPoseExercises.onPostureLost = () => feedback.current('Ga weer in positie.');
+      nitroPoseExercises.onPostureRegained = () => feedback.current('Top, ga door!');
       nitroPoseExercises.onPoseLost = () =>
-        onFeedback('Ik zie je niet goed. Zorg dat je helemaal in beeld bent.');
-      onFeedback(info.instructie);
+        feedback.current('Ik zie je niet goed. Zorg dat je helemaal in beeld bent.');
+      feedback.current(stap.instructie);
       interval = setInterval(() => {
         if (nitroPoseExercises.isReady()) {
           clearInterval(interval);
-          nitroPoseExercises.startSession(info.eenheid === 'seconden' ? 1 : info.doel, 3);
+          nitroPoseExercises.startSession(stap.eenheid === 'seconden' ? 1 : stap.doel, 3);
           setGestart(true);
-          onFeedback(info.spraak[0] ?? 'Daar gaan we!');
+          feedback.current(stap.spraak[0] ?? 'Daar gaan we!');
         }
       }, 300);
     })();
@@ -133,9 +146,10 @@ function PoseStap({ oefening, onVoortgang, onFeedback, onKlaar }: StapDetectorPr
       nitroPoseExercises.onPostureRegained = undefined;
       nitroPoseExercises.onPoseLost = undefined;
       nitroPoseExercises.stopSession();
-      nitroPoseExercises.release();
+      // Even wachten zodat een frame dat nog wordt verwerkt eerst klaar is
+      setTimeout(() => nitroPoseExercises.release(), 500);
     };
-  }, [oefening, info, onVoortgang, onFeedback, onKlaar]);
+  }, [oefening, voortgang, feedback, klaar]);
 
   const frameOutput = useFrameOutput({
     pixelFormat: 'rgb',
@@ -167,39 +181,55 @@ function PoseStap({ oefening, onVoortgang, onFeedback, onKlaar }: StapDetectorPr
   );
 }
 
-const LICHT_STAPPEN_NODIG = 5;
+const LICHT_STAPPEN_NODIG = 2;
+const LICHT_OPWARMEN_MS = 1500;
+const LICHT_TERUGVAL_MS = 45000;
 
 function LichtStap({ onFeedback, onKlaar }: StapDetectorProps) {
   const basis = useRef<number[]>([]);
   const lichtTeller = useRef(0);
-  const klaar = useRef(false);
+  const afgerond = useRef(false);
   const laatsteMeting = useRef(0);
+  const start = useRef(0);
   const [helderheid, setHelderheid] = useState<number | null>(null);
+  const [terugval, setTerugval] = useState(false);
+  const feedback = useLaatste(onFeedback);
+  const klaar = useLaatste(onKlaar);
 
   useEffect(() => {
-    onFeedback(OEFENING_INFO['Gordijnen open'].instructie);
-  }, [onFeedback]);
+    start.current = Date.now();
+    feedback.current(OEFENING_INFO['Gordijnen open'].instructie);
+    const t = setTimeout(() => {
+      if (!afgerond.current) {
+        setTerugval(true);
+        feedback.current('Lukt de lichtmeting niet? Maak dan een foto van je open gordijnen.');
+      }
+    }, LICHT_TERUGVAL_MS);
+    return () => clearTimeout(t);
+  }, [feedback]);
 
   const verwerk = useCallback(
     (waarde: number) => {
       const nu = Date.now();
-      if (klaar.current || nu - laatsteMeting.current < 200) return;
+      // De automatische belichting moet eerst tot rust komen
+      if (afgerond.current || nu - start.current < LICHT_OPWARMEN_MS) return;
+      if (nu - laatsteMeting.current < 200) return;
       laatsteMeting.current = nu;
       setHelderheid(waarde);
-      if (basis.current.length < 10) {
+      if (basis.current.length < 8) {
         basis.current.push(waarde);
         return;
       }
-      const start = basis.current.reduce((a, b) => a + b, 0) / basis.current.length;
-      const genoeg = waarde >= start + 35 && waarde >= start * 1.35;
+      const gemiddeld = basis.current.reduce((a, b) => a + b, 0) / basis.current.length;
+      const genoeg = waarde >= gemiddeld + 30 && waarde >= gemiddeld * 1.3;
       lichtTeller.current = genoeg ? lichtTeller.current + 1 : 0;
       if (lichtTeller.current >= LICHT_STAPPEN_NODIG) {
-        klaar.current = true;
-        onFeedback('Daglicht gedetecteerd. Goedemorgen!');
-        onKlaar('licht');
+        afgerond.current = true;
+        feedback.current('Daglicht gedetecteerd. Goedemorgen!');
+        klaar.current('licht');
       }
     },
-    [onFeedback, onKlaar],
+    [feedback, klaar],
   );
 
   const frameOutput = useFrameOutput({
@@ -225,6 +255,20 @@ function LichtStap({ onFeedback, onKlaar }: StapDetectorProps) {
     },
   });
 
+  if (terugval) {
+    return (
+      <FotoStap
+        oefening="Gordijnen open"
+        onVoortgang={() => {}}
+        onFeedback={() => {}}
+        onKlaar={() => {
+          afgerond.current = true;
+          klaar.current('foto');
+        }}
+      />
+    );
+  }
+
   return (
     <CameraFrame label="LICHTMETING">
       <Camera
@@ -243,14 +287,16 @@ function LichtStap({ onFeedback, onKlaar }: StapDetectorProps) {
   );
 }
 
-function FotoStap({ onFeedback, onKlaar }: StapDetectorProps) {
+function FotoStap({ oefening, onFeedback, onKlaar }: StapDetectorProps) {
   const photoOutput = usePhotoOutput({ qualityPrioritization: 'speed' });
   const [bezig, setBezig] = useState(false);
   const [gemaakt, setGemaakt] = useState(false);
+  const feedback = useLaatste(onFeedback);
+  const klaar = useLaatste(onKlaar);
 
   useEffect(() => {
-    onFeedback(OEFENING_INFO['Bed opmaken'].instructie);
-  }, [onFeedback]);
+    if (oefening === 'Bed opmaken') feedback.current(OEFENING_INFO['Bed opmaken'].instructie);
+  }, [oefening, feedback]);
 
   const maakFoto = async () => {
     setBezig(true);
@@ -259,10 +305,10 @@ function FotoStap({ onFeedback, onKlaar }: StapDetectorProps) {
       const foto = await photoOutput.capturePhoto({ flashMode: 'off' }, {});
       foto.dispose();
       setGemaakt(true);
-      onFeedback('Netjes! Je bed is opgemaakt.');
-      onKlaar('foto');
+      feedback.current(oefening === 'Bed opmaken' ? 'Netjes! Je bed is opgemaakt.' : 'Top!');
+      klaar.current('foto');
     } catch {
-      onFeedback('De foto lukte niet. Probeer het nog eens.');
+      feedback.current('De foto lukte niet. Probeer het nog eens.');
     } finally {
       setBezig(false);
     }

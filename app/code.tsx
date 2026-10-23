@@ -25,6 +25,7 @@ export default function CodeScherm() {
     const resultaat = await controleerCode(email, code);
     setBezig(false);
     if (resultaat) setFout(resultaat);
+    else router.replace('/');
   };
 
   const opnieuw = async () => {

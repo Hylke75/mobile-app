@@ -33,7 +33,7 @@ export const OEFENINGEN: Oefening[] = [
 
 export const MAX_SNOOZES = 3;
 export const SNOOZE_MINUTEN = 9;
-export const MISSIE_TIMEOUT_MINUTEN = 5;
+export const MISSIE_TIMEOUT_MINUTEN = 10;
 export const WAKKERCHECK_MINUTEN = 5;
 
 export function dagenTekst(dagen: number[]): string {

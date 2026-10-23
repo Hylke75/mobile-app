@@ -1,7 +1,7 @@
 // Op web bestaan geen native alarmen; alle functies zijn hier no-ops.
 import type { AlarmPermissionResponse } from 'react-native-alarm-scheduler';
 
-import type { Alarm } from '@/types/app';
+import type { Alarm, Niveau, Oefening } from '@/types/app';
 
 export const alarmenBeschikbaar = false;
 
@@ -13,7 +13,9 @@ export type Wekker = {
   type: WekkerType;
   snoozes: number;
   missieBezig: boolean;
-  doorSysteemGestopt: boolean;
+  niveau?: Niveau;
+  naam?: string;
+  oefeningen?: Oefening[];
 };
 
 const geenRechten: AlarmPermissionResponse = {
@@ -33,12 +35,16 @@ export async function vraagRechtenAan(): Promise<AlarmPermissionResponse> {
 }
 export async function openAlarmInstellingen(): Promise<void> {}
 export async function synchroniseer(_alarms: Alarm[]): Promise<void> {}
+export async function annuleerAlles(): Promise<void> {}
 export async function annuleerAlarm(_id: string): Promise<void> {}
 export async function planTestAlarm(_seconden: number): Promise<string> {
   throw new Error('Alarmen zijn niet beschikbaar op web.');
 }
 export async function planWakkerCheck(_alarmId: string): Promise<void> {}
 export async function huidigeWekker(): Promise<Wekker | null> {
+  return null;
+}
+export async function contextVoor(_alarmId: string): Promise<Wekker | null> {
   return null;
 }
 export function luisterNaarAlarmen(_callback: () => void): () => void {

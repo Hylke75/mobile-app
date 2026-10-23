@@ -27,6 +27,7 @@ export default function InloggenScherm() {
       const resultaat = await loginMetWachtwoord(adres, wachtwoord);
       setBezig(false);
       if (resultaat) setFout(resultaat);
+      else router.replace('/');
       return;
     }
     const resultaat = await vraagCodeAan(adres);
@@ -43,7 +44,7 @@ export default function InloggenScherm() {
         Wake up{'\n'}& <Text style={s.accent}>move.</Text>
       </Text>
       <Text style={s.tekst}>
-        Log in met je e-mailadres. Je krijgt een code, geen wachtwoord nodig.
+        Log in met je e-mailadres. Je krijgt een eenmalige code per e-mail.
       </Text>
       <Text style={s.label}>E-MAILADRES</Text>
       <TextInput
@@ -92,7 +93,7 @@ export default function InloggenScherm() {
         style={s.link}
       >
         <Text style={s.linkTekst}>
-          {metWachtwoord ? 'Inloggen met een code' : 'Inloggen met wachtwoord'}
+          {metWachtwoord ? 'Inloggen met een code' : 'Testaccount? Inloggen met wachtwoord'}
         </Text>
       </Pressable>
     </AuthScreen>

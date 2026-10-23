@@ -6,8 +6,8 @@ import AlarmScheduler, {
   type AlarmWeekday,
 } from 'react-native-alarm-scheduler';
 
-import { isStreng, MISSIE_TIMEOUT_MINUTEN, WAKKERCHECK_MINUTEN } from '@/constants/alarm';
-import type { Alarm } from '@/types/app';
+import { MISSIE_TIMEOUT_MINUTEN, WAKKERCHECK_MINUTEN } from '@/constants/alarm';
+import type { Alarm, Niveau, Oefening } from '@/types/app';
 
 export const alarmenBeschikbaar = true;
 
@@ -19,20 +19,24 @@ export type Wekker = {
   type: WekkerType;
   snoozes: number;
   missieBezig: boolean;
-  doorSysteemGestopt: boolean;
+  niveau?: Niveau;
+  naam?: string;
+  oefeningen?: Oefening[];
 };
 
-const LAUNCH_URI = 'mooove://wekker?alarmId={alarmId}';
+// Opent alleen de app; useWekkerRouting leest daarna de native context en navigeert zelf
+const LAUNCH_URI = 'mooove://';
+const HANDOFF_GELDIG_MS = 15 * 60 * 1000;
 
 function basisOpties(
   titel: string,
   metadata: AlarmMetadata,
-  streng: boolean,
+  afgeschermd: boolean,
 ): Pick<AlarmScheduleInput, 'ios' | 'android'> {
-  if (!streng) {
+  if (!afgeschermd) {
     return {
       ios: {
-        metadata,
+        metadata: { ...metadata, afgeschermd: false },
         alertTitle: titel,
         alertActionMode: 'default',
         stopButtonTitle: 'Stop',
@@ -49,7 +53,7 @@ function basisOpties(
   }
   return {
     ios: {
-      metadata,
+      metadata: { ...metadata, afgeschermd: true },
       alertTitle: titel,
       alertActionMode: 'openAppOnly',
       secondaryButtonTitle: 'Start missie',
@@ -64,10 +68,19 @@ function basisOpties(
   };
 }
 
-function alarmInput(alarm: Alarm, versie: string): AlarmScheduleInput {
+function versieVan(alarm: Alarm): string {
+  return [
+    alarm.tijd,
+    alarm.dagen.join(''),
+    alarm.niveau,
+    alarm.naam,
+    alarm.oefeningen.join(','),
+  ].join('|');
+}
+
+function alarmInput(alarm: Alarm): AlarmScheduleInput {
   const [uur, minuut] = alarm.tijd.split(':').map(Number);
   // Alleen "Vrij" heeft een stopknop; alle andere niveaus openen de app voor snooze of missie
-  const streng = alarm.niveau !== 'Vrij';
   return {
     id: alarm.id,
     hour: uur ?? 7,
@@ -76,8 +89,14 @@ function alarmInput(alarm: Alarm, versie: string): AlarmScheduleInput {
     weekdays: alarm.dagen.map((d) => (d + 1) as AlarmWeekday),
     ...basisOpties(
       alarm.naam,
-      { type: 'alarm', niveau: alarm.niveau, versie, streng: isStreng(alarm.niveau) },
-      streng,
+      {
+        type: 'alarm',
+        niveau: alarm.niveau,
+        naam: alarm.naam,
+        oefeningen: alarm.oefeningen.join(','),
+        versie: versieVan(alarm),
+      },
+      alarm.niveau !== 'Vrij',
     ),
   };
 }
@@ -99,34 +118,46 @@ export async function openAlarmInstellingen(): Promise<void> {
   }
 }
 
-function versieVan(alarm: Alarm): string {
-  return [alarm.tijd, alarm.dagen.join(''), alarm.niveau, alarm.naam].join('|');
+let wachtrij: Promise<void> = Promise.resolve();
+
+// Brengt de native alarmen in lijn met de alarmen uit de database; runs lopen na elkaar
+export function synchroniseer(alarms: Alarm[]): Promise<void> {
+  const run = wachtrij.then(async () => {
+    const rechten = await AlarmScheduler.getPermissionsAsync();
+    if (!rechten.canScheduleExactAlarms) return;
+
+    const gewenst = new Map(alarms.filter((a) => a.aan).map((a) => [a.id, a]));
+    for (const native of await AlarmScheduler.getScheduledAlarmsAsync()) {
+      if (native.metadata?.type !== 'alarm') continue;
+      const alarm = gewenst.get(native.id);
+      if (!alarm || native.metadata?.versie !== versieVan(alarm)) {
+        await AlarmScheduler.cancelAlarmAsync(native.id);
+      }
+    }
+
+    const nogGepland = new Set(
+      (await AlarmScheduler.getScheduledAlarmsAsync()).map((native) => native.id),
+    );
+    for (const alarm of gewenst.values()) {
+      if (!nogGepland.has(alarm.id)) await AlarmScheduler.scheduleAlarmAsync(alarmInput(alarm));
+    }
+  });
+  wachtrij = run.catch(() => {});
+  return run;
 }
 
-// Brengt de native alarmen in lijn met de alarmen uit de database
-export async function synchroniseer(alarms: Alarm[]): Promise<void> {
-  const rechten = await AlarmScheduler.getPermissionsAsync();
-  if (!rechten.canScheduleExactAlarms) return;
-
-  const gepland = await AlarmScheduler.getScheduledAlarmsAsync();
-  const gewenst = new Map(alarms.filter((a) => a.aan).map((a) => [a.id, a]));
-
-  for (const native of gepland) {
-    if (native.metadata?.type !== 'alarm') continue;
-    const alarm = gewenst.get(native.id);
-    if (!alarm || native.metadata?.versie !== versieVan(alarm)) {
-      await AlarmScheduler.cancelAlarmAsync(native.id);
-    }
+// Bij uitloggen of account verwijderen: niets mag nog afgaan op dit toestel
+export async function annuleerAlles(): Promise<void> {
+  await wachtrij;
+  const gepland = await AlarmScheduler.getScheduledAlarmsAsync().catch(() => []);
+  const context = await AlarmScheduler.getCurrentAlarmContextAsync().catch(() => null);
+  const ids = new Set([...gepland.map((a) => a.id), ...(context ? [context.id] : [])]);
+  for (const id of ids) {
+    await AlarmScheduler.completeNativeAlarmAsync(id).catch(() => {});
+    await AlarmScheduler.cancelAlarmAsync(id).catch(() => false);
   }
-
-  const nogGepland = new Set(
-    (await AlarmScheduler.getScheduledAlarmsAsync()).map((native) => native.id),
-  );
-  for (const alarm of gewenst.values()) {
-    if (!nogGepland.has(alarm.id)) {
-      await AlarmScheduler.scheduleAlarmAsync(alarmInput(alarm, versieVan(alarm)));
-    }
-  }
+  await AlarmScheduler.clearPendingNativeAlarmHandoffAsync().catch(() => {});
+  await AlarmScheduler.clearPendingAlarmActionsAsync().catch(() => {});
 }
 
 export async function annuleerAlarm(id: string): Promise<void> {
@@ -135,8 +166,7 @@ export async function annuleerAlarm(id: string): Promise<void> {
 
 export async function planTestAlarm(seconden: number): Promise<string> {
   const id = Crypto.randomUUID();
-  const nu = new Date();
-  const op = new Date(nu.getTime() + seconden * 1000);
+  const op = new Date(Date.now() + seconden * 1000);
   await AlarmScheduler.scheduleAlarmAsync({
     id,
     hour: op.getHours(),
@@ -164,40 +194,50 @@ function leesWekker(
   alarmId: string,
   occurrenceId: string | undefined,
   metadata: AlarmMetadata | undefined,
-  doorSysteemGestopt: boolean,
 ): Wekker {
-  const type = (metadata?.type as WekkerType | undefined) ?? 'alarm';
+  const oefeningen = metadata?.oefeningen ? String(metadata.oefeningen).split(',') : undefined;
   return {
     alarmId,
     occurrenceId,
-    type,
+    type: (metadata?.type as WekkerType | undefined) ?? 'alarm',
     snoozes: Number(metadata?.snoozes ?? 0),
     missieBezig: metadata?.missie === 'bezig',
-    doorSysteemGestopt,
+    niveau: metadata?.niveau ? (String(metadata.niveau) as Niveau) : undefined,
+    naam: metadata?.naam ? String(metadata.naam) : undefined,
+    oefeningen: oefeningen as Oefening[] | undefined,
   };
 }
 
-// Leest of de app geopend is door een afgaand alarm
+function inMs(tijd: number): number {
+  return tijd < 1e12 ? tijd * 1000 : tijd;
+}
+
+// Leest of er nu een alarm afgaat (of net de app heeft geopend) dat aandacht nodig heeft
 export async function huidigeWekker(): Promise<Wekker | null> {
   const handoff = await AlarmScheduler.getPendingNativeAlarmHandoffAsync();
   const context = await AlarmScheduler.getCurrentAlarmContextAsync();
   await AlarmScheduler.clearPendingNativeAlarmHandoffAsync();
 
-  if (context && (context.state === 'alerting' || handoff)) {
-    if (handoff?.action === 'nativeStop' && context.metadata?.streng !== false) {
-      await AlarmScheduler.scheduleNativeAlarmBackupAsync(context.id, 0.1);
+  const handoffRecent = handoff ? Date.now() - inMs(handoff.timestamp) < HANDOFF_GELDIG_MS : false;
+  const hoortBijContext = Boolean(handoff && context && handoff.alarmId === context.id);
+
+  if (context?.state === 'alerting' || (handoffRecent && hoortBijContext)) {
+    const afgeschermd = context!.metadata?.afgeschermd !== false;
+    if (handoff?.action === 'nativeStop') {
+      // Bij een alarm met stopknop is "stop" gewoon stoppen; bij een afgeschermd alarm niet
+      if (!afgeschermd) return null;
+      await AlarmScheduler.scheduleNativeAlarmBackupAsync(context!.id, 0.1);
     }
-    return leesWekker(
-      context.id,
-      context.occurrenceId,
-      context.metadata,
-      handoff?.action === 'nativeStop',
-    );
-  }
-  if (handoff && handoff.action !== 'nativeStop') {
-    return leesWekker(handoff.alarmId, undefined, undefined, false);
+    return leesWekker(context!.id, context!.occurrenceId, context!.metadata);
   }
   return null;
+}
+
+// Haalt bij een geopend wekker-scherm de actuele occurrence en metadata op
+export async function contextVoor(alarmId: string): Promise<Wekker | null> {
+  const context = await AlarmScheduler.getCurrentAlarmContextAsync();
+  if (!context || context.id !== alarmId) return null;
+  return leesWekker(context.id, context.occurrenceId, context.metadata);
 }
 
 export function luisterNaarAlarmen(callback: () => void): () => void {
@@ -211,25 +251,28 @@ export function luisterNaarAlarmen(callback: () => void): () => void {
   };
 }
 
-// Stelt het alarm uit; het gaat na het opgegeven aantal minuten opnieuw af
+// Stelt het afgaande alarm uit; het gaat na het opgegeven aantal minuten opnieuw af
 export async function stelUit(
   wekker: Wekker,
   minuten: number,
   extra: AlarmMetadata = {},
 ): Promise<string | undefined> {
-  if (!wekker.occurrenceId) {
-    await AlarmScheduler.completeNativeAlarmAsync(wekker.alarmId);
+  let occurrenceId = wekker.occurrenceId;
+  if (!occurrenceId) occurrenceId = (await contextVoor(wekker.alarmId))?.occurrenceId;
+  if (!occurrenceId) {
+    // Zonder occurrence kan de bibliotheek niet uitstellen: zet een eenmalige herhaling klaar
+    await AlarmScheduler.scheduleNativeAlarmBackupAsync(wekker.alarmId, minuten * 60);
     return undefined;
   }
-  const resultaat = await AlarmScheduler.resolveAlarmOccurrenceAsync(wekker.occurrenceId, {
+  const resultaat = await AlarmScheduler.resolveAlarmOccurrenceAsync(occurrenceId, {
     outcome: 'deferred',
     next: { delaySeconds: minuten * 60, relationship: 'deferred', metadata: extra },
-    idempotencyKey: `uitstel:${wekker.occurrenceId}:${minuten}:${JSON.stringify(extra)}`,
+    idempotencyKey: `uitstel:${occurrenceId}:${minuten}:${JSON.stringify(extra)}`,
   });
   return resultaat.nextOccurrence?.occurrenceId;
 }
 
-// Zet het alarm stil terwijl de missie loopt; zonder afronding gaat het na een paar minuten opnieuw
+// Zet het alarm stil terwijl de missie loopt; zonder afronding gaat het na een tijdje opnieuw
 export async function startMissieVanuitWekker(wekker: Wekker): Promise<string | undefined> {
   return stelUit(wekker, MISSIE_TIMEOUT_MINUTEN, { missie: 'bezig', snoozes: wekker.snoozes });
 }
@@ -249,6 +292,7 @@ export async function rondWekkerAf(
     }).catch(() => null);
   }
   await AlarmScheduler.completeNativeAlarmAsync(alarmId);
+  await AlarmScheduler.cancelNativeAlarmBackupAsync(alarmId).catch(() => false);
   // Herhalende alarmen moeten bij de volgende keer weer volledig afgeschermd zijn
   await AlarmScheduler.resetNativeAlarmCompletionAsync(alarmId);
 }

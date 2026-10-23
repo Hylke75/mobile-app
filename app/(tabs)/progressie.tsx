@@ -4,6 +4,7 @@ import { Screen } from '@/components/Screen';
 import { gedeeld, RoundPlus, ScreenHeader, SectionTitleRow } from '@/components/ui';
 import { DAG_LETTERS, DAG_NAMEN } from '@/constants/alarm';
 import { em, fonts, kleuren } from '@/constants/theme';
+import { useAuth } from '@/hooks/useAuth';
 import { useSessies } from '@/hooks/useSessies';
 import { dagIndex } from '@/lib/tijd';
 
@@ -38,7 +39,10 @@ function verschilTekst(waarde: number | null, eenheid = ''): string | null {
 
 export default function ProgressieScherm() {
   const { statistiek } = useSessies();
+  const { profiel } = useAuth();
   const s = statistiek;
+  const weekdoel = profiel?.weekdoel ?? 7;
+  const actieveDagenDezeWeek = s.weekBalken.filter((w) => w > 0).length;
   const hoogste = Math.max(...s.weekBalken, 1);
   const vandaag = dagIndex(new Date());
 
@@ -103,6 +107,10 @@ export default function ProgressieScherm() {
           <Text style={styles.weeklyTitle}>Beweegmomenten</Text>
           <Text style={gedeeld.sectionKicker}>TOTAAL {s.weekTotaal}</Text>
         </View>
+        <Text style={styles.weekdoel}>
+          {actieveDagenDezeWeek} van {weekdoel} {weekdoel === 1 ? 'dag' : 'dagen'} van je weekdoel
+          {actieveDagenDezeWeek >= weekdoel ? ' · gehaald! 🎉' : ''}
+        </Text>
         <View style={styles.chart}>
           {s.weekBalken.map((waarde, i) => (
             <View key={DAG_NAMEN[i]} style={styles.barCol}>
@@ -195,6 +203,7 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     paddingHorizontal: 16,
   },
+  weekdoel: { fontFamily: fonts.body600, fontSize: 10, color: '#538A47', marginTop: 6 },
   weeklyTitle: { fontFamily: fonts.body700, fontSize: 11, color: kleuren.ink },
   chart: {
     height: 120,

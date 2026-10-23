@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { Text, TextInput } from 'react-native';
@@ -20,6 +21,7 @@ export default function WelkomScherm() {
     const resultaat = await slaVoornaamOp(voornaam);
     setBezig(false);
     if (resultaat) setFout(resultaat);
+    else router.replace('/');
   };
 
   return (

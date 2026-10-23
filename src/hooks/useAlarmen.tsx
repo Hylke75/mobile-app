@@ -4,12 +4,15 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
+import { AppState } from 'react-native';
 
 import { useAuth } from '@/hooks/useAuth';
 import { annuleerAlarm, synchroniseer } from '@/lib/alarmen';
+import { leesLokaal, schrijfLokaal, SLEUTELS } from '@/lib/opslag';
 import { supabase } from '@/lib/supabase';
 import type { Alarm, Niveau, Oefening } from '@/types/app';
 import type { AlarmRij } from '@/types/database';
@@ -21,11 +24,14 @@ type AlarmenContextWaarde = {
   geladen: boolean;
   fout: string | null;
   vernieuw: () => Promise<void>;
+  herplan: () => void;
   maakAan: (invoer: AlarmInvoer) => Promise<string | null>;
   werkBij: (id: string, invoer: Partial<Alarm>) => Promise<string | null>;
   verwijder: (id: string) => Promise<string | null>;
   wisselAan: (id: string) => Promise<string | null>;
 };
+
+type Opgeslagen = { eigenaar: string; alarms: Alarm[] };
 
 const AlarmenContext = createContext<AlarmenContextWaarde | undefined>(undefined);
 
@@ -56,14 +62,26 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
   const eigenaar = user?.id ?? null;
   const geladen = eigenaar !== null && data.eigenaar === eigenaar;
   const alarms = useMemo(() => (geladen ? data.alarms : []), [geladen, data.alarms]);
+  const huidig = useRef<Alarm[]>([]);
 
-  const zetEnSync = useCallback((id: string, lijst: Alarm[]) => {
-    const gesorteerd = sorteer(lijst);
-    setData({ eigenaar: id, alarms: gesorteerd });
-    synchroniseer(gesorteerd).catch(() => {
-      setFout('Alarmen konden niet op je toestel worden ingepland.');
-    });
+  const plan = useCallback((lijst: Alarm[]) => {
+    synchroniseer(lijst)
+      .then(() => setFout(null))
+      .catch(() => setFout('Alarmen konden niet op je toestel worden ingepland.'));
   }, []);
+
+  const zetEnSync = useCallback(
+    (id: string, lijst: Alarm[]) => {
+      const gesorteerd = sorteer(lijst);
+      huidig.current = gesorteerd;
+      setData({ eigenaar: id, alarms: gesorteerd });
+      schrijfLokaal<Opgeslagen>(SLEUTELS.alarmen, { eigenaar: id, alarms: gesorteerd });
+      plan(gesorteerd);
+    },
+    [plan],
+  );
+
+  const herplan = useCallback(() => plan(huidig.current), [plan]);
 
   const verwerk = useCallback(
     (id: string, resultaat: Awaited<ReturnType<typeof haalAlarmenOp>>) => {
@@ -85,13 +103,25 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user) return;
     let actief = true;
+    // Eerst de lokale kopie, zodat alarmen ook offline direct zichtbaar zijn
+    leesLokaal<Opgeslagen>(SLEUTELS.alarmen).then((lokaal) => {
+      if (actief && lokaal?.eigenaar === user.id && huidig.current.length === 0) {
+        huidig.current = lokaal.alarms;
+        setData(lokaal);
+      }
+    });
     haalAlarmenOp().then((resultaat) => {
       if (actief) verwerk(user.id, resultaat);
     });
+    const sub = AppState.addEventListener('change', (status) => {
+      if (status === 'active') plan(huidig.current);
+    });
     return () => {
       actief = false;
+      sub.remove();
+      huidig.current = [];
     };
-  }, [user, verwerk]);
+  }, [user, verwerk, plan]);
 
   const maakAan = useCallback(
     async (invoer: AlarmInvoer) => {
@@ -101,11 +131,11 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
         .insert({ ...invoer, aan: true })
         .select()
         .single();
-      if (error) return 'Opslaan is niet gelukt. Probeer het opnieuw.';
-      zetEnSync(user.id, [...alarms, naarAlarm(rij)]);
+      if (error) return 'Opslaan is niet gelukt. Controleer je internet en probeer het opnieuw.';
+      zetEnSync(user.id, [...huidig.current, naarAlarm(rij)]);
       return null;
     },
-    [alarms, user, zetEnSync],
+    [user, zetEnSync],
   );
 
   const werkBij = useCallback(
@@ -118,43 +148,44 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
         .eq('id', id)
         .select()
         .single();
-      if (error) return 'Opslaan is niet gelukt. Probeer het opnieuw.';
+      if (error) return 'Opslaan is niet gelukt. Controleer je internet en probeer het opnieuw.';
       zetEnSync(
         user.id,
-        alarms.map((a) => (a.id === id ? naarAlarm(rij) : a)),
+        huidig.current.map((a) => (a.id === id ? naarAlarm(rij) : a)),
       );
       return null;
     },
-    [alarms, user, zetEnSync],
+    [user, zetEnSync],
   );
 
   const verwijder = useCallback(
     async (id: string) => {
       if (!user) return 'Je bent niet ingelogd.';
       const { error } = await supabase.from('alarms').delete().eq('id', id);
-      if (error) return 'Verwijderen is niet gelukt. Probeer het opnieuw.';
+      if (error)
+        return 'Verwijderen is niet gelukt. Controleer je internet en probeer het opnieuw.';
       await annuleerAlarm(id).catch(() => {});
       zetEnSync(
         user.id,
-        alarms.filter((a) => a.id !== id),
+        huidig.current.filter((a) => a.id !== id),
       );
       return null;
     },
-    [alarms, user, zetEnSync],
+    [user, zetEnSync],
   );
 
   const wisselAan = useCallback(
     async (id: string) => {
-      const alarm = alarms.find((a) => a.id === id);
+      const alarm = huidig.current.find((a) => a.id === id);
       if (!alarm) return null;
       return werkBij(id, { aan: !alarm.aan });
     },
-    [alarms, werkBij],
+    [werkBij],
   );
 
   return (
     <AlarmenContext.Provider
-      value={{ alarms, geladen, fout, vernieuw, maakAan, werkBij, verwijder, wisselAan }}
+      value={{ alarms, geladen, fout, vernieuw, herplan, maakAan, werkBij, verwijder, wisselAan }}
     >
       {children}
     </AlarmenContext.Provider>

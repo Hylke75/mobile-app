@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { AppState } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import type { AlarmPermissionResponse } from 'react-native-alarm-scheduler';
 
 import { useAuth } from '@/hooks/useAuth';
@@ -30,13 +30,21 @@ export function useAlarmCheck() {
     return () => sub.remove();
   }, [vernieuw]);
 
+  // Geeft terug of alle rechten nu in orde zijn
   const vraagAlleRechtenAan = useCallback(async () => {
-    setRechten(await vraagRechtenAan().catch(() => null));
+    const nieuw = await vraagRechtenAan().catch(() => null);
+    setRechten(nieuw);
     await vraagCameraAan().catch(() => false);
-    setCamera(cameraStatus());
+    const cam = cameraStatus();
+    setCamera(cam);
+    return Boolean(nieuw?.canScheduleExactAlarms) && cam === 'toegestaan';
   }, []);
 
-  const meldingen = rechten?.canPostNotifications !== false && rechten?.status !== 'unavailable';
+  // Op iOS lopen alarmen via AlarmKit en zijn meldingen geen aparte voorwaarde
+  const meldingen =
+    Platform.OS === 'ios'
+      ? Boolean(rechten?.canScheduleExactAlarms)
+      : rechten?.canPostNotifications !== false && rechten?.status !== 'unavailable';
   const alarmen = Boolean(rechten?.canScheduleExactAlarms);
   const testGeslaagd = Boolean(profiel?.alarmtest_geslaagd_op);
 
@@ -44,7 +52,12 @@ export function useAlarmCheck() {
     {
       label: 'Meldingen',
       ok: Boolean(rechten) && meldingen,
-      waarde: meldingen && rechten ? 'Toegestaan' : 'Niet toegestaan',
+      waarde:
+        meldingen && rechten
+          ? Platform.OS === 'ios'
+            ? 'Via AlarmKit'
+            : 'Toegestaan'
+          : 'Niet toegestaan',
     },
     {
       label: 'Alarmrechten',

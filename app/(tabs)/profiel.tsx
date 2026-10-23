@@ -1,6 +1,6 @@
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Linking, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Icon } from '@/components/Icon';
@@ -11,7 +11,14 @@ import { useAlarmCheck } from '@/hooks/useAlarmCheck';
 import { useAuth } from '@/hooks/useAuth';
 import { useSessies } from '@/hooks/useSessies';
 import { useToast } from '@/hooks/useToast';
-import { alarmenBeschikbaar, openAlarmInstellingen, planTestAlarm } from '@/lib/alarmen';
+import {
+  alarmenBeschikbaar,
+  haalRechtenOp,
+  openAlarmInstellingen,
+  planTestAlarm,
+  rondWekkerAf,
+  verwijderEenmaligAlarm,
+} from '@/lib/alarmen';
 
 const TEST_SECONDEN = 30;
 
@@ -27,6 +34,14 @@ export default function ProfielScherm() {
   const [test, setTest] = useState<'uit' | 'aftellen' | 'vraag'>('uit');
   const [resterend, setResterend] = useState(TEST_SECONDEN);
   const [doelOpen, setDoelOpen] = useState(false);
+  const testId = useRef<string | null>(null);
+
+  // Opent de wekker-routing het testalarm, dan neemt dat scherm het over
+  useFocusEffect(
+    useCallback(() => {
+      return () => setTest('uit');
+    }, []),
+  );
   const voornaam = profiel?.voornaam ?? '';
   const meldingenAan = regels[0]?.ok ?? false;
 
@@ -59,10 +74,13 @@ export default function ProfielScherm() {
     if (!alarmenBeschikbaar) return showToast('Het testalarm werkt alleen in de app.');
     if (!rechten?.canScheduleExactAlarms) {
       await vraagAlleRechtenAan();
-      return showToast('Geef Mooove eerst toestemming voor alarmen.');
+      const nieuw = await haalRechtenOp().catch(() => null);
+      if (!nieuw?.canScheduleExactAlarms) {
+        return showToast('Geef Mooove eerst toestemming voor alarmen.');
+      }
     }
     try {
-      await planTestAlarm(TEST_SECONDEN);
+      testId.current = await planTestAlarm(TEST_SECONDEN);
       setResterend(TEST_SECONDEN);
       setTest('aftellen');
     } catch {
@@ -70,8 +88,22 @@ export default function ProfielScherm() {
     }
   };
 
+  const ruimTestOp = async () => {
+    const id = testId.current;
+    testId.current = null;
+    if (!id) return;
+    await rondWekkerAf(id).catch(() => {});
+    await verwijderEenmaligAlarm(id);
+  };
+
+  const annuleerTest = async () => {
+    setTest('uit');
+    await ruimTestOp();
+  };
+
   const testResultaat = async (gelukt: boolean) => {
     setTest('uit');
+    await ruimTestOp();
     if (gelukt) {
       const fout = await werkProfielBij({ alarmtest_geslaagd_op: new Date().toISOString() });
       showToast(fout ?? 'Testalarm geslaagd ✓');
@@ -155,8 +187,8 @@ export default function ProfielScherm() {
           <SecondaryButton
             label="Geef toestemming"
             onPress={async () => {
-              await vraagAlleRechtenAan();
-              if (!regels.slice(0, 3).every((r) => r.ok)) Linking.openSettings();
+              const inOrde = await vraagAlleRechtenAan();
+              if (!inOrde) Linking.openSettings();
             }}
             style={styles.testBtn}
           />
@@ -229,7 +261,7 @@ export default function ProfielScherm() {
         transparent
         animationType="fade"
         statusBarTranslucent
-        onRequestClose={() => setTest('uit')}
+        onRequestClose={annuleerTest}
       >
         <StatusBar style="light" />
         <View style={styles.overlay}>
@@ -258,11 +290,7 @@ export default function ProfielScherm() {
               />
             </>
           ) : (
-            <SecondaryButton
-              label="Annuleren"
-              onPress={() => setTest('uit')}
-              style={styles.testCta}
-            />
+            <SecondaryButton label="Annuleren" onPress={annuleerTest} style={styles.testCta} />
           )}
         </View>
       </Modal>

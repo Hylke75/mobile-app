@@ -60,7 +60,7 @@ function RootNavigator() {
   const ingelogd = status === 'ingelogd';
   const heeftNaam = Boolean(profiel?.voornaam);
 
-  useWekkerRouting(ingelogd && heeftNaam);
+  useWekkerRouting();
 
   useEffect(() => {
     if (status !== 'laden') SplashScreen.hideAsync();
@@ -92,15 +92,16 @@ function RootNavigator() {
         <Stack.Protected guard={ingelogd && heeftNaam}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="nieuw-alarm" />
-          <Stack.Screen
-            name="missie"
-            options={{ contentStyle: { backgroundColor: kleuren.ink } }}
-          />
-          <Stack.Screen
-            name="wekker"
-            options={{ contentStyle: { backgroundColor: kleuren.ink }, gestureEnabled: false }}
-          />
         </Stack.Protected>
+
+        <Stack.Screen
+          name="missie"
+          options={{ contentStyle: { backgroundColor: kleuren.ink }, gestureEnabled: false }}
+        />
+        <Stack.Screen
+          name="wekker"
+          options={{ contentStyle: { backgroundColor: kleuren.ink }, gestureEnabled: false }}
+        />
       </Stack>
       <Toast />
       <StatusBar style="dark" />

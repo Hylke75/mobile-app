@@ -1,7 +1,7 @@
-import { router, useLocalSearchParams } from 'expo-router';
+import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, BackHandler, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Icon } from '@/components/Icon';
 import { StapDetector } from '@/components/missie/StapDetector';
@@ -12,11 +12,13 @@ import { OEFENING_INFO } from '@/constants/oefeningen';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useSessies } from '@/hooks/useSessies';
+import { useStartDoel } from '@/hooks/useStartDoel';
 import { useToast } from '@/hooks/useToast';
 import { alarmenBeschikbaar, planWakkerCheck, rondWekkerAf } from '@/lib/alarmen';
+import { actieveMissie, zetActieveMissie } from '@/lib/missieStatus';
 import { spreek, stopSpraak } from '@/lib/spraak';
 import { volgendAlarm } from '@/lib/tijd';
-import type { Oefening, StapResultaat } from '@/types/app';
+import type { Niveau, Oefening, StapResultaat } from '@/types/app';
 
 const STANDAARD_MISSIE: Oefening[] = ['Squats', 'Bed opmaken', 'Gordijnen open'];
 
@@ -26,18 +28,27 @@ export default function MissieScherm() {
     occurrenceId?: string;
     vervolgId?: string;
     vanWekker?: string;
+    niveau?: string;
+    oefeningen?: string;
   }>();
-  const { alarms } = useAlarmen();
+  const { alarms, herplan } = useAlarmen();
   const { slaOp, statistiek } = useSessies();
   const { showToast } = useToast();
 
   const vanWekker = params.vanWekker === '1';
+  const startDoel = useStartDoel();
   const alarm = useMemo(() => {
     if (params.alarmId) return alarms.find((a) => a.id === params.alarmId) ?? null;
     return volgendAlarm(alarms)?.alarm ?? null;
   }, [alarms, params.alarmId]);
-  const oefeningen = alarm?.oefeningen ?? STANDAARD_MISSIE;
-  const streng = vanWekker && alarm ? isStreng(alarm.niveau) : false;
+  // Niveau en oefeningen komen ook mee vanuit het native alarm, zodat dit offline werkt
+  const niveau = (alarm?.niveau ?? (params.niveau || undefined)) as Niveau | undefined;
+  const [oefeningen] = useState<Oefening[]>(
+    () =>
+      alarm?.oefeningen ??
+      (params.oefeningen ? (params.oefeningen.split(',') as Oefening[]) : STANDAARD_MISSIE),
+  );
+  const streng = vanWekker ? isStreng(niveau ?? 'Verplicht') : false;
 
   const [gestartOp] = useState(() => new Date());
   const [stap, setStap] = useState(0);
@@ -64,6 +75,12 @@ export default function MissieScherm() {
   );
 
   useEffect(() => () => stopSpraak(), []);
+
+  useEffect(() => {
+    if (!vanWekker || !params.alarmId) return;
+    zetActieveMissie({ alarmId: params.alarmId, vervolgId: params.vervolgId || undefined });
+    return () => zetActieveMissie(null);
+  }, [vanWekker, params.alarmId, params.vervolgId]);
 
   const onVoortgang = useCallback(
     (waarde: number) => {
@@ -115,8 +132,11 @@ export default function MissieScherm() {
     });
     if (fout) showToast(fout);
     if (vanWekker && params.alarmId) {
-      await rondWekkerAf(params.alarmId, params.occurrenceId, params.vervolgId).catch(() => {});
-      if (status === 'voltooid' && alarm?.niveau === 'Hardcore') {
+      const vervolgId = actieveMissie()?.vervolgId ?? params.vervolgId;
+      zetActieveMissie(null);
+      await rondWekkerAf(params.alarmId, params.occurrenceId, vervolgId).catch(() => {});
+      herplan();
+      if (status === 'voltooid' && niveau === 'Hardcore') {
         await planWakkerCheck(params.alarmId).catch(() => {});
         showToast('Wakker-check over 5 minuten.');
       }
@@ -148,6 +168,7 @@ export default function MissieScherm() {
     ]);
   };
 
+  const sluitRef = useRef<() => void>(() => {});
   const sluit = () => {
     if (vanWekker && streng) {
       bevestig(
@@ -159,6 +180,17 @@ export default function MissieScherm() {
       router.dismissTo('/');
     }
   };
+  useEffect(() => {
+    sluitRef.current = sluit;
+  });
+
+  useEffect(() => {
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      sluitRef.current();
+      return true;
+    });
+    return () => sub.remove();
+  }, []);
 
   const noodstop = () =>
     bevestig(
@@ -170,6 +202,9 @@ export default function MissieScherm() {
         showToast('Missie gestopt.');
       },
     );
+
+  // Zonder alarm is de missie alleen voor ingelogde gebruikers met een profiel
+  if (!vanWekker && startDoel) return <Redirect href={startDoel} />;
 
   if (klaar) {
     return (
