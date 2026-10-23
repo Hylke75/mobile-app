@@ -4,7 +4,7 @@
 
 - **App-naam:** Mooove
 - **Korte beschrijving (max. 80):** De wekker die pas stopt als je in beweging bent. Stop snoozing, start moving.
-- **Volledige beschrijving:** gebruik de beschrijving uit `app-store.md` en vervang de regel over iOS 26 door: "Werkt op Android 7.0 en nieuwer."
+- **Volledige beschrijving:** gebruik de beschrijving uit `app-store.md` en vervang de regel over iOS 26 door: "Werkt op Android 8.0 en nieuwer."
 - **Categorie:** Gezondheid en fitness
 - **Contact-e-mail:** hylke@linkandlead.nl
 - **Privacybeleid-URL:** _URL van de gepubliceerde `privacyverklaring.md`_

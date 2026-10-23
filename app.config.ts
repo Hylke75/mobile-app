@@ -40,6 +40,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     'expo-router',
+    // react-native-nitro-pose-exercises vereist minimaal Android 8.0 (API 26)
+    ['expo-build-properties', { android: { minSdkVersion: 26 } }],
     [
       './plugins/withAlarmScheduler',
       {
