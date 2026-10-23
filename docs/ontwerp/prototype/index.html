@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#101614" />
+  <meta name="description" content="Moov — een sportief appontwerp voor een wekker die je echt in beweging brengt." />
+  <title>Moov — Appontwerp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="logo lockup" href="#top" aria-label="Moov, naar boven"><span class="logo-glyph">m<span class="logo-dot">.</span></span><span class="logo-word">moov<span>.</span></span></a>
+      <div class="top-meta"><span class="dot-live"></span> APP DESIGN CONCEPT <span class="meta-divider"></span> 2026</div>
+      <span class="version-tag">V1.0 / INTERACTIEVE PREVIEW</span>
+    </header>
+
+    <main id="top" class="main-layout">
+      <section class="intro-panel" aria-labelledby="main-heading">
+        <div class="intro-overline"><span class="tiny-star">✳</span> THE ACTIVE ALARM</div>
+        <h1 id="main-heading">STOP<br><span>SNOOZING.</span><br><em>START</em><br>MOVING<span class="period">.</span></h1>
+        <p class="hero-copy">Een wekker die pas stopt als jij in beweging komt. Geen smoesjes. Geen eindeloos snoozen. Wel een sterkere start van je dag.</p>
+        <div class="hero-actions">
+          <button type="button" class="button button-lime" data-screen-link="mission">Probeer een missie <span aria-hidden="true">↗</span></button>
+          <button type="button" class="button button-ghost" data-screen-link="home">Bekijk de app <span aria-hidden="true">→</span></button>
+        </div>
+        <div class="hero-footnote"><span class="line-mark"></span> Ontworpen voor mensen die niet stil willen blijven staan.</div>
+        <div class="desktop-screen-list" aria-label="Ontdek de appschermen">
+          <div class="screen-list-heading">ONTDEK HET ONTWERP <span>↓</span></div>
+          <button class="screen-link selected" type="button" data-screen-link="home"><span>01</span><strong>Vandaag</strong><span>↗</span></button>
+          <button class="screen-link" type="button" data-screen-link="alarms"><span>02</span><strong>Mijn alarmen</strong><span>↗</span></button>
+          <button class="screen-link" type="button" data-screen-link="mission"><span>03</span><strong>Live missie</strong><span>↗</span></button>
+          <button class="screen-link" type="button" data-screen-link="progress"><span>04</span><strong>Progressie</strong><span>↗</span></button>
+          <button class="screen-link" type="button" data-screen-link="coach"><span>05</span><strong>Fysio & coaching</strong><span>↗</span></button>
+        </div>
+      </section>
+
+      <section class="preview-panel" aria-label="Interactieve Moov app-preview">
+        <div class="orbital orbital-one"></div><div class="orbital orbital-two"></div>
+        <span class="floating-label label-top">DESIGNED TO <strong>MOVE.</strong></span>
+        <span class="floating-label label-bottom">NO EXCUSES <span>↗</span></span>
+        <div class="phone-device">
+          <div class="phone-camera"></div>
+          <div id="app" class="app" aria-live="polite"></div>
+        </div>
+        <div class="preview-caption"><span class="small-square"></span> KLIK DOOR DE APP <span class="caption-arrow">↗</span></div>
+      </section>
+    </main>
+
+    <section class="design-section" aria-label="Visuele stijl van Moov">
+      <div class="design-title-row"><div><span class="eyebrow">THE DESIGN DNA</span><h2>ENERGY MEETS<br><em>INTENTION.</em></h2></div><p>Sportieve energie. Heldere interacties. Een premium uitstraling die motiveert zonder te schreeuwen.</p></div>
+      <div class="design-grid">
+        <div class="design-tile tile-type"><span class="tile-label">01 / TYPOGRAPHY</span><div class="type-example">Aa<span>.</span></div><div class="tile-bottom">Space Grotesk <span>Bold, direct, uitgesproken</span></div></div>
+        <div class="design-tile tile-color"><span class="tile-label">02 / COLOUR SYSTEM</span><div class="swatch-row"><span class="swatch swatch-lime"></span><span class="swatch swatch-dark"></span><span class="swatch swatch-cream"></span><span class="swatch swatch-blue"></span><span class="swatch swatch-coral"></span></div><div class="tile-bottom">High contrast <span>Acid lime / pine / off-white</span></div></div>
+        <div class="design-tile tile-message"><span class="tile-label">03 / ATTITUDE</span><div class="type-slogan">YOU GOT<br>THIS<span>↗</span></div><div class="tile-bottom">Positief & uitdagend <span>Microcopy met karakter</span></div></div>
+      </div>
+      <div class="design-disclaimer">Dit is een klikbaar ontwerpconcept op basis van het productdocument. Alarmen, camera-herkenning, betaalfuncties en het behandelaarsportaal zijn nog niet technisch aangesloten.</div>
+    </section>
+
+    <footer class="site-footer"><span class="logo-word">moov<span>.</span></span><span>BE ACTIVE. STAY ACTIVE.</span><span>DESIGN CONCEPT © 2026</span></footer>
+  </div>
+  <script src="./app.js"></script>
+</body>
+</html>
