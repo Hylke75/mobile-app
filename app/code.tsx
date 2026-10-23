@@ -7,12 +7,12 @@ import { AuthScreen } from '@/components/AuthScreen';
 import { authStyles as s } from '@/components/authStyles';
 import { PrimaryButton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
-import { useDemo } from '@/hooks/useDemo';
+import { useToast } from '@/hooks/useToast';
 
 export default function CodeScherm() {
   const { email } = useLocalSearchParams<{ email: string }>();
   const { controleerCode, vraagCodeAan } = useAuth();
-  const { showToast } = useDemo();
+  const { showToast } = useToast();
   const [code, setCode] = useState('');
   const [fout, setFout] = useState<string | null>(null);
   const [bezig, setBezig] = useState(false);

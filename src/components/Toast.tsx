@@ -4,10 +4,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/Icon';
 import { fonts, kleuren } from '@/constants/theme';
-import { useDemo } from '@/hooks/useDemo';
+import { useToast } from '@/hooks/useToast';
 
 export function Toast() {
-  const { toast } = useDemo();
+  const { toast } = useToast();
   const insets = useSafeAreaInsets();
   const [anim] = useState(() => new Animated.Value(0));
 

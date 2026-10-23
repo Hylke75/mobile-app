@@ -5,11 +5,19 @@ import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import { LevelTag, RoundPlus, ScreenHeader, Toggle } from '@/components/ui';
 import { em, fonts, kleuren } from '@/constants/theme';
-import { useDemo } from '@/hooks/useDemo';
+import { dagenTekst, missiesTekst } from '@/constants/alarm';
+import { useAlarmen } from '@/hooks/useAlarmen';
+import { useToast } from '@/hooks/useToast';
 
 export default function AlarmenScherm() {
-  const { alarms, toggleAlarm } = useDemo();
+  const { alarms, geladen, fout, wisselAan } = useAlarmen();
+  const { showToast } = useToast();
   const nieuwAlarm = () => router.push('/nieuw-alarm');
+
+  const wissel = async (id: string) => {
+    const melding = await wisselAan(id);
+    if (melding) showToast(melding);
+  };
 
   return (
     <Screen>
@@ -23,23 +31,34 @@ export default function AlarmenScherm() {
         Jouw momenten om in beweging te komen. Kies zelf hoe streng Mooove voor je is.
       </Text>
 
+      {fout && <Text style={styles.fout}>{fout}</Text>}
+      {geladen && alarms.length === 0 && (
+        <Text style={styles.leeg}>Je hebt nog geen alarmen. Maak hieronder je eerste aan.</Text>
+      )}
+
       {alarms.map((a) => (
-        <View key={a.id} style={[styles.card, !a.on && styles.cardDisabled]}>
+        <Pressable
+          key={a.id}
+          accessibilityRole="button"
+          accessibilityLabel={`${a.naam} om ${a.tijd} bewerken`}
+          onPress={() => router.push({ pathname: '/nieuw-alarm', params: { id: a.id } })}
+          style={[styles.card, !a.aan && styles.cardDisabled]}
+        >
           <View style={styles.cardHead}>
-            <Text style={styles.time}>{a.time}</Text>
+            <Text style={styles.time}>{a.tijd}</Text>
             <Toggle
-              on={a.on}
-              onPress={() => toggleAlarm(a.id)}
-              label={`${a.name} ${a.on ? 'uitschakelen' : 'inschakelen'}`}
+              on={a.aan}
+              onPress={() => wissel(a.id)}
+              label={`${a.naam} ${a.aan ? 'uitschakelen' : 'inschakelen'}`}
             />
           </View>
-          <Text style={styles.name}>{a.name}</Text>
-          <Text style={styles.days}>{a.days}</Text>
+          <Text style={styles.name}>{a.naam}</Text>
+          <Text style={styles.days}>{dagenTekst(a.dagen)}</Text>
           <View style={styles.footer}>
-            <LevelTag level={a.level} />
-            <Text style={styles.count}>{a.count}</Text>
+            <LevelTag level={a.niveau} />
+            <Text style={styles.count}>{missiesTekst(a.oefeningen.length)}</Text>
           </View>
-        </View>
+        </Pressable>
       ))}
 
       <View style={styles.banner}>
@@ -79,6 +98,8 @@ const styles = StyleSheet.create({
     marginBottom: 11,
   },
   cardDisabled: { opacity: 0.58 },
+  fout: { fontFamily: fonts.body600, fontSize: 12, color: '#C2462F', marginBottom: 12 },
+  leeg: { fontFamily: fonts.body400, fontSize: 12, color: '#77857D', marginBottom: 12 },
   cardHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   time: {
     fontFamily: fonts.head700,

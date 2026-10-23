@@ -1,35 +1,48 @@
-// MOCKDATA: de alarm-check en instellingen zijn niet gemeten; het testalarm is een simulatie.
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
-import { Alert, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Alert, Linking, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Icon, type IconNaam } from '@/components/Icon';
+import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import { PrimaryButton, ScreenHeader, SecondaryButton, SectionTitleRow } from '@/components/ui';
 import { em, fonts, kleuren } from '@/constants/theme';
+import { useAlarmCheck } from '@/hooks/useAlarmCheck';
 import { useAuth } from '@/hooks/useAuth';
-import { useDemo } from '@/hooks/useDemo';
+import { useSessies } from '@/hooks/useSessies';
+import { useToast } from '@/hooks/useToast';
+import { alarmenBeschikbaar, openAlarmInstellingen, planTestAlarm } from '@/lib/alarmen';
 
-const CHECKS = [
-  ['Meldingen', 'Toegestaan'],
-  ['Alarmrechten', 'Toegestaan'],
-  ['Camera', 'Toegestaan'],
-  ['Niet storen test', 'Geslaagd'],
-];
+const TEST_SECONDEN = 30;
 
-const INSTELLINGEN: { icon: IconNaam; label: string; waarde: string }[] = [
-  { icon: 'target', label: 'Mijn doelen', waarde: 'Iedere dag bewegen' },
-  { icon: 'bell', label: 'Meldingen', waarde: 'Ingeschakeld' },
-  { icon: 'shield', label: 'Privacy', waarde: 'Op je toestel' },
-];
+function doelTekst(weekdoel: number): string {
+  return weekdoel === 7 ? 'Iedere dag bewegen' : `${weekdoel} dagen per week`;
+}
 
 export default function ProfielScherm() {
-  const { showToast } = useDemo();
-  const { profiel, user, uitloggen, verwijderAccount } = useAuth();
-  const [testOpen, setTestOpen] = useState(false);
+  const { showToast } = useToast();
+  const { profiel, user, uitloggen, verwijderAccount, werkProfielBij } = useAuth();
+  const { statistiek } = useSessies();
+  const { regels, allesInOrde, rechten, vraagAlleRechtenAan } = useAlarmCheck();
+  const [test, setTest] = useState<'uit' | 'aftellen' | 'vraag'>('uit');
+  const [resterend, setResterend] = useState(TEST_SECONDEN);
+  const [doelOpen, setDoelOpen] = useState(false);
   const voornaam = profiel?.voornaam ?? '';
-  const lidSinds = profiel ? lidSindsTekst(profiel.created_at) : '';
+  const meldingenAan = regels[0]?.ok ?? false;
+
+  useEffect(() => {
+    if (test !== 'aftellen') return;
+    const eind = Date.now() + TEST_SECONDEN * 1000;
+    const t = setInterval(() => {
+      const over = Math.max(0, Math.ceil((eind - Date.now()) / 1000));
+      setResterend(over);
+      if (over === 0) {
+        clearInterval(t);
+        setTest('vraag');
+      }
+    }, 250);
+    return () => clearInterval(t);
+  }, [test]);
 
   const bevestig = (titel: string, tekst: string, knop: string, actie: () => void) => {
     if (Platform.OS === 'web') {
@@ -42,6 +55,38 @@ export default function ProfielScherm() {
     ]);
   };
 
+  const startTest = async () => {
+    if (!alarmenBeschikbaar) return showToast('Het testalarm werkt alleen in de app.');
+    if (!rechten?.canScheduleExactAlarms) {
+      await vraagAlleRechtenAan();
+      return showToast('Geef Mooove eerst toestemming voor alarmen.');
+    }
+    try {
+      await planTestAlarm(TEST_SECONDEN);
+      setResterend(TEST_SECONDEN);
+      setTest('aftellen');
+    } catch {
+      showToast('Het testalarm kon niet worden ingepland.');
+    }
+  };
+
+  const testResultaat = async (gelukt: boolean) => {
+    setTest('uit');
+    if (gelukt) {
+      const fout = await werkProfielBij({ alarmtest_geslaagd_op: new Date().toISOString() });
+      showToast(fout ?? 'Testalarm geslaagd ✓');
+    } else {
+      Alert.alert(
+        'Alarm niet gehoord?',
+        'Controleer of Mooove alarmen en meldingen mag tonen en of je alarmvolume aan staat. Op Android: zet batterij-optimalisatie voor Mooove uit.',
+        [
+          { text: 'Sluiten', style: 'cancel' },
+          { text: 'Open instellingen', onPress: () => openAlarmInstellingen() },
+        ],
+      );
+    }
+  };
+
   const onUitloggen = () =>
     bevestig('Uitloggen?', 'Je kunt altijd weer inloggen met je e-mailadres.', 'Uitloggen', () => {
       uitloggen();
@@ -50,13 +95,19 @@ export default function ProfielScherm() {
   const onVerwijderen = () =>
     bevestig(
       'Account verwijderen?',
-      'Je account en al je gegevens worden definitief verwijderd. Dit kun je niet ongedaan maken.',
+      'Je account, alarmen en voortgang worden definitief verwijderd. Dit kun je niet ongedaan maken.',
       'Verwijderen',
       async () => {
         const fout = await verwijderAccount();
         if (fout) showToast(fout);
       },
     );
+
+  const kiesDoel = async (doel: number) => {
+    setDoelOpen(false);
+    const fout = await werkProfielBij({ weekdoel: doel });
+    if (fout) showToast(fout);
+  };
 
   return (
     <Screen>
@@ -67,32 +118,50 @@ export default function ProfielScherm() {
         </View>
         <View>
           <Text style={styles.profileName}>{voornaam}</Text>
-          <Text style={styles.profileSub}>Mooove member · {lidSinds}</Text>
+          <Text style={styles.profileSub}>
+            Mooove member · {statistiek.actieveDagen}{' '}
+            {statistiek.actieveDagen === 1 ? 'dag' : 'dagen'} actief
+          </Text>
         </View>
       </View>
 
-      <SectionTitleRow titel="Alarm-check" rechts="ALLES GEREED" />
+      <SectionTitleRow titel="Alarm-check" rechts={allesInOrde ? 'ALLES GEREED' : 'ACTIE NODIG'} />
       <View style={styles.setupCard}>
         <View style={styles.setupTop}>
-          <Text style={styles.setupTitle}>Ready to Mooove.</Text>
-          <View style={styles.secureTag}>
-            <Text style={styles.secureTagText}>✓ Veilig ingesteld</Text>
+          <Text style={styles.setupTitle}>{allesInOrde ? 'Ready to Mooove.' : 'Bijna klaar.'}</Text>
+          <View style={[styles.secureTag, !allesInOrde && styles.secureTagOpen]}>
+            <Text style={[styles.secureTagText, !allesInOrde && styles.secureTagTextOpen]}>
+              {allesInOrde ? '✓ Veilig ingesteld' : 'Nog niet compleet'}
+            </Text>
           </View>
         </View>
-        {CHECKS.map(([label, waarde], i) => (
-          <View key={label} style={[styles.setupLine, i === CHECKS.length - 1 && styles.noBorder]}>
-            <View style={styles.setupCheck}>
-              <Icon name="check" size={13} color="#4B8E42" />
+        {regels.map((r, i) => (
+          <View
+            key={r.label}
+            style={[styles.setupLine, i === regels.length - 1 && styles.noBorder]}
+          >
+            <View style={[styles.setupCheck, !r.ok && styles.setupCheckOpen]}>
+              <Icon
+                name={r.ok ? 'check' : 'close'}
+                size={13}
+                color={r.ok ? '#4B8E42' : '#C2462F'}
+              />
             </View>
-            <Text style={styles.setupLabel}>{label}</Text>
-            <Text style={styles.setupValue}>{waarde}</Text>
+            <Text style={styles.setupLabel}>{r.label}</Text>
+            <Text style={styles.setupValue}>{r.waarde}</Text>
           </View>
         ))}
-        <SecondaryButton
-          label="Simuleer testalarm ↗"
-          onPress={() => setTestOpen(true)}
-          style={styles.testBtn}
-        />
+        {!regels.slice(0, 3).every((r) => r.ok) && (
+          <SecondaryButton
+            label="Geef toestemming"
+            onPress={async () => {
+              await vraagAlleRechtenAan();
+              if (!regels.slice(0, 3).every((r) => r.ok)) Linking.openSettings();
+            }}
+            style={styles.testBtn}
+          />
+        )}
+        <SecondaryButton label="Test je alarm ↗" onPress={startTest} style={styles.testBtn} />
       </View>
 
       <Text style={styles.sectionHeading}>MEER MOOOVE</Text>
@@ -105,13 +174,38 @@ export default function ProfielScherm() {
         <Text style={styles.settingLabel}>Fysio & trainer</Text>
         <Text style={styles.settingValue}>Bekijk concept →</Text>
       </Pressable>
-      {INSTELLINGEN.map((s) => (
-        <View key={s.label} style={styles.setting}>
-          <Icon name={s.icon} color={kleuren.ink} />
-          <Text style={styles.settingLabel}>{s.label}</Text>
-          <Text style={styles.settingValue}>{s.waarde}</Text>
-        </View>
-      ))}
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => setDoelOpen(true)}
+        style={styles.setting}
+      >
+        <Icon name="target" color={kleuren.ink} />
+        <Text style={styles.settingLabel}>Mijn doelen</Text>
+        <Text style={styles.settingValue}>{doelTekst(profiel?.weekdoel ?? 7)}</Text>
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => (alarmenBeschikbaar ? Linking.openSettings() : undefined)}
+        style={styles.setting}
+      >
+        <Icon name="bell" color={kleuren.ink} />
+        <Text style={styles.settingLabel}>Meldingen</Text>
+        <Text style={styles.settingValue}>{meldingenAan ? 'Ingeschakeld' : 'Uitgeschakeld'}</Text>
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        onPress={() =>
+          Alert.alert(
+            'Privacy',
+            'Camerabeelden worden alleen op je toestel verwerkt en nooit opgeslagen of verstuurd. We bewaren alleen je naam, e-mailadres, alarmen en de uitkomst van je missies.',
+          )
+        }
+        style={styles.setting}
+      >
+        <Icon name="shield" color={kleuren.ink} />
+        <Text style={styles.settingLabel}>Privacy</Text>
+        <Text style={styles.settingValue}>Op je toestel</Text>
+      </Pressable>
 
       <Text style={styles.sectionHeading}>ACCOUNT</Text>
       <View style={styles.setting}>
@@ -129,37 +223,71 @@ export default function ProfielScherm() {
         <Text style={[styles.settingLabel, styles.gevaar]}>Account verwijderen</Text>
         <Text style={styles.settingValue}>Definitief</Text>
       </Pressable>
-      <Text style={styles.disclaimer}>
-        Deze demo gebruikt fictieve statistieken en simulaties. Er worden geen echte alarmen gepland
-        of camerabeelden verwerkt.
-      </Text>
 
       <Modal
-        visible={testOpen}
+        visible={test !== 'uit'}
         transparent
         animationType="fade"
         statusBarTranslucent
-        onRequestClose={() => setTestOpen(false)}
+        onRequestClose={() => setTest('uit')}
       >
         <StatusBar style="light" />
         <View style={styles.overlay}>
           <Text style={styles.testLabel}>MOOOVE SYSTEM CHECK</Text>
-          <Text style={styles.testClock}>00:30</Text>
-          <Text style={styles.testTitle}>Even testen.</Text>
-          <Text style={styles.testText}>
-            In de echte app controleert dit of alarmen door Stil en Niet storen heen gaan. Hier zie
-            je hoe het testscherm eruitziet.
+          <Text style={styles.testClock}>
+            00:{String(test === 'aftellen' ? resterend : 0).padStart(2, '0')}
           </Text>
-          <PrimaryButton
-            label="Test geslaagd"
-            icon="check"
-            onPress={() => {
-              setTestOpen(false);
-              showToast('Testalarm gesimuleerd ✓');
-            }}
-            style={styles.testCta}
-          />
+          <Text style={styles.testTitle}>{test === 'aftellen' ? 'Even testen.' : 'Gehoord?'}</Text>
+          <Text style={styles.testText}>
+            {test === 'aftellen'
+              ? 'Zet je telefoon op stil of Niet storen en vergrendel hem. Over een paar seconden gaat je testalarm af.'
+              : 'Ging het alarm af terwijl je telefoon op stil of Niet storen stond?'}
+          </Text>
+          {test === 'vraag' ? (
+            <>
+              <PrimaryButton
+                label="Ja, test geslaagd"
+                icon="check"
+                onPress={() => testResultaat(true)}
+                style={styles.testCta}
+              />
+              <SecondaryButton
+                label="Nee, ik hoorde niets"
+                onPress={() => testResultaat(false)}
+                style={styles.testSecundair}
+              />
+            </>
+          ) : (
+            <SecondaryButton
+              label="Annuleren"
+              onPress={() => setTest('uit')}
+              style={styles.testCta}
+            />
+          )}
         </View>
+      </Modal>
+
+      <Modal
+        visible={doelOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setDoelOpen(false)}
+      >
+        <Pressable style={styles.doelOverlay} onPress={() => setDoelOpen(false)}>
+          <View style={styles.doelKaart}>
+            <Text style={styles.setupTitle}>Hoe vaak wil je bewegen?</Text>
+            {[7, 5, 3].map((d) => (
+              <Pressable
+                key={d}
+                accessibilityRole="button"
+                onPress={() => kiesDoel(d)}
+                style={[styles.doelOptie, profiel?.weekdoel === d && styles.doelOptieActief]}
+              >
+                <Text style={styles.settingLabel}>{doelTekst(d)}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </Pressable>
       </Modal>
     </Screen>
   );
@@ -200,7 +328,9 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 8,
   },
+  secureTagOpen: { backgroundColor: '#FBE4DE' },
   secureTagText: { fontFamily: fonts.body800, fontSize: 9, color: '#578149' },
+  secureTagTextOpen: { color: '#C2462F' },
   setupLine: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -218,6 +348,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  setupCheckOpen: { backgroundColor: '#FBE4DE' },
   setupLabel: { fontFamily: fonts.body700, fontSize: 11, color: kleuren.ink },
   setupValue: { marginLeft: 'auto', fontFamily: fonts.body700, fontSize: 10, color: '#91A092' },
   testBtn: { marginTop: 12 },
@@ -239,13 +370,6 @@ const styles = StyleSheet.create({
   settingLabel: { fontFamily: fonts.body800, fontSize: 12, color: kleuren.ink },
   gevaar: { color: '#C2462F' },
   settingValue: { fontFamily: fonts.body800, fontSize: 10, color: '#8B9A8A' },
-  disclaimer: {
-    fontFamily: fonts.body400,
-    fontSize: 10,
-    lineHeight: 15.5,
-    color: '#9AA69A',
-    marginTop: 18,
-  },
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(16,23,20,0.92)',
@@ -282,24 +406,20 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   testCta: { marginTop: 30 },
+  testSecundair: { marginTop: 10 },
+  doelOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(16,23,20,0.5)',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  doelKaart: { backgroundColor: kleuren.white, borderRadius: 20, padding: 18, gap: 8 },
+  doelOptie: {
+    borderWidth: 1,
+    borderColor: kleuren.line,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+  },
+  doelOptieActief: { backgroundColor: kleuren.lime, borderColor: kleuren.lime },
 });
-
-const MAANDEN = [
-  'januari',
-  'februari',
-  'maart',
-  'april',
-  'mei',
-  'juni',
-  'juli',
-  'augustus',
-  'september',
-  'oktober',
-  'november',
-  'december',
-];
-
-function lidSindsTekst(iso: string): string {
-  const d = new Date(iso);
-  return `lid sinds ${d.getDate()} ${MAANDEN[d.getMonth()]} ${d.getFullYear()}`;
-}

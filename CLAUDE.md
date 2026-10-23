@@ -17,18 +17,19 @@ Appconfiguratie staat in `app.config.ts` (naam, slug `mobile-app`, bundle ID / p
 
 ## Huidige status van de app
 
-De app wordt in fases van demo naar volledig werkend gebracht:
+De app is volledig functioneel (Mooove Coach blijft een aangekondigd V2-concept):
 
-1. **Inloggen en account** — klaar: e-mail met code (Supabase OTP), voornaam in `profiles`, uitloggen en account verwijderen (Edge Function `delete-account`).
-2. Database en echte opslag van alarmen — nog te doen.
-3. Echte alarmen (iOS AlarmKit / Android exact alarm, eigen build) — nog te doen.
-4. Missies met camera (pose-herkenning op het toestel, lichtmeting voor gordijnen, foto voor bed) — nog te doen.
-5. Progressie uit echte data — nog te doen.
-6. Profiel en rechten-check — nog te doen.
+- **Account** — inloggen met e-mailcode (Supabase OTP), voornaam en weekdoel in `profiles`, uitloggen en account verwijderen (Edge Function `delete-account`, alle data via `on delete cascade`).
+- **Alarmen** — tabel `alarms`; aanmaken, bewerken, aan/uit en verwijderen in `src/hooks/useAlarmen.tsx`. Native planning via `react-native-alarm-scheduler` (iOS AlarmKit vanaf iOS 26, Android exact alarm met volledig scherm) in `src/lib/alarmen.ts`; synchronisatie op basis van `metadata.versie`.
+- **Niveaus** — Vrij: stopknop + snooze. Flexibel: verplaatsen (+15/+30/+60 min). Uitstelbaar: max. 3× snooze. Verplicht: alleen missie. Hardcore: missie + wakker-check na 5 minuten. Alles behalve Vrij is `openAppOnly`: het alarm stopt pas na de missie (`rondWekkerAf`). Tijdens de missie is het alarm 5 minuten uitgesteld; zonder afronding gaat het opnieuw.
+- **Wekker-routing** — `src/hooks/useWekkerRouting.ts` leest de native handoff bij koude start en bij terugkeer naar de voorgrond en opent `app/wekker.tsx`.
+- **Missie** — `app/missie.tsx` met `src/components/missie/StapDetector.tsx`: pose-herkenning op het toestel (`react-native-nitro-pose-exercises`, Apple Vision / ML Kit, VisionCamera v5) voor squats, push-ups, jumping jacks en plank; lichtmeting op het Y-vlak voor gordijnen; foto-bevestiging (niet opgeslagen) voor bed opmaken. Handmatig afvinken alleen bij Vrij/Flexibel/Uitstelbaar of zonder alarmmodule. Gesproken coaching via `expo-speech`.
+- **Voortgang** — tabel `missie_sessies`; streak, percentages, reps, weekgrafiek en badges in `src/lib/statistiek.ts`.
+- **Alarm-check** — echte rechtenstatus (meldingen, alarmen, camera) en een echt testalarm van 30 seconden (`src/hooks/useAlarmCheck.ts`).
 
-Wat nog demo is: alarmen, missie, progressie en de alarm-check (`src/constants/demo.ts`, `src/hooks/useDemo.tsx`). Mooove Coach blijft een toekomstconcept (V2).
+Native code: de app draait **niet in Expo Go**; gebruik een development build (`eas build --profile development`). Op web werken alarmen en camera niet (`*.web.ts(x)`-varianten); handig voor UI-tests.
 
-Supabase: migraties in `supabase/migrations/`, Edge Functions in `supabase/functions/`, types in `src/types/database.ts` (bijwerken na elke migratie). Design tokens: `src/constants/theme.ts`; iconen: `src/components/Icon.tsx`.
+Supabase: migraties in `supabase/migrations/`, Edge Functions in `supabase/functions/`, types in `src/types/database.ts` (bijwerken na elke migratie). Design tokens: `src/constants/theme.ts`; iconen: `src/components/Icon.tsx`; oefeningen: `src/constants/oefeningen.ts`.
 
 ## Commando's
 
@@ -55,10 +56,13 @@ Draai `lint` en `typecheck` voordat een taak af is.
 ## Checklist voor de stores
 
 - [ ] Privacyverklaring online en URL ingevuld in App Store Connect en Google Play Console
-- [ ] Account verwijderen kan in de app zelf (verplicht zodra er accounts zijn), plus een web-URL voor verwijderverzoeken (Google Play)
+- [x] Account verwijderen kan in de app zelf (Profiel → Account verwijderen)
+- [ ] Web-URL voor verwijderverzoeken (verplicht voor Google Play)
 - [ ] App Store privacylabels (App Privacy) ingevuld
 - [ ] Google Play Data safety-formulier ingevuld
 - [ ] Screenshots voor alle vereiste formaten (iPhone, iPad indien `supportsTablet`, Android telefoon)
 - [ ] Testaccount met inloggegevens voor de reviewers van Apple en Google
+- [ ] Google Play: declaratie voor `SCHEDULE_EXACT_ALARM`, `USE_FULL_SCREEN_INTENT` en de foreground service (type `specialUse`, reden: "de service speelt het alarm af tot de gebruiker zijn wekmissie heeft afgerond")
+- [ ] App Store: uitleg aan de reviewer dat camerabeelden alleen op het toestel worden verwerkt
 - [ ] Definitief icoon en splash (nu het conceptlogo `m.` uit `docs/ontwerp/`)
 - [ ] `version` en `ios.buildNumber` / `android.versionCode` in `app.config.ts` opgehoogd per release

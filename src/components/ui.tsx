@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } fro
 
 import { Icon, type IconNaam } from '@/components/Icon';
 import { em, fonts, kleuren } from '@/constants/theme';
-import type { Niveau } from '@/types/demo';
+import type { Niveau } from '@/types/app';
 
 export function ScreenHeader({
   kicker,

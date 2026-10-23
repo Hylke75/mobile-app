@@ -6,7 +6,7 @@ import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import { gedeeld, ScreenHeader, SecondaryButton, SectionTitleRow } from '@/components/ui';
 import { em, fonts, kleuren } from '@/constants/theme';
-import { useDemo } from '@/hooks/useDemo';
+import { useToast } from '@/hooks/useToast';
 
 const TAKEN = [
   ['01 · Arm circles', '2 × 12'],
@@ -15,7 +15,7 @@ const TAKEN = [
 ];
 
 export default function CoachScherm() {
-  const { showToast } = useDemo();
+  const { showToast } = useToast();
 
   return (
     <Screen>

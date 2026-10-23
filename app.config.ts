@@ -15,6 +15,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     bundleIdentifier: 'nl.linkandlead.mobileapp',
     buildNumber: '1',
     supportsTablet: true,
+    infoPlist: {
+      NSCameraUsageDescription:
+        'Mooove gebruikt je camera om je missie te controleren, zoals het tellen van squats. Beelden blijven op je toestel.',
+    },
   },
   android: {
     package: 'nl.linkandlead.mobileapp',
@@ -25,12 +29,24 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       monochromeImage: './assets/android-icon-monochrome.png',
     },
     predictiveBackGestureEnabled: false,
+    permissions: ['android.permission.CAMERA'],
+    blockedPermissions: [
+      'android.permission.READ_EXTERNAL_STORAGE',
+      'android.permission.WRITE_EXTERNAL_STORAGE',
+    ],
   },
   web: {
     favicon: './assets/favicon.png',
   },
   plugins: [
     'expo-router',
+    [
+      './plugins/withAlarmScheduler',
+      {
+        alarmKitUsageDescription:
+          'Mooove zet je alarmen zodat ze ook afgaan als je telefoon op stil staat.',
+      },
+    ],
     [
       'expo-splash-screen',
       {

@@ -1,30 +1,175 @@
-// DEMO: tellers en feedback zijn gesimuleerd; er is geen echte camera- of bewegingsdetectie.
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { CameraCard } from '@/components/CameraCard';
 import { Icon } from '@/components/Icon';
+import { StapDetector } from '@/components/missie/StapDetector';
 import { Screen } from '@/components/Screen';
 import { LevelTag, PrimaryButton } from '@/components/ui';
-import { DEMO_STREAK, MISSIE_TAKEN } from '@/constants/demo';
+import { isStreng } from '@/constants/alarm';
+import { OEFENING_INFO } from '@/constants/oefeningen';
 import { em, fonts, kleuren } from '@/constants/theme';
-import { useDemo } from '@/hooks/useDemo';
+import { useAlarmen } from '@/hooks/useAlarmen';
+import { useSessies } from '@/hooks/useSessies';
+import { useToast } from '@/hooks/useToast';
+import { alarmenBeschikbaar, planWakkerCheck, rondWekkerAf } from '@/lib/alarmen';
+import { spreek, stopSpraak } from '@/lib/spraak';
+import { volgendAlarm } from '@/lib/tijd';
+import type { Oefening, StapResultaat } from '@/types/app';
 
-const TITELS: [string, string][] = [
-  ['LET’S ', 'GO.'],
-  ['MAKE ', 'IT.'],
-  ['OPEN ', 'UP.'],
-];
+const STANDAARD_MISSIE: Oefening[] = ['Squats', 'Bed opmaken', 'Gordijnen open'];
 
 export default function MissieScherm() {
-  const { showToast } = useDemo();
-  const [stap, setStap] = useState(0);
-  const [reps, setReps] = useState(0);
-  const [klaar, setKlaar] = useState(false);
+  const params = useLocalSearchParams<{
+    alarmId?: string;
+    occurrenceId?: string;
+    vervolgId?: string;
+    vanWekker?: string;
+  }>();
+  const { alarms } = useAlarmen();
+  const { slaOp, statistiek } = useSessies();
+  const { showToast } = useToast();
 
-  const naarVandaag = () => router.dismissTo('/');
+  const vanWekker = params.vanWekker === '1';
+  const alarm = useMemo(() => {
+    if (params.alarmId) return alarms.find((a) => a.id === params.alarmId) ?? null;
+    return volgendAlarm(alarms)?.alarm ?? null;
+  }, [alarms, params.alarmId]);
+  const oefeningen = alarm?.oefeningen ?? STANDAARD_MISSIE;
+  const streng = vanWekker && alarm ? isStreng(alarm.niveau) : false;
+
+  const [gestartOp] = useState(() => new Date());
+  const [stap, setStap] = useState(0);
+  const [poging, setPoging] = useState(0);
+  const [gedaan, setGedaan] = useState(0);
+  const [stapKlaar, setStapKlaar] = useState(false);
+  const [methode, setMethode] = useState<StapResultaat['methode']>('camera');
+  const [resultaten, setResultaten] = useState<StapResultaat[]>([]);
+  const [klaar, setKlaar] = useState(false);
+  const [feedback, setFeedback] = useState('');
+  const [stil, setStil] = useState(false);
+  const opgeslagen = useRef(false);
+
+  const oefening = oefeningen[stap]!;
+  const info = OEFENING_INFO[oefening];
+  const laatsteStap = stap === oefeningen.length - 1;
+
+  const zegt = useCallback(
+    (tekst: string) => {
+      setFeedback(tekst);
+      if (!stil) spreek(tekst);
+    },
+    [stil],
+  );
+
+  useEffect(() => () => stopSpraak(), []);
+
+  const onVoortgang = useCallback(
+    (waarde: number) => {
+      const begrensd = Math.min(waarde, info.doel);
+      setGedaan(begrensd);
+      if (info.eenheid === 'herhalingen') {
+        const zin =
+          info.spraak[Math.min(Math.floor((begrensd / info.doel) * 3), info.spraak.length - 1)];
+        if (zin && begrensd > 0 && begrensd % 5 === 0 && begrensd < info.doel) zegt(zin);
+      }
+    },
+    [info, zegt],
+  );
+
+  const onKlaar = useCallback(
+    (m: 'camera' | 'licht' | 'foto') => {
+      setMethode(m);
+      setGedaan(info.doel);
+      setStapKlaar(true);
+      zegt('Yes! Volgende stap.');
+    },
+    [info.doel, zegt],
+  );
+
+  const handmatigAfvinken = () => {
+    setMethode('handmatig');
+    setGedaan(info.doel);
+    setStapKlaar(true);
+  };
+
+  const opnieuw = () => {
+    setGedaan(0);
+    setStapKlaar(false);
+    setPoging((p) => p + 1);
+  };
+
+  const rondAf = async (status: 'voltooid' | 'afgebroken', stappen: StapResultaat[]) => {
+    if (opgeslagen.current) return;
+    opgeslagen.current = true;
+    const fout = await slaOp({
+      alarmId: alarm?.id ?? null,
+      gestartOp,
+      afgerondOp: new Date(),
+      status,
+      stappen,
+      totaalHerhalingen: stappen
+        .filter((s) => OEFENING_INFO[s.oefening].eenheid === 'herhalingen')
+        .reduce((som, s) => som + s.gedaan, 0),
+    });
+    if (fout) showToast(fout);
+    if (vanWekker && params.alarmId) {
+      await rondWekkerAf(params.alarmId, params.occurrenceId, params.vervolgId).catch(() => {});
+      if (status === 'voltooid' && alarm?.niveau === 'Hardcore') {
+        await planWakkerCheck(params.alarmId).catch(() => {});
+        showToast('Wakker-check over 5 minuten.');
+      }
+    }
+  };
+
+  const volgende = async () => {
+    const nieuw = [...resultaten, { oefening, doel: info.doel, gedaan: info.doel, methode }];
+    setResultaten(nieuw);
+    if (laatsteStap) {
+      setKlaar(true);
+      zegt('You did it! Je missie is klaar.');
+      await rondAf('voltooid', nieuw);
+      return;
+    }
+    setStap(stap + 1);
+    setGedaan(0);
+    setStapKlaar(false);
+  };
+
+  const bevestig = (titel: string, tekst: string, actie: () => void) => {
+    if (Platform.OS === 'web') {
+      if (window.confirm(`${titel}\n\n${tekst}`)) actie();
+      return;
+    }
+    Alert.alert(titel, tekst, [
+      { text: 'Annuleren', style: 'cancel' },
+      { text: 'Doorgaan', style: 'destructive', onPress: actie },
+    ]);
+  };
+
+  const sluit = () => {
+    if (vanWekker && streng) {
+      bevestig(
+        'Missie verlaten?',
+        'Je alarm gaat binnen een paar minuten opnieuw af tot je missie klaar is.',
+        () => router.dismissTo('/'),
+      );
+    } else {
+      router.dismissTo('/');
+    }
+  };
+
+  const noodstop = () =>
+    bevestig(
+      'Noodstop',
+      'Het alarm stopt en deze missie wordt als afgebroken opgeslagen.',
+      async () => {
+        await rondAf('afgebroken', resultaten);
+        router.dismissTo('/');
+        showToast('Missie gestopt.');
+      },
+    );
 
   if (klaar) {
     return (
@@ -32,7 +177,7 @@ export default function MissieScherm() {
         <StatusBar style="light" />
         <View style={styles.top}>
           <Text style={styles.stage}>MISSION COMPLETE</Text>
-          <SluitKnop label="Sluiten" onPress={naarVandaag} />
+          <SluitKnop label="Sluiten" onPress={() => router.dismissTo('/')} />
         </View>
         <View style={styles.done}>
           <View style={styles.doneIcon}>
@@ -43,113 +188,128 @@ export default function MissieScherm() {
             <Text style={styles.lime}>IT.</Text>
           </Text>
           <Text style={styles.doneText}>
-            Je hebt je hele ochtendmissie afgemaakt.{'\n'}Dat is hoe je een dag begint. 💪
+            Je hebt je hele missie afgemaakt.{'\n'}Dat is hoe je een dag begint. 💪
           </Text>
           <View style={styles.doneStat}>
             <View style={styles.doneStatItem}>
-              <Text style={styles.doneStatValue}>{DEMO_STREAK}</Text>
+              <Text style={styles.doneStatValue}>{Math.max(statistiek.streak, 1)}</Text>
               <Text style={styles.doneStatLabel}>DAGEN STREAK</Text>
             </View>
             <View style={styles.doneStatItem}>
-              <Text style={styles.doneStatValue}>3/3</Text>
+              <Text style={styles.doneStatValue}>
+                {oefeningen.length}/{oefeningen.length}
+              </Text>
               <Text style={styles.doneStatLabel}>MISSIES KLAAR</Text>
             </View>
           </View>
-          <PrimaryButton label="Terug naar vandaag" onPress={naarVandaag} />
+          <PrimaryButton label="Terug naar vandaag" onPress={() => router.dismissTo('/')} />
         </View>
       </Screen>
     );
   }
 
-  const taak = MISSIE_TAKEN[stap]!;
-  const isReps = stap === 0;
-  const gedaan = reps >= taak.total;
-  const [titel, accent] = TITELS[stap]!;
-
-  const voortgang = () => {
-    if (gedaan) {
-      if (stap >= MISSIE_TAKEN.length - 1) {
-        setKlaar(true);
-      } else {
-        setStap(stap + 1);
-        setReps(0);
-      }
-    } else {
-      setReps(Math.min(taak.total, reps + (isReps ? 5 : 1)));
-    }
-  };
-
-  const knopLabel = gedaan
-    ? stap === 2
-      ? 'Rond missie af'
-      : 'Volgende ronde'
-    : isReps
-      ? 'Simuleer 5 herhalingen'
-      : 'Markeer als uitgevoerd';
-
-  const spraak = gedaan
-    ? 'Yes! Volgende stap.'
-    : taak.voice[Math.min(Math.floor(reps / 5), taak.voice.length - 1)];
+  const [titel, accent] = info.titel;
+  const handmatigToegestaan = !streng || !alarmenBeschikbaar;
+  const label =
+    info.eenheid === 'herhalingen'
+      ? 'HERHALINGEN'
+      : info.eenheid === 'seconden'
+        ? 'SECONDEN'
+        : 'UITGEVOERD';
 
   return (
     <Screen dark>
       <StatusBar style="light" />
       <View style={styles.top}>
         <Text style={styles.stage}>
-          LIVE MISSIE <Text style={styles.stageMuted}>/ {stap + 1} VAN 3</Text>
+          LIVE MISSIE{' '}
+          <Text style={styles.stageMuted}>
+            / {stap + 1} VAN {oefeningen.length}
+          </Text>
         </Text>
-        <SluitKnop label="Missie verlaten" onPress={naarVandaag} />
+        <SluitKnop label="Missie verlaten" onPress={sluit} />
       </View>
       <Text style={styles.title}>
         {titel}
         <Text style={styles.lime}>{accent}</Text>
       </Text>
-      <Text style={styles.subtitle}>{taak.description}</Text>
+      <Text style={styles.subtitle}>{info.beschrijving}</Text>
       <View style={styles.steps}>
-        {MISSIE_TAKEN.map((t, i) => (
-          <View key={t.title} style={[styles.step, i <= stap && styles.stepFilled]} />
+        {oefeningen.map((o, i) => (
+          <View key={`${o}-${i}`} style={[styles.step, i <= stap && styles.stepFilled]} />
         ))}
       </View>
 
-      <CameraCard modus={isReps ? 'pose' : 'object'} emoji={stap === 1 ? '🛏️' : '☀️'} />
+      {!stapKlaar ? (
+        <StapDetector
+          key={`${stap}-${poging}`}
+          oefening={oefening}
+          onVoortgang={onVoortgang}
+          onFeedback={zegt}
+          onKlaar={onKlaar}
+        />
+      ) : (
+        <View style={styles.stapKlaar}>
+          <Text style={styles.stapKlaarEmoji}>{info.emoji}</Text>
+          <Text style={styles.stapKlaarTekst}>Stap afgerond</Text>
+        </View>
+      )}
 
       <View style={styles.repsRow}>
         <View>
-          <Text style={styles.repsLabel}>{isReps ? 'HERHALINGEN' : 'UITGEVOERD'}</Text>
+          <Text style={styles.repsLabel}>{label}</Text>
           <Text style={styles.repsCount}>
-            {reps}
-            <Text style={styles.repsTotal}> / {taak.total}</Text>
+            {gedaan}
+            <Text style={styles.repsTotal}> / {info.doel}</Text>
           </Text>
         </View>
-        <LevelTag level="hard" label={gedaan ? 'KLAAR ✓' : 'BEZIG'} />
+        <LevelTag level="hard" label={stapKlaar ? 'KLAAR ✓' : 'BEZIG'} />
       </View>
 
-      <View style={styles.voice}>
-        <Icon name="sound" size={17} color={kleuren.lime} />
-        <Text style={styles.voiceText}>{spraak}</Text>
-      </View>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={stil ? 'Spraak aanzetten' : 'Spraak uitzetten'}
+        onPress={() => {
+          if (!stil) stopSpraak();
+          setStil(!stil);
+        }}
+        style={styles.voice}
+      >
+        <Icon name="sound" size={17} color={stil ? '#668068' : kleuren.lime} />
+        <Text style={styles.voiceText}>{feedback || info.spraak[0]}</Text>
+      </Pressable>
 
       <View style={styles.actions}>
-        <PrimaryButton label={knopLabel} onPress={voortgang} style={styles.flex} />
+        {stapKlaar ? (
+          <PrimaryButton
+            label={laatsteStap ? 'Rond missie af' : 'Volgende ronde'}
+            onPress={volgende}
+            style={styles.flex}
+          />
+        ) : handmatigToegestaan ? (
+          <PrimaryButton
+            label="Markeer als uitgevoerd"
+            icon="check"
+            onPress={handmatigAfvinken}
+            style={styles.flex}
+          />
+        ) : (
+          <View style={[styles.flex, styles.wachtKnop]}>
+            <Text style={styles.wachtTekst}>Rond de stap af voor de camera</Text>
+          </View>
+        )}
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Start ronde opnieuw"
-          onPress={() => setReps(0)}
+          onPress={opnieuw}
           style={styles.outlineBtn}
         >
           <Text style={styles.outlineBtnText}>↺</Text>
         </Pressable>
       </View>
 
-      <Pressable
-        accessibilityRole="button"
-        onPress={() => {
-          naarVandaag();
-          showToast('Demo-missie gestopt.');
-        }}
-        style={styles.emergency}
-      >
-        <Text style={styles.emergencyText}>Noodstop (concept)</Text>
+      <Pressable accessibilityRole="button" onPress={noodstop} style={styles.emergency}>
+        <Text style={styles.emergencyText}>Noodstop</Text>
       </Pressable>
     </Screen>
   );
@@ -207,6 +367,24 @@ const styles = StyleSheet.create({
   steps: { flexDirection: 'row', gap: 5 },
   step: { flex: 1, height: 5, borderRadius: 10, backgroundColor: '#354337' },
   stepFilled: { backgroundColor: kleuren.lime },
+  stapKlaar: {
+    height: 285,
+    marginTop: 18,
+    borderRadius: 23,
+    borderWidth: 1,
+    borderColor: '#50674E',
+    backgroundColor: '#1B2C22',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  stapKlaarEmoji: { fontSize: 90 },
+  stapKlaarTekst: {
+    fontFamily: fonts.body800,
+    fontSize: 11,
+    letterSpacing: em(0.13, 11),
+    color: kleuren.lime,
+  },
   repsRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -239,6 +417,15 @@ const styles = StyleSheet.create({
   },
   voiceText: { flex: 1, fontFamily: fonts.body400, fontSize: 12, color: '#D3E2CC' },
   actions: { flexDirection: 'row', gap: 9, marginTop: 14 },
+  wachtKnop: {
+    minHeight: 51,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: '#415C42',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  wachtTekst: { fontFamily: fonts.body800, fontSize: 12, color: '#9CB09C' },
   outlineBtn: {
     borderWidth: 1,
     borderColor: '#61735E',

@@ -6,7 +6,7 @@ Mobiele app voor iOS en Android, gebouwd met Expo, Expo Router en Supabase.
 
 - Node.js 20 of hoger en npm
 - Expo-account (voor EAS)
-- De Expo Go-app op je telefoon (App Store / Google Play)
+- Een fysieke telefoon (Android, of iPhone met iOS 26+ voor echte alarmen)
 
 ## Lokaal starten
 
@@ -26,15 +26,25 @@ Controleren: `npm run lint` en `npm run typecheck`.
 - **Eigen SMTP:** de standaard-mailserver van Supabase verstuurt alleen naar leden van je organisatie en maar een paar mails per uur. Stel onder Authentication → SMTP Settings een eigen provider in (bijvoorbeeld Resend).
 - Migraties staan in `supabase/migrations/`, Edge Functions in `supabase/functions/`.
 
-## Testen in Expo Go
+## Testen op je telefoon
 
-1. Zorg dat je telefoon en computer op hetzelfde wifi-netwerk zitten.
-2. Start `npx expo start`.
-3. Scan de QR-code: op iOS met de Camera-app, op Android vanuit Expo Go.
+Mooove gebruikt native modules (alarmen en camera) en werkt daarom **niet in Expo Go**. Test met een development build:
 
-Werkt het netwerk niet, gebruik dan `npx expo start --tunnel`.
+1. Maak eenmalig een development build: `npx eas-cli@latest build --profile development --platform android` (of `ios`; daarvoor moet je toestel geregistreerd zijn via `npx eas-cli@latest device:create`).
+2. Installeer de build op je telefoon via de link die EAS geeft.
+3. Start de dev-server met `npx expo start` en open het project vanuit de development build.
 
-Expo Go bevat alleen de standaardmodules van Expo. Zodra er een bibliotheek met eigen native code nodig is, test je met een development build (zie hieronder).
+Echte alarmen op iOS vereisen **iOS 26 of nieuwer** (AlarmKit). Camera-herkenning werkt alleen op een fysiek toestel, niet in een simulator.
+
+Zo test je de belangrijkste flows:
+
+- **Testalarm:** Profiel → _Test je alarm_. Zet je telefoon op stil en vergrendel hem; na 30 seconden gaat het alarm af.
+- **Missie zonder alarm:** Vandaag → _Start je missie nu_.
+- **Echt alarm:** maak een alarm een paar minuten in de toekomst. Bij alles behalve _Vrij_ stopt het alarm pas na je missie.
+
+Android-tip: zet batterij-optimalisatie voor Mooove uit (vooral bij Samsung, Xiaomi, Oppo), anders kan het systeem de app afsluiten.
+
+Voor snelle UI-tests kan `npx expo start --web`; alarmen en camera zijn daar uitgeschakeld.
 
 ## Builden via EAS
 

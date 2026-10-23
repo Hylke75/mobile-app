@@ -14,6 +14,9 @@ type AuthContextWaarde = {
   vraagCodeAan: (email: string) => Promise<string | null>;
   controleerCode: (email: string, code: string) => Promise<string | null>;
   slaVoornaamOp: (voornaam: string) => Promise<string | null>;
+  werkProfielBij: (
+    wijziging: Partial<Pick<Profiel, 'voornaam' | 'weekdoel' | 'alarmtest_geslaagd_op'>>,
+  ) => Promise<string | null>;
   uitloggen: () => Promise<void>;
   verwijderAccount: () => Promise<string | null>;
 };
@@ -63,12 +66,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [laadProfiel],
   );
 
-  const slaVoornaamOp = useCallback(
-    async (voornaam: string) => {
+  const werkProfielBij = useCallback(
+    async (
+      wijziging: Partial<Pick<Profiel, 'voornaam' | 'weekdoel' | 'alarmtest_geslaagd_op'>>,
+    ) => {
       if (!session) return 'Je bent niet ingelogd.';
       const { data, error } = await supabase
         .from('profiles')
-        .update({ voornaam })
+        .update(wijziging)
         .eq('id', session.user.id)
         .select()
         .single();
@@ -77,6 +82,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return null;
     },
     [session],
+  );
+
+  const slaVoornaamOp = useCallback(
+    (voornaam: string) => werkProfielBij({ voornaam }),
+    [werkProfielBij],
   );
 
   const uitloggen = useCallback(async () => {
@@ -102,6 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         vraagCodeAan,
         controleerCode,
         slaVoornaamOp,
+        werkProfielBij,
         uitloggen,
         verwijderAccount,
       }}

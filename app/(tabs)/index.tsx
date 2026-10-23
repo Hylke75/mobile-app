@@ -5,14 +5,45 @@ import Svg, { Circle } from 'react-native-svg';
 import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import { gedeeld, PrimaryButton, SectionTitleRow } from '@/components/ui';
-import { DEMO_STREAK, OCHTENDMISSIE } from '@/constants/demo';
+import { dagenTekst, missiesTekst } from '@/constants/alarm';
+import { doelTekst, OEFENING_INFO } from '@/constants/oefeningen';
 import { em, fonts, kleuren } from '@/constants/theme';
+import { useAlarmCheck } from '@/hooks/useAlarmCheck';
+import { useAlarmen } from '@/hooks/useAlarmen';
 import { useAuth } from '@/hooks/useAuth';
+import { useSessies } from '@/hooks/useSessies';
 import { datumKicker } from '@/lib/datum';
+import { dagSleutel, startVanDag, volgendAlarm } from '@/lib/tijd';
+import type { Oefening } from '@/types/app';
+
+const STANDAARD_MISSIE: Oefening[] = ['Squats', 'Bed opmaken', 'Gordijnen open'];
+
+const WEEKDAGEN = ['zondag', 'maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag'];
+
+function wanneerTekst(op: Date): string {
+  const vandaag = startVanDag(new Date());
+  const dag = startVanDag(op);
+  const verschil = Math.round((dag.getTime() - vandaag.getTime()) / 86400000);
+  if (verschil === 0) return 'Vandaag';
+  if (verschil === 1) return 'Morgen';
+  return `A.s. ${WEEKDAGEN[op.getDay()]}`;
+}
 
 export default function VandaagScherm() {
   const { profiel } = useAuth();
+  const { alarms } = useAlarmen();
+  const { sessies, statistiek } = useSessies();
+  const { allesInOrde } = useAlarmCheck();
   const voornaam = profiel?.voornaam ?? '';
+
+  const volgend = volgendAlarm(alarms);
+  const missie = volgend?.alarm.oefeningen ?? STANDAARD_MISSIE;
+  const vandaagKlaar = sessies.some(
+    (s) =>
+      s.status === 'voltooid' &&
+      dagSleutel(s.afgerondOp) === dagSleutel(new Date()) &&
+      (!volgend || s.alarmId === volgend.alarm.id),
+  );
 
   return (
     <Screen>
@@ -73,10 +104,14 @@ export default function VandaagScherm() {
           </View>
         </View>
         <View style={styles.streakRow}>
-          <Text style={styles.streakCount}>{DEMO_STREAK}</Text>
-          <Text style={styles.streakSmall}>DAGEN</Text>
+          <Text style={styles.streakCount}>{statistiek.streak}</Text>
+          <Text style={styles.streakSmall}>{statistiek.streak === 1 ? 'DAG' : 'DAGEN'}</Text>
         </View>
-        <Text style={styles.streakSub}>Je bent niet te stoppen. Keep going!</Text>
+        <Text style={styles.streakSub}>
+          {statistiek.streak > 0
+            ? 'Je bent niet te stoppen. Keep going!'
+            : 'Rond vandaag je eerste missie af en start je streak.'}
+        </Text>
         <Text style={styles.sparkle}>✳</Text>
       </View>
 
@@ -88,56 +123,97 @@ export default function VandaagScherm() {
           </Pressable>
         }
       />
-      <View style={styles.nextAlarm}>
-        <View style={gedeeld.rowBetween}>
-          <View style={styles.alarmTimeRow}>
-            <Text style={styles.alarmTime}>07:00</Text>
-            <Text style={styles.alarmTimeSmall}>MA – VR</Text>
+      {volgend ? (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() =>
+            router.push({ pathname: '/nieuw-alarm', params: { id: volgend.alarm.id } })
+          }
+          style={styles.nextAlarm}
+        >
+          <View style={gedeeld.rowBetween}>
+            <View style={styles.alarmTimeRow}>
+              <Text style={styles.alarmTime}>{volgend.alarm.tijd}</Text>
+              <Text style={styles.alarmTimeSmall}>
+                {dagenTekst(volgend.alarm.dagen).toUpperCase()}
+              </Text>
+            </View>
+            <View style={styles.pillLabel}>
+              <Text style={styles.pillLabelText}>{volgend.alarm.niveau.toUpperCase()}</Text>
+            </View>
           </View>
-          <View style={styles.pillLabel}>
-            <Text style={styles.pillLabelText}>VERPLICHT</Text>
+          <Text style={styles.alarmSub}>{volgend.alarm.naam}</Text>
+          <Text style={styles.alarmCaption}>
+            {missiesTekst(volgend.alarm.oefeningen.length)} · {wanneerTekst(volgend.op)}
+          </Text>
+          <View style={styles.alarmShape}>
+            <Text style={styles.alarmShapeArrow}>↗</Text>
           </View>
-        </View>
-        <Text style={styles.alarmSub}>Wake up & move</Text>
-        <Text style={styles.alarmCaption}>3 missies · Je start sterk</Text>
-        <View style={styles.alarmShape}>
-          <Text style={styles.alarmShapeArrow}>↗</Text>
-        </View>
-      </View>
+        </Pressable>
+      ) : (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => router.push('/nieuw-alarm')}
+          style={styles.nextAlarm}
+        >
+          <Text style={styles.alarmSub}>Nog geen alarm gepland.</Text>
+          <Text style={styles.alarmCaption}>Tik hier om je eerste Mooove-alarm te zetten.</Text>
+          <View style={styles.alarmShape}>
+            <Text style={styles.alarmShapeArrow}>↗</Text>
+          </View>
+        </Pressable>
+      )}
 
-      <SectionTitleRow titel="Jouw ochtendmissie" rechts="03 STAPPEN" />
+      <SectionTitleRow
+        titel="Jouw ochtendmissie"
+        rechts={`${String(missie.length).padStart(2, '0')} STAPPEN`}
+      />
       <View style={styles.missionList}>
-        {OCHTENDMISSIE.map((rij, i) => (
+        {missie.map((oefening, i) => (
           <View
-            key={rij.index}
-            style={[styles.missionRow, i === OCHTENDMISSIE.length - 1 && styles.missionRowLast]}
+            key={`${oefening}-${i}`}
+            style={[styles.missionRow, i === missie.length - 1 && styles.missionRowLast]}
           >
-            <Text style={styles.missionIndex}>{rij.index}</Text>
+            <Text style={styles.missionIndex}>{String(i + 1).padStart(2, '0')}</Text>
             <View style={styles.missionEmoji}>
-              <Text style={styles.missionEmojiText}>{rij.emoji}</Text>
+              <Text style={styles.missionEmojiText}>{OEFENING_INFO[oefening].emoji}</Text>
             </View>
             <View>
-              <Text style={styles.missionName}>{rij.naam}</Text>
-              <Text style={styles.missionDetail}>{rij.detail}</Text>
+              <Text style={styles.missionName}>{oefening}</Text>
+              <Text style={styles.missionDetail}>{doelTekst(oefening)}</Text>
             </View>
-            <View style={styles.missionCheck}>
-              <Icon name="check" size={13} color="#C1CEC0" />
+            <View style={[styles.missionCheck, vandaagKlaar && styles.missionCheckKlaar]}>
+              <Icon name="check" size={13} color={vandaagKlaar ? kleuren.ink : '#C1CEC0'} />
             </View>
           </View>
         ))}
       </View>
 
       <PrimaryButton
-        label="Bekijk de missie-demo"
-        onPress={() => router.push('/missie')}
+        label={vandaagKlaar ? 'Doe je missie nog een keer' : 'Start je missie nu'}
+        onPress={() =>
+          router.push({
+            pathname: '/missie',
+            params: volgend ? { alarmId: volgend.alarm.id } : {},
+          })
+        }
         style={styles.homeStart}
       />
-      <View style={styles.insight}>
-        <Icon name="shield" size={17} color="#679E5E" />
+      <Pressable onPress={() => router.navigate('/profiel')} style={styles.insight}>
+        <Icon name="shield" size={17} color={allesInOrde ? '#679E5E' : '#C2462F'} />
         <Text style={styles.insightText}>
-          <Text style={styles.insightStrong}>Ready to go.</Text> Je alarm-check is in orde.
+          {allesInOrde ? (
+            <>
+              <Text style={styles.insightStrong}>Ready to go.</Text> Je alarm-check is in orde.
+            </>
+          ) : (
+            <>
+              <Text style={styles.insightStrong}>Let op.</Text> Rond je alarm-check af in je
+              profiel.
+            </>
+          )}
         </Text>
-      </View>
+      </Pressable>
     </Screen>
   );
 }
@@ -297,6 +373,7 @@ const styles = StyleSheet.create({
   missionEmojiText: { fontSize: 18 },
   missionName: { fontFamily: fonts.body800, fontSize: 12, color: kleuren.ink },
   missionDetail: { fontFamily: fonts.body400, fontSize: 10, color: '#879489', marginTop: 3 },
+  missionCheckKlaar: { backgroundColor: kleuren.lime, borderColor: kleuren.lime },
   missionCheck: {
     width: 21,
     height: 21,

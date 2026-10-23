@@ -1,10 +1,9 @@
-// Gesimuleerde camerakaart: er wordt geen echt camerabeeld gebruikt.
+// Grafische camera-illustratie uit het ontwerp, gebruikt waar geen camera beschikbaar is.
 import { useEffect, useState } from 'react';
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Defs, G, Line, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
 
-import { Icon } from '@/components/Icon';
-import { em, fonts, kleuren } from '@/constants/theme';
+import { kleuren } from '@/constants/theme';
 
 const HOOGTE = 285;
 
@@ -58,7 +57,7 @@ function Lichaamsfiguur() {
   );
 }
 
-export function CameraCard({ modus, emoji }: { modus: 'pose' | 'object'; emoji?: string }) {
+export function CameraIllustratie({ modus, emoji }: { modus: 'pose' | 'object'; emoji?: string }) {
   const [breedte, setBreedte] = useState(0);
   const [scan] = useState(() => new Animated.Value(0));
 
@@ -84,18 +83,8 @@ export function CameraCard({ modus, emoji }: { modus: 'pose' | 'object'; emoji?:
   }, [scan]);
 
   return (
-    <View style={styles.card} onLayout={(e) => setBreedte(e.nativeEvent.layout.width)}>
+    <View style={styles.vul} onLayout={(e) => setBreedte(e.nativeEvent.layout.width)}>
       {breedte > 0 && <Achtergrond breedte={breedte} />}
-      <View style={styles.topLeft}>
-        <View style={styles.recDot} />
-        <Text style={styles.topLeftText}>
-          {modus === 'pose' ? 'POSE DETECTION' : 'OBJECT DETECTION'}
-        </Text>
-      </View>
-      <View style={[styles.corner, styles.cornerTl]} />
-      <View style={[styles.corner, styles.cornerTr]} />
-      <View style={[styles.corner, styles.cornerBl]} />
-      <View style={[styles.corner, styles.cornerBr]} />
       {modus === 'pose' ? (
         <Lichaamsfiguur />
       ) : (
@@ -119,61 +108,12 @@ export function CameraCard({ modus, emoji }: { modus: 'pose' | 'object'; emoji?:
           },
         ]}
       />
-      <View style={styles.noteWrap} pointerEvents="none">
-        <View style={styles.note}>
-          <Icon name="shield" size={11} color="#C5D6BE" />
-          <Text style={styles.noteText}>CAMERA PREVIEW · DEMO</Text>
-        </View>
-      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    height: HOOGTE,
-    borderWidth: 1,
-    borderColor: '#50674E',
-    borderRadius: 23,
-    backgroundColor: '#1B2C22',
-    overflow: 'hidden',
-    marginTop: 18,
-  },
-  topLeft: {
-    position: 'absolute',
-    top: 13,
-    left: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  topLeftText: {
-    fontFamily: fonts.body800,
-    fontSize: 9,
-    letterSpacing: em(0.13, 9),
-    color: '#A4C4A0',
-  },
-  recDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: kleuren.lime,
-    shadowColor: kleuren.lime,
-    shadowOpacity: 1,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 0 },
-  },
-  corner: {
-    position: 'absolute',
-    width: 27,
-    height: 27,
-    borderColor: kleuren.lime,
-    opacity: 0.7,
-  },
-  cornerTl: { top: 38, left: 16, borderTopWidth: 2, borderLeftWidth: 2 },
-  cornerTr: { top: 38, right: 16, borderTopWidth: 2, borderRightWidth: 2 },
-  cornerBl: { bottom: 25, left: 16, borderBottomWidth: 2, borderLeftWidth: 2 },
-  cornerBr: { bottom: 25, right: 16, borderBottomWidth: 2, borderRightWidth: 2 },
+  vul: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
   figure: {
     position: 'absolute',
     top: 25,
@@ -200,23 +140,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: 7,
     shadowOffset: { width: 0, height: 0 },
-  },
-  noteWrap: { position: 'absolute', bottom: 14, left: 0, right: 0, alignItems: 'center' },
-  note: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    borderRadius: 30,
-    backgroundColor: 'rgba(31,48,38,0.73)',
-    borderWidth: 1,
-    borderColor: '#546E54',
-    paddingVertical: 7,
-    paddingHorizontal: 11,
-  },
-  noteText: {
-    fontFamily: fonts.body400,
-    fontSize: 9,
-    letterSpacing: em(0.06, 9),
-    color: '#C5D6BE',
   },
 });

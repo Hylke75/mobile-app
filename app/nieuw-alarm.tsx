@@ -2,17 +2,20 @@ import DateTimePicker, {
   DateTimePickerAndroid,
   type DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
-import { gedeeld, PrimaryButton } from '@/components/ui';
-import { DAG_LETTERS, DAG_NAMEN, NIVEAUS, OEFENINGEN } from '@/constants/demo';
+import { gedeeld, PrimaryButton, SecondaryButton } from '@/components/ui';
+import { DAG_LETTERS, DAG_NAMEN, NIVEAUS, OEFENINGEN } from '@/constants/alarm';
 import { em, fonts, kleuren } from '@/constants/theme';
-import { useDemo } from '@/hooks/useDemo';
-import type { Niveau } from '@/types/demo';
+import { useAlarmen } from '@/hooks/useAlarmen';
+import { useToast } from '@/hooks/useToast';
+import { haalRechtenOp, vraagRechtenAan } from '@/lib/alarmen';
+import { cameraStatus, vraagCameraAan } from '@/lib/camera';
+import type { Niveau, Oefening } from '@/types/app';
 
 const NIVEAU_RIJEN: (Niveau | null)[][] = [
   ['Vrij', 'Flexibel', 'Uitstelbaar'],
@@ -30,11 +33,18 @@ const naarTijd = (d: Date) =>
   `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 
 export default function NieuwAlarmScherm() {
-  const { addAlarm, showToast } = useDemo();
-  const [time, setTime] = useState('07:00');
-  const [days, setDays] = useState<number[]>([0, 1, 2, 3, 4]);
-  const [level, setLevel] = useState<Niveau>('Verplicht');
-  const [exercises, setExercises] = useState<string[]>(['Squats', 'Bed opmaken']);
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { alarms, maakAan, werkBij, verwijder } = useAlarmen();
+  const { showToast } = useToast();
+  const bestaand = id ? alarms.find((a) => a.id === id) : undefined;
+  const [naam, setNaam] = useState(bestaand?.naam ?? 'Mijn Mooove-missie');
+  const [time, setTime] = useState(bestaand?.tijd ?? '07:00');
+  const [days, setDays] = useState<number[]>(bestaand?.dagen ?? [0, 1, 2, 3, 4]);
+  const [level, setLevel] = useState<Niveau>(bestaand?.niveau ?? 'Verplicht');
+  const [exercises, setExercises] = useState<Oefening[]>(
+    bestaand?.oefeningen ?? ['Squats', 'Bed opmaken'],
+  );
+  const [bezig, setBezig] = useState(false);
   const [iosPickerOpen, setIosPickerOpen] = useState(false);
 
   const wissel = <T,>(lijst: T[], waarde: T) =>
@@ -57,12 +67,50 @@ export default function NieuwAlarmScherm() {
     }
   };
 
-  const opslaan = () => {
+  const opslaan = async () => {
+    if (bezig) return;
+    if (!/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(time)) return showToast('Kies een geldige tijd.');
+    if (!naam.trim()) return showToast('Geef je alarm een naam.');
     if (!days.length) return showToast('Kies minimaal één dag.');
     if (!exercises.length) return showToast('Kies minimaal één missie.');
-    addAlarm({ time, days, level, exercises });
+    setBezig(true);
+
+    const rechten = await haalRechtenOp().catch(() => null);
+    if (rechten && !rechten.canScheduleExactAlarms && rechten.status !== 'unavailable') {
+      await vraagRechtenAan().catch(() => null);
+    }
+    if (cameraStatus() === 'onbekend') await vraagCameraAan().catch(() => false);
+
+    const invoer = {
+      naam: naam.trim(),
+      tijd: time,
+      dagen: [...days].sort((a, b) => a - b),
+      niveau: level,
+      oefeningen: exercises,
+    };
+    const fout = bestaand ? await werkBij(bestaand.id, invoer) : await maakAan(invoer);
+    setBezig(false);
+    if (fout) return showToast(fout);
     router.dismissTo('/alarmen');
-    showToast('Je nieuwe alarm staat in de lijst!');
+    showToast(bestaand ? 'Je alarm is bijgewerkt.' : 'Je nieuwe alarm staat in de lijst!');
+  };
+
+  const verwijderAlarm = () => {
+    if (!bestaand) return;
+    const actie = async () => {
+      const fout = await verwijder(bestaand.id);
+      if (fout) return showToast(fout);
+      router.dismissTo('/alarmen');
+      showToast('Alarm verwijderd.');
+    };
+    if (Platform.OS === 'web') {
+      if (window.confirm('Alarm verwijderen?')) actie();
+      return;
+    }
+    Alert.alert('Alarm verwijderen?', 'Dit alarm gaat daarna niet meer af.', [
+      { text: 'Annuleren', style: 'cancel' },
+      { text: 'Verwijderen', style: 'destructive', onPress: actie },
+    ]);
   };
 
   return (
@@ -76,7 +124,8 @@ export default function NieuwAlarmScherm() {
         <Text style={gedeeld.backLinkText}>Terug naar alarmen</Text>
       </Pressable>
       <Text style={styles.title}>
-        Nieuw alarm<Text style={{ color: '#91B755' }}>.</Text>
+        {bestaand ? 'Alarm bewerken' : 'Nieuw alarm'}
+        <Text style={{ color: '#91B755' }}>.</Text>
       </Text>
 
       <View style={styles.timeEditor}>
@@ -110,6 +159,15 @@ export default function NieuwAlarmScherm() {
           />
         )}
       </View>
+
+      <Text style={styles.formLabel}>Naam</Text>
+      <TextInput
+        value={naam}
+        onChangeText={setNaam}
+        maxLength={40}
+        accessibilityLabel="Naam van het alarm"
+        style={styles.naamInput}
+      />
 
       <Text style={styles.formLabel}>Herhaal op</Text>
       <View style={styles.days}>
@@ -188,7 +246,14 @@ export default function NieuwAlarmScherm() {
         })}
       </View>
 
-      <PrimaryButton label="Alarm opslaan" onPress={opslaan} style={styles.save} />
+      <PrimaryButton
+        label={bezig ? 'Bezig…' : 'Alarm opslaan'}
+        onPress={opslaan}
+        style={styles.save}
+      />
+      {bestaand && (
+        <SecondaryButton label="Alarm verwijderen" onPress={verwijderAlarm} style={styles.delete} />
+      )}
     </Screen>
   );
 }
@@ -300,4 +365,16 @@ const styles = StyleSheet.create({
   exerciseText: { fontFamily: fonts.body800, fontSize: 11, color: '#7E8E7F' },
   exerciseTextSelected: { color: kleuren.ink },
   save: { marginTop: 22 },
+  delete: { marginTop: 10 },
+  naamInput: {
+    backgroundColor: kleuren.white,
+    borderWidth: 1,
+    borderColor: kleuren.line,
+    borderRadius: 15,
+    minHeight: 48,
+    paddingHorizontal: 16,
+    fontFamily: fonts.body700,
+    fontSize: 14,
+    color: kleuren.ink,
+  },
 });

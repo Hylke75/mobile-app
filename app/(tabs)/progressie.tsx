@@ -1,18 +1,59 @@
-// MOCKDATA: deze statistieken zijn voorbeeldwaarden uit het ontwerp, geen echte analytics.
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Screen } from '@/components/Screen';
 import { gedeeld, RoundPlus, ScreenHeader, SectionTitleRow } from '@/components/ui';
-import { DAG_LETTERS, DAG_NAMEN, DEMO_STREAK, WEEK_BALKEN } from '@/constants/demo';
+import { DAG_LETTERS, DAG_NAMEN } from '@/constants/alarm';
 import { em, fonts, kleuren } from '@/constants/theme';
+import { useSessies } from '@/hooks/useSessies';
+import { dagIndex } from '@/lib/tijd';
 
-const BADGES = [
-  { emoji: '⚡', naam: 'Early mover', detail: '5 vroege starts', behaald: true },
-  { emoji: '🔥', naam: 'Streak master', detail: '10 dagen op rij', behaald: true },
-  { emoji: '🏆', naam: 'Legend', detail: '30 dagen op rij', behaald: false },
+const MAANDEN = [
+  'JAN',
+  'FEB',
+  'MRT',
+  'APR',
+  'MEI',
+  'JUN',
+  'JUL',
+  'AUG',
+  'SEP',
+  'OKT',
+  'NOV',
+  'DEC',
 ];
 
+function weekLabel(start: Date): string {
+  const eind = new Date(start);
+  eind.setDate(eind.getDate() + 6);
+  if (start.getMonth() === eind.getMonth()) {
+    return `${start.getDate()} – ${eind.getDate()} ${MAANDEN[eind.getMonth()]}`;
+  }
+  return `${start.getDate()} ${MAANDEN[start.getMonth()]} – ${eind.getDate()} ${MAANDEN[eind.getMonth()]}`;
+}
+
+function verschilTekst(waarde: number | null, eenheid = ''): string | null {
+  if (waarde === null || waarde === 0) return null;
+  return `${waarde > 0 ? '↗ +' : '↘ '}${waarde}${eenheid}`;
+}
+
 export default function ProgressieScherm() {
+  const { statistiek } = useSessies();
+  const s = statistiek;
+  const hoogste = Math.max(...s.weekBalken, 1);
+  const vandaag = dagIndex(new Date());
+
+  const badges = [
+    { emoji: '⚡', naam: 'Early mover', detail: '5 vroege starts', behaald: s.vroegeStarts >= 5 },
+    {
+      emoji: '🔥',
+      naam: 'Streak master',
+      detail: '10 dagen op rij',
+      behaald: s.langsteStreak >= 10,
+    },
+    { emoji: '🏆', naam: 'Legend', detail: '30 dagen op rij', behaald: s.langsteStreak >= 30 },
+  ];
+  const ontgrendeld = badges.filter((b) => b.behaald).length;
+
   return (
     <Screen>
       <ScreenHeader
@@ -25,11 +66,14 @@ export default function ProgressieScherm() {
       <View style={styles.hero}>
         <Text style={styles.heroEyebrow}>JOUW MOMENTUM ↗</Text>
         <Text style={styles.heroTitle}>
-          {DEMO_STREAK} DAGEN{'\n'}
-          <Text style={styles.heroAccent}>ON FIRE.</Text>
+          {s.streak} {s.streak === 1 ? 'DAG' : 'DAGEN'}
+          {'\n'}
+          <Text style={styles.heroAccent}>{s.streak > 0 ? 'ON FIRE.' : 'LET’S START.'}</Text>
         </Text>
         <Text style={styles.heroText}>
-          Elke beweging telt. Je bouwt een routine die blijft hangen.
+          {s.streak > 0
+            ? 'Elke beweging telt. Je bouwt een routine die blijft hangen.'
+            : 'Rond een missie af om je streak te starten.'}
         </Text>
         <Text style={styles.starburst}>✳</Text>
       </View>
@@ -37,31 +81,39 @@ export default function ProgressieScherm() {
       <View style={styles.metricRow}>
         <View style={styles.metric}>
           <Text style={styles.metricValue}>
-            86<Text style={styles.metricUnit}>%</Text>
+            {s.voltooidPercentage ?? '–'}
+            {s.voltooidPercentage !== null && <Text style={styles.metricUnit}>%</Text>}
           </Text>
           <Text style={styles.metricLabel}>
-            Missies voltooid <Text style={styles.metricChange}>↗ +8%</Text>
+            Missies voltooid{' '}
+            <Text style={styles.metricChange}>{verschilTekst(s.voltooidVerschil, '%')}</Text>
           </Text>
         </View>
         <View style={styles.metric}>
-          <Text style={styles.metricValue}>124</Text>
+          <Text style={styles.metricValue}>{s.repsDezeWeek}</Text>
           <Text style={styles.metricLabel}>
-            Reps deze week <Text style={styles.metricChange}>↗ +22</Text>
+            Reps deze week <Text style={styles.metricChange}>{verschilTekst(s.repsVerschil)}</Text>
           </Text>
         </View>
       </View>
 
-      <SectionTitleRow titel="Deze week" rechts="19 – 25 OKT" />
+      <SectionTitleRow titel="Deze week" rechts={weekLabel(s.weekStart)} />
       <View style={styles.weekly}>
         <View style={gedeeld.rowBetween}>
           <Text style={styles.weeklyTitle}>Beweegmomenten</Text>
-          <Text style={gedeeld.sectionKicker}>TOTAAL 23</Text>
+          <Text style={gedeeld.sectionKicker}>TOTAAL {s.weekTotaal}</Text>
         </View>
         <View style={styles.chart}>
-          {WEEK_BALKEN.map((waarde, i) => (
+          {s.weekBalken.map((waarde, i) => (
             <View key={DAG_NAMEN[i]} style={styles.barCol}>
               <View style={styles.barArea}>
-                <View style={[styles.bar, { height: `${waarde}%` }, i === 3 && styles.barActive]} />
+                <View
+                  style={[
+                    styles.bar,
+                    { height: `${(waarde / hoogste) * 100}%` },
+                    i === vandaag && styles.barActive,
+                  ]}
+                />
               </View>
               <Text style={styles.barLabel}>{DAG_LETTERS[i]}</Text>
             </View>
@@ -69,9 +121,9 @@ export default function ProgressieScherm() {
         </View>
       </View>
 
-      <SectionTitleRow titel="Badges" rechts="2 ONTGRENDELD" />
+      <SectionTitleRow titel="Badges" rechts={`${ontgrendeld} ONTGRENDELD`} />
       <View style={styles.badgeRow}>
-        {BADGES.map((b) => (
+        {badges.map((b) => (
           <View key={b.naam} style={[styles.badge, !b.behaald && styles.badgeLocked]}>
             <Text style={styles.badgeEmoji}>{b.emoji}</Text>
             <Text style={styles.badgeName}>{b.naam}</Text>

@@ -18,7 +18,10 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Toast } from '@/components/Toast';
 import { kleuren } from '@/constants/theme';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
-import { DemoProvider } from '@/hooks/useDemo';
+import { AlarmenProvider } from '@/hooks/useAlarmen';
+import { SessiesProvider } from '@/hooks/useSessies';
+import { ToastProvider } from '@/hooks/useToast';
+import { useWekkerRouting } from '@/hooks/useWekkerRouting';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -39,11 +42,15 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <DemoProvider>
-          <RootNavigator />
-        </DemoProvider>
-      </AuthProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <AlarmenProvider>
+            <SessiesProvider>
+              <RootNavigator />
+            </SessiesProvider>
+          </AlarmenProvider>
+        </AuthProvider>
+      </ToastProvider>
     </SafeAreaProvider>
   );
 }
@@ -52,6 +59,8 @@ function RootNavigator() {
   const { status, profiel } = useAuth();
   const ingelogd = status === 'ingelogd';
   const heeftNaam = Boolean(profiel?.voornaam);
+
+  useWekkerRouting(ingelogd && heeftNaam);
 
   useEffect(() => {
     if (status !== 'laden') SplashScreen.hideAsync();
@@ -86,6 +95,10 @@ function RootNavigator() {
           <Stack.Screen
             name="missie"
             options={{ contentStyle: { backgroundColor: kleuren.ink } }}
+          />
+          <Stack.Screen
+            name="wekker"
+            options={{ contentStyle: { backgroundColor: kleuren.ink }, gestureEnabled: false }}
           />
         </Stack.Protected>
       </Stack>
