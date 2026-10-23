@@ -91,6 +91,8 @@ export function StapDetector(props: StapDetectorProps) {
   return <FotoStap {...props} />;
 }
 
+let poseGeneratie = 0;
+
 function useLaatste<T>(waarde: T) {
   const ref = useRef(waarde);
   useEffect(() => {
@@ -111,6 +113,7 @@ function PoseStap({ oefening, onVoortgang, onFeedback, onKlaar }: StapDetectorPr
 
   useEffect(() => {
     const stap = OEFENING_INFO[oefening];
+    const generatie = ++poseGeneratie;
     let interval: ReturnType<typeof setInterval> | undefined;
     let actief = true;
 
@@ -126,10 +129,11 @@ function PoseStap({ oefening, onVoortgang, onFeedback, onKlaar }: StapDetectorPr
       nitroPoseExercises.onPoseLost = () =>
         feedback.current('Ik zie je niet goed. Zorg dat je helemaal in beeld bent.');
       feedback.current(stap.instructie);
+      // De engine verwerkt pas frames als de sessie loopt; houding wordt intern gecontroleerd
+      nitroPoseExercises.startSession(stap.eenheid === 'seconden' ? 1 : stap.doel, 3);
       interval = setInterval(() => {
-        if (nitroPoseExercises.isReady()) {
+        if (nitroPoseExercises.status === 'active') {
           clearInterval(interval);
-          nitroPoseExercises.startSession(stap.eenheid === 'seconden' ? 1 : stap.doel, 3);
           setGestart(true);
           feedback.current(stap.spraak[0] ?? 'Daar gaan we!');
         }
@@ -146,8 +150,10 @@ function PoseStap({ oefening, onVoortgang, onFeedback, onKlaar }: StapDetectorPr
       nitroPoseExercises.onPostureRegained = undefined;
       nitroPoseExercises.onPoseLost = undefined;
       nitroPoseExercises.stopSession();
-      // Even wachten zodat een frame dat nog wordt verwerkt eerst klaar is
-      setTimeout(() => nitroPoseExercises.release(), 500);
+      // Pas vrijgeven als er intussen geen nieuwe stap is gestart (de engine is gedeeld)
+      setTimeout(() => {
+        if (poseGeneratie === generatie) nitroPoseExercises.release();
+      }, 500);
     };
   }, [oefening, voortgang, feedback, klaar]);
 

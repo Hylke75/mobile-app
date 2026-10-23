@@ -20,7 +20,7 @@ import {
   type Wekker,
   type WekkerType,
 } from '@/lib/alarmen';
-import { actieveMissie } from '@/lib/missieStatus';
+import { actieveMissie, werkVervolgBij } from '@/lib/missieStatus';
 
 function tijdNu(): string {
   const d = new Date();
@@ -97,6 +97,7 @@ export default function WekkerScherm() {
       const vervolgId = await startMissieVanuitWekker(wekker);
       // Loopt de missie voor dit alarm al, dan gaan we daar gewoon mee verder
       if (actieveMissie()?.alarmId === wekker.alarmId) {
+        werkVervolgBij(wekker.alarmId, vervolgId);
         router.back();
         return;
       }

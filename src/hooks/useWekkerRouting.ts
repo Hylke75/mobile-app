@@ -8,7 +8,7 @@ import { actieveMissie, werkVervolgBij } from '@/lib/missieStatus';
 
 // Stuurt de gebruiker naar het wekker-scherm zodra een alarm afgaat of de app opent.
 // Werkt los van inloggen en internet, zodat een alarm altijd af te ronden is.
-export function useWekkerRouting() {
+export function useWekkerRouting(navigatorKlaar: boolean) {
   const pad = usePathname();
   const huidigPad = useRef(pad);
   const laatsteSleutel = useRef<string | null>(null);
@@ -18,10 +18,16 @@ export function useWekkerRouting() {
   }, [pad]);
 
   useEffect(() => {
+    // Pas navigeren als de Stack gemount is
+    if (!navigatorKlaar) return;
     let bezig = false;
+    let nogEens = false;
 
     const controleer = async () => {
-      if (bezig) return;
+      if (bezig) {
+        nogEens = true;
+        return;
+      }
       bezig = true;
       try {
         const wekker = await huidigeWekker();
@@ -61,6 +67,10 @@ export function useWekkerRouting() {
         // Geen alarmmodule beschikbaar (bijvoorbeeld zonder native build)
       } finally {
         bezig = false;
+        if (nogEens) {
+          nogEens = false;
+          controleer();
+        }
       }
     };
 
@@ -73,5 +83,5 @@ export function useWekkerRouting() {
       sub.remove();
       stop();
     };
-  }, []);
+  }, [navigatorKlaar]);
 }

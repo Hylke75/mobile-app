@@ -119,10 +119,23 @@ export async function openAlarmInstellingen(): Promise<void> {
 }
 
 let wachtrij: Promise<void> = Promise.resolve();
+// Tijdens uitloggen mag niets opnieuw worden ingepland
+let geblokkeerd = false;
+
+function inWachtrij(taak: () => Promise<void>): Promise<void> {
+  const run = wachtrij.then(taak);
+  wachtrij = run.catch(() => {});
+  return run;
+}
+
+export function deblokkeerSynchronisatie(): void {
+  geblokkeerd = false;
+}
 
 // Brengt de native alarmen in lijn met de alarmen uit de database; runs lopen na elkaar
 export function synchroniseer(alarms: Alarm[]): Promise<void> {
-  const run = wachtrij.then(async () => {
+  return inWachtrij(async () => {
+    if (geblokkeerd) return;
     const rechten = await AlarmScheduler.getPermissionsAsync();
     if (!rechten.canScheduleExactAlarms) return;
 
@@ -142,22 +155,22 @@ export function synchroniseer(alarms: Alarm[]): Promise<void> {
       if (!nogGepland.has(alarm.id)) await AlarmScheduler.scheduleAlarmAsync(alarmInput(alarm));
     }
   });
-  wachtrij = run.catch(() => {});
-  return run;
 }
 
 // Bij uitloggen of account verwijderen: niets mag nog afgaan op dit toestel
-export async function annuleerAlles(): Promise<void> {
-  await wachtrij;
-  const gepland = await AlarmScheduler.getScheduledAlarmsAsync().catch(() => []);
-  const context = await AlarmScheduler.getCurrentAlarmContextAsync().catch(() => null);
-  const ids = new Set([...gepland.map((a) => a.id), ...(context ? [context.id] : [])]);
-  for (const id of ids) {
-    await AlarmScheduler.completeNativeAlarmAsync(id).catch(() => {});
-    await AlarmScheduler.cancelAlarmAsync(id).catch(() => false);
-  }
-  await AlarmScheduler.clearPendingNativeAlarmHandoffAsync().catch(() => {});
-  await AlarmScheduler.clearPendingAlarmActionsAsync().catch(() => {});
+export function annuleerAlles(): Promise<void> {
+  geblokkeerd = true;
+  return inWachtrij(async () => {
+    const gepland = await AlarmScheduler.getScheduledAlarmsAsync().catch(() => []);
+    const context = await AlarmScheduler.getCurrentAlarmContextAsync().catch(() => null);
+    const ids = new Set([...gepland.map((a) => a.id), ...(context ? [context.id] : [])]);
+    for (const id of ids) {
+      await AlarmScheduler.completeNativeAlarmAsync(id).catch(() => {});
+      await AlarmScheduler.cancelAlarmAsync(id).catch(() => false);
+    }
+    await AlarmScheduler.clearPendingNativeAlarmHandoffAsync().catch(() => {});
+    await AlarmScheduler.clearPendingAlarmActionsAsync().catch(() => {});
+  });
 }
 
 export async function annuleerAlarm(id: string): Promise<void> {
@@ -223,7 +236,7 @@ export async function huidigeWekker(): Promise<Wekker | null> {
 
   if (context?.state === 'alerting' || (handoffRecent && hoortBijContext)) {
     const afgeschermd = context!.metadata?.afgeschermd !== false;
-    if (handoff?.action === 'nativeStop') {
+    if (handoff?.action === 'nativeStop' && handoff.alarmId === context!.id) {
       // Bij een alarm met stopknop is "stop" gewoon stoppen; bij een afgeschermd alarm niet
       if (!afgeschermd) return null;
       await AlarmScheduler.scheduleNativeAlarmBackupAsync(context!.id, 0.1);

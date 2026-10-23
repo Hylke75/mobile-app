@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import * as Crypto from 'expo-crypto';
 import { AppState } from 'react-native';
 
 import { useAuth } from '@/hooks/useAuth';
@@ -50,13 +51,16 @@ function haalSessiesOp() {
 }
 
 type WachtrijItem = Omit<NieuweSessie, 'gestartOp' | 'afgerondOp'> & {
+  id: string;
+  eigenaar: string | null;
   gestartOp: string;
   afgerondOp: string;
 };
 
-function naarInsert(sessie: WachtrijItem) {
+function naarInsert(sessie: WachtrijItem, metAlarm = true) {
   return {
-    alarm_id: sessie.alarmId,
+    id: sessie.id,
+    alarm_id: metAlarm ? sessie.alarmId : null,
     gestart_op: sessie.gestartOp,
     afgerond_op: sessie.afgerondOp,
     status: sessie.status,
@@ -65,14 +69,40 @@ function naarInsert(sessie: WachtrijItem) {
   };
 }
 
+async function verstuurItem(item: WachtrijItem): Promise<boolean> {
+  const opslaan = (metAlarm: boolean) =>
+    supabase
+      .from('missie_sessies')
+      .upsert(naarInsert(item, metAlarm), { onConflict: 'id', ignoreDuplicates: true });
+  let { error } = await opslaan(true);
+  // Alarm intussen verwijderd: de missie telt nog steeds mee, alleen zonder koppeling
+  if (error?.code === '23503') ({ error } = await opslaan(false));
+  return !error;
+}
+
+let versturen: Promise<void> | null = null;
+
 // Verstuurt missies die eerder (offline of uitgelogd) niet konden worden opgeslagen
-async function verstuurWachtrij(): Promise<number> {
-  const wachtrij = (await leesLokaal<WachtrijItem[]>(SLEUTELS.sessieWachtrij)) ?? [];
-  if (wachtrij.length === 0) return 0;
-  const { error } = await supabase.from('missie_sessies').insert(wachtrij.map(naarInsert));
-  if (error) return 0;
-  await schrijfLokaal(SLEUTELS.sessieWachtrij, null);
-  return wachtrij.length;
+function verstuurWachtrij(userId: string): Promise<void> {
+  if (versturen) return versturen;
+  versturen = (async () => {
+    const wachtrij = (await leesLokaal<WachtrijItem[]>(SLEUTELS.sessieWachtrij)) ?? [];
+    const verstuurd = new Set<string>();
+    for (const item of wachtrij) {
+      if (item.eigenaar && item.eigenaar !== userId) continue;
+      if (await verstuurItem(item)) verstuurd.add(item.id);
+      else break;
+    }
+    if (verstuurd.size > 0) {
+      // Opnieuw lezen: er kan intussen een nieuwe missie aan de wachtrij zijn toegevoegd
+      const actueel = (await leesLokaal<WachtrijItem[]>(SLEUTELS.sessieWachtrij)) ?? [];
+      const rest = actueel.filter((i) => !verstuurd.has(i.id));
+      await schrijfLokaal(SLEUTELS.sessieWachtrij, rest.length ? rest : null);
+    }
+  })().finally(() => {
+    versturen = null;
+  });
+  return versturen;
 }
 
 export function SessiesProvider({ children }: { children: ReactNode }) {
@@ -88,21 +118,23 @@ export function SessiesProvider({ children }: { children: ReactNode }) {
     [eigenaar, data],
   );
 
+  const userId = eigenaar;
+
   const vernieuw = useCallback(async () => {
-    if (!user) return;
-    await verstuurWachtrij();
+    if (!userId) return;
+    await verstuurWachtrij(userId);
     const { data: rijen } = await haalSessiesOp();
-    if (rijen) setData({ eigenaar: user.id, sessies: rijen.map(naarSessie) });
-  }, [user]);
+    if (rijen) setData({ eigenaar: userId, sessies: rijen.map(naarSessie) });
+  }, [userId]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!userId) return;
     let actief = true;
     const laad = () =>
-      verstuurWachtrij()
+      verstuurWachtrij(userId)
         .then(() => haalSessiesOp())
         .then(({ data: rijen }) => {
-          if (actief && rijen) setData({ eigenaar: user.id, sessies: rijen.map(naarSessie) });
+          if (actief && rijen) setData({ eigenaar: userId, sessies: rijen.map(naarSessie) });
         });
     laad();
     const sub = AppState.addEventListener('change', (status) => {
@@ -114,31 +146,33 @@ export function SessiesProvider({ children }: { children: ReactNode }) {
       actief = false;
       sub.remove();
     };
-  }, [user]);
+  }, [userId]);
 
   const slaOp = useCallback(
     async (sessie: NieuweSessie) => {
+      const lokaalProfiel = await leesLokaal<{ id: string }>(SLEUTELS.profiel);
       const item: WachtrijItem = {
         ...sessie,
+        id: Crypto.randomUUID(),
+        eigenaar: userId ?? lokaalProfiel?.id ?? null,
         gestartOp: sessie.gestartOp.toISOString(),
         afgerondOp: sessie.afgerondOp.toISOString(),
       };
-      const { data: rij, error } = user
-        ? await supabase.from('missie_sessies').insert(naarInsert(item)).select().single()
-        : { data: null, error: new Error('niet ingelogd') };
-      if (error || !rij) {
+      const gelukt = userId ? await verstuurItem(item) : false;
+      if (!gelukt) {
         const wachtrij = (await leesLokaal<WachtrijItem[]>(SLEUTELS.sessieWachtrij)) ?? [];
         await schrijfLokaal(SLEUTELS.sessieWachtrij, [...wachtrij, item]);
-        if (user) {
-          const lokaal: Sessie = { ...sessie, id: `lokaal-${Date.now()}` };
-          setData((h) => ({ eigenaar: user.id, sessies: [lokaal, ...h.sessies] }));
-        }
-        return null;
       }
-      setData((huidig) => ({ ...huidig, sessies: [naarSessie(rij), ...huidig.sessies] }));
+      if (userId) {
+        const nieuw: Sessie = { ...sessie, id: item.id };
+        setData((h) => ({
+          eigenaar: userId,
+          sessies: [nieuw, ...h.sessies.filter((x) => x.id !== item.id)],
+        }));
+      }
       return null;
     },
-    [user],
+    [userId],
   );
 
   // Herberekenen bij een nieuwe dag, zodat streak en weekgrafiek na middernacht kloppen

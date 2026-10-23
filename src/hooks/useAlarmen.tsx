@@ -11,7 +11,7 @@ import {
 import { AppState } from 'react-native';
 
 import { useAuth } from '@/hooks/useAuth';
-import { annuleerAlarm, synchroniseer } from '@/lib/alarmen';
+import { annuleerAlarm, deblokkeerSynchronisatie, synchroniseer } from '@/lib/alarmen';
 import { leesLokaal, schrijfLokaal, SLEUTELS } from '@/lib/opslag';
 import { supabase } from '@/lib/supabase';
 import type { Alarm, Niveau, Oefening } from '@/types/app';
@@ -60,11 +60,17 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
   });
   const [fout, setFout] = useState<string | null>(null);
   const eigenaar = user?.id ?? null;
+  const userId = eigenaar;
   const geladen = eigenaar !== null && data.eigenaar === eigenaar;
   const alarms = useMemo(() => (geladen ? data.alarms : []), [geladen, data.alarms]);
   const huidig = useRef<Alarm[]>([]);
+  // Alleen plannen met een lijst die echt van de server of uit de cache komt;
+  // een lege lijst zou anders alle alarmen op het toestel annuleren
+  const lijstBekend = useRef(false);
+  const serverGeladen = useRef(false);
 
   const plan = useCallback((lijst: Alarm[]) => {
+    if (!lijstBekend.current) return;
     synchroniseer(lijst)
       .then(() => setFout(null))
       .catch(() => setFout('Alarmen konden niet op je toestel worden ingepland.'));
@@ -74,6 +80,9 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
     (id: string, lijst: Alarm[]) => {
       const gesorteerd = sorteer(lijst);
       huidig.current = gesorteerd;
+      lijstBekend.current = true;
+      serverGeladen.current = true;
+      deblokkeerSynchronisatie();
       setData({ eigenaar: id, alarms: gesorteerd });
       schrijfLokaal<Opgeslagen>(SLEUTELS.alarmen, { eigenaar: id, alarms: gesorteerd });
       plan(gesorteerd);
@@ -96,22 +105,29 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
   );
 
   const vernieuw = useCallback(async () => {
-    if (!user) return;
-    verwerk(user.id, await haalAlarmenOp());
-  }, [user, verwerk]);
+    if (!userId) return;
+    verwerk(userId, await haalAlarmenOp());
+  }, [userId, verwerk]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!userId) return;
     let actief = true;
+    if (data.eigenaar !== userId) {
+      huidig.current = [];
+      lijstBekend.current = false;
+      serverGeladen.current = false;
+    }
     // Eerst de lokale kopie, zodat alarmen ook offline direct zichtbaar zijn
     leesLokaal<Opgeslagen>(SLEUTELS.alarmen).then((lokaal) => {
-      if (actief && lokaal?.eigenaar === user.id && huidig.current.length === 0) {
+      if (actief && lokaal?.eigenaar === userId && !serverGeladen.current) {
         huidig.current = lokaal.alarms;
+        lijstBekend.current = true;
+        deblokkeerSynchronisatie();
         setData(lokaal);
       }
     });
     haalAlarmenOp().then((resultaat) => {
-      if (actief) verwerk(user.id, resultaat);
+      if (actief) verwerk(userId, resultaat);
     });
     const sub = AppState.addEventListener('change', (status) => {
       if (status === 'active') plan(huidig.current);
@@ -119,9 +135,10 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
     return () => {
       actief = false;
       sub.remove();
-      huidig.current = [];
     };
-  }, [user, verwerk, plan]);
+    // data.eigenaar bewust niet als afhankelijkheid: alleen een andere gebruiker herstart dit
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, verwerk, plan]);
 
   const maakAan = useCallback(
     async (invoer: AlarmInvoer) => {

@@ -1,5 +1,13 @@
 import type { Session, User } from '@supabase/supabase-js';
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 
 import { annuleerAlles } from '@/lib/alarmen';
 import { leesLokaal, schrijfLokaal, SLEUTELS, wisLokaal } from '@/lib/opslag';
@@ -47,16 +55,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await schrijfLokaal(SLEUTELS.profiel, data);
   }, []);
 
+  const profielVan = useRef<string | null>(null);
+
+  useEffect(() => {
+    profielVan.current = profiel?.id ?? null;
+  }, [profiel]);
+
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data }) => {
       setSession(data.session);
-      if (data.session) await laadProfiel(data.session.user.id);
+      if (data.session) {
+        const userId = data.session.user.id;
+        // Laatst bekende profiel direct gebruiken; vernieuwen gebeurt op de achtergrond
+        const lokaal = await leesLokaal<Profiel>(SLEUTELS.profiel);
+        if (lokaal?.id === userId) {
+          setProfiel(lokaal);
+          setLaden(false);
+          laadProfiel(userId);
+          return;
+        }
+        await laadProfiel(userId);
+      }
       setLaden(false);
     });
 
     const { data } = supabase.auth.onAuthStateChange((_event, nieuweSession) => {
       setSession(nieuweSession);
-      if (!nieuweSession) setProfiel(null);
+      if (!nieuweSession) {
+        setProfiel(null);
+        return;
+      }
+      // Bijv. na een tokenverversing nadat de app offline startte: profiel alsnog laden
+      if (profielVan.current !== nieuweSession.user.id) {
+        const userId = nieuweSession.user.id;
+        setTimeout(() => laadProfiel(userId), 0);
+      }
     });
 
     return () => data.subscription.unsubscribe();

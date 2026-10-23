@@ -60,7 +60,7 @@ function RootNavigator() {
   const ingelogd = status === 'ingelogd';
   const heeftNaam = Boolean(profiel?.voornaam);
 
-  useWekkerRouting();
+  useWekkerRouting(status !== 'laden');
 
   useEffect(() => {
     if (status !== 'laden') SplashScreen.hideAsync();

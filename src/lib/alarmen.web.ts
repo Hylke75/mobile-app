@@ -36,6 +36,7 @@ export async function vraagRechtenAan(): Promise<AlarmPermissionResponse> {
 export async function openAlarmInstellingen(): Promise<void> {}
 export async function synchroniseer(_alarms: Alarm[]): Promise<void> {}
 export async function annuleerAlles(): Promise<void> {}
+export function deblokkeerSynchronisatie(): void {}
 export async function annuleerAlarm(_id: string): Promise<void> {}
 export async function planTestAlarm(_seconden: number): Promise<string> {
   throw new Error('Alarmen zijn niet beschikbaar op web.');

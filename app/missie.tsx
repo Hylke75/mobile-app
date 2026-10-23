@@ -120,17 +120,7 @@ export default function MissieScherm() {
   const rondAf = async (status: 'voltooid' | 'afgebroken', stappen: StapResultaat[]) => {
     if (opgeslagen.current) return;
     opgeslagen.current = true;
-    const fout = await slaOp({
-      alarmId: alarm?.id ?? null,
-      gestartOp,
-      afgerondOp: new Date(),
-      status,
-      stappen,
-      totaalHerhalingen: stappen
-        .filter((s) => OEFENING_INFO[s.oefening].eenheid === 'herhalingen')
-        .reduce((som, s) => som + s.gedaan, 0),
-    });
-    if (fout) showToast(fout);
+    // Eerst het alarm stoppen, daarna opslaan: een traag netwerk mag het alarm niet laten herhalen
     if (vanWekker && params.alarmId) {
       const vervolgId = actieveMissie()?.vervolgId ?? params.vervolgId;
       zetActieveMissie(null);
@@ -141,6 +131,17 @@ export default function MissieScherm() {
         showToast('Wakker-check over 5 minuten.');
       }
     }
+    const fout = await slaOp({
+      alarmId: alarm?.id ?? params.alarmId ?? null,
+      gestartOp,
+      afgerondOp: new Date(),
+      status,
+      stappen,
+      totaalHerhalingen: stappen
+        .filter((s) => OEFENING_INFO[s.oefening].eenheid === 'herhalingen')
+        .reduce((som, s) => som + s.gedaan, 0),
+    });
+    if (fout) showToast(fout);
   };
 
   const volgende = async () => {
@@ -170,6 +171,10 @@ export default function MissieScherm() {
 
   const sluitRef = useRef<() => void>(() => {});
   const sluit = () => {
+    if (klaar) {
+      router.dismissTo('/');
+      return;
+    }
     if (vanWekker && streng) {
       bevestig(
         'Missie verlaten?',
