@@ -18,6 +18,7 @@ const json = (body: unknown, status = 200) =>
 
 const PERIODE_DAGEN = 90;
 const PAGINA = 1000;
+const DAG = 86400000;
 
 // Datum in Nederlandse tijd als YYYY-MM-DD
 const dagVan = (iso: string) =>
@@ -51,22 +52,20 @@ Deno.serve(async (req) => {
     if (data.users.length < PAGINA) break;
   }
 
-  async function alles<T>(tabel: string, kolommen: string, filter?: (q: any) => any): Promise<T[]> {
+  async function alles<T>(tabel: string, kolommen: string, volgorde = 'created_at'): Promise<T[]> {
     const rijen: T[] = [];
     for (let van = 0; ; van += PAGINA) {
-      let query = db
+      const { data, error } = await db
         .from(tabel)
         .select(kolommen)
+        .order(volgorde)
         .range(van, van + PAGINA - 1);
-      if (filter) query = filter(query);
-      const { data, error } = await query;
       if (error) throw error;
       rijen.push(...(data as T[]));
       if (data.length < PAGINA) return rijen;
     }
   }
 
-  const vanaf = new Date(Date.now() - PERIODE_DAGEN * 86400000).toISOString();
   type Profiel = {
     id: string;
     voornaam: string | null;
@@ -79,27 +78,60 @@ Deno.serve(async (req) => {
     status: string;
     afgerond_op: string;
     totaal_herhalingen: number;
+    gevoel: number | null;
   };
   type EigenRij = { user_id: string };
-  let profielen: Profiel[], alarmen: AlarmRij[], sessies: SessieRij[], eigen: EigenRij[];
+  type FeedbackRij = {
+    id: string;
+    user_id: string;
+    soort: string;
+    tekst: string;
+    appversie: string | null;
+    toestel: string | null;
+    created_at: string;
+  };
+  type WachtRij = { id: string; email: string; taal: string; created_at: string };
+  let profielen: Profiel[];
+  let alarmen: AlarmRij[];
+  let sessies: SessieRij[];
+  let eigen: EigenRij[];
+  let feedback: FeedbackRij[];
+  let wachtlijst: WachtRij[];
   try {
-    [profielen, alarmen, sessies, eigen] = await Promise.all([
-      alles<Profiel>('profiles', 'id, voornaam, weekdoel, pauze_tot'),
-      alles<AlarmRij>('alarms', 'user_id, aan, niveau, oefeningen'),
-      alles<SessieRij>('missie_sessies', 'user_id, status, afgerond_op, totaal_herhalingen', (q) =>
-        q.gte('afgerond_op', vanaf),
+    [profielen, alarmen, sessies, eigen, feedback, wachtlijst] = await Promise.all([
+      alles<Profiel>('profiles', 'id, voornaam, weekdoel, pauze_tot', 'id'),
+      alles<AlarmRij>('alarms', 'user_id, aan, niveau, oefeningen', 'id'),
+      alles<SessieRij>(
+        'missie_sessies',
+        'user_id, status, afgerond_op, totaal_herhalingen, gevoel',
+        'afgerond_op',
       ),
-      alles<EigenRij>('eigen_missies', 'user_id'),
+      alles<EigenRij>('eigen_missies', 'user_id', 'id'),
+      alles<FeedbackRij>('feedback', 'id, user_id, soort, tekst, appversie, toestel, created_at'),
+      alles<WachtRij>('wachtlijst', 'id, email, taal, created_at'),
     ]);
   } catch {
     return json({ error: 'Gegevens ophalen mislukt' }, 500);
   }
 
+  const aangemeld = new Map(accounts.map((a) => [a.id, new Date(a.created_at).getTime()]));
   const profielVan = new Map(profielen.map((p) => [p.id, p]));
   const laatsteMissie = new Map<string, string>();
+  const eersteMissie = new Map<string, string>();
+  // Weken na aanmelding (0 = eerste week) waarin iemand een missie voltooide, voor de retentie
+  const actieveWeken = new Map<string, Set<number>>();
   for (const s of sessies) {
     const vorige = laatsteMissie.get(s.user_id);
     if (!vorige || s.afgerond_op > vorige) laatsteMissie.set(s.user_id, s.afgerond_op);
+    if (s.status !== 'voltooid') continue;
+    const eerste = eersteMissie.get(s.user_id);
+    if (!eerste || s.afgerond_op < eerste) eersteMissie.set(s.user_id, s.afgerond_op);
+    const start = aangemeld.get(s.user_id);
+    if (start === undefined) continue;
+    const week = Math.floor((new Date(s.afgerond_op).getTime() - start) / (7 * DAG));
+    if (week < 0) continue;
+    if (!actieveWeken.has(s.user_id)) actieveWeken.set(s.user_id, new Set());
+    actieveWeken.get(s.user_id)!.add(week);
   }
   const telPer = <T extends { user_id: string }>(
     lijst: T[],
@@ -112,6 +144,8 @@ Deno.serve(async (req) => {
   const alarmenPer = telPer(alarmen);
   const alarmenAanPer = telPer(alarmen, (a) => a.aan);
   const eigenPer = telPer(eigen);
+  const emailVan = new Map(accounts.map((a) => [a.id, a.email ?? '']));
+  const vanaf = new Date(Date.now() - PERIODE_DAGEN * DAG).toISOString();
 
   return json({
     gegenereerd: new Date().toISOString(),
@@ -125,7 +159,9 @@ Deno.serve(async (req) => {
         aangemeld: a.created_at,
         laatstIngelogd: a.last_sign_in_at ?? null,
         bevestigd: Boolean(a.email_confirmed_at),
+        eersteMissie: eersteMissie.get(a.id) ?? null,
         laatsteMissie: laatsteMissie.get(a.id) ?? null,
+        actieveWeken: [...(actieveWeken.get(a.id) ?? [])].sort((x, y) => x - y),
         weekdoel: profiel?.weekdoel ?? null,
         gepauzeerdTot: profiel?.pauze_tot ?? null,
         alarmen: alarmenPer.get(a.id) ?? 0,
@@ -134,18 +170,23 @@ Deno.serve(async (req) => {
         beheerder: a.id === auth.user.id,
       };
     }),
-    // Per missie alleen gebruiker, dag, status en herhalingen, voor grafieken
-    missies: sessies.map((s) => ({
-      gebruiker: s.user_id,
-      dag: dagVan(s.afgerond_op),
-      voltooid: s.status === 'voltooid',
-      herhalingen: s.totaal_herhalingen,
-    })),
+    // Per missie alleen gebruiker, dag, status, herhalingen en gevoel, voor grafieken
+    missies: sessies
+      .filter((s) => s.afgerond_op >= vanaf)
+      .map((s) => ({
+        gebruiker: s.user_id,
+        dag: dagVan(s.afgerond_op),
+        voltooid: s.status === 'voltooid',
+        herhalingen: s.totaal_herhalingen,
+        gevoel: s.gevoel,
+      })),
     alarmen: alarmen.map((a) => ({
       gebruiker: a.user_id,
       aan: a.aan,
       niveau: a.niveau,
       missies: a.oefeningen.map((o) => (o.startsWith('eigen:') ? 'eigen' : o)),
     })),
+    feedback: feedback.map((f) => ({ ...f, email: emailVan.get(f.user_id) ?? '' })).reverse(),
+    wachtlijst: wachtlijst.reverse(),
   });
 });

@@ -73,6 +73,30 @@ export type Database = {
         };
         Relationships: [];
       };
+      beheer_log: {
+        Row: {
+          actie: string;
+          beheerder_id: string | null;
+          created_at: string;
+          doel: string | null;
+          id: number;
+        };
+        Insert: {
+          actie: string;
+          beheerder_id?: string | null;
+          created_at?: string;
+          doel?: string | null;
+          id?: never;
+        };
+        Update: {
+          actie?: string;
+          beheerder_id?: string | null;
+          created_at?: string;
+          doel?: string | null;
+          id?: never;
+        };
+        Relationships: [];
+      };
       eigen_missies: {
         Row: {
           created_at: string;

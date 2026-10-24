@@ -273,7 +273,7 @@
       }
       .tegels {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
         gap: 12px;
         margin-bottom: 16px;
       }
@@ -552,6 +552,89 @@
           font-size: 40px;
         }
       }
+      .trechter {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 12px;
+      }
+      .trechter li {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 4px 10px;
+        font-size: 13px;
+      }
+      .trechter .spoor {
+        grid-column: 1/-1;
+        height: 12px;
+        background: var(--soft);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .trechter .vul {
+        height: 100%;
+        background: var(--s-voltooid);
+        border-radius: 0 4px 4px 0;
+      }
+      .trechter .aantal {
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .retentie-wrap {
+        margin: 0 -18px -18px;
+      }
+      #retentie td.cel {
+        text-align: center;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        border-left: 2px solid var(--card);
+      }
+      .berichten {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 10px;
+        max-height: 420px;
+        overflow: auto;
+      }
+      .berichten li {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px 14px;
+        font-size: 13px;
+      }
+      .berichten li.leeg {
+        border: 0;
+        padding: 0;
+      }
+      .berichten .meta {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .berichten .tekst {
+        white-space: pre-wrap;
+        word-break: break-word;
+        margin-top: 6px;
+      }
+      .mini {
+        font-size: 12px;
+        padding: 6px 10px;
+        border-radius: 9px;
+      }
+      .mini.gevaar {
+        background: transparent;
+        border: 1px solid var(--slecht);
+        color: var(--slecht);
+      }
+      .berichten .mini {
+        margin-left: auto;
+      }
     </style>
   </head>
   <body>
@@ -668,6 +751,27 @@
           </div>
         </div>
 
+        <div class="raster" style="grid-template-columns: 1fr 1fr">
+          <div class="kaart">
+            <div class="kaart-kop">
+              <div>
+                <h2>Trechter</h2>
+                <p>Van account tot terugkerende gebruiker (alle tijd)</p>
+              </div>
+            </div>
+            <ul class="trechter" id="trechter"></ul>
+          </div>
+          <div class="kaart">
+            <div class="kaart-kop">
+              <div>
+                <h2>Retentie per aanmeldweek</h2>
+                <p>Deel van de nieuwe gebruikers met minstens één voltooide missie in die week</p>
+              </div>
+            </div>
+            <div class="tabel-wrap retentie-wrap"><table id="retentie"></table></div>
+          </div>
+        </div>
+
         <div class="kaart">
           <div class="kaart-kop">
             <div>
@@ -687,6 +791,28 @@
               </thead>
               <tbody id="rijen"></tbody>
             </table>
+          </div>
+        </div>
+
+        <div class="raster" style="grid-template-columns: 1fr 1fr; margin-top: 16px">
+          <div class="kaart">
+            <div class="kaart-kop">
+              <div>
+                <h2>Feedback</h2>
+                <p id="feedback-sub"></p>
+              </div>
+            </div>
+            <ul class="berichten" id="feedback"></ul>
+          </div>
+          <div class="kaart">
+            <div class="kaart-kop">
+              <div>
+                <h2>Wachtlijst</h2>
+                <p id="wachtlijst-sub"></p>
+              </div>
+              <button type="button" class="zacht" id="wachtlijst-csv">Exporteer CSV</button>
+            </div>
+            <ul class="berichten" id="wachtlijst"></ul>
           </div>
         </div>
       </section>
@@ -922,6 +1048,17 @@
             waarde: getal(herhalingen),
             extra: 'squats, push-ups en meer',
           },
+          (() => {
+            const met = s.missies.filter((m) => m.gevoel);
+            const sterk = met.filter((m) => m.gevoel === 3).length;
+            return {
+              lbl: 'Ochtendgevoel',
+              waarde: met.length ? `${Math.round((sterk / met.length) * 100)}%` : '—',
+              extra: met.length
+                ? `voelt zich sterk · ${getal(met.length)}× ingevuld`
+                : 'nog niet ingevuld',
+            };
+          })(),
         ];
         const houder = $('tegels');
         houder.replaceChildren(
@@ -998,6 +1135,10 @@
         balken($('populair'), populair, 'Nog geen missies in alarmen.');
 
         tekenTabel();
+        tekenTrechter(s);
+        tekenRetentie(s);
+        tekenFeedback(s);
+        tekenWachtlijst();
         $('bijgewerkt').textContent =
           `Bijgewerkt ${new Date(data.gegenereerd).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}`;
       }
@@ -1159,6 +1300,222 @@
         { id: 'weekdoel', titel: 'Weekdoel', getal: true, waarde: (g) => g.weekdoel ?? 0 },
       ];
 
+      async function actie(naam, id, vraag, gelukt) {
+        if (vraag && !confirm(vraag)) return;
+        const { data: antwoord, error } = await sb.functions.invoke('admin-actie', {
+          method: 'POST',
+          body: { actie: naam, id },
+        });
+        if (error || !antwoord?.ok) {
+          let reden = 'De actie is niet gelukt.';
+          try {
+            reden = (await error?.context?.json())?.error ?? reden;
+          } catch {}
+          alert(reden);
+          return;
+        }
+        if (gelukt) alert(gelukt);
+        await start();
+      }
+
+      function verwijderAccount(g) {
+        const invoer = prompt(
+          `Account van ${g.email} definitief verwijderen, met alle alarmen en missies?\nTyp het e-mailadres om te bevestigen.`,
+        );
+        if (invoer === null) return;
+        if (invoer.trim().toLowerCase() !== g.email.toLowerCase()) {
+          alert('Het e-mailadres klopt niet; er is niets verwijderd.');
+          return;
+        }
+        actie('verwijderAccount', g.id, null, 'Account verwijderd.');
+      }
+
+      const weekStart = (iso) => {
+        const d = new Date(iso);
+        d.setHours(0, 0, 0, 0);
+        d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+        return d;
+      };
+
+      function tekenTrechter(s) {
+        const g = s.gebruikers;
+        const stappen = [
+          ['Account aangemaakt', g.length],
+          ['Voornaam ingevuld', g.filter((x) => x.voornaam).length],
+          ['Alarm gezet', g.filter((x) => x.alarmen > 0).length],
+          ['Eerste missie voltooid', g.filter((x) => x.eersteMissie).length],
+          ['Actief na de eerste week', g.filter((x) => x.actieveWeken.some((w) => w >= 1)).length],
+        ];
+        const basis = Math.max(1, stappen[0][1]);
+        $('trechter').replaceChildren(
+          ...stappen.map(([label, n]) => {
+            const li = document.createElement('li');
+            const naam = document.createElement('span');
+            naam.textContent = label;
+            const aantal = document.createElement('span');
+            aantal.className = 'aantal';
+            aantal.textContent = `${getal(n)} · ${Math.round((n / basis) * 100)}%`;
+            const spoor = document.createElement('div');
+            spoor.className = 'spoor';
+            const vul = document.createElement('div');
+            vul.className = 'vul';
+            vul.style.width = `${(n / basis) * 100}%`;
+            spoor.append(vul);
+            li.append(naam, aantal, spoor);
+            return li;
+          }),
+        );
+      }
+
+      function tekenRetentie(s) {
+        const WEKEN = [0, 1, 3, 7];
+        const cohorten = new Map();
+        for (const g of s.gebruikers) {
+          const start = weekStart(g.aangemeld).getTime();
+          if (!cohorten.has(start)) cohorten.set(start, []);
+          cohorten.get(start).push(g);
+        }
+        const kop = document.createElement('tr');
+        for (const titel of ['Aanmeldweek', 'Nieuw', ...WEKEN.map((w) => `Week ${w + 1}`)]) {
+          const th = document.createElement('th');
+          th.textContent = titel;
+          if (titel !== 'Aanmeldweek') th.className = 'getal';
+          kop.append(th);
+        }
+        const rijen = [...cohorten.entries()]
+          .sort((a, b) => b[0] - a[0])
+          .slice(0, 8)
+          .map(([start, groep]) => {
+            const tr = document.createElement('tr');
+            const td = (tekst, klasse) => {
+              const cel = document.createElement('td');
+              cel.textContent = tekst;
+              if (klasse) cel.className = klasse;
+              tr.append(cel);
+              return cel;
+            };
+            td(new Date(start).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' }));
+            td(getal(groep.length), 'getal');
+            for (const w of WEKEN) {
+              // Alleen weken die voor iedereen in het cohort al voorbij zijn
+              if (Date.now() < start + (w + 2) * 7 * DAG) {
+                td('—', 'cel');
+                continue;
+              }
+              const pct = Math.round(
+                (groep.filter((g) => g.actieveWeken.includes(w)).length / groep.length) * 100,
+              );
+              const cel = td(`${pct}%`, 'cel');
+              cel.style.background = `color-mix(in srgb, var(--s-voltooid) ${pct}%, var(--soft))`;
+              cel.style.color = pct > 55 ? '#fff' : 'var(--tekst)';
+            }
+            return tr;
+          });
+        if (!rijen.length) {
+          const tr = document.createElement('tr');
+          const td = document.createElement('td');
+          td.colSpan = 6;
+          td.className = 'leeg';
+          td.textContent = 'Nog geen gebruikers.';
+          tr.append(td);
+          rijen.push(tr);
+        }
+        const thead = document.createElement('thead');
+        thead.append(kop);
+        const tbody = document.createElement('tbody');
+        tbody.append(...rijen);
+        $('retentie').replaceChildren(thead, tbody);
+      }
+
+      function bericht(meta, tekst) {
+        const li = document.createElement('li');
+        const kop = document.createElement('div');
+        kop.className = 'meta';
+        for (const m of meta) {
+          if (m instanceof Node) kop.append(m);
+          else if (m) {
+            const span = document.createElement('span');
+            span.textContent = m;
+            kop.append(span);
+          }
+        }
+        li.append(kop);
+        if (tekst) {
+          const p = document.createElement('div');
+          p.className = 'tekst';
+          p.textContent = tekst;
+          li.append(p);
+        }
+        return li;
+      }
+
+      const leegItem = (tekst) => {
+        const li = document.createElement('li');
+        li.className = 'leeg';
+        li.textContent = tekst;
+        return li;
+      };
+
+      function tekenFeedback(s) {
+        const lijst = data.feedback.filter((f) => s.ids.has(f.user_id));
+        $('feedback-sub').textContent = `${lijst.length} berichten, nieuwste eerst`;
+        if (!lijst.length) return $('feedback').replaceChildren(leegItem('Nog geen feedback.'));
+        const SOORT = {
+          probleem: ['p-onbevestigd', 'Probleem'],
+          idee: ['p-actief', 'Idee'],
+          anders: ['p-geen', 'Anders'],
+        };
+        $('feedback').replaceChildren(
+          ...lijst.map((f) => {
+            const [klasse, label] = SOORT[f.soort] ?? SOORT.anders;
+            const pil = document.createElement('span');
+            pil.className = `pil ${klasse}`;
+            pil.textContent = label;
+            return bericht([pil, f.email, datum(f.created_at), f.toestel], f.tekst);
+          }),
+        );
+      }
+
+      function tekenWachtlijst() {
+        const lijst = data.wachtlijst;
+        const perTaal = {};
+        for (const w of lijst) perTaal[w.taal] = (perTaal[w.taal] ?? 0) + 1;
+        const talen = Object.entries(perTaal)
+          .map(([t, n]) => `${t.toUpperCase()} ${n}`)
+          .join(' · ');
+        $('wachtlijst-sub').textContent =
+          `${lijst.length} aanmeldingen${talen ? ' · ' + talen : ''}`;
+        if (!lijst.length) {
+          return $('wachtlijst').replaceChildren(leegItem('Nog niemand op de wachtlijst.'));
+        }
+        $('wachtlijst').replaceChildren(
+          ...lijst.map((w) => {
+            const weg = document.createElement('button');
+            weg.className = 'mini gevaar';
+            weg.textContent = 'Verwijderen';
+            weg.onclick = () =>
+              actie('verwijderWachtlijst', w.id, `${w.email} van de wachtlijst halen?`);
+            return bericht([w.email, w.taal.toUpperCase(), datum(w.created_at), weg]);
+          }),
+        );
+      }
+
+      $('wachtlijst-csv').onclick = () => {
+        if (!data) return;
+        const veld = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+        const regels = data.wachtlijst.map((w) =>
+          [w.email, w.taal, w.created_at].map(veld).join(','),
+        );
+        const blob = new Blob([['email,taal,aangemeld', ...regels].join('\n')], {
+          type: 'text/csv;charset=utf-8',
+        });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `mooove-wachtlijst-${dagSleutel(new Date())}.csv`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      };
+
       function tekenTabel() {
         if (!data) return;
         const s = selectie();
@@ -1211,12 +1568,15 @@
           }),
         );
 
+        const actiesKop = document.createElement('th');
+        actiesKop.textContent = 'Acties';
+        $('kolommen').append(actiesKop);
         $('gebruikers-sub').textContent =
           `${rijen.length} van ${s.gebruikers.length} accounts · missies over ${periode} dagen`;
         if (!rijen.length) {
           const tr = document.createElement('tr');
           const td = document.createElement('td');
-          td.colSpan = KOLOMMEN.length;
+          td.colSpan = KOLOMMEN.length + 1;
           td.className = 'leeg';
           td.textContent = 'Geen gebruikers gevonden.';
           tr.append(td);
@@ -1266,6 +1626,28 @@
             cel(`${g.alarmenAan}/${g.alarmen}`, true);
             cel(getal(g.eigenMissies), true);
             cel(g.weekdoel ? `${g.weekdoel}×` : '—', true);
+            const acties = document.createElement('div');
+            acties.className = 'rij';
+            acties.style.flexWrap = 'nowrap';
+            const code = document.createElement('button');
+            code.className = 'zacht mini';
+            code.textContent = 'Code sturen';
+            code.onclick = () =>
+              actie(
+                'stuurCode',
+                g.id,
+                `Een inlogcode sturen naar ${g.email}?`,
+                'Inlogcode verstuurd.',
+              );
+            acties.append(code);
+            if (!g.beheerder) {
+              const weg = document.createElement('button');
+              weg.className = 'mini gevaar';
+              weg.textContent = 'Verwijderen';
+              weg.onclick = () => verwijderAccount(g);
+              acties.append(weg);
+            }
+            cel(acties);
             return tr;
           }),
         );
