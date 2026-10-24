@@ -11,6 +11,7 @@ import {
 
 import { t } from '@/i18n';
 import { annuleerAlles } from '@/lib/alarmen';
+import { annuleerHerinneringen } from '@/lib/herinneringen';
 import { leesLokaal, schrijfLokaal, SLEUTELS, wisLokaal } from '@/lib/opslag';
 import { supabase } from '@/lib/supabase';
 import type { Profiel } from '@/types/database';
@@ -158,6 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const uitloggen = useCallback(async () => {
     await annuleerAlles().catch(() => {});
+    await annuleerHerinneringen().catch(() => {});
     await wisLokaal();
     await supabase.auth.signOut();
   }, []);
@@ -166,6 +168,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.functions.invoke('delete-account', { method: 'POST' });
     if (error) return t('meldingen.verwijderenMislukt');
     await annuleerAlles().catch(() => {});
+    await annuleerHerinneringen().catch(() => {});
     await wisLokaal();
     await supabase.auth.signOut({ scope: 'local' });
     return null;

@@ -1,7 +1,9 @@
 {
-  "CFBundleDisplayName": "Mooove",
-  "NSCameraUsageDescription": "Mooove gebruikt je camera om je missie te controleren, zoals het tellen van squats. Beelden blijven op je toestel.",
-  "NSMicrophoneUsageDescription": "Mooove neemt geen geluid op. Camerabeelden worden zonder geluid en alleen op je toestel verwerkt.",
-  "NSMotionUsageDescription": "Mooove gebruikt de bewegingssensor om je sprongen te tellen als de camera je niet herkent.",
-  "NSAlarmKitUsageDescription": "Mooove zet je alarmen zodat ze ook afgaan als je telefoon op stil staat."
+  "ios": {
+    "CFBundleDisplayName": "Mooove",
+    "NSCameraUsageDescription": "Mooove gebruikt je camera om je missie te controleren, zoals het tellen van squats. Beelden blijven op je toestel.",
+    "NSMicrophoneUsageDescription": "Mooove neemt geen geluid op. Camerabeelden worden zonder geluid en alleen op je toestel verwerkt.",
+    "NSMotionUsageDescription": "Mooove gebruikt de bewegingssensor om je sprongen te tellen als de camera je niet herkent.",
+    "NSAlarmKitUsageDescription": "Mooove zet je alarmen zodat ze ook afgaan als je telefoon op stil staat."
+  }
 }

@@ -31,6 +31,7 @@ type AlarmenContextWaarde = {
   werkBij: (id: string, invoer: Partial<Alarm>) => Promise<string | null>;
   verwijder: (id: string) => Promise<string | null>;
   wisselAan: (id: string) => Promise<string | null>;
+  slaOver: (id: string, datum: string | null) => Promise<string | null>;
   eigenMissies: EigenMissie[];
   eigenMap: ReadonlyMap<string, EigenMissie>;
   maakEigenMissie: (
@@ -64,7 +65,13 @@ function naarAlarm(rij: AlarmRij): Alarm {
     oefeningen: rij.oefeningen as MissieId[],
     doelen: doelenUitJson(rij.doelen),
     aan: rij.aan,
+    overslaanOp: rij.overslaan_op,
   };
+}
+
+// Velden van de app naar kolommen in de database
+function naarRij({ overslaanOp, ...rest }: Partial<Omit<Alarm, 'id'>>) {
+  return overslaanOp === undefined ? rest : { ...rest, overslaan_op: overslaanOp };
 }
 
 const haalAlarmenOp = () => supabase.from('alarms').select('*').order('tijd');
@@ -243,9 +250,11 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
   const maakAan = useCallback(
     async (invoer: AlarmInvoer) => {
       if (!user) return t('meldingen.nietIngelogd');
+      // Een nieuw (of teruggezet) alarm begint zonder overgeslagen dag
+      const { overslaanOp: _overslaan, ...velden } = invoer;
       const { data: rij, error } = await supabase
         .from('alarms')
-        .insert({ ...invoer, aan: true })
+        .insert({ ...velden, aan: true })
         .select()
         .single();
       if (error) return t('meldingen.opslaanMisluktInternet');
@@ -261,7 +270,7 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
       const { id: _id, ...wijziging } = invoer;
       const { data: rij, error } = await supabase
         .from('alarms')
-        .update(wijziging)
+        .update(naarRij(wijziging))
         .eq('id', id)
         .select()
         .single();
@@ -334,6 +343,11 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
     [werkBij],
   );
 
+  const slaOver = useCallback(
+    (id: string, datum: string | null) => werkBij(id, { overslaanOp: datum }),
+    [werkBij],
+  );
+
   return (
     <AlarmenContext.Provider
       value={{
@@ -346,6 +360,7 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
         werkBij,
         verwijder,
         wisselAan,
+        slaOver,
         eigenMissies,
         eigenMap,
         maakEigenMissie,

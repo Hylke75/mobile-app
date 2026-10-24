@@ -25,13 +25,30 @@ export function startVanWeek(datum: Date): Date {
 export function volgendeKeer(alarm: Alarm, nu = new Date()): Date | null {
   if (!alarm.aan || alarm.dagen.length === 0) return null;
   const [uur, minuut] = alarm.tijd.split(':').map(Number);
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 15; i++) {
     const kandidaat = startVanDag(nu);
     kandidaat.setDate(kandidaat.getDate() + i);
     kandidaat.setHours(uur ?? 0, minuut ?? 0, 0, 0);
-    if (kandidaat > nu && alarm.dagen.includes(dagIndex(kandidaat))) return kandidaat;
+    if (
+      kandidaat > nu &&
+      alarm.dagen.includes(dagIndex(kandidaat)) &&
+      naarDatumSleutel(kandidaat) !== alarm.overslaanOp
+    ) {
+      return kandidaat;
+    }
   }
   return null;
+}
+
+// De eerstvolgende keer die je kunt overslaan, als datumsleutel (YYYY-MM-DD)
+export function volgendeOverslaanDatum(alarm: Alarm, nu = new Date()): string | null {
+  const op = volgendeKeer({ ...alarm, overslaanOp: null }, nu);
+  return op ? naarDatumSleutel(op) : null;
+}
+
+// Is er een overgeslagen keer die nog moet komen?
+export function isOvergeslagen(alarm: Alarm, nu = new Date()): boolean {
+  return !!alarm.overslaanOp && hervatOp(alarm.overslaanOp, nu) !== null;
 }
 
 export function volgendAlarm(alarms: Alarm[], nu = new Date()): { alarm: Alarm; op: Date } | null {

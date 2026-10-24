@@ -91,6 +91,21 @@ export default function ProgressieScherm() {
           <Text style={styles.deelTekst}>{t('progressie.deelKnop')}</Text>
         </Pressable>
       )}
+      {s.streak > 0 && (
+        <View style={styles.joker} accessible>
+          <Text style={styles.jokerTitel}>{t('progressie.jokerTitel')}</Text>
+          <Text style={styles.jokerTekst}>
+            {s.jokerGebruiktOp
+              ? t('progressie.jokerGebruikt', {
+                  datum: s.jokerGebruiktOp.toLocaleDateString(locale, {
+                    day: 'numeric',
+                    month: 'long',
+                  }),
+                })
+              : t('progressie.jokerBeschikbaar')}
+          </Text>
+        </View>
+      )}
 
       <View style={styles.metricRow}>
         <View style={styles.metric}>
@@ -203,6 +218,22 @@ export default function ProgressieScherm() {
 }
 
 const styles = StyleSheet.create({
+  joker: {
+    backgroundColor: kleuren.white,
+    borderWidth: 1,
+    borderColor: kleuren.line,
+    borderRadius: 18,
+    padding: 14,
+    marginTop: 12,
+  },
+  jokerTitel: { fontFamily: fonts.body800, fontSize: 12, color: kleuren.ink },
+  jokerTekst: {
+    fontFamily: fonts.body400,
+    fontSize: 11,
+    lineHeight: 16,
+    color: '#5F6E60',
+    marginTop: 4,
+  },
   hero: { backgroundColor: kleuren.lime, borderRadius: 24, padding: 23, overflow: 'hidden' },
   heroEyebrow: {
     fontFamily: fonts.body800,

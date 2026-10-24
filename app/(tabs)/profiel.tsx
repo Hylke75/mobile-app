@@ -15,11 +15,18 @@ import {
 
 import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
-import { PrimaryButton, ScreenHeader, SecondaryButton, SectionTitleRow } from '@/components/ui';
+import {
+  PrimaryButton,
+  ScreenHeader,
+  SecondaryButton,
+  SectionTitleRow,
+  Toggle,
+} from '@/components/ui';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmCheck } from '@/hooks/useAlarmCheck';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useAuth } from '@/hooks/useAuth';
+import { useHerinneringInstellingen } from '@/hooks/useHerinneringen';
 import { TAALNAMEN, TALEN, useTaal, type TaalKeuze } from '@/i18n';
 import {
   kiesAlarmgeluid,
@@ -32,6 +39,12 @@ import { appVersie, toestelInfo } from '@/lib/appInfo';
 import { openBatterijInstellingen } from '@/lib/batterij';
 import { openInstellingen } from '@/lib/instellingen';
 import { verzamelMijnGegevens } from '@/lib/export';
+import {
+  herinneringenBeschikbaar,
+  vraagMeldingToestemming,
+  zetHerinneringInstellingen,
+} from '@/lib/herinneringen';
+import type { HerinneringInstellingen } from '@/lib/herinneringPlan';
 import { hervatOp, naarDatumSleutel } from '@/lib/tijd';
 import { useSessies } from '@/hooks/useSessies';
 import { useToast } from '@/hooks/useToast';
@@ -68,6 +81,17 @@ export default function ProfielScherm() {
   const testId = useRef<string | null>(null);
   const { herplan } = useAlarmen();
   const [geluid, setGeluid] = useState<Alarmgeluid | null>(null);
+  const herinneringen = useHerinneringInstellingen();
+
+  const wisselHerinnering = async (soort: keyof HerinneringInstellingen) => {
+    if (!herinneringenBeschikbaar) return showToast(t('herinneringen.alleenOpTelefoon'));
+    const aan = !herinneringen[soort];
+    if (aan && !(await vraagMeldingToestemming())) {
+      showToast(t('herinneringen.geenToestemming'));
+      return openInstellingen();
+    }
+    await zetHerinneringInstellingen({ ...herinneringen, [soort]: aan });
+  };
 
   useEffect(() => {
     leesAlarmgeluid().then(setGeluid);
@@ -441,6 +465,21 @@ export default function ProfielScherm() {
         <Text style={styles.settingValue}>{t('profiel.mailOns')}</Text>
       </Pressable>
 
+      <Text style={styles.sectionHeading}>{t('herinneringen.kop')}</Text>
+      {(['avond', 'streak'] as const).map((soort) => (
+        <View key={soort} style={styles.setting}>
+          <View style={styles.herinneringTekst}>
+            <Text style={styles.settingLabel}>{t(`herinneringen.${soort}.label`)}</Text>
+            <Text style={styles.herinneringUitleg}>{t(`herinneringen.${soort}.uitleg`)}</Text>
+          </View>
+          <Toggle
+            on={herinneringen[soort]}
+            onPress={() => wisselHerinnering(soort)}
+            label={t(`herinneringen.${soort}.label`)}
+          />
+        </View>
+      ))}
+
       <Text style={styles.sectionHeading}>{t('profiel.account')}</Text>
       <View style={styles.setting}>
         <Icon name="user" color={kleuren.ink} />
@@ -635,6 +674,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   settingLabel: { fontFamily: fonts.body800, fontSize: 12, color: kleuren.ink },
+  herinneringTekst: { flex: 1, paddingRight: 14 },
+  herinneringUitleg: {
+    fontFamily: fonts.body400,
+    fontSize: 11,
+    lineHeight: 15,
+    color: '#5F6E60',
+    marginTop: 3,
+  },
   versie: {
     fontFamily: fonts.body600,
     fontSize: 11,

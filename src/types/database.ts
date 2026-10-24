@@ -17,6 +17,7 @@ export type Database = {
           naam: string;
           niveau: string;
           oefeningen: string[];
+          overslaan_op: string | null;
           tijd: string;
           updated_at: string;
           user_id: string;
@@ -30,6 +31,7 @@ export type Database = {
           naam?: string;
           niveau: string;
           oefeningen: string[];
+          overslaan_op?: string | null;
           tijd: string;
           updated_at?: string;
           user_id?: string;
@@ -43,6 +45,7 @@ export type Database = {
           naam?: string;
           niveau?: string;
           oefeningen?: string[];
+          overslaan_op?: string | null;
           tijd?: string;
           updated_at?: string;
           user_id?: string;

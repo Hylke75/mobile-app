@@ -198,12 +198,21 @@ export function synchroniseer(
     if (!rechten.canScheduleExactAlarms) return;
 
     const geluid = await leesAlarmgeluid();
-    const hervat = hervatOp(pauzeTot);
+    const pauze = hervatOp(pauzeTot);
+    // Pauze of één keer overslaan: het eerste alarm daarna wordt eenmalig ingepland
+    const hervatVoor = (alarm: Alarm): Date | null => {
+      const overslaan = hervatOp(alarm.overslaanOp);
+      if (!pauze || !overslaan) return pauze ?? overslaan;
+      return pauze > overslaan ? pauze : overslaan;
+    };
     const gewenst = new Map(alarms.filter((a) => a.aan).map((a) => [a.id, a]));
     for (const native of await AlarmScheduler.getScheduledAlarmsAsync()) {
       if (native.metadata?.type !== 'alarm') continue;
       const alarm = gewenst.get(native.id);
-      if (!alarm || native.metadata?.versie !== versieVan(alarm, geluid, hervat, eigen)) {
+      if (
+        !alarm ||
+        native.metadata?.versie !== versieVan(alarm, geluid, hervatVoor(alarm), eigen)
+      ) {
         await AlarmScheduler.cancelAlarmAsync(native.id);
       }
     }
@@ -213,7 +222,7 @@ export function synchroniseer(
     );
     for (const alarm of gewenst.values()) {
       if (nogGepland.has(alarm.id)) continue;
-      const input = alarmInput(alarm, geluid, hervat, eigen);
+      const input = alarmInput(alarm, geluid, hervatVoor(alarm), eigen);
       if (input) await AlarmScheduler.scheduleAlarmAsync(input);
     }
 

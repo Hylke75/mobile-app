@@ -8,15 +8,29 @@ import { em, fonts, kleuren } from '@/constants/theme';
 import { dagenTekst, missiesTekst } from '@/constants/alarm';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useNu } from '@/hooks/useNu';
-import { tijdTot, volgendeKeer } from '@/lib/tijd';
+import { isOvergeslagen, tijdTot, volgendeKeer, volgendeOverslaanDatum } from '@/lib/tijd';
 import { useToast } from '@/hooks/useToast';
 import { useTaal } from '@/i18n';
 
 export default function AlarmenScherm() {
-  const { alarms, geladen, fout, wisselAan, vernieuw } = useAlarmen();
+  const { alarms, geladen, fout, wisselAan, slaOver, vernieuw } = useAlarmen();
   const { showToast } = useToast();
   const nu = useNu();
-  const { t } = useTaal();
+  const { t, locale } = useTaal();
+  const datumTekst = (sleutel: string) => {
+    const [j, m, d] = sleutel.split('-').map(Number);
+    return new Date(j!, m! - 1, d!).toLocaleDateString(locale, {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+    });
+  };
+
+  const wisselOverslaan = async (id: string, naam: string, datum: string | null) => {
+    const melding = await slaOver(id, datum);
+    if (melding) return showToast(melding);
+    if (datum) showToast(t('alarmen.overslaanToast', { naam, datum: datumTekst(datum) }));
+  };
   const nieuwAlarm = () => router.push('/nieuw-alarm');
 
   const wissel = async (id: string) => {
@@ -39,6 +53,8 @@ export default function AlarmenScherm() {
 
       {alarms.map((a) => {
         const op = volgendeKeer(a, nu);
+        const overgeslagen = a.aan && isOvergeslagen(a, nu) ? a.overslaanOp! : null;
+        const teOverslaan = a.aan && !overgeslagen ? volgendeOverslaanDatum(a, nu) : null;
         return (
           <Pressable
             key={a.id}
@@ -66,6 +82,39 @@ export default function AlarmenScherm() {
               <LevelTag level={a.niveau} />
               <Text style={styles.count}>{missiesTekst(a.oefeningen.length)}</Text>
             </View>
+            {overgeslagen && (
+              <View style={styles.overslaanRij}>
+                <Text style={styles.overgeslagen}>
+                  {t('alarmen.overgeslagen', { datum: datumTekst(overgeslagen) })}
+                </Text>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t('alarmen.herstelA11y', {
+                    naam: a.naam,
+                    datum: datumTekst(overgeslagen),
+                  })}
+                  hitSlop={8}
+                  onPress={() => wisselOverslaan(a.id, a.naam, null)}
+                >
+                  <Text style={styles.overslaanKnop}>{t('alarmen.herstel')}</Text>
+                </Pressable>
+              </View>
+            )}
+            {teOverslaan && (
+              <View style={styles.overslaanRij}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t('alarmen.overslaanA11y', {
+                    naam: a.naam,
+                    datum: datumTekst(teOverslaan),
+                  })}
+                  hitSlop={8}
+                  onPress={() => wisselOverslaan(a.id, a.naam, teOverslaan)}
+                >
+                  <Text style={styles.overslaanKnop}>{t('alarmen.overslaan')}</Text>
+                </Pressable>
+              </View>
+            )}
           </Pressable>
         );
       })}
@@ -120,6 +169,18 @@ const styles = StyleSheet.create({
   name: { fontFamily: fonts.body800, fontSize: 13, marginTop: 7, color: kleuren.ink },
   days: { fontFamily: fonts.body400, fontSize: 10, color: '#5F6E60', marginTop: 3 },
   footer: { flexDirection: 'row', gap: 8, alignItems: 'center', marginTop: 15 },
+  overslaanRij: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+    marginTop: 12,
+    paddingTop: 11,
+    borderTopWidth: 1,
+    borderTopColor: kleuren.line,
+  },
+  overgeslagen: { flex: 1, fontFamily: fonts.body600, fontSize: 11, color: '#8A5A14' },
+  overslaanKnop: { fontFamily: fonts.body800, fontSize: 11, color: '#3F6B2A' },
   count: { fontFamily: fonts.body400, fontSize: 10, color: '#5F6E60', marginLeft: 'auto' },
   banner: {
     backgroundColor: kleuren.ink,

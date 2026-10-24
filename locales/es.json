@@ -1,7 +1,9 @@
 {
-  "CFBundleDisplayName": "Mooove",
-  "NSCameraUsageDescription": "Mooove usa la cámara para comprobar tu misión, por ejemplo contar tus sentadillas. Las imágenes se quedan en tu dispositivo.",
-  "NSMicrophoneUsageDescription": "Mooove no graba sonido. Las imágenes de la cámara se procesan sin audio y solo en tu dispositivo.",
-  "NSMotionUsageDescription": "Mooove usa el sensor de movimiento para contar tus saltos cuando la cámara no te reconoce.",
-  "NSAlarmKitUsageDescription": "Mooove programa tus alarmas para que suenen aunque el móvil esté en silencio."
+  "ios": {
+    "CFBundleDisplayName": "Mooove",
+    "NSCameraUsageDescription": "Mooove usa la cámara para comprobar tu misión, por ejemplo contar tus sentadillas. Las imágenes se quedan en tu dispositivo.",
+    "NSMicrophoneUsageDescription": "Mooove no graba sonido. Las imágenes de la cámara se procesan sin audio y solo en tu dispositivo.",
+    "NSMotionUsageDescription": "Mooove usa el sensor de movimiento para contar tus saltos cuando la cámara no te reconoce.",
+    "NSAlarmKitUsageDescription": "Mooove programa tus alarmas para que suenen aunque el móvil esté en silencio."
+  }
 }

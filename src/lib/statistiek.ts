@@ -18,14 +18,21 @@ export type Statistiek = {
   aantalVoltooid: number;
   totaalPerOefening: Partial<Record<Oefening, number>>;
   weekendWarrior: boolean;
+  // Eén joker per kalendermaand: een gemiste dag die de streak anders zou breken
+  jokerBeschikbaar: boolean;
+  jokerGebruiktOp: Date | null;
 };
 
+const maandSleutel = (datum: Date) => `${datum.getFullYear()}-${datum.getMonth()}`;
+
 // Een gemiste dag breekt de streak pas als er in die week meer rustdagen zijn
-// dan het weekdoel toestaat (weekdoel 7 = elke dag, 5 = twee rustdagen per week)
+// dan het weekdoel toestaat (weekdoel 7 = elke dag, 5 = twee rustdagen per week).
+// Eén keer per kalendermaand vangt een joker zo'n gemiste dag op.
 function streaks(voltooid: Sessie[], weekdoel: number, vandaag: Date) {
   const rustdagen = 7 - Math.min(7, Math.max(1, weekdoel));
   const dagen = new Set(voltooid.map((s) => dagSleutel(s.afgerondOp)));
-  if (!voltooid.length) return { streak: 0, langsteStreak: 0, actieveDagen: 0 };
+  const jokers = new Map<string, Date>();
+  if (!voltooid.length) return { streak: 0, langsteStreak: 0, actieveDagen: 0, jokers };
   const dag = startVanDag(new Date(Math.min(...voltooid.map((s) => s.afgerondOp.getTime()))));
   const gemist = new Map<string, number>();
   let teller = 0;
@@ -39,12 +46,19 @@ function streaks(voltooid: Sessie[], weekdoel: number, vandaag: Date) {
       // Vandaag kan nog: die dag telt pas mee als hij voorbij is
       const week = dagSleutel(startVanWeek(dag));
       const aantal = (gemist.get(week) ?? 0) + 1;
-      gemist.set(week, aantal);
-      if (aantal > rustdagen) teller = 0;
+      if (aantal <= rustdagen) {
+        gemist.set(week, aantal);
+      } else if (teller > 0 && !jokers.has(maandSleutel(dag))) {
+        // De joker telt niet als rustdag, zodat de rest van de week gewoon doorloopt
+        jokers.set(maandSleutel(dag), new Date(dag));
+      } else {
+        gemist.set(week, aantal);
+        teller = 0;
+      }
     }
     dag.setDate(dag.getDate() + 1);
   }
-  return { streak: teller, langsteStreak: langste, actieveDagen: dagen.size };
+  return { streak: teller, langsteStreak: langste, actieveDagen: dagen.size, jokers };
 }
 
 function totalen(voltooid: Sessie[]): Partial<Record<Oefening, number>> {
@@ -72,7 +86,12 @@ function heeftHeelWeekend(voltooid: Sessie[]): boolean {
 
 export function berekenStatistiek(sessies: Sessie[], weekdoel = 7, nu = new Date()): Statistiek {
   const voltooid = sessies.filter((s) => s.status === 'voltooid');
-  const { streak, langsteStreak, actieveDagen } = streaks(voltooid, weekdoel, startVanDag(nu));
+  const { streak, langsteStreak, actieveDagen, jokers } = streaks(
+    voltooid,
+    weekdoel,
+    startVanDag(nu),
+  );
+  const jokerGebruiktOp = jokers.get(maandSleutel(nu)) ?? null;
 
   const periode = 30 * 24 * 3600 * 1000;
   const recent = sessies.filter((s) => nu.getTime() - s.afgerondOp.getTime() < periode);
@@ -118,7 +137,32 @@ export function berekenStatistiek(sessies: Sessie[], weekdoel = 7, nu = new Date
     aantalVoltooid: voltooid.length,
     totaalPerOefening: totalen(voltooid),
     weekendWarrior: heeftHeelWeekend(voltooid),
+    jokerBeschikbaar: !jokerGebruiktOp,
+    jokerGebruiktOp,
   };
+}
+
+export type StreakGevaar = { streak: number; joker: boolean } | null;
+
+// Breekt de streak (of gaat de joker op) als er vandaag geen missie meer komt?
+export function streakInGevaar(sessies: Sessie[], weekdoel = 7, nu = new Date()): StreakGevaar {
+  const vandaag = berekenStatistiek(sessies, weekdoel, nu);
+  if (vandaag.streak === 0) return null;
+  const dag = dagSleutel(nu);
+  if (sessies.some((s) => s.status === 'voltooid' && dagSleutel(s.afgerondOp) === dag)) {
+    return null;
+  }
+  const morgen = startVanDag(nu);
+  morgen.setDate(morgen.getDate() + 1);
+  const dan = streaks(
+    sessies.filter((s) => s.status === 'voltooid'),
+    weekdoel,
+    morgen,
+  );
+  if (dan.streak === 0) return { streak: vandaag.streak, joker: false };
+  const joker = dan.jokers.get(maandSleutel(nu));
+  if (joker && dagSleutel(joker) === dag) return { streak: vandaag.streak, joker: true };
+  return null;
 }
 
 export type Badge = {

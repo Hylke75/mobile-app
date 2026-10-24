@@ -1,4 +1,4 @@
-import { badgesVoor, berekenStatistiek, bereiktMijlpaal } from '@/lib/statistiek';
+import { badgesVoor, berekenStatistiek, bereiktMijlpaal, streakInGevaar } from '@/lib/statistiek';
 import type { Sessie } from '@/types/app';
 
 // Vaste "nu": zaterdag 24 oktober 2026, 12:00
@@ -37,10 +37,37 @@ describe('berekenStatistiek', () => {
     expect(s.streak).toBe(2);
   });
 
-  it('breekt de streak bij een gemiste dag als het weekdoel elke dag is', () => {
+  it('breekt de streak bij een tweede gemiste dag in dezelfde maand', () => {
+    const s = berekenStatistiek(
+      [sessie(17), sessie(19), sessie(21), sessie(22), sessie(23)],
+      7,
+      NU,
+    );
+    expect(s.streak).toBe(3);
+    expect(s.jokerBeschikbaar).toBe(false);
+  });
+
+  it('vangt één gemiste dag per maand op met de joker', () => {
     const s = berekenStatistiek([sessie(20), sessie(22), sessie(23)], 7, NU);
-    expect(s.streak).toBe(2);
-    expect(s.langsteStreak).toBe(2);
+    expect(s.streak).toBe(3);
+    expect(s.jokerBeschikbaar).toBe(false);
+    expect(s.jokerGebruiktOp).toEqual(new Date(2026, 9, 21));
+  });
+
+  it('geeft elke maand een nieuwe joker', () => {
+    const sept = (dag: number) => sessie(dag, { afgerondOp: new Date(2026, 8, dag, 7, 30) });
+    const s = berekenStatistiek(
+      [sept(28), sept(30), sessie(1), sessie(3)],
+      7,
+      new Date(2026, 9, 3, 12),
+    );
+    expect(s.streak).toBe(4);
+    expect(s.jokerGebruiktOp).toEqual(new Date(2026, 9, 2));
+  });
+
+  it('gebruikt geen joker zonder lopende streak', () => {
+    const s = berekenStatistiek([sessie(24)], 7, NU);
+    expect(s.jokerBeschikbaar).toBe(true);
   });
 
   it('staat rustdagen toe volgens het weekdoel', () => {
@@ -101,5 +128,30 @@ describe('badges en mijlpalen', () => {
     expect(bereiktMijlpaal(7, 8)).toBeNull();
     expect(bereiktMijlpaal(0, 3)).toBe(3);
     expect(bereiktMijlpaal(2, 2)).toBeNull();
+  });
+});
+
+describe('streakInGevaar', () => {
+  const AVOND = new Date(2026, 9, 24, 19, 0);
+
+  it('is niet in gevaar als vandaag al gedaan is', () => {
+    expect(streakInGevaar([sessie(23), sessie(24)], 7, AVOND)).toBeNull();
+  });
+
+  it('zet de joker op het spel als die er nog is', () => {
+    expect(streakInGevaar([sessie(22), sessie(23)], 7, AVOND)).toEqual({ streak: 2, joker: true });
+  });
+
+  it('waarschuwt dat de streak breekt als de joker al op is', () => {
+    const lijst = [sessie(19), sessie(21), sessie(22), sessie(23)];
+    expect(streakInGevaar(lijst, 7, AVOND)).toEqual({ streak: 4, joker: false });
+  });
+
+  it('is niet in gevaar op een toegestane rustdag', () => {
+    expect(streakInGevaar([sessie(22), sessie(23)], 5, AVOND)).toBeNull();
+  });
+
+  it('is niet in gevaar zonder streak', () => {
+    expect(streakInGevaar([], 7, AVOND)).toBeNull();
   });
 });

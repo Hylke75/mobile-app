@@ -1,4 +1,12 @@
-import { dagIndex, startVanWeek, tijdTot, volgendAlarm, volgendeKeer } from '@/lib/tijd';
+import {
+  dagIndex,
+  isOvergeslagen,
+  startVanWeek,
+  tijdTot,
+  volgendAlarm,
+  volgendeKeer,
+  volgendeOverslaanDatum,
+} from '@/lib/tijd';
 import type { Alarm } from '@/types/app';
 
 // Zaterdag 24 oktober 2026, 12:00
@@ -57,5 +65,27 @@ describe('tijd', () => {
     expect(tijdTot(over(7 * 60 + 12), NU)).toBe('7 u 12 min');
     expect(tijdTot(over(26 * 60), NU)).toBe('1 d 2 u');
     expect(tijdTot(over(-5), NU)).toBe('minder dan een minuut');
+  });
+});
+
+describe('overslaan', () => {
+  it('slaat alleen de gekozen dag over', () => {
+    const a = alarm({ overslaanOp: '2026-10-26' });
+    expect(volgendeKeer(a, NU)).toEqual(new Date(2026, 9, 27, 7, 0));
+  });
+
+  it('vindt bij een wekelijks alarm de week erna', () => {
+    const a = alarm({ dagen: [0], overslaanOp: '2026-10-26' });
+    expect(volgendeKeer(a, NU)).toEqual(new Date(2026, 10, 2, 7, 0));
+  });
+
+  it('kiest de eerstvolgende keer om over te slaan', () => {
+    expect(volgendeOverslaanDatum(alarm(), NU)).toBe('2026-10-26');
+  });
+
+  it('negeert een overgeslagen dag die al voorbij is', () => {
+    const a = alarm({ overslaanOp: '2026-10-20' });
+    expect(isOvergeslagen(a, NU)).toBe(false);
+    expect(isOvergeslagen(alarm({ overslaanOp: '2026-10-26' }), NU)).toBe(true);
   });
 });

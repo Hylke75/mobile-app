@@ -44,6 +44,8 @@ export type Alarm = {
   oefeningen: MissieId[];
   doelen: Doelen;
   aan: boolean;
+  // Datum (YYYY-MM-DD) waarop dit alarm één keer niet afgaat
+  overslaanOp?: string | null;
 };
 
 export type StapResultaat = {

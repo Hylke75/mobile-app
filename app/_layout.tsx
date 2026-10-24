@@ -24,6 +24,7 @@ import { AlarmenProvider } from '@/hooks/useAlarmen';
 import { SessiesProvider } from '@/hooks/useSessies';
 import { ToastProvider } from '@/hooks/useToast';
 import { TaalProvider } from '@/i18n';
+import { useHerinneringen } from '@/hooks/useHerinneringen';
 import { useWekkerRouting } from '@/hooks/useWekkerRouting';
 
 SplashScreen.preventAutoHideAsync();
@@ -70,6 +71,7 @@ function RootNavigator() {
   const heeftNaam = Boolean(profiel?.voornaam);
 
   useWekkerRouting(status !== 'laden');
+  useHerinneringen();
 
   useEffect(() => {
     if (status !== 'laden') SplashScreen.hideAsync();

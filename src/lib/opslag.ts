@@ -30,6 +30,7 @@ export const SLEUTELS = {
   beoordelingGevraagd: 'mooove.beoordeling-gevraagd',
   weekoverzichtGezien: 'mooove.weekoverzicht-gezien',
   taal: 'mooove.taal',
+  herinneringen: 'mooove.herinneringen',
 } as const;
 
 export async function wisLokaal(): Promise<void> {
