@@ -77,7 +77,7 @@ Draai `lint`, `typecheck` en `test` voordat een taak af is.
 - [ ] Web-URL voor verwijderverzoeken (verplicht voor Google Play): `https://mooove-app.com/account-verwijderen`
 - [ ] App Store privacylabels (App Privacy) ingevuld volgens `docs/store/app-store.md`
 - [ ] Supabase: e-mailtemplate "Magic Link" bevat `{{ .Token }}` en eigen SMTP ingesteld
-- [ ] iOS development build getest op een iPhone met iOS 26 (alarm, snooze, missie, noodstop)
+- [ ] iOS-build via TestFlight getest op een iPhone met iOS 26 (alarm, snooze, missie, noodstop); stappenplan in `docs/ios-build.md`
 - [ ] Google Play Data safety-formulier ingevuld
 - [x] Screenshots iPhone 6,9" en 6,5" en Android, plus feature graphic (`docs/store/screenshots/`); iPad is uitgeschakeld
 - [x] Testaccount voor de reviewers van Apple en Google (`appreview@linkandlead.nl`, met voorbeelddata)

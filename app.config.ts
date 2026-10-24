@@ -156,6 +156,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           'Mooove gebruikt de bewegingssensor om je sprongen te tellen als de camera je niet herkent.',
       },
     ],
+    // Alleen lokale herinneringen: geen push, dus geen aps-environment en geen APNs-sleutel nodig
+    ['expo-notifications', { enableRemoteNotifications: false }],
     [
       'expo-splash-screen',
       {
