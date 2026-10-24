@@ -23,6 +23,8 @@ type SessiesContextWaarde = {
   sessies: Sessie[];
   statistiek: Statistiek;
   slaOp: (sessie: NieuweSessie) => Promise<string | null>;
+  // Ochtendgevoel na de missie (1–3), gevonden op starttijd
+  zetGevoel: (gestartOp: Date, gevoel: number) => Promise<void>;
   vernieuw: () => Promise<void>;
   // Missies die nog op internet wachten
   wachtend: number;
@@ -39,6 +41,7 @@ function naarSessie(rij: SessieRij): Sessie {
     status: rij.status as Sessie['status'],
     stappen: (rij.stappen as unknown as StapResultaat[]) ?? [],
     totaalHerhalingen: rij.totaal_herhalingen,
+    gevoel: rij.gevoel,
   };
 }
 
@@ -68,6 +71,7 @@ function naarInsert(sessie: WachtrijItem, metAlarm = true) {
     status: sessie.status,
     stappen: sessie.stappen as unknown as Json,
     totaal_herhalingen: sessie.totaalHerhalingen,
+    gevoel: sessie.gevoel ?? null,
   };
 }
 
@@ -88,6 +92,19 @@ let versturen: Promise<void> | null = null;
 function verstuurWachtrij(userId: string): Promise<void> {
   if (versturen) return versturen;
   versturen = (async () => {
+    // Eerst gevoelens van missies die al wel op de server staan
+    const gevoelens = (await leesLokaal<GevoelItem[]>(SLEUTELS.gevoelWachtrij)) ?? [];
+    const overGevoel: GevoelItem[] = [];
+    for (const item of gevoelens) {
+      const { error } = await supabase
+        .from('missie_sessies')
+        .update({ gevoel: item.gevoel })
+        .eq('id', item.id);
+      if (error) overGevoel.push(item);
+    }
+    if (gevoelens.length) {
+      await schrijfLokaal(SLEUTELS.gevoelWachtrij, overGevoel.length ? overGevoel : null);
+    }
     const wachtrij = (await leesLokaal<WachtrijItem[]>(SLEUTELS.sessieWachtrij)) ?? [];
     const verstuurd = new Set<string>();
     for (const item of wachtrij) {
@@ -108,6 +125,7 @@ function verstuurWachtrij(userId: string): Promise<void> {
 }
 
 type Opgeslagen = { eigenaar: string; rijen: SessieRij[] };
+type GevoelItem = { id: string; gevoel: number };
 
 function uitWachtrij(item: WachtrijItem): Sessie {
   return {
@@ -118,6 +136,7 @@ function uitWachtrij(item: WachtrijItem): Sessie {
     status: item.status,
     stappen: item.stappen,
     totaalHerhalingen: item.totaalHerhalingen,
+    gevoel: item.gevoel ?? null,
   };
 }
 
@@ -215,6 +234,47 @@ export function SessiesProvider({ children }: { children: ReactNode }) {
     [userId],
   );
 
+  const zetGevoel = useCallback(
+    async (gestartOp: Date, gevoel: number) => {
+      const sessie = sessies.find(
+        (s) => Math.abs(s.gestartOp.getTime() - gestartOp.getTime()) < 1000,
+      );
+      if (!sessie || !userId) return;
+      setData((h) => ({
+        ...h,
+        sessies: h.sessies.map((s) => (s.id === sessie.id ? { ...s, gevoel } : s)),
+      }));
+      // Staat de missie nog in de wachtrij, dan gaat het gevoel gewoon mee
+      const wachtrij = (await leesLokaal<WachtrijItem[]>(SLEUTELS.sessieWachtrij)) ?? [];
+      if (wachtrij.some((i) => i.id === sessie.id)) {
+        await schrijfLokaal(
+          SLEUTELS.sessieWachtrij,
+          wachtrij.map((i) => (i.id === sessie.id ? { ...i, gevoel } : i)),
+        );
+        return;
+      }
+      const lokaal = await leesLokaal<Opgeslagen>(SLEUTELS.sessies);
+      if (lokaal?.eigenaar === userId) {
+        await schrijfLokaal<Opgeslagen>(SLEUTELS.sessies, {
+          ...lokaal,
+          rijen: lokaal.rijen.map((r) => (r.id === sessie.id ? { ...r, gevoel } : r)),
+        });
+      }
+      const { error } = await supabase
+        .from('missie_sessies')
+        .update({ gevoel })
+        .eq('id', sessie.id);
+      if (error) {
+        const later = (await leesLokaal<GevoelItem[]>(SLEUTELS.gevoelWachtrij)) ?? [];
+        await schrijfLokaal(SLEUTELS.gevoelWachtrij, [
+          ...later.filter((i) => i.id !== sessie.id),
+          { id: sessie.id, gevoel },
+        ]);
+      }
+    },
+    [sessies, userId],
+  );
+
   // Herberekenen bij een nieuwe dag, zodat streak en weekgrafiek na middernacht kloppen
   const statistiek = useMemo(() => {
     void dag;
@@ -222,7 +282,7 @@ export function SessiesProvider({ children }: { children: ReactNode }) {
   }, [sessies, weekdoel, dag]);
 
   return (
-    <SessiesContext.Provider value={{ sessies, statistiek, slaOp, vernieuw, wachtend }}>
+    <SessiesContext.Provider value={{ sessies, statistiek, slaOp, zetGevoel, vernieuw, wachtend }}>
       {children}
     </SessiesContext.Provider>
   );

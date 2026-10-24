@@ -21,6 +21,8 @@ export type Statistiek = {
   // Eén joker per kalendermaand: een gemiste dag die de streak anders zou breken
   jokerBeschikbaar: boolean;
   jokerGebruiktOp: Date | null;
+  // Ochtendgevoel na voltooide missies van de laatste 30 dagen: [moe, oké, sterk]
+  gevoel: [number, number, number];
 };
 
 const maandSleutel = (datum: Date) => `${datum.getFullYear()}-${datum.getMonth()}`;
@@ -139,6 +141,9 @@ export function berekenStatistiek(sessies: Sessie[], weekdoel = 7, nu = new Date
     weekendWarrior: heeftHeelWeekend(voltooid),
     jokerBeschikbaar: !jokerGebruiktOp,
     jokerGebruiktOp,
+    gevoel: [1, 2, 3].map(
+      (g) => recent.filter((x) => x.status === 'voltooid' && x.gevoel === g).length,
+    ) as [number, number, number],
   };
 }
 

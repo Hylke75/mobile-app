@@ -14,12 +14,15 @@ import { luisterNaarTaal, t } from '@/i18n';
 import { doelenUitJson } from '@/constants/oefeningen';
 import { useAuth } from '@/hooks/useAuth';
 import { annuleerAlarm, deblokkeerSynchronisatie, synchroniseer } from '@/lib/alarmen';
+import { zetGeluidKeuze, type GeluidKeuze } from '@/lib/alarmgeluid';
 import { leesLokaal, schrijfLokaal, SLEUTELS } from '@/lib/opslag';
 import { supabase } from '@/lib/supabase';
 import type { Alarm, EigenMissie, MissieId, Niveau } from '@/types/app';
 import type { AlarmRij, EigenMissieRij } from '@/types/database';
 
-export type AlarmInvoer = Omit<Alarm, 'id' | 'aan'>;
+// Het geluid per alarm staat alleen op dit toestel, niet in de database
+export type AlarmInvoer = Omit<Alarm, 'id' | 'aan'> & { geluid?: GeluidKeuze };
+type AlarmWijziging = Partial<Alarm> & { geluid?: GeluidKeuze };
 
 type AlarmenContextWaarde = {
   alarms: Alarm[];
@@ -28,7 +31,7 @@ type AlarmenContextWaarde = {
   vernieuw: () => Promise<void>;
   herplan: () => void;
   maakAan: (invoer: AlarmInvoer) => Promise<string | null>;
-  werkBij: (id: string, invoer: Partial<Alarm>) => Promise<string | null>;
+  werkBij: (id: string, invoer: AlarmWijziging) => Promise<string | null>;
   verwijder: (id: string) => Promise<string | null>;
   wisselAan: (id: string) => Promise<string | null>;
   slaOver: (id: string, datum: string | null) => Promise<string | null>;
@@ -66,12 +69,18 @@ function naarAlarm(rij: AlarmRij): Alarm {
     doelen: doelenUitJson(rij.doelen),
     aan: rij.aan,
     overslaanOp: rij.overslaan_op,
+    wisselend: rij.wisselend,
+    feestdagenOverslaan: rij.feestdagen_overslaan,
   };
 }
 
 // Velden van de app naar kolommen in de database
-function naarRij({ overslaanOp, ...rest }: Partial<Omit<Alarm, 'id'>>) {
-  return overslaanOp === undefined ? rest : { ...rest, overslaan_op: overslaanOp };
+function naarRij({ overslaanOp, feestdagenOverslaan, ...rest }: Partial<Omit<Alarm, 'id'>>) {
+  return {
+    ...rest,
+    ...(overslaanOp === undefined ? {} : { overslaan_op: overslaanOp }),
+    ...(feestdagenOverslaan === undefined ? {} : { feestdagen_overslaan: feestdagenOverslaan }),
+  };
 }
 
 const haalAlarmenOp = () => supabase.from('alarms').select('*').order('tijd');
@@ -251,13 +260,21 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
     async (invoer: AlarmInvoer) => {
       if (!user) return t('meldingen.nietIngelogd');
       // Een nieuw (of teruggezet) alarm begint zonder overgeslagen dag
-      const { overslaanOp: _overslaan, ...velden } = invoer;
+      const { overslaanOp: _overslaan, geluid, ...velden } = invoer;
       const { data: rij, error } = await supabase
         .from('alarms')
-        .insert({ ...velden, aan: true })
+        .insert({
+          ...naarRij(velden),
+          tijd: velden.tijd,
+          dagen: velden.dagen,
+          niveau: velden.niveau,
+          oefeningen: velden.oefeningen,
+          aan: true,
+        })
         .select()
         .single();
       if (error) return t('meldingen.opslaanMisluktInternet');
+      if (geluid) await zetGeluidKeuze(rij.id, geluid);
       zetEnSync(user.id, [...huidig.current, naarAlarm(rij)]);
       return null;
     },
@@ -265,9 +282,9 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
   );
 
   const werkBij = useCallback(
-    async (id: string, invoer: Partial<Alarm>) => {
+    async (id: string, invoer: AlarmWijziging) => {
       if (!user) return t('meldingen.nietIngelogd');
-      const { id: _id, ...wijziging } = invoer;
+      const { id: _id, geluid, ...wijziging } = invoer;
       const { data: rij, error } = await supabase
         .from('alarms')
         .update(naarRij(wijziging))
@@ -275,6 +292,7 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
         .select()
         .single();
       if (error) return t('meldingen.opslaanMisluktInternet');
+      if (geluid) await zetGeluidKeuze(id, geluid);
       zetEnSync(
         user.id,
         huidig.current.map((a) => (a.id === id ? naarAlarm(rij) : a)),
@@ -290,6 +308,7 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
       const { error } = await supabase.from('alarms').delete().eq('id', id);
       if (error) return t('meldingen.verwijderenMisluktInternet');
       await annuleerAlarm(id).catch(() => {});
+      await zetGeluidKeuze(id, null);
       zetEnSync(
         user.id,
         huidig.current.filter((a) => a.id !== id),

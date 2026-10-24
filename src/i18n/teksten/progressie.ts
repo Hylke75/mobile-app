@@ -20,6 +20,11 @@ const nl = {
   jokerBeschikbaar:
     'Je hebt deze maand nog een joker. Mis je een dag, dan blijft je streak gewoon staan.',
   jokerGebruikt: 'Je joker is ingezet op {{datum}}. Op de 1e van de maand krijg je een nieuwe.',
+  gevoel: {
+    titel: 'Ochtendgevoel',
+    tekst: 'Hoe je je voelde na je missies, de laatste 30 dagen.',
+    leeg: 'Na een missie kun je aangeven hoe je je voelt. Dat zie je hier terug.',
+  },
   missiesVoltooid: 'Missies voltooid',
   repsDezeWeek: 'Reps deze week',
   dezeWeek: 'Deze week',
@@ -54,6 +59,11 @@ export const progressie: Vertalingen<typeof nl> = {
     jokerBeschikbaar: 'You still have a joker this month. Miss a day and your streak stays intact.',
     jokerGebruikt:
       'Your joker was used on {{datum}}. You’ll get a new one on the 1st of the month.',
+    gevoel: {
+      titel: 'Morning mood',
+      tekst: 'How you felt after your missions, the last 30 days.',
+      leeg: 'After a mission you can tell us how you feel. You’ll see it here.',
+    },
     missiesVoltooid: 'Missions completed',
     repsDezeWeek: 'Reps this week',
     dezeWeek: 'This week',
@@ -84,6 +94,11 @@ export const progressie: Vertalingen<typeof nl> = {
     jokerTitel: '🃏 Comodín de racha',
     jokerBeschikbaar: 'Aún tienes un comodín este mes. Si fallas un día, tu racha se mantiene.',
     jokerGebruikt: 'Usaste tu comodín el {{datum}}. El día 1 del mes recibirás uno nuevo.',
+    gevoel: {
+      titel: 'Ánimo matutino',
+      tekst: 'Cómo te sentiste tras tus misiones en los últimos 30 días.',
+      leeg: 'Después de una misión puedes indicar cómo te sientes. Lo verás aquí.',
+    },
     missiesVoltooid: 'Misiones completadas',
     repsDezeWeek: 'Reps esta semana',
     dezeWeek: 'Esta semana',
@@ -116,6 +131,11 @@ export const progressie: Vertalingen<typeof nl> = {
       'Du hast diesen Monat noch einen Joker. Verpasst du einen Tag, bleibt deine Serie bestehen.',
     jokerGebruikt:
       'Dein Joker wurde am {{datum}} eingesetzt. Am 1. des Monats bekommst du einen neuen.',
+    gevoel: {
+      titel: 'Morgenstimmung',
+      tekst: 'Wie du dich nach deinen Missionen gefühlt hast, die letzten 30 Tage.',
+      leeg: 'Nach einer Mission kannst du angeben, wie du dich fühlst. Das siehst du hier.',
+    },
     missiesVoltooid: 'Missionen geschafft',
     repsDezeWeek: 'Wdh. diese Woche',
     dezeWeek: 'Diese Woche',
@@ -147,6 +167,11 @@ export const progressie: Vertalingen<typeof nl> = {
     jokerBeschikbaar: 'Il te reste un joker ce mois-ci. Si tu manques un jour, ta série continue.',
     jokerGebruikt:
       'Ton joker a été utilisé le {{datum}}. Tu en recevras un nouveau le 1er du mois.',
+    gevoel: {
+      titel: 'Humeur du matin',
+      tekst: 'Comment tu t’es senti après tes missions, ces 30 derniers jours.',
+      leeg: 'Après une mission, tu peux indiquer comment tu te sens. Tu le verras ici.',
+    },
     missiesVoltooid: 'Missions terminées',
     repsDezeWeek: 'Reps cette semaine',
     dezeWeek: 'Cette semaine',

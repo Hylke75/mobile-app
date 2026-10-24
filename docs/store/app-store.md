@@ -50,7 +50,8 @@ wekker,alarm,ochtend,bewegen,squats,fitness,routine,streak,opstaan,snooze,missie
 - Gezondheid en fitness → Fitness (aantallen herhalingen en voltooide oefeningen) — App-functionaliteit
 - Identificatoren → Gebruikers-ID (account-ID) — App-functionaliteit
 - Gebruiksdata → Productinteractie (alarmen, missieresultaten) — App-functionaliteit
-- Gebruikerscontent → Overige gebruikerscontent (namen van eigen missies) — App-functionaliteit
+- Gebruikerscontent → Overige gebruikerscontent (namen van eigen missies, ochtendgevoel na een missie, feedbackberichten) — App-functionaliteit
+- Gebruikerscontent → Klantenservice (feedbackberichten uit de app) — App-functionaliteit
 
 **Data die niet aan je identiteit is gekoppeld** (alleen als Sentry aan staat)
 

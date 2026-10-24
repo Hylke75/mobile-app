@@ -6,6 +6,7 @@ import {
   missieInfo,
   missieInfos,
   naarEigenId,
+  missiesVanDag,
 } from '@/lib/missies';
 import type { EigenMissie } from '@/types/app';
 
@@ -67,5 +68,22 @@ describe('missies', () => {
     expect(eigenUitTekst(eigenNaarTekst([lezen, water]))).toEqual([lezen, water]);
     expect(eigenUitTekst('geen json')).toEqual([]);
     expect(eigenUitTekst(undefined)).toEqual([]);
+  });
+});
+
+describe('missiesVanDag', () => {
+  const lijst = ['Squats', 'Plank', 'Bed opmaken'] as const;
+
+  it('geeft alle missies als het alarm niet wisselt', () => {
+    expect(missiesVanDag(lijst, false, new Date(2026, 9, 24))).toEqual([...lijst]);
+  });
+
+  it('kiest per dag één missie en wisselt de volgende dag', () => {
+    const vandaag = missiesVanDag(lijst, true, new Date(2026, 9, 24));
+    const morgen = missiesVanDag(lijst, true, new Date(2026, 9, 25));
+    expect(vandaag).toHaveLength(1);
+    expect(morgen).toHaveLength(1);
+    expect(vandaag).not.toEqual(morgen);
+    expect(missiesVanDag(lijst, true, new Date(2026, 9, 24, 23, 59))).toEqual(vandaag);
   });
 });

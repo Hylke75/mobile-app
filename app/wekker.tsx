@@ -7,7 +7,7 @@ import { Screen } from '@/components/Screen';
 import { LevelTag, PrimaryButton, SecondaryButton } from '@/components/ui';
 import { dagenTekst, MAX_SNOOZES, missiesTekst, SNOOZE_MINUTEN } from '@/constants/alarm';
 import { doelenNaarTekst, doelenUitTekst } from '@/constants/oefeningen';
-import { eigenNaarTekst, eigenUitTekst } from '@/lib/missies';
+import { eigenNaarTekst, eigenUitTekst, missiesVanDag } from '@/lib/missies';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useTaal } from '@/i18n';
 import { useAlarmen } from '@/hooks/useAlarmen';
@@ -86,6 +86,7 @@ export default function WekkerScherm() {
         Wekker['oefeningen'] | undefined),
     doelen: alarm?.doelen ?? (params.doelen ? doelenUitTekst(params.doelen) : native?.doelen),
     eigen: params.eigen ? eigenUitTekst(params.eigen) : native?.eigen,
+    wisselend: alarm?.wisselend ?? native?.wisselend,
   };
 
   const voerUit = async (actie: () => Promise<void>) => {
@@ -116,7 +117,7 @@ export default function WekkerScherm() {
           vervolgId: vervolgId ?? '',
           vanWekker: '1',
           niveau: wekker.niveau ?? '',
-          oefeningen: wekker.oefeningen?.join(',') ?? '',
+          oefeningen: missiesVanDag(wekker.oefeningen ?? [], wekker.wisselend).join(','),
           doelen: wekker.doelen ? doelenNaarTekst(wekker.doelen) : '',
           eigen: wekker.eigen?.length ? eigenNaarTekst(wekker.eigen) : '',
         },
@@ -201,7 +202,7 @@ export default function WekkerScherm() {
         {(alarm || wekker.oefeningen) && (
           <Text style={styles.infoTekst}>
             {alarm ? `${dagenTekst(alarm.dagen)} · ` : ''}
-            {missiesTekst((alarm?.oefeningen ?? wekker.oefeningen ?? []).length)}
+            {missiesTekst(missiesVanDag(wekker.oefeningen ?? [], wekker.wisselend).length)}
           </Text>
         )}
       </View>

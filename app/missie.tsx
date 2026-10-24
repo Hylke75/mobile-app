@@ -39,9 +39,9 @@ import {
   gemiddeldeReactie,
   minutenNaAlarm,
 } from '@/lib/statistiek';
-import { volgendAlarm } from '@/lib/tijd';
+import { volgendAlarm, volgendeKeer } from '@/lib/tijd';
 import { succes, tik } from '@/lib/trilling';
-import { eigenUitTekst, isOefening, missieInfos } from '@/lib/missies';
+import { eigenUitTekst, isOefening, missieInfos, missiesVanDag } from '@/lib/missies';
 import type { MissieId, Niveau, StapResultaat } from '@/types/app';
 
 const STANDAARD_MISSIE: MissieId[] = ['Squats', 'Bed opmaken', 'Gordijnen open'];
@@ -59,7 +59,7 @@ export default function MissieScherm() {
     eigen?: string;
   }>();
   const { alarms, herplan, eigenMap } = useAlarmen();
-  const { slaOp, statistiek, sessies } = useSessies();
+  const { slaOp, zetGevoel, statistiek, sessies } = useSessies();
   const { showToast } = useToast();
   const { t, taal } = useTaal();
   const weekdoel = useAuth().profiel?.weekdoel ?? 7;
@@ -75,10 +75,13 @@ export default function MissieScherm() {
   }, [alarms, params.alarmId, proef]);
   // Niveau en oefeningen komen ook mee vanuit het native alarm, zodat dit offline werkt
   const niveau = (alarm?.niveau ?? (params.niveau || undefined)) as Niveau | undefined;
-  const [ids] = useState<MissieId[]>(
-    () =>
-      alarm?.oefeningen ??
-      (params.oefeningen ? (params.oefeningen.split(',') as MissieId[]) : STANDAARD_MISSIE),
+  // Bij een wisselend alarm alleen de missie van vandaag (de wekker geeft die al mee)
+  const [ids] = useState<MissieId[]>(() =>
+    alarm && !params.oefeningen
+      ? missiesVanDag(alarm.oefeningen, alarm.wisselend, volgendeKeer(alarm) ?? new Date())
+      : params.oefeningen
+        ? (params.oefeningen.split(',') as MissieId[])
+        : (alarm?.oefeningen ?? STANDAARD_MISSIE),
   );
   const [doelen] = useState(() => alarm?.doelen ?? doelenUitTekst(params.doelen));
   // Eigen missies uit het account, aangevuld met die uit het native alarm (werkt ook offline)
@@ -99,6 +102,15 @@ export default function MissieScherm() {
   const [stap, setStap] = useState(0);
   const [poging, setPoging] = useState(0);
   const [gedaan, setGedaan] = useState(0);
+  const [gevoel, setGevoel] = useState<number | null>(null);
+  const bewaardGevoel = useRef<number | null>(null);
+  // Pas bewaren als de missie zelf in de lijst staat (opslaan kan nog bezig zijn)
+  useEffect(() => {
+    if (!gevoel || bewaardGevoel.current === gevoel) return;
+    if (!sessies.some((s) => Math.abs(s.gestartOp.getTime() - gestartOp.getTime()) < 1000)) return;
+    bewaardGevoel.current = gevoel;
+    zetGevoel(gestartOp, gevoel).catch(() => {});
+  }, [gevoel, sessies, gestartOp, zetGevoel]);
   const [stapKlaar, setStapKlaar] = useState(false);
   const [methode, setMethode] = useState<StapResultaat['methode']>('camera');
   const [resultaten, setResultaten] = useState<StapResultaat[]>([]);
@@ -397,6 +409,38 @@ export default function MissieScherm() {
               {meer > 0 && (
                 <Text style={styles.nieuwTekst}>{t('missie.klaar.meerBadges', { n: meer })}</Text>
               )}
+            </View>
+          )}
+          {!proef && (
+            <View style={styles.gevoel}>
+              <Text style={styles.gevoelVraag}>
+                {gevoel ? t('missie.klaar.gevoel.dank') : t('missie.klaar.gevoel.vraag')}
+              </Text>
+              <View style={styles.gevoelRij}>
+                {(
+                  [
+                    [1, '😴', 'missie.klaar.gevoel.moe'],
+                    [2, '🙂', 'missie.klaar.gevoel.oke'],
+                    [3, '💪', 'missie.klaar.gevoel.sterk'],
+                  ] as const
+                ).map(([waarde, emoji, sleutel]) => (
+                  <Pressable
+                    key={waarde}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: gevoel === waarde }}
+                    accessibilityLabel={t('missie.klaar.gevoel.a11y', { gevoel: t(sleutel) })}
+                    onPress={() => setGevoel(waarde)}
+                    style={[styles.gevoelKnop, gevoel === waarde && styles.gevoelGekozen]}
+                  >
+                    <Text style={styles.gevoelEmoji}>{emoji}</Text>
+                    <Text
+                      style={[styles.gevoelLabel, gevoel === waarde && styles.gevoelLabelGekozen]}
+                    >
+                      {t(sleutel)}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
             </View>
           )}
           <PrimaryButton
@@ -782,6 +826,22 @@ const styles = StyleSheet.create({
     gap: 4,
     alignSelf: 'stretch',
   },
+  gevoel: { alignSelf: 'stretch', marginBottom: 16, gap: 10 },
+  gevoelVraag: { fontFamily: fonts.body800, fontSize: 13, color: '#C7D1C7', textAlign: 'center' },
+  gevoelRij: { flexDirection: 'row', gap: 8 },
+  gevoelKnop: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 4,
+    paddingVertical: 12,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: '#2C3A31',
+  },
+  gevoelGekozen: { backgroundColor: kleuren.lime, borderColor: kleuren.lime },
+  gevoelEmoji: { fontSize: 24 },
+  gevoelLabel: { fontFamily: fonts.body800, fontSize: 12, color: '#F3F3ED' },
+  gevoelLabelGekozen: { color: kleuren.ink },
   nieuwTekst: { fontFamily: fonts.body800, fontSize: 13, color: kleuren.ink, textAlign: 'center' },
   doneStat: {
     backgroundColor: '#283B2D',

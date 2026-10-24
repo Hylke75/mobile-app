@@ -46,6 +46,10 @@ export type Alarm = {
   aan: boolean;
   // Datum (YYYY-MM-DD) waarop dit alarm één keer niet afgaat
   overslaanOp?: string | null;
+  // Elke ochtend één missie uit de lijst in plaats van allemaal
+  wisselend?: boolean;
+  // Niet afgaan op officiële feestdagen van het land van het toestel
+  feestdagenOverslaan?: boolean;
 };
 
 export type StapResultaat = {
@@ -63,4 +67,6 @@ export type Sessie = {
   status: 'voltooid' | 'afgebroken';
   stappen: StapResultaat[];
   totaalHerhalingen: number;
+  // Hoe je je voelde na de missie: 1 = moe, 2 = oké, 3 = sterk
+  gevoel?: number | null;
 };

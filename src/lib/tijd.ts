@@ -1,4 +1,5 @@
 import { t } from '@/i18n';
+import { huidigLand, isFeestdag, type FeestdagLand } from '@/lib/feestdagen';
 import type { Alarm } from '@/types/app';
 
 // 0 = maandag … 6 = zondag
@@ -22,17 +23,22 @@ export function startVanWeek(datum: Date): Date {
   return d;
 }
 
-export function volgendeKeer(alarm: Alarm, nu = new Date()): Date | null {
+export function volgendeKeer(
+  alarm: Alarm,
+  nu = new Date(),
+  land: FeestdagLand | null = alarm.feestdagenOverslaan ? huidigLand() : null,
+): Date | null {
   if (!alarm.aan || alarm.dagen.length === 0) return null;
   const [uur, minuut] = alarm.tijd.split(':').map(Number);
-  for (let i = 0; i < 15; i++) {
+  for (let i = 0; i < 22; i++) {
     const kandidaat = startVanDag(nu);
     kandidaat.setDate(kandidaat.getDate() + i);
     kandidaat.setHours(uur ?? 0, minuut ?? 0, 0, 0);
     if (
       kandidaat > nu &&
       alarm.dagen.includes(dagIndex(kandidaat)) &&
-      naarDatumSleutel(kandidaat) !== alarm.overslaanOp
+      naarDatumSleutel(kandidaat) !== alarm.overslaanOp &&
+      !(alarm.feestdagenOverslaan && isFeestdag(kandidaat, land))
     ) {
       return kandidaat;
     }
@@ -91,4 +97,26 @@ export function hervatOp(pauzeTot: string | null | undefined, nu = new Date()): 
 
 export function naarDatumSleutel(datum: Date): string {
   return `${datum.getFullYear()}-${String(datum.getMonth() + 1).padStart(2, '0')}-${String(datum.getDate()).padStart(2, '0')}`;
+}
+
+export type PlanMoment =
+  { soort: 'herhalend' } | { soort: 'eenmalig'; op: Date } | { soort: 'geen' };
+
+// Hoe het native alarm ingepland moet worden. Valt de eerstvolgende keer weg door een pauze,
+// één keer overslaan of een feestdag, dan alleen de eerste echte keer daarna, eenmalig; het
+// herhalende alarm komt terug zodra de app opent of de missie klaar is.
+export function planMoment(
+  alarm: Alarm,
+  pauzeTot: string | null | undefined,
+  nu = new Date(),
+  land: FeestdagLand | null = alarm.feestdagenOverslaan ? huidigLand() : null,
+): PlanMoment {
+  const pauze = hervatOp(pauzeTot, nu);
+  const echt = volgendeKeer(alarm, pauze ? new Date(pauze.getTime() - 1) : nu, land);
+  if (!echt) return { soort: 'geen' };
+  if (pauze) return { soort: 'eenmalig', op: echt };
+  const gewoon = volgendeKeer({ ...alarm, overslaanOp: null, feestdagenOverslaan: false }, nu);
+  return gewoon && gewoon.getTime() === echt.getTime()
+    ? { soort: 'herhalend' }
+    : { soort: 'eenmalig', op: echt };
 }

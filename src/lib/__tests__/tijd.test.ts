@@ -1,6 +1,7 @@
 import {
   dagIndex,
   isOvergeslagen,
+  planMoment,
   startVanWeek,
   tijdTot,
   volgendAlarm,
@@ -87,5 +88,36 @@ describe('overslaan', () => {
     const a = alarm({ overslaanOp: '2026-10-20' });
     expect(isOvergeslagen(a, NU)).toBe(false);
     expect(isOvergeslagen(alarm({ overslaanOp: '2026-10-26' }), NU)).toBe(true);
+  });
+});
+
+describe('planMoment', () => {
+  it('plant gewoon herhalend als er niets wegvalt', () => {
+    expect(planMoment(alarm(), null, NU, 'NL')).toEqual({ soort: 'herhalend' });
+  });
+
+  it('plant eenmalig na een overgeslagen dag', () => {
+    expect(planMoment(alarm({ overslaanOp: '2026-10-26' }), null, NU, 'NL')).toEqual({
+      soort: 'eenmalig',
+      op: new Date(2026, 9, 27, 7, 0),
+    });
+  });
+
+  it('slaat feestdagen alleen over als dat aan staat', () => {
+    // Donderdag 24 december 2026: het eerstvolgende alarm valt op Eerste Kerstdag
+    const voorKerst = new Date(2026, 11, 24, 12, 0);
+    const a = alarm({ feestdagenOverslaan: true });
+    expect(planMoment(a, null, voorKerst, 'NL')).toEqual({
+      soort: 'eenmalig',
+      op: new Date(2026, 11, 28, 7, 0),
+    });
+    expect(planMoment(alarm(), null, voorKerst, 'NL')).toEqual({ soort: 'herhalend' });
+  });
+
+  it('plant tijdens een pauze het eerste alarm erna', () => {
+    expect(planMoment(alarm(), '2026-10-28', NU, 'NL')).toEqual({
+      soort: 'eenmalig',
+      op: new Date(2026, 9, 29, 7, 0),
+    });
   });
 });

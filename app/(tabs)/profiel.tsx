@@ -7,9 +7,11 @@ import {
   Modal,
   Platform,
   Pressable,
+  KeyboardAvoidingView,
   Share,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 
@@ -36,6 +38,7 @@ import {
   type Alarmgeluid,
 } from '@/lib/alarmgeluid';
 import { appVersie, toestelInfo } from '@/lib/appInfo';
+import { supabase } from '@/lib/supabase';
 import { openBatterijInstellingen } from '@/lib/batterij';
 import { openInstellingen } from '@/lib/instellingen';
 import { verzamelMijnGegevens } from '@/lib/export';
@@ -78,6 +81,27 @@ export default function ProfielScherm() {
   const [resterend, setResterend] = useState(TEST_SECONDEN);
   const [doelOpen, setDoelOpen] = useState(false);
   const [taalOpen, setTaalOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [feedbackSoort, setFeedbackSoort] = useState<'probleem' | 'idee' | 'anders'>('idee');
+  const [feedbackTekst, setFeedbackTekst] = useState('');
+  const [feedbackBezig, setFeedbackBezig] = useState(false);
+
+  const verstuurFeedback = async () => {
+    const tekst = feedbackTekst.trim();
+    if (!tekst) return showToast(t('profiel.feedback.leeg'));
+    setFeedbackBezig(true);
+    const { error } = await supabase.from('feedback').insert({
+      soort: feedbackSoort,
+      tekst: tekst.slice(0, 2000),
+      appversie: appVersie(),
+      toestel: toestelInfo(),
+    });
+    setFeedbackBezig(false);
+    if (error) return showToast(t('profiel.feedback.fout'));
+    setFeedbackOpen(false);
+    setFeedbackTekst('');
+    showToast(t('profiel.feedback.dank'));
+  };
   const testId = useRef<string | null>(null);
   const { herplan } = useAlarmen();
   const [geluid, setGeluid] = useState<Alarmgeluid | null>(null);
@@ -465,6 +489,16 @@ export default function ProfielScherm() {
         <Text style={styles.settingValue}>{t('profiel.mailOns')}</Text>
       </Pressable>
 
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => setFeedbackOpen(true)}
+        style={styles.setting}
+      >
+        <Icon name="info" color={kleuren.ink} />
+        <Text style={styles.settingLabel}>{t('profiel.feedback.label')}</Text>
+        <Text style={styles.settingValue}>{t('profiel.feedback.waarde')}</Text>
+      </Pressable>
+
       <Text style={styles.sectionHeading}>{t('herinneringen.kop')}</Text>
       {(['avond', 'streak'] as const).map((soort) => (
         <View key={soort} style={styles.setting}>
@@ -568,6 +602,53 @@ export default function ProfielScherm() {
             ))}
           </View>
         </Pressable>
+      </Modal>
+
+      <Modal
+        visible={feedbackOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setFeedbackOpen(false)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.doelOverlay}
+        >
+          <View style={styles.doelKaart}>
+            <Text style={styles.setupTitle}>{t('profiel.feedback.titel')}</Text>
+            <View style={styles.feedbackSoorten}>
+              {(['probleem', 'idee', 'anders'] as const).map((soort) => (
+                <Pressable
+                  key={soort}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: feedbackSoort === soort }}
+                  onPress={() => setFeedbackSoort(soort)}
+                  style={[styles.feedbackSoort, feedbackSoort === soort && styles.doelOptieActief]}
+                >
+                  <Text style={styles.settingLabel}>{t(`profiel.feedback.${soort}`)}</Text>
+                </Pressable>
+              ))}
+            </View>
+            <TextInput
+              value={feedbackTekst}
+              onChangeText={setFeedbackTekst}
+              placeholder={t('profiel.feedback.plaats')}
+              placeholderTextColor="#8A968C"
+              multiline
+              maxLength={2000}
+              accessibilityLabel={t('profiel.feedback.titel')}
+              style={styles.feedbackInvoer}
+            />
+            <PrimaryButton
+              label={feedbackBezig ? t('algemeen.bezig') : t('profiel.feedback.stuur')}
+              onPress={verstuurFeedback}
+            />
+            <SecondaryButton
+              label={t('profiel.feedback.annuleer')}
+              onPress={() => setFeedbackOpen(false)}
+            />
+          </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       <Modal
@@ -750,4 +831,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
   },
   doelOptieActief: { backgroundColor: kleuren.lime, borderColor: kleuren.lime },
+  feedbackSoorten: { flexDirection: 'row', gap: 6 },
+  feedbackSoort: {
+    flex: 1,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: kleuren.line,
+    borderRadius: 12,
+    paddingVertical: 10,
+  },
+  feedbackInvoer: {
+    minHeight: 120,
+    borderWidth: 1,
+    borderColor: kleuren.line,
+    borderRadius: 12,
+    padding: 12,
+    fontFamily: fonts.body400,
+    fontSize: 14,
+    color: kleuren.ink,
+    textAlignVertical: 'top',
+  },
 });

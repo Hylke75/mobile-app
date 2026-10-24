@@ -20,6 +20,8 @@ const nl = {
     p4: 'Missieresultaten (start- en eindtijd, oefeningen, aantal herhalingen, voltooid of afgebroken): om je streak, voortgang en badges te tonen.',
     p5: 'Weekdoel en datum van je laatste geslaagde alarmtest: om je instellingen en alarm-check te tonen.',
     p6: 'Eigen missies (naam, icoon, timer of foto en duur): om ze in je alarmen te gebruiken.',
+    p7: 'Ochtendgevoel na een missie (moe, oké of sterk; alleen als je het invult): om je trend in Progressie te tonen.',
+    p8: 'Feedback die je in de app stuurt (soort, bericht, appversie en type toestel): om je vraag te beantwoorden en de app te verbeteren.',
   },
   camera: {
     kop: 'Camera',
@@ -88,6 +90,8 @@ export const privacy: Vertalingen<typeof nl> = {
       p4: 'Mission results (start and end time, exercises, number of reps, completed or stopped): to show your streak, progress and badges.',
       p5: 'Weekly goal and the date of your last successful alarm test: to show your settings and alarm check.',
       p6: 'Your own missions (name, icon, timer or photo and duration): to use them in your alarms.',
+      p7: 'Morning mood after a mission (tired, okay or strong; only if you fill it in): to show your trend in Progress.',
+      p8: 'Feedback you send in the app (type, message, app version and device type): to answer your question and improve the app.',
     },
     camera: {
       kop: 'Camera',
@@ -153,6 +157,8 @@ export const privacy: Vertalingen<typeof nl> = {
       p4: 'Resultados de las misiones (hora de inicio y fin, ejercicios, número de repeticiones, completada o interrumpida): para mostrar tu racha, tu progreso y tus insignias.',
       p5: 'Objetivo semanal y fecha de tu última prueba de alarma superada: para mostrar tus ajustes y la comprobación de alarma.',
       p6: 'Tus misiones propias (nombre, icono, temporizador o foto y duración): para usarlas en tus alarmas.',
+      p7: 'Ánimo tras una misión (cansado, bien o fuerte; solo si lo indicas): para mostrar tu tendencia en Progreso.',
+      p8: 'Comentarios que envías desde la app (tipo, mensaje, versión de la app y tipo de dispositivo): para responderte y mejorar la app.',
     },
     camera: {
       kop: 'Cámara',
@@ -218,6 +224,8 @@ export const privacy: Vertalingen<typeof nl> = {
       p4: 'Missionsergebnisse (Start- und Endzeit, Übungen, Anzahl der Wiederholungen, abgeschlossen oder abgebrochen): um deine Serie, deinen Fortschritt und deine Abzeichen anzuzeigen.',
       p5: 'Wochenziel und Datum deines letzten erfolgreichen Alarmtests: um deine Einstellungen und den Alarm-Check anzuzeigen.',
       p6: 'Eigene Missionen (Name, Symbol, Timer oder Foto und Dauer): um sie in deinen Weckern zu verwenden.',
+      p7: 'Morgenstimmung nach einer Mission (müde, okay oder stark; nur wenn du sie angibst): um deinen Verlauf unter Fortschritt zu zeigen.',
+      p8: 'Feedback, das du in der App sendest (Art, Nachricht, App-Version und Gerätetyp): um deine Frage zu beantworten und die App zu verbessern.',
     },
     camera: {
       kop: 'Kamera',
@@ -283,6 +291,8 @@ export const privacy: Vertalingen<typeof nl> = {
       p4: 'Résultats des missions (heure de début et de fin, exercices, nombre de répétitions, terminée ou interrompue) : pour afficher ta série, ta progression et tes badges.',
       p5: 'Objectif hebdomadaire et date de ton dernier test d’alarme réussi : pour afficher tes réglages et la vérification d’alarme.',
       p6: 'Tes missions perso (nom, icône, minuteur ou photo et durée) : pour les utiliser dans tes alarmes.',
+      p7: 'Humeur après une mission (fatigué, bien ou en forme ; seulement si tu l’indiques) : pour afficher ta tendance dans Progrès.',
+      p8: 'Avis envoyés depuis l’app (type, message, version de l’app et type d’appareil) : pour te répondre et améliorer l’app.',
     },
     camera: {
       kop: 'Caméra',

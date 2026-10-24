@@ -106,6 +106,33 @@ export default function ProgressieScherm() {
           </Text>
         </View>
       )}
+      {s.aantalVoltooid > 0 && (
+        <View style={styles.joker} accessible>
+          <Text style={styles.jokerTitel}>{t('progressie.gevoel.titel')}</Text>
+          <Text style={styles.jokerTekst}>
+            {s.gevoel.some((n) => n > 0)
+              ? t('progressie.gevoel.tekst')
+              : t('progressie.gevoel.leeg')}
+          </Text>
+          {s.gevoel.some((n) => n > 0) && (
+            <View style={styles.gevoelRij}>
+              {(
+                [
+                  ['💪', 'missie.klaar.gevoel.sterk', s.gevoel[2]],
+                  ['🙂', 'missie.klaar.gevoel.oke', s.gevoel[1]],
+                  ['😴', 'missie.klaar.gevoel.moe', s.gevoel[0]],
+                ] as const
+              ).map(([emoji, sleutel, n]) => (
+                <View key={sleutel} style={styles.gevoelVak}>
+                  <Text style={styles.gevoelEmoji}>{emoji}</Text>
+                  <Text style={styles.gevoelAantal}>{n}×</Text>
+                  <Text style={styles.gevoelLabel}>{t(sleutel)}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
+      )}
 
       <View style={styles.metricRow}>
         <View style={styles.metric}>
@@ -226,6 +253,17 @@ const styles = StyleSheet.create({
     padding: 14,
     marginTop: 12,
   },
+  gevoelRij: { flexDirection: 'row', gap: 8, marginTop: 12 },
+  gevoelVak: {
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: kleuren.paper,
+    borderRadius: 14,
+    paddingVertical: 10,
+  },
+  gevoelEmoji: { fontSize: 20 },
+  gevoelAantal: { fontFamily: fonts.head700, fontSize: 20, color: kleuren.ink, marginTop: 2 },
+  gevoelLabel: { fontFamily: fonts.body600, fontSize: 11, color: '#5F6E60' },
   jokerTitel: { fontFamily: fonts.body800, fontSize: 12, color: kleuren.ink },
   jokerTekst: {
     fontFamily: fonts.body400,

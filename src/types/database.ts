@@ -28,6 +28,7 @@ export type Database = {
           created_at: string;
           dagen: number[];
           doelen: Json;
+          feestdagen_overslaan: boolean;
           id: string;
           naam: string;
           niveau: string;
@@ -36,12 +37,14 @@ export type Database = {
           tijd: string;
           updated_at: string;
           user_id: string;
+          wisselend: boolean;
         };
         Insert: {
           aan?: boolean;
           created_at?: string;
           dagen: number[];
           doelen?: Json;
+          feestdagen_overslaan?: boolean;
           id?: string;
           naam?: string;
           niveau: string;
@@ -50,12 +53,14 @@ export type Database = {
           tijd: string;
           updated_at?: string;
           user_id?: string;
+          wisselend?: boolean;
         };
         Update: {
           aan?: boolean;
           created_at?: string;
           dagen?: number[];
           doelen?: Json;
+          feestdagen_overslaan?: boolean;
           id?: string;
           naam?: string;
           niveau?: string;
@@ -64,6 +69,7 @@ export type Database = {
           tijd?: string;
           updated_at?: string;
           user_id?: string;
+          wisselend?: boolean;
         };
         Relationships: [];
       };
@@ -97,12 +103,43 @@ export type Database = {
         };
         Relationships: [];
       };
+      feedback: {
+        Row: {
+          appversie: string | null;
+          created_at: string;
+          id: string;
+          soort: string;
+          tekst: string;
+          toestel: string | null;
+          user_id: string;
+        };
+        Insert: {
+          appversie?: string | null;
+          created_at?: string;
+          id?: string;
+          soort: string;
+          tekst: string;
+          toestel?: string | null;
+          user_id?: string;
+        };
+        Update: {
+          appversie?: string | null;
+          created_at?: string;
+          id?: string;
+          soort?: string;
+          tekst?: string;
+          toestel?: string | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       missie_sessies: {
         Row: {
           afgerond_op: string;
           alarm_id: string | null;
           created_at: string;
           gestart_op: string;
+          gevoel: number | null;
           id: string;
           stappen: Json;
           status: string;
@@ -114,6 +151,7 @@ export type Database = {
           alarm_id?: string | null;
           created_at?: string;
           gestart_op: string;
+          gevoel?: number | null;
           id?: string;
           stappen?: Json;
           status: string;
@@ -125,6 +163,7 @@ export type Database = {
           alarm_id?: string | null;
           created_at?: string;
           gestart_op?: string;
+          gevoel?: number | null;
           id?: string;
           stappen?: Json;
           status?: string;

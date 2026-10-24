@@ -107,3 +107,16 @@ export function eigenUitTekst(tekst: string | undefined): EigenMissie[] {
     return [];
   }
 }
+
+// Wisselende missie: per kalenderdag één missie uit de lijst, steeds een andere
+export function missiesVanDag(
+  ids: readonly MissieId[],
+  wisselend: boolean | undefined,
+  datum = new Date(),
+): MissieId[] {
+  if (!wisselend || ids.length <= 1) return [...ids];
+  const dag = Math.floor(
+    Date.UTC(datum.getFullYear(), datum.getMonth(), datum.getDate()) / 86400000,
+  );
+  return [ids[dag % ids.length]!];
+}

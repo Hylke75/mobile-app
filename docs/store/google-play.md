@@ -12,18 +12,19 @@
 
 ## Gegevensveiligheid (Data safety)
 
-| Vraag                                                                                   | Antwoord                                                            |
-| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| Verzamelt of deelt de app gebruikersgegevens?                                           | Ja, verzamelt; deelt niet                                           |
-| Versleuteld tijdens verzending?                                                         | Ja                                                                  |
-| Kunnen gebruikers verwijdering aanvragen?                                               | Ja (in de app en via de URL voor verwijderverzoeken)                |
-| Persoonlijke info → E-mailadres                                                         | Verzameld, verplicht, voor app-functionaliteit en accountbeheer     |
-| Persoonlijke info → Naam                                                                | Verzameld, verplicht, voor app-functionaliteit                      |
-| App-activiteit → Andere door gebruiker gegenereerde content (alarmen, missieresultaten) | Verzameld, verplicht, voor app-functionaliteit                      |
-| App-info en prestaties → Crashlogs (alleen met Sentry)                                  | Verzameld, verplicht, voor analyse; niet gekoppeld aan het account  |
-| Foto's en video's                                                                       | **Niet verzameld** (alleen verwerkt op het toestel, niet verzonden) |
-| Gezondheid en fitness → Fitnessinfo (herhalingen, voltooide oefeningen)                 | Verzameld, verplicht, voor app-functionaliteit                      |
-| Locatie, gezondheidsinfo (medisch), financiële info, contacten, audio                   | Niet verzameld                                                      |
+| Vraag                                                                                                  | Antwoord                                                            |
+| ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| Verzamelt of deelt de app gebruikersgegevens?                                                          | Ja, verzamelt; deelt niet                                           |
+| Versleuteld tijdens verzending?                                                                        | Ja                                                                  |
+| Kunnen gebruikers verwijdering aanvragen?                                                              | Ja (in de app en via de URL voor verwijderverzoeken)                |
+| Persoonlijke info → E-mailadres                                                                        | Verzameld, verplicht, voor app-functionaliteit en accountbeheer     |
+| Persoonlijke info → Naam                                                                               | Verzameld, verplicht, voor app-functionaliteit                      |
+| App-activiteit → Andere door gebruiker gegenereerde content (alarmen, missieresultaten, ochtendgevoel) | Verzameld, verplicht, voor app-functionaliteit                      |
+| Berichten → Andere berichten in de app (feedback)                                                      | Verzameld, optioneel, voor app-functionaliteit                      |
+| App-info en prestaties → Crashlogs (alleen met Sentry)                                                 | Verzameld, verplicht, voor analyse; niet gekoppeld aan het account  |
+| Foto's en video's                                                                                      | **Niet verzameld** (alleen verwerkt op het toestel, niet verzonden) |
+| Gezondheid en fitness → Fitnessinfo (herhalingen, voltooide oefeningen)                                | Verzameld, verplicht, voor app-functionaliteit                      |
+| Locatie, gezondheidsinfo (medisch), financiële info, contacten, audio                                  | Niet verzameld                                                      |
 
 **URL voor verwijderverzoeken:** `https://mooove-app.com/account-verwijderen`
 

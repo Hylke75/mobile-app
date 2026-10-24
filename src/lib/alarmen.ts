@@ -8,9 +8,14 @@ import AlarmScheduler, {
 
 import { MISSIE_TIMEOUT_MINUTEN, WAKKERCHECK_MINUTEN } from '@/constants/alarm';
 import { doelenNaarTekst, doelenUitTekst } from '@/constants/oefeningen';
-import { leesAlarmgeluid, type Alarmgeluid } from '@/lib/alarmgeluid';
+import {
+  geluidVoorAlarm,
+  leesAlarmgeluid,
+  leesGeluidKeuzes,
+  type Alarmgeluid,
+} from '@/lib/alarmgeluid';
 import { huidigeTaal, t } from '@/i18n';
-import { hervatOp, volgendeKeer } from '@/lib/tijd';
+import { planMoment } from '@/lib/tijd';
 import { eigenNaarTekst, eigenUitTekst, isEigen, type EigenMissies } from '@/lib/missies';
 import type { Alarm, Doelen, EigenMissie, MissieId, Niveau } from '@/types/app';
 
@@ -29,6 +34,7 @@ export type Wekker = {
   oefeningen?: MissieId[];
   eigen?: EigenMissie[];
   doelen?: Doelen;
+  wisselend?: boolean;
 };
 
 // Opent alleen de app; useWekkerRouting leest daarna de native context en navigeert zelf
@@ -87,7 +93,7 @@ function eigenVan(alarm: Alarm, eigen: EigenMissies): string {
 function versieVan(
   alarm: Alarm,
   geluid: Alarmgeluid | null,
-  hervat: Date | null,
+  eenmalig: Date | null,
   eigen: EigenMissies,
 ): string {
   return [
@@ -98,7 +104,8 @@ function versieVan(
     alarm.oefeningen.join(','),
     doelenNaarTekst(alarm.doelen),
     geluid?.uri ?? '',
-    hervat ? `pauze:${hervat.getTime()}` : '',
+    eenmalig ? `eenmalig:${eenmalig.getTime()}` : '',
+    alarm.wisselend ? 'wisselend' : '',
     huidigeTaal(),
     eigenVan(alarm, eigen),
   ].join('|');
@@ -107,14 +114,10 @@ function versieVan(
 function alarmInput(
   alarm: Alarm,
   geluid: Alarmgeluid | null,
-  hervat: Date | null,
+  eerste: Date | null,
   eigen: EigenMissies,
-): AlarmScheduleInput | null {
+): AlarmScheduleInput {
   const [uur, minuut] = alarm.tijd.split(':').map(Number);
-  // Tijdens een pauze alleen het eerste alarm na de pauze, eenmalig; daarna wordt het
-  // gewone herhalende alarm weer ingepland zodra de app opent of de missie klaar is
-  const eerste = hervat ? volgendeKeer(alarm, new Date(hervat.getTime() - 1)) : null;
-  if (hervat && !eerste) return null;
   // Alleen "Vrij" heeft een stopknop; alle andere niveaus openen de app voor snooze of missie
   return {
     id: alarm.id,
@@ -134,7 +137,8 @@ function alarmInput(
         oefeningen: alarm.oefeningen.join(','),
         doelen: doelenNaarTekst(alarm.doelen),
         eigen: eigenVan(alarm, eigen),
-        versie: versieVan(alarm, geluid, hervat, eigen),
+        wisselend: alarm.wisselend ? '1' : '',
+        versie: versieVan(alarm, geluid, eerste, eigen),
       },
       alarm.niveau !== 'Vrij',
     ),
@@ -197,22 +201,23 @@ export function synchroniseer(
     const rechten = await AlarmScheduler.getPermissionsAsync();
     if (!rechten.canScheduleExactAlarms) return;
 
-    const geluid = await leesAlarmgeluid();
-    const pauze = hervatOp(pauzeTot);
-    // Pauze of één keer overslaan: het eerste alarm daarna wordt eenmalig ingepland
-    const hervatVoor = (alarm: Alarm): Date | null => {
-      const overslaan = hervatOp(alarm.overslaanOp);
-      if (!pauze || !overslaan) return pauze ?? overslaan;
-      return pauze > overslaan ? pauze : overslaan;
-    };
-    const gewenst = new Map(alarms.filter((a) => a.aan).map((a) => [a.id, a]));
+    const profielGeluid = await leesAlarmgeluid();
+    const keuzes = await leesGeluidKeuzes();
+    const plan = new Map<string, { geluid: Alarmgeluid | null; eerste: Date | null }>();
+    for (const alarm of alarms.filter((a) => a.aan)) {
+      const moment = planMoment(alarm, pauzeTot);
+      if (moment.soort === 'geen') continue;
+      plan.set(alarm.id, {
+        geluid: await geluidVoorAlarm(keuzes[alarm.id], profielGeluid),
+        eerste: moment.soort === 'eenmalig' ? moment.op : null,
+      });
+    }
+    const gewenst = new Map(alarms.filter((a) => plan.has(a.id)).map((a) => [a.id, a]));
     for (const native of await AlarmScheduler.getScheduledAlarmsAsync()) {
       if (native.metadata?.type !== 'alarm') continue;
       const alarm = gewenst.get(native.id);
-      if (
-        !alarm ||
-        native.metadata?.versie !== versieVan(alarm, geluid, hervatVoor(alarm), eigen)
-      ) {
+      const p = plan.get(native.id);
+      if (!alarm || !p || native.metadata?.versie !== versieVan(alarm, p.geluid, p.eerste, eigen)) {
         await AlarmScheduler.cancelAlarmAsync(native.id);
       }
     }
@@ -222,8 +227,8 @@ export function synchroniseer(
     );
     for (const alarm of gewenst.values()) {
       if (nogGepland.has(alarm.id)) continue;
-      const input = alarmInput(alarm, geluid, hervatVoor(alarm), eigen);
-      if (input) await AlarmScheduler.scheduleAlarmAsync(input);
+      const p = plan.get(alarm.id)!;
+      await AlarmScheduler.scheduleAlarmAsync(alarmInput(alarm, p.geluid, p.eerste, eigen));
     }
 
     // Controle achteraf: staat elk ingeschakeld alarm echt op het toestel?
@@ -302,6 +307,7 @@ function leesWekker(
     naam: metadata?.naam ? String(metadata.naam) : undefined,
     oefeningen: oefeningen as MissieId[] | undefined,
     eigen: metadata?.eigen ? eigenUitTekst(String(metadata.eigen)) : undefined,
+    wisselend: metadata?.wisselend === '1',
     doelen: metadata?.doelen ? doelenUitTekst(String(metadata.doelen)) : undefined,
   };
 }

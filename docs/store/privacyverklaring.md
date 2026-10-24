@@ -14,6 +14,8 @@ Mooove is een wekker-app die je helpt om 's ochtends in beweging te komen. Mooov
 | Missieresultaten (start- en eindtijd, oefeningen, aantal herhalingen, voltooid of afgebroken) | Je streak, voortgang en badges tonen                                        | Zolang je account bestaat |
 | Weekdoel en datum van je laatste geslaagde alarmtest                                          | Je instellingen en alarm-check tonen                                        | Zolang je account bestaat |
 | Eigen missies (naam, icoon, timer of foto en duur)                                            | Ze in je alarmen gebruiken                                                  | Zolang je account bestaat |
+| Ochtendgevoel na een missie (moe, oké of sterk; alleen als je het invult)                     | Je trend in Progressie tonen                                                | Zolang je account bestaat |
+| Feedback uit de app (soort, bericht, appversie en type toestel)                               | Je vraag beantwoorden en de app verbeteren                                  | Zolang je account bestaat |
 
 ## Camera
 

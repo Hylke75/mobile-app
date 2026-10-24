@@ -19,7 +19,7 @@ import { useNu } from '@/hooks/useNu';
 import { leesLokaal, schrijfLokaal, SLEUTELS } from '@/lib/opslag';
 import { vorigeWeek } from '@/lib/statistiek';
 import { dagIndex, dagSleutel, hervatOp, startVanDag, tijdTot, volgendAlarm } from '@/lib/tijd';
-import { missieInfos } from '@/lib/missies';
+import { missieInfos, missiesVanDag } from '@/lib/missies';
 import type { MissieId } from '@/types/app';
 
 const STANDAARD_MISSIE: MissieId[] = ['Squats', 'Bed opmaken', 'Gordijnen open'];
@@ -55,7 +55,9 @@ export default function VandaagScherm() {
   // Tijdens een pauze is het eerstvolgende alarm het eerste na de pauze
   const volgend = volgendAlarm(alarms, hervat ? new Date(hervat.getTime() - 1) : nu);
   const missie = missieInfos(
-    volgend?.alarm.oefeningen ?? STANDAARD_MISSIE,
+    volgend
+      ? missiesVanDag(volgend.alarm.oefeningen, volgend.alarm.wisselend, volgend.op)
+      : STANDAARD_MISSIE,
     eigenMap,
     volgend?.alarm.doelen,
   );
@@ -223,7 +225,7 @@ export default function VandaagScherm() {
           </View>
           <Text style={styles.alarmSub}>{volgend.alarm.naam}</Text>
           <Text style={styles.alarmCaption}>
-            {missiesTekst(volgend.alarm.oefeningen.length)} · {wanneerTekst(volgend.op, t)}
+            {missiesTekst(missie.length)} · {wanneerTekst(volgend.op, t)}
             {volgend.op.getTime() - nu.getTime() < 86400000
               ? ` · ${t('vandaag.over', { tijd: tijdTot(volgend.op, nu) })}`
               : ''}

@@ -59,3 +59,37 @@ export async function wisAlarmgeluid(): Promise<void> {
   await schrijfLokaal(SLEUTELS.alarmgeluid, null);
   ruimOp(vorig?.uri);
 }
+
+// Geluid per alarm: zoals in Profiel ingesteld, het standaardgeluid van het toestel of zacht
+export type GeluidKeuze = 'profiel' | 'standaard' | 'zacht';
+
+export async function leesGeluidKeuzes(): Promise<Record<string, GeluidKeuze>> {
+  return (await leesLokaal<Record<string, GeluidKeuze>>(SLEUTELS.geluidPerAlarm)) ?? {};
+}
+
+export async function zetGeluidKeuze(alarmId: string, keuze: GeluidKeuze | null): Promise<void> {
+  const { [alarmId]: _oud, ...rest } = await leesGeluidKeuzes();
+  const nieuw = keuze && keuze !== 'profiel' ? { ...rest, [alarmId]: keuze } : rest;
+  await schrijfLokaal(SLEUTELS.geluidPerAlarm, Object.keys(nieuw).length ? nieuw : null);
+}
+
+// Vaste kopie van het zachte geluid voor alarmen die dat per alarm gebruiken
+async function vastZachtGeluid(): Promise<Alarmgeluid> {
+  const doel = new File(Paths.document, 'alarmgeluid-zacht-vast.wav');
+  if (!doel.exists) {
+    const asset = Asset.fromModule(require('../../assets/sounds/zacht-wakker.wav'));
+    await asset.downloadAsync();
+    if (!asset.localUri) throw new Error('Geluid niet beschikbaar');
+    await new File(asset.localUri).copy(doel);
+  }
+  return { uri: doel.uri, naam: t('systeem.geluid.zacht') };
+}
+
+export async function geluidVoorAlarm(
+  keuze: GeluidKeuze | undefined,
+  profiel: Alarmgeluid | null,
+): Promise<Alarmgeluid | null> {
+  if (keuze === 'standaard') return null;
+  if (keuze === 'zacht') return vastZachtGeluid().catch(() => profiel);
+  return profiel;
+}

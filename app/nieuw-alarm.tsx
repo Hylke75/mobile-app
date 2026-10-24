@@ -8,7 +8,7 @@ import { Alert, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } 
 
 import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
-import { gedeeld, PrimaryButton, SecondaryButton } from '@/components/ui';
+import { gedeeld, PrimaryButton, SecondaryButton, Toggle } from '@/components/ui';
 import {
   DAGEN,
   dagenTekst,
@@ -30,7 +30,9 @@ import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useTaal } from '@/i18n';
 import { useToast } from '@/hooks/useToast';
-import { haalRechtenOp, vraagRechtenAan } from '@/lib/alarmen';
+import { alarmenBeschikbaar, haalRechtenOp, vraagRechtenAan } from '@/lib/alarmen';
+import { leesGeluidKeuzes, type GeluidKeuze } from '@/lib/alarmgeluid';
+import { huidigLand } from '@/lib/feestdagen';
 import { cameraStatus, vraagCameraAan } from '@/lib/camera';
 import { eigenNaarTekst, isOefening, missieInfos, naarEigenId } from '@/lib/missies';
 import { tijdTot, volgendeKeer } from '@/lib/tijd';
@@ -86,6 +88,11 @@ export default function NieuwAlarmScherm() {
   const [eigenSoort, setEigenSoort] = useState<EigenMissie['soort']>('timer');
   const [eigenDuur, setEigenDuur] = useState(300);
   const [doelen, setDoelen] = useState<Doelen>(bestaand?.doelen ?? {});
+  const [wisselend, setWisselend] = useState(bestaand?.wisselend ?? false);
+  const [feestdagen, setFeestdagen] = useState(bestaand?.feestdagenOverslaan ?? false);
+  const [geluid, setGeluid] = useState<GeluidKeuze>('profiel');
+  const [geluidBij, setGeluidBij] = useState<GeluidKeuze>('profiel');
+  const [land] = useState(huidigLand);
   const [bezig, setBezig] = useState(false);
   const [iosPickerOpen, setIosPickerOpen] = useState(false);
   const navigation = useNavigation();
@@ -193,6 +200,26 @@ export default function NieuwAlarmScherm() {
     }
   };
 
+  // Het geluid per alarm staat alleen op dit toestel
+  useEffect(() => {
+    if (!bestaand) return;
+    leesGeluidKeuzes().then((keuzes) => {
+      const keuze = keuzes[bestaand.id] ?? 'profiel';
+      setGeluid(keuze);
+      setGeluidBij(keuze);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bestaand?.id]);
+
+  const landNaam = (() => {
+    if (!land) return '';
+    try {
+      return new Intl.DisplayNames([locale], { type: 'region' }).of(land) ?? land;
+    } catch {
+      return land;
+    }
+  })();
+
   const geldigeTijd = /^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(time);
   const invoer = () => ({
     naam: naam.trim(),
@@ -206,31 +233,37 @@ export default function NieuwAlarmScherm() {
         .map((o) => [o, doelVoor(o, doelen)] as const)
         .filter(([o, n]) => n !== OEFENING_INFO[o].doel),
     ) as Doelen,
+    wisselend: wisselend && gekozen.length > 1,
+    feestdagenOverslaan: feestdagen,
   });
   const volgende =
     geldigeTijd && days.length ? volgendeKeer({ ...invoer(), id: '', aan: true } as Alarm) : null;
 
   const gewijzigd =
     JSON.stringify(invoer()) !==
-    JSON.stringify(
-      bestaand
-        ? {
-            naam: bestaand.naam,
-            tijd: bestaand.tijd,
-            dagen: bestaand.dagen,
-            niveau: bestaand.niveau,
-            oefeningen: bestaand.oefeningen,
-            doelen: bestaand.doelen ?? {},
-          }
-        : {
-            naam: standaardNaam,
-            tijd: '07:00',
-            dagen: [0, 1, 2, 3, 4],
-            niveau: 'Verplicht',
-            oefeningen: ['Squats', 'Bed opmaken'],
-            doelen: {},
-          },
-    );
+      JSON.stringify(
+        bestaand
+          ? {
+              naam: bestaand.naam,
+              tijd: bestaand.tijd,
+              dagen: bestaand.dagen,
+              niveau: bestaand.niveau,
+              oefeningen: bestaand.oefeningen,
+              doelen: bestaand.doelen ?? {},
+              wisselend: bestaand.wisselend ?? false,
+              feestdagenOverslaan: bestaand.feestdagenOverslaan ?? false,
+            }
+          : {
+              naam: standaardNaam,
+              tijd: '07:00',
+              dagen: [0, 1, 2, 3, 4],
+              niveau: 'Verplicht',
+              oefeningen: ['Squats', 'Bed opmaken'],
+              doelen: {},
+              wisselend: false,
+              feestdagenOverslaan: false,
+            },
+      ) || geluid !== geluidBij;
 
   usePreventRemove(gewijzigd && !vervolg && Platform.OS !== 'web', ({ data }) => {
     Alert.alert(t('editor.weggooien.titel'), t('editor.weggooien.tekst'), [
@@ -285,7 +318,9 @@ export default function NieuwAlarmScherm() {
     if (cameraStatus() === 'onbekend') await vraagCameraAan().catch(() => false);
 
     const gegevens = invoer();
-    const fout = bestaand ? await werkBij(bestaand.id, gegevens) : await maakAan(gegevens);
+    const fout = bestaand
+      ? await werkBij(bestaand.id, { ...gegevens, geluid })
+      : await maakAan({ ...gegevens, geluid });
     setBezig(false);
     if (fout) return showToast(fout);
     sluitEn(() => router.dismissTo('/alarmen'));
@@ -608,6 +643,66 @@ export default function NieuwAlarmScherm() {
         </>
       )}
 
+      <View style={styles.formLabelRow}>
+        <Text style={styles.formLabelInRow}>{t('editor.extra.kop')}</Text>
+      </View>
+      <View style={styles.extra}>
+        {gekozen.length > 1 && (
+          <View style={styles.extraRij}>
+            <View style={styles.extraTekst}>
+              <Text style={styles.extraLabel}>{t('editor.extra.wisselend')}</Text>
+              <Text style={styles.extraUitleg}>{t('editor.extra.wisselendUitleg')}</Text>
+            </View>
+            <Toggle
+              on={wisselend}
+              onPress={() => setWisselend((w) => !w)}
+              label={t('editor.extra.wisselend')}
+            />
+          </View>
+        )}
+        <View style={[styles.extraRij, gekozen.length > 1 && styles.extraRand]}>
+          <View style={styles.extraTekst}>
+            <Text style={styles.extraLabel}>{t('editor.extra.feestdagen')}</Text>
+            <Text style={styles.extraUitleg}>
+              {land
+                ? t('editor.extra.feestdagenUitleg', { land: landNaam })
+                : t('editor.extra.feestdagenOnbekend')}
+            </Text>
+          </View>
+          <Toggle
+            on={feestdagen}
+            onPress={() => setFeestdagen((f) => !f)}
+            label={t('editor.extra.feestdagen')}
+          />
+        </View>
+        {alarmenBeschikbaar && (
+          <View style={[styles.extraRij, styles.extraRand, styles.extraKolom]}>
+            <Text style={styles.extraLabel}>{t('editor.extra.geluid')}</Text>
+            <View style={styles.geluiden}>
+              {(['profiel', 'standaard', 'zacht'] as const).map((keuze) => (
+                <Pressable
+                  key={keuze}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: geluid === keuze }}
+                  onPress={() => setGeluid(keuze)}
+                  style={[styles.geluidKeuze, geluid === keuze && styles.geluidGekozen]}
+                >
+                  <Text style={[styles.geluidTekst, geluid === keuze && styles.geluidTekstGekozen]}>
+                    {t(
+                      keuze === 'profiel'
+                        ? 'editor.extra.geluidProfiel'
+                        : keuze === 'standaard'
+                          ? 'editor.extra.geluidStandaard'
+                          : 'editor.extra.geluidZacht',
+                    )}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        )}
+      </View>
+
       <PrimaryButton
         label={bezig ? t('algemeen.bezig') : t('editor.opslaan')}
         onPress={opslaan}
@@ -922,6 +1017,30 @@ const styles = StyleSheet.create({
   soortGekozen: { borderColor: kleuren.ink, backgroundColor: '#EDF4D5' },
   soortNaam: { fontFamily: fonts.body800, fontSize: 13, color: kleuren.ink },
   soortUitleg: { fontFamily: fonts.body400, fontSize: 11, color: '#5F6E60', marginTop: 3 },
+  extra: {
+    backgroundColor: kleuren.white,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: kleuren.line,
+    paddingHorizontal: 14,
+  },
+  extraRij: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
+  extraKolom: { flexDirection: 'column', alignItems: 'stretch', gap: 8 },
+  extraRand: { borderTopWidth: 1, borderTopColor: kleuren.line },
+  extraTekst: { flex: 1 },
+  extraLabel: { fontFamily: fonts.body800, fontSize: 12, color: kleuren.ink },
+  extraUitleg: { fontFamily: fonts.body400, fontSize: 11, color: '#5F6E60', marginTop: 2 },
+  geluiden: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
+  geluidKeuze: {
+    borderWidth: 1,
+    borderColor: kleuren.line,
+    borderRadius: 11,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+  },
+  geluidGekozen: { backgroundColor: kleuren.lime, borderColor: kleuren.lime },
+  geluidTekst: { fontFamily: fonts.body800, fontSize: 11, color: '#5F6E60' },
+  geluidTekstGekozen: { color: kleuren.ink },
   save: { marginTop: 22 },
   delete: { marginTop: 10 },
   naamInput: {

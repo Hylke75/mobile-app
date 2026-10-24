@@ -2,13 +2,14 @@ import { supabase } from '@/lib/supabase';
 
 // Alle gegevens van de ingelogde gebruiker, rechtstreeks uit de database (AVG: recht op inzage)
 export async function verzamelMijnGegevens(email: string | undefined): Promise<string> {
-  const [profiel, alarmen, sessies, eigen] = await Promise.all([
+  const [profiel, alarmen, sessies, eigen, feedback] = await Promise.all([
     supabase.from('profiles').select('*').maybeSingle(),
     supabase.from('alarms').select('*').order('tijd'),
     supabase.from('missie_sessies').select('*').order('afgerond_op', { ascending: false }),
     supabase.from('eigen_missies').select('*').order('created_at'),
+    supabase.from('feedback').select('*').order('created_at'),
   ]);
-  const fout = profiel.error ?? alarmen.error ?? sessies.error ?? eigen.error;
+  const fout = profiel.error ?? alarmen.error ?? sessies.error ?? eigen.error ?? feedback.error;
   if (fout) throw fout;
   return JSON.stringify(
     {
@@ -19,6 +20,7 @@ export async function verzamelMijnGegevens(email: string | undefined): Promise<s
       alarmen: alarmen.data,
       eigenMissies: eigen.data,
       missies: sessies.data,
+      feedback: feedback.data,
     },
     null,
     2,
