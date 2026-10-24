@@ -71,9 +71,9 @@ export const wekker: Vertalingen<typeof nl> = {
     },
     wakkerCheck: {
       kicker: 'HARDCORE · CONTROL DE DESPERTAR',
-      titel: '¿Sigues despierto?',
+      titel: '¿Ya estás en pie?',
       tekst: 'Confirma que no te has vuelto a dormir.',
-      knop: 'Sí, estoy despierto',
+      knop: 'Sí, ya estoy en pie',
       toast: '¡Bien hecho! ¡Que tengas un buen día!',
     },
     nietKlaar: 'TU MISIÓN AÚN NO ESTÁ COMPLETA',
@@ -127,9 +127,9 @@ export const wekker: Vertalingen<typeof nl> = {
     },
     wakkerCheck: {
       kicker: 'HARDCORE · CONTRÔLE DE RÉVEIL',
-      titel: 'Toujours réveillé ?',
+      titel: 'Toujours debout ?',
       tekst: 'Confirme que tu ne t’es pas rendormi.',
-      knop: 'Oui, je suis réveillé',
+      knop: 'Oui, je suis debout',
       toast: 'Bien joué. Bonne journée !',
     },
     nietKlaar: 'TA MISSION N’EST PAS ENCORE TERMINÉE',

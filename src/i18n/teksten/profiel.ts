@@ -134,7 +134,7 @@ export const profiel: Vertalingen<typeof nl> = {
       geslaagd: 'Test alarm passed ✓',
       nietGehoordTitel: 'Didn’t hear the alarm?',
       nietGehoordTekst:
-        'Check that Mooove is allowed to show alarms and notifications and that your alarm volume is on. On Android: turn off battery optimisation for Mooove.',
+        'Check that Mooove is allowed to show alarms and notifications and that your alarm volume is on. On Android: turn off battery optimization for Mooove.',
       openInstellingen: 'Open settings',
       evenTesten: 'Quick test.',
       gehoord: 'Heard it?',

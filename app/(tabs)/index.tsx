@@ -433,7 +433,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     overflow: 'hidden',
   },
-  alarmTimeRow: { flexDirection: 'row', alignItems: 'center' },
+  // Lange dagnamen (bijv. Frans) mogen afbreken; het niveaulabel blijft altijd zichtbaar
+  alarmTimeRow: { flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 },
   alarmTime: {
     fontFamily: fonts.head700,
     fontSize: 47,
@@ -441,8 +442,15 @@ const styles = StyleSheet.create({
     letterSpacing: em(-0.075, 47),
     color: kleuren.ink,
   },
-  alarmTimeSmall: { fontFamily: fonts.body800, fontSize: 11, color: '#637566', marginLeft: 10 },
+  alarmTimeSmall: {
+    flex: 1,
+    fontFamily: fonts.body800,
+    fontSize: 11,
+    color: '#637566',
+    marginLeft: 10,
+  },
   pillLabel: {
+    flexShrink: 0,
     borderRadius: 50,
     paddingVertical: 7,
     paddingHorizontal: 10,

@@ -397,7 +397,7 @@ export default function ProfielScherm() {
         onPress={() => setTaalOpen(true)}
         style={styles.setting}
       >
-        <Icon name="info" color={kleuren.ink} />
+        <Icon name="globe" color={kleuren.ink} />
         <Text style={styles.settingLabel}>{t('profiel.taal.label')}</Text>
         <Text style={styles.settingValue} numberOfLines={1}>
           {keuze === 'auto' ? t('profiel.taal.automatisch') : TAALNAMEN[keuze]}

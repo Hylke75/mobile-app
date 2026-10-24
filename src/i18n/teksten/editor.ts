@@ -93,7 +93,7 @@ export const editor: Vertalingen<typeof nl> = {
     doelLabel: '{{oefening}}: {{doel}}',
     eenheidHerhalingen: 'x',
     eenheidSeconden: 'sec',
-    oefen: 'Practise this mission',
+    oefen: 'Practice this mission',
     opslaan: 'Save alarm',
     dupliceer: 'Duplicate alarm',
     verwijder: 'Delete alarm',
