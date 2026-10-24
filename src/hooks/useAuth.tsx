@@ -26,7 +26,9 @@ type AuthContextWaarde = {
   loginMetWachtwoord: (email: string, wachtwoord: string) => Promise<string | null>;
   slaVoornaamOp: (voornaam: string) => Promise<string | null>;
   werkProfielBij: (
-    wijziging: Partial<Pick<Profiel, 'voornaam' | 'weekdoel' | 'alarmtest_geslaagd_op'>>,
+    wijziging: Partial<
+      Pick<Profiel, 'voornaam' | 'weekdoel' | 'alarmtest_geslaagd_op' | 'pauze_tot'>
+    >,
   ) => Promise<string | null>;
   uitloggen: () => Promise<void>;
   verwijderAccount: () => Promise<string | null>;
@@ -129,7 +131,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const werkProfielBij = useCallback(
     async (
-      wijziging: Partial<Pick<Profiel, 'voornaam' | 'weekdoel' | 'alarmtest_geslaagd_op'>>,
+      wijziging: Partial<
+        Pick<Profiel, 'voornaam' | 'weekdoel' | 'alarmtest_geslaagd_op' | 'pauze_tot'>
+      >,
     ) => {
       if (!session) return 'Je bent niet ingelogd.';
       const { data, error } = await supabase

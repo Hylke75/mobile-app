@@ -54,7 +54,9 @@ const haalAlarmenOp = () => supabase.from('alarms').select('*').order('tijd');
 const sorteer = (lijst: Alarm[]) => [...lijst].sort((a, b) => a.tijd.localeCompare(b.tijd));
 
 export function AlarmenProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const { user, profiel } = useAuth();
+  const pauzeTot = profiel?.pauze_tot ?? null;
+  const pauze = useRef(pauzeTot);
   // De lijst hoort bij één gebruiker; na uitloggen of wisselen is hij automatisch leeg
   const [data, setData] = useState<{ eigenaar: string | null; alarms: Alarm[] }>({
     eigenaar: null,
@@ -73,7 +75,7 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
 
   const plan = useCallback((lijst: Alarm[]) => {
     if (!lijstBekend.current) return;
-    synchroniseer(lijst)
+    synchroniseer(lijst, pauze.current)
       .then(() => setFout(null))
       .catch(() => setFout('Alarmen konden niet op je toestel worden ingepland.'));
   }, []);
@@ -93,6 +95,12 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
   );
 
   const herplan = useCallback(() => plan(huidig.current), [plan]);
+
+  // Pauze aan, uit of verlengd: alles opnieuw inplannen
+  useEffect(() => {
+    pauze.current = pauzeTot;
+    plan(huidig.current);
+  }, [pauzeTot, plan]);
 
   const verwerk = useCallback(
     (id: string, resultaat: Awaited<ReturnType<typeof haalAlarmenOp>>) => {

@@ -75,10 +75,25 @@ describe('badges en mijlpalen', () => {
   it('ontgrendelt badges op basis van de statistiek', () => {
     const basis = berekenStatistiek([], 7, NU);
     expect(badgesVoor(basis).filter((b) => b.behaald)).toHaveLength(0);
-    const namen = badgesVoor({ ...basis, vroegeStarts: 5, langsteStreak: 12 })
+    const namen = badgesVoor({ ...basis, vroegeStarts: 5, langsteStreak: 12, aantalVoltooid: 3 })
       .filter((b) => b.behaald)
       .map((b) => b.naam);
-    expect(namen).toEqual(['Early mover', 'Streak master']);
+    expect(namen).toEqual(['Eerste stap', 'Early mover', 'Streak master']);
+  });
+
+  it('telt herhalingen per oefening en het weekend', () => {
+    const stappen = [
+      { oefening: 'Squats' as const, doel: 60, gedaan: 60, methode: 'camera' as const },
+    ];
+    // Zaterdag 17 en zondag 18 oktober
+    const s = berekenStatistiek([sessie(17, { stappen }), sessie(18, { stappen })], 7, NU);
+    expect(s.totaalPerOefening.Squats).toBe(120);
+    expect(s.weekendWarrior).toBe(true);
+    const namen = badgesVoor(s)
+      .filter((b) => b.behaald)
+      .map((b) => b.naam);
+    expect(namen).toContain('Squat squad');
+    expect(namen).toContain('Weekend warrior');
   });
 
   it('meldt een mijlpaal alleen als die net is bereikt', () => {

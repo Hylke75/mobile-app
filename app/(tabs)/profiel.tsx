@@ -29,6 +29,7 @@ import {
 import { appVersie, toestelInfo } from '@/lib/appInfo';
 import { openBatterijInstellingen } from '@/lib/batterij';
 import { verzamelMijnGegevens } from '@/lib/export';
+import { hervatOp, naarDatumSleutel } from '@/lib/tijd';
 import { useSessies } from '@/hooks/useSessies';
 import { useToast } from '@/hooks/useToast';
 import {
@@ -62,6 +63,46 @@ export default function ProfielScherm() {
   useEffect(() => {
     leesAlarmgeluid().then(setGeluid);
   }, []);
+
+  const hervat = hervatOp(profiel?.pauze_tot);
+  const pauzeTekst = hervat
+    ? `Tot ${hervat.toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' })}`
+    : 'Uit';
+
+  const zetPauze = async (dagen: number | null) => {
+    let pauzeTot: string | null = null;
+    if (dagen) {
+      const laatste = new Date();
+      laatste.setDate(laatste.getDate() + dagen - 1);
+      pauzeTot = naarDatumSleutel(laatste);
+    }
+    const fout = await werkProfielBij({ pauze_tot: pauzeTot });
+    if (fout) return showToast(fout);
+    showToast(
+      pauzeTot
+        ? `Je alarmen zijn gepauzeerd. Ze gaan weer af vanaf ${hervatOp(pauzeTot)?.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' })}.`
+        : 'Je alarmen gaan weer gewoon af.',
+    );
+  };
+
+  const pauzeOpties = () => {
+    if (Platform.OS === 'web') {
+      if (hervat) zetPauze(null);
+      else if (window.confirm('Alarmen een week pauzeren?')) zetPauze(7);
+      return;
+    }
+    Alert.alert(
+      'Alarmen pauzeren',
+      'Handig voor vakantie of ziekte. Je alarmen blijven bewaard en gaan daarna vanzelf weer af.',
+      [
+        ...(hervat ? [{ text: 'Pauze stoppen', onPress: () => zetPauze(null) }] : []),
+        { text: '3 dagen', onPress: () => zetPauze(3) },
+        { text: '1 week', onPress: () => zetPauze(7) },
+        { text: '2 weken', onPress: () => zetPauze(14) },
+        { text: 'Annuleren', style: 'cancel' as const },
+      ],
+    );
+  };
 
   const kiesGeluid = async () => {
     try {
@@ -286,6 +327,11 @@ export default function ProfielScherm() {
         <Icon name="target" color={kleuren.ink} />
         <Text style={styles.settingLabel}>Mijn doelen</Text>
         <Text style={styles.settingValue}>{doelTekst(profiel?.weekdoel ?? 7)}</Text>
+      </Pressable>
+      <Pressable accessibilityRole="button" onPress={pauzeOpties} style={styles.setting}>
+        <Icon name="calendar" color={kleuren.ink} />
+        <Text style={styles.settingLabel}>Alarmen pauzeren</Text>
+        <Text style={styles.settingValue}>{pauzeTekst}</Text>
       </Pressable>
       {alarmenBeschikbaar && (
         <Pressable accessibilityRole="button" onPress={geluidOpties} style={styles.setting}>

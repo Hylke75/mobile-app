@@ -3,7 +3,14 @@ import { AppState, Platform } from 'react-native';
 import type { AlarmPermissionResponse } from 'react-native-alarm-scheduler';
 
 import { useAuth } from '@/hooks/useAuth';
-import { haalRechtenOp, vraagRechtenAan } from '@/lib/alarmen';
+import {
+  alarmenBeschikbaar,
+  haalRechtenOp,
+  luisterNaarSync,
+  syncStatus,
+  vraagRechtenAan,
+  type SyncStatus,
+} from '@/lib/alarmen';
 import { batterijOptimalisatieAan } from '@/lib/batterij';
 import { cameraStatus, vraagCameraAan, type CameraStatus } from '@/lib/camera';
 
@@ -14,6 +21,9 @@ export function useAlarmCheck() {
   const [rechten, setRechten] = useState<AlarmPermissionResponse | null>(null);
   const [camera, setCamera] = useState<CameraStatus>('onbekend');
   const [batterijAan, setBatterijAan] = useState(false);
+  const [sync, setSync] = useState<SyncStatus | null>(() => syncStatus());
+
+  useEffect(() => luisterNaarSync(setSync), []);
 
   const vernieuw = useCallback(() => {
     haalRechtenOp()
@@ -87,6 +97,18 @@ export function useAlarmCheck() {
             label: 'Batterijbesparing',
             ok: !batterijAan,
             waarde: batterijAan ? 'Aan, zet uit' : 'Uit',
+          },
+        ]
+      : []),
+    ...(alarmenBeschikbaar && sync && sync.verwacht > 0
+      ? [
+          {
+            label: 'Alarmen op toestel',
+            ok: sync.gepland >= sync.verwacht,
+            waarde:
+              sync.gepland >= sync.verwacht
+                ? `${sync.gepland} van ${sync.verwacht} · ${String(sync.op.getHours()).padStart(2, '0')}:${String(sync.op.getMinutes()).padStart(2, '0')}`
+                : `${sync.gepland} van ${sync.verwacht}, open de app opnieuw`,
           },
         ]
       : []),

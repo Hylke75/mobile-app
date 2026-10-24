@@ -9,6 +9,7 @@ import AlarmScheduler, {
 import { MISSIE_TIMEOUT_MINUTEN, WAKKERCHECK_MINUTEN } from '@/constants/alarm';
 import { doelenNaarTekst, doelenUitTekst } from '@/constants/oefeningen';
 import { leesAlarmgeluid, type Alarmgeluid } from '@/lib/alarmgeluid';
+import { hervatOp, volgendeKeer } from '@/lib/tijd';
 import type { Alarm, Doelen, Niveau, Oefening } from '@/types/app';
 
 export const alarmenBeschikbaar = true;
@@ -71,7 +72,7 @@ function basisOpties(
   };
 }
 
-function versieVan(alarm: Alarm, geluid: Alarmgeluid | null): string {
+function versieVan(alarm: Alarm, geluid: Alarmgeluid | null, hervat: Date | null): string {
   return [
     alarm.tijd,
     alarm.dagen.join(''),
@@ -80,18 +81,29 @@ function versieVan(alarm: Alarm, geluid: Alarmgeluid | null): string {
     alarm.oefeningen.join(','),
     doelenNaarTekst(alarm.doelen),
     geluid?.uri ?? '',
+    hervat ? `pauze:${hervat.getTime()}` : '',
   ].join('|');
 }
 
-function alarmInput(alarm: Alarm, geluid: Alarmgeluid | null): AlarmScheduleInput {
+function alarmInput(
+  alarm: Alarm,
+  geluid: Alarmgeluid | null,
+  hervat: Date | null,
+): AlarmScheduleInput | null {
   const [uur, minuut] = alarm.tijd.split(':').map(Number);
+  // Tijdens een pauze alleen het eerste alarm na de pauze, eenmalig; daarna wordt het
+  // gewone herhalende alarm weer ingepland zodra de app opent of de missie klaar is
+  const eerste = hervat ? volgendeKeer(alarm, new Date(hervat.getTime() - 1)) : null;
+  if (hervat && !eerste) return null;
   // Alleen "Vrij" heeft een stopknop; alle andere niveaus openen de app voor snooze of missie
   return {
     id: alarm.id,
     hour: uur ?? 7,
     minute: minuut ?? 0,
     title: alarm.naam,
-    weekdays: alarm.dagen.map((d) => (d + 1) as AlarmWeekday),
+    ...(eerste
+      ? { timestamp: eerste.getTime() }
+      : { weekdays: alarm.dagen.map((d) => (d + 1) as AlarmWeekday) }),
     soundUri: geluid?.uri,
     ...basisOpties(
       alarm.naam,
@@ -101,7 +113,7 @@ function alarmInput(alarm: Alarm, geluid: Alarmgeluid | null): AlarmScheduleInpu
         naam: alarm.naam,
         oefeningen: alarm.oefeningen.join(','),
         doelen: doelenNaarTekst(alarm.doelen),
-        versie: versieVan(alarm, geluid),
+        versie: versieVan(alarm, geluid, hervat),
       },
       alarm.niveau !== 'Vrij',
     ),
@@ -135,23 +147,38 @@ function inWachtrij(taak: () => Promise<void>): Promise<void> {
   return run;
 }
 
+export type SyncStatus = { op: Date; verwacht: number; gepland: number };
+
+let laatsteSync: SyncStatus | null = null;
+const syncLuisteraars = new Set<(status: SyncStatus) => void>();
+
+export function syncStatus(): SyncStatus | null {
+  return laatsteSync;
+}
+
+export function luisterNaarSync(luisteraar: (status: SyncStatus) => void): () => void {
+  syncLuisteraars.add(luisteraar);
+  return () => syncLuisteraars.delete(luisteraar);
+}
+
 export function deblokkeerSynchronisatie(): void {
   geblokkeerd = false;
 }
 
 // Brengt de native alarmen in lijn met de alarmen uit de database; runs lopen na elkaar
-export function synchroniseer(alarms: Alarm[]): Promise<void> {
+export function synchroniseer(alarms: Alarm[], pauzeTot?: string | null): Promise<void> {
   return inWachtrij(async () => {
     if (geblokkeerd) return;
     const rechten = await AlarmScheduler.getPermissionsAsync();
     if (!rechten.canScheduleExactAlarms) return;
 
     const geluid = await leesAlarmgeluid();
+    const hervat = hervatOp(pauzeTot);
     const gewenst = new Map(alarms.filter((a) => a.aan).map((a) => [a.id, a]));
     for (const native of await AlarmScheduler.getScheduledAlarmsAsync()) {
       if (native.metadata?.type !== 'alarm') continue;
       const alarm = gewenst.get(native.id);
-      if (!alarm || native.metadata?.versie !== versieVan(alarm, geluid)) {
+      if (!alarm || native.metadata?.versie !== versieVan(alarm, geluid, hervat)) {
         await AlarmScheduler.cancelAlarmAsync(native.id);
       }
     }
@@ -160,9 +187,21 @@ export function synchroniseer(alarms: Alarm[]): Promise<void> {
       (await AlarmScheduler.getScheduledAlarmsAsync()).map((native) => native.id),
     );
     for (const alarm of gewenst.values()) {
-      if (!nogGepland.has(alarm.id))
-        await AlarmScheduler.scheduleAlarmAsync(alarmInput(alarm, geluid));
+      if (nogGepland.has(alarm.id)) continue;
+      const input = alarmInput(alarm, geluid, hervat);
+      if (input) await AlarmScheduler.scheduleAlarmAsync(input);
     }
+
+    // Controle achteraf: staat elk ingeschakeld alarm echt op het toestel?
+    const opToestel = new Set(
+      (await AlarmScheduler.getScheduledAlarmsAsync()).map((native) => native.id),
+    );
+    laatsteSync = {
+      op: new Date(),
+      verwacht: gewenst.size,
+      gepland: [...gewenst.keys()].filter((id) => opToestel.has(id)).length,
+    };
+    for (const luisteraar of syncLuisteraars) luisteraar(laatsteSync);
   });
 }
 

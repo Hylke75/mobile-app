@@ -223,9 +223,10 @@ const styles = StyleSheet.create({
   },
   barActive: { backgroundColor: kleuren.ink },
   barLabel: { fontFamily: fonts.body800, fontSize: 9, color: '#5F6E60' },
-  badgeRow: { flexDirection: 'row', gap: 10 },
+  badgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   badge: {
-    flex: 1,
+    flexBasis: '30%',
+    flexGrow: 1,
     backgroundColor: '#E8ECE2',
     borderRadius: 16,
     padding: 12,

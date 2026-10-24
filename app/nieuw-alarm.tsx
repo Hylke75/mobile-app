@@ -10,7 +10,7 @@ import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import { gedeeld, PrimaryButton, SecondaryButton } from '@/components/ui';
 import { DAG_LETTERS, DAG_NAMEN, dagenTekst, NIVEAUS, OEFENINGEN } from '@/constants/alarm';
-import { DOEL_BEREIK, doelVoor, OEFENING_INFO } from '@/constants/oefeningen';
+import { DOEL_BEREIK, doelenNaarTekst, doelVoor, OEFENING_INFO } from '@/constants/oefeningen';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useToast } from '@/hooks/useToast';
@@ -62,6 +62,25 @@ export default function NieuwAlarmScherm() {
     lijst.includes(waarde) ? lijst.filter((x) => x !== waarde) : [...lijst, waarde];
 
   const instelbaar = exercises.filter((o) => OEFENING_INFO[o].eenheid !== 'handeling');
+
+  const verplaats = (index: number, richting: 1 | -1) => {
+    const nieuw = [...exercises];
+    const doelIndex = index + richting;
+    if (doelIndex < 0 || doelIndex >= nieuw.length) return;
+    [nieuw[index], nieuw[doelIndex]] = [nieuw[doelIndex]!, nieuw[index]!];
+    setExercises(nieuw);
+  };
+
+  // Proefronde zonder alarm: zo weet je vooraf waar je je telefoon neerzet
+  const oefen = () =>
+    router.push({
+      pathname: '/missie',
+      params: {
+        oefeningen: exercises.join(','),
+        doelen: doelenNaarTekst(invoer().doelen),
+        oefen: '1',
+      },
+    });
 
   const pasDoelAan = (oefening: Oefening, richting: 1 | -1) => {
     const bereik = DOEL_BEREIK[OEFENING_INFO[oefening].eenheid];
@@ -359,49 +378,82 @@ export default function NieuwAlarmScherm() {
         })}
       </View>
 
-      {instelbaar.length > 0 && (
+      {exercises.length > 0 && (
         <>
-          <Text style={styles.formLabel}>Hoeveel per oefening</Text>
+          <View style={styles.formLabelRow}>
+            <Text style={styles.formLabelInRow}>Jouw missie</Text>
+            <Text style={styles.formLabelHint}>Volgorde en aantal</Text>
+          </View>
           <View style={styles.doelen}>
-            {instelbaar.map((o, i) => {
+            {exercises.map((o, i) => {
               const info = OEFENING_INFO[o];
               const bereik = DOEL_BEREIK[info.eenheid];
               const doel = doelVoor(o, doelen);
               const eenheid = info.eenheid === 'seconden' ? 'sec' : 'x';
+              const instelbareOefening = info.eenheid !== 'handeling';
               return (
                 <View key={o} style={[styles.doelRij, i > 0 && styles.doelRijRand]}>
+                  <View style={styles.volgorde}>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={`${o} eerder`}
+                      disabled={i === 0}
+                      onPress={() => verplaats(i, -1)}
+                      hitSlop={6}
+                      style={i === 0 && styles.stepperUit}
+                    >
+                      <Text style={styles.pijl}>▲</Text>
+                    </Pressable>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={`${o} later`}
+                      disabled={i === exercises.length - 1}
+                      onPress={() => verplaats(i, 1)}
+                      hitSlop={6}
+                      style={i === exercises.length - 1 && styles.stepperUit}
+                    >
+                      <Text style={styles.pijl}>▼</Text>
+                    </Pressable>
+                  </View>
                   <Text style={styles.doelNaam}>
-                    {info.emoji} {o}
+                    {i + 1}. {info.emoji} {o}
                   </Text>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={`Minder ${o}`}
-                    disabled={doel <= bereik.min}
-                    onPress={() => pasDoelAan(o, -1)}
-                    style={[styles.stepper, doel <= bereik.min && styles.stepperUit]}
-                  >
-                    <Text style={styles.stepperTekst}>−</Text>
-                  </Pressable>
-                  <Text
-                    style={styles.doelWaarde}
-                    accessibilityLabel={`${doel} ${info.eenheid} ${o}`}
-                  >
-                    {doel}
-                    <Text style={styles.doelEenheid}> {eenheid}</Text>
-                  </Text>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={`Meer ${o}`}
-                    disabled={doel >= bereik.max}
-                    onPress={() => pasDoelAan(o, 1)}
-                    style={[styles.stepper, doel >= bereik.max && styles.stepperUit]}
-                  >
-                    <Text style={styles.stepperTekst}>+</Text>
-                  </Pressable>
+                  {instelbareOefening ? (
+                    <>
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={`Minder ${o}`}
+                        disabled={doel <= bereik.min}
+                        onPress={() => pasDoelAan(o, -1)}
+                        style={[styles.stepper, doel <= bereik.min && styles.stepperUit]}
+                      >
+                        <Text style={styles.stepperTekst}>−</Text>
+                      </Pressable>
+                      <Text
+                        style={styles.doelWaarde}
+                        accessibilityLabel={`${doel} ${info.eenheid} ${o}`}
+                      >
+                        {doel}
+                        <Text style={styles.doelEenheid}> {eenheid}</Text>
+                      </Text>
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={`Meer ${o}`}
+                        disabled={doel >= bereik.max}
+                        onPress={() => pasDoelAan(o, 1)}
+                        style={[styles.stepper, doel >= bereik.max && styles.stepperUit]}
+                      >
+                        <Text style={styles.stepperTekst}>+</Text>
+                      </Pressable>
+                    </>
+                  ) : (
+                    <Text style={styles.doelEenheid}>1 handeling</Text>
+                  )}
                 </View>
               );
             })}
           </View>
+          <SecondaryButton label="Oefen deze missie" onPress={oefen} style={styles.oefen} />
         </>
       )}
 
@@ -559,6 +611,9 @@ const styles = StyleSheet.create({
     color: kleuren.ink,
   },
   doelEenheid: { fontFamily: fonts.body700, fontSize: 10, color: '#5F6E60' },
+  volgorde: { gap: 2, marginRight: 2 },
+  pijl: { fontSize: 10, color: kleuren.ink, paddingHorizontal: 2 },
+  oefen: { marginTop: 10 },
   save: { marginTop: 22 },
   delete: { marginTop: 10 },
   naamInput: {

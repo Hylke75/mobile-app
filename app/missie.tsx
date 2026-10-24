@@ -28,7 +28,7 @@ import { alarmenBeschikbaar, planWakkerCheck, rondWekkerAf } from '@/lib/alarmen
 import { vraagBeoordelingNaStreak } from '@/lib/beoordeling';
 import { actieveMissie, zetActieveMissie } from '@/lib/missieStatus';
 import { spreek, stopSpraak } from '@/lib/spraak';
-import { badgesVoor, bereiktMijlpaal } from '@/lib/statistiek';
+import { badgesVoor, bereiktMijlpaal, gemiddeldeReactie, minutenNaAlarm } from '@/lib/statistiek';
 import { volgendAlarm } from '@/lib/tijd';
 import { succes, tik } from '@/lib/trilling';
 import type { Niveau, Oefening, StapResultaat } from '@/types/app';
@@ -44,17 +44,21 @@ export default function MissieScherm() {
     niveau?: string;
     oefeningen?: string;
     doelen?: string;
+    oefen?: string;
   }>();
   const { alarms, herplan } = useAlarmen();
-  const { slaOp, statistiek } = useSessies();
+  const { slaOp, statistiek, sessies } = useSessies();
   const { showToast } = useToast();
 
   const vanWekker = params.vanWekker === '1';
+  // Proefronde vanuit de editor: eigen oefeningen, niet gekoppeld aan een alarm en niet opgeslagen
+  const proef = params.oefen === '1';
   const startDoel = useStartDoel();
   const alarm = useMemo(() => {
+    if (proef) return null;
     if (params.alarmId) return alarms.find((a) => a.id === params.alarmId) ?? null;
     return volgendAlarm(alarms)?.alarm ?? null;
-  }, [alarms, params.alarmId]);
+  }, [alarms, params.alarmId, proef]);
   // Niveau en oefeningen komen ook mee vanuit het native alarm, zodat dit offline werkt
   const niveau = (alarm?.niveau ?? (params.niveau || undefined)) as Niveau | undefined;
   const [oefeningen] = useState<Oefening[]>(
@@ -166,6 +170,7 @@ export default function MissieScherm() {
         showToast('Wakker-check over 5 minuten.');
       }
     }
+    if (proef) return;
     const fout = await slaOp({
       alarmId: alarm?.id ?? params.alarmId ?? null,
       gestartOp,
@@ -208,6 +213,10 @@ export default function MissieScherm() {
 
   const sluitRef = useRef<() => void>(() => {});
   const sluit = () => {
+    if (proef) {
+      router.back();
+      return;
+    }
     if (klaar) {
       router.dismissTo('/');
       return;
@@ -240,6 +249,10 @@ export default function MissieScherm() {
       'Het alarm stopt en deze missie wordt als afgebroken opgeslagen.',
       async () => {
         await rondAf('afgebroken', resultaten);
+        if (proef) {
+          router.back();
+          return;
+        }
         router.dismissTo('/');
         showToast('Missie gestopt.');
       },
@@ -253,6 +266,36 @@ export default function MissieScherm() {
       (b) => b.behaald && !voor.badges.includes(b.naam),
     );
     const mijlpaal = bereiktMijlpaal(voor.streak, statistiek.streak);
+    const reactie = vanWekker && alarm ? minutenNaAlarm(gestartOp, alarm.tijd) : null;
+    const gemiddeld =
+      reactie !== null
+        ? gemiddeldeReactie(sessies, new Map(alarms.map((a) => [a.id, a.tijd])))
+        : null;
+    if (proef) {
+      return (
+        <Screen dark>
+          <StatusBar style="light" />
+          <View style={styles.done}>
+            <View style={styles.doneIcon}>
+              <Icon name="check" size={52} strokeWidth={2.5} color={kleuren.ink} />
+            </View>
+            <Text maxFontSizeMultiplier={1.2} style={styles.doneTitle}>
+              KLAAR VOOR{'\n'}
+              <Text style={styles.lime}>MORGEN.</Text>
+            </Text>
+            <Text style={styles.doneText}>
+              Je proefronde zit erop. Zet je telefoon morgen op dezelfde plek.{'\n'}Een proefronde
+              telt niet mee voor je streak.
+            </Text>
+            <PrimaryButton
+              label="Terug naar je alarm"
+              onPress={() => router.back()}
+              style={styles.proefKnop}
+            />
+          </View>
+        </Screen>
+      );
+    }
     return (
       <Screen dark>
         <StatusBar style="light" />
@@ -271,6 +314,13 @@ export default function MissieScherm() {
           <Text style={styles.doneText}>
             Je hebt je hele missie afgemaakt.{'\n'}Dat is hoe je een dag begint. 💪
           </Text>
+          {reactie !== null && (
+            <Text style={styles.reactie}>
+              Je was {reactie === 0 ? 'binnen een minuut' : `${reactie} min`} na je alarm in
+              beweging
+              {gemiddeld !== null ? ` · gemiddeld deze week ${gemiddeld} min` : ''}.
+            </Text>
+          )}
           <View style={styles.doneStat}>
             <View style={styles.doneStatItem}>
               <Text style={styles.doneStatValue}>{Math.max(statistiek.streak, 1)}</Text>
@@ -321,7 +371,7 @@ export default function MissieScherm() {
       <StatusBar style="light" />
       <View style={styles.top}>
         <Text style={styles.stage}>
-          LIVE MISSIE{' '}
+          {proef ? 'PROEFRONDE' : 'LIVE MISSIE'}{' '}
           <Text style={styles.stageMuted}>
             / {stap + 1} VAN {oefeningen.length}
           </Text>
@@ -586,6 +636,15 @@ const styles = StyleSheet.create({
     color: '#B2C2B0',
     textAlign: 'center',
   },
+  reactie: {
+    fontFamily: fonts.body700,
+    fontSize: 13,
+    lineHeight: 19,
+    color: kleuren.lime,
+    textAlign: 'center',
+    marginTop: 12,
+  },
+  proefKnop: { marginTop: 32, alignSelf: 'stretch' },
   nieuw: {
     backgroundColor: '#D8FB59',
     borderRadius: 15,

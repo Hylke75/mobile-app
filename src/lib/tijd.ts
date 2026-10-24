@@ -53,3 +53,16 @@ export function tijdTot(op: Date, nu = new Date()): string {
   if (uren > 0) return rest > 0 ? `${uren} u ${rest} min` : `${uren} u`;
   return `${rest} min`;
 }
+
+// Pauze "tot en met" een datum (YYYY-MM-DD): alarmen gaan weer af vanaf de dag erna
+export function hervatOp(pauzeTot: string | null | undefined, nu = new Date()): Date | null {
+  if (!pauzeTot) return null;
+  const [j, m, d] = pauzeTot.split('-').map(Number);
+  if (!j || !m || !d) return null;
+  const hervat = new Date(j, m - 1, d + 1);
+  return hervat > nu ? hervat : null;
+}
+
+export function naarDatumSleutel(datum: Date): string {
+  return `${datum.getFullYear()}-${String(datum.getMonth() + 1).padStart(2, '0')}-${String(datum.getDate()).padStart(2, '0')}`;
+}

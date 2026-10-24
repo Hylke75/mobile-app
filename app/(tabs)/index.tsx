@@ -15,7 +15,7 @@ import { useSessies } from '@/hooks/useSessies';
 import { alarmenBeschikbaar } from '@/lib/alarmen';
 import { datumKicker } from '@/lib/datum';
 import { useNu } from '@/hooks/useNu';
-import { dagSleutel, startVanDag, tijdTot, volgendAlarm } from '@/lib/tijd';
+import { dagSleutel, hervatOp, startVanDag, tijdTot, volgendAlarm } from '@/lib/tijd';
 import type { Oefening } from '@/types/app';
 
 const STANDAARD_MISSIE: Oefening[] = ['Squats', 'Bed opmaken', 'Gordijnen open'];
@@ -32,14 +32,16 @@ function wanneerTekst(op: Date): string {
 }
 
 export default function VandaagScherm() {
-  const { profiel } = useAuth();
+  const { profiel, werkProfielBij } = useAuth();
   const { alarms, vernieuw: vernieuwAlarmen } = useAlarmen();
   const { sessies, statistiek, vernieuw, wachtend } = useSessies();
   const { allesInOrde } = useAlarmCheck();
   const voornaam = profiel?.voornaam ?? '';
 
   const nu = useNu();
-  const volgend = volgendAlarm(alarms, nu);
+  const hervat = hervatOp(profiel?.pauze_tot, nu);
+  // Tijdens een pauze is het eerstvolgende alarm het eerste na de pauze
+  const volgend = volgendAlarm(alarms, hervat ? new Date(hervat.getTime() - 1) : nu);
   const missie = volgend?.alarm.oefeningen ?? STANDAARD_MISSIE;
   const vandaagKlaar = sessies.some(
     (s) =>
@@ -130,6 +132,21 @@ export default function VandaagScherm() {
           </Pressable>
         }
       />
+      {hervat && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityHint="Zet je alarmen weer aan"
+          onPress={() => werkProfielBij({ pauze_tot: null })}
+          style={styles.pauze}
+        >
+          <Icon name="calendar" size={17} color={kleuren.ink} />
+          <Text style={styles.pauzeTekst}>
+            <Text style={styles.insightStrong}>Alarmen gepauzeerd</Text> tot{' '}
+            {hervat.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' })}
+            . Tik om ze nu weer aan te zetten.
+          </Text>
+        </Pressable>
+      )}
       {volgend ? (
         <Pressable
           accessibilityRole="button"
@@ -254,6 +271,22 @@ export default function VandaagScherm() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
+  pauze: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: '#EDF4D5',
+    borderRadius: 15,
+    padding: 13,
+    marginBottom: 10,
+  },
+  pauzeTekst: {
+    flex: 1,
+    fontFamily: fonts.body400,
+    fontSize: 12,
+    lineHeight: 17,
+    color: kleuren.ink,
+  },
   helloRow: { marginTop: 5, marginBottom: 17 },
   helloKicker: { marginBottom: 4 },
   helloName: {

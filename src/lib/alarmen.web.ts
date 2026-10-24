@@ -35,7 +35,7 @@ export async function vraagRechtenAan(): Promise<AlarmPermissionResponse> {
   return geenRechten;
 }
 export async function openAlarmInstellingen(): Promise<void> {}
-export async function synchroniseer(_alarms: Alarm[]): Promise<void> {}
+export async function synchroniseer(_alarms: Alarm[], _pauzeTot?: string | null): Promise<void> {}
 export async function annuleerAlles(): Promise<void> {}
 export function deblokkeerSynchronisatie(): void {}
 export async function annuleerAlarm(_id: string): Promise<void> {}
@@ -60,3 +60,13 @@ export async function startMissieVanuitWekker(_w: Wekker): Promise<string | unde
 }
 export async function rondWekkerAf(_a: string, _o?: string, _v?: string): Promise<void> {}
 export async function verwijderEenmaligAlarm(_alarmId: string): Promise<void> {}
+
+export type SyncStatus = { op: Date; verwacht: number; gepland: number };
+
+export function syncStatus(): SyncStatus | null {
+  return null;
+}
+
+export function luisterNaarSync(_luisteraar: (status: SyncStatus) => void): () => void {
+  return () => {};
+}

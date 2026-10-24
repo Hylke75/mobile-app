@@ -98,6 +98,7 @@ export type Database = {
           alarmtest_geslaagd_op: string | null;
           created_at: string;
           id: string;
+          pauze_tot: string | null;
           updated_at: string;
           voornaam: string | null;
           weekdoel: number;
@@ -106,6 +107,7 @@ export type Database = {
           alarmtest_geslaagd_op?: string | null;
           created_at?: string;
           id: string;
+          pauze_tot?: string | null;
           updated_at?: string;
           voornaam?: string | null;
           weekdoel?: number;
@@ -114,6 +116,7 @@ export type Database = {
           alarmtest_geslaagd_op?: string | null;
           created_at?: string;
           id?: string;
+          pauze_tot?: string | null;
           updated_at?: string;
           voornaam?: string | null;
           weekdoel?: number;
