@@ -77,7 +77,8 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "postinstall": "patch-package",
-    "test": "jest"
+    "test": "jest",
+    "site": "node --experimental-strip-types --no-warnings scripts/bouw-site.mjs"
   },
   "private": true,
   "jest": {

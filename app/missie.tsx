@@ -23,6 +23,7 @@ import { useTaal } from '@/i18n';
 import { doelenUitTekst, OEFENING_INFO } from '@/constants/oefeningen';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmen } from '@/hooks/useAlarmen';
+import { useAuth } from '@/hooks/useAuth';
 import { useSchermAan } from '@/hooks/useSchermAan';
 import { useSessies } from '@/hooks/useSessies';
 import { useStartDoel } from '@/hooks/useStartDoel';
@@ -31,7 +32,13 @@ import { alarmenBeschikbaar, planWakkerCheck, rondWekkerAf } from '@/lib/alarmen
 import { vraagBeoordelingNaStreak } from '@/lib/beoordeling';
 import { actieveMissie, zetActieveMissie } from '@/lib/missieStatus';
 import { spreek, stopSpraak } from '@/lib/spraak';
-import { badgesVoor, bereiktMijlpaal, gemiddeldeReactie, minutenNaAlarm } from '@/lib/statistiek';
+import {
+  badgesVoor,
+  berekenStatistiek,
+  bereiktMijlpaal,
+  gemiddeldeReactie,
+  minutenNaAlarm,
+} from '@/lib/statistiek';
 import { volgendAlarm } from '@/lib/tijd';
 import { succes, tik } from '@/lib/trilling';
 import { eigenUitTekst, isOefening, missieInfos } from '@/lib/missies';
@@ -55,6 +62,7 @@ export default function MissieScherm() {
   const { slaOp, statistiek, sessies } = useSessies();
   const { showToast } = useToast();
   const { t, taal } = useTaal();
+  const weekdoel = useAuth().profiel?.weekdoel ?? 7;
 
   const vanWekker = params.vanWekker === '1';
   // Proefronde vanuit de editor: eigen oefeningen, niet gekoppeld aan een alarm en niet opgeslagen
@@ -88,13 +96,6 @@ export default function MissieScherm() {
   // Het scherm mag niet op slot gaan terwijl de camera je oefeningen volgt
   useSchermAan();
   const [gestartOp] = useState(() => new Date());
-  // Stand bij de start, om nieuwe badges en mijlpalen op het eindscherm te tonen
-  const [voor] = useState(() => ({
-    streak: statistiek.streak,
-    badges: badgesVoor(statistiek)
-      .filter((b) => b.behaald)
-      .map((b) => b.naam),
-  }));
   const [stap, setStap] = useState(0);
   const [poging, setPoging] = useState(0);
   const [gedaan, setGedaan] = useState(0);
@@ -297,10 +298,20 @@ export default function MissieScherm() {
   if (!vanWekker && startDoel) return <Redirect href={startDoel} />;
 
   if (klaar) {
-    const nieuweBadges = badgesVoor(statistiek).filter(
-      (b) => b.behaald && !voor.badges.includes(b.naam),
+    // Vergelijk met de voortgang zonder deze missie, zodat alleen echt nieuwe badges verschijnen
+    const voor = berekenStatistiek(
+      sessies.filter((s) => Math.abs(s.gestartOp.getTime() - gestartOp.getTime()) > 1000),
+      weekdoel,
     );
+    const alBehaald = new Set(
+      badgesVoor(voor)
+        .filter((b) => b.behaald)
+        .map((b) => b.id),
+    );
+    const nieuweBadges = badgesVoor(statistiek).filter((b) => b.behaald && !alBehaald.has(b.id));
     const mijlpaal = bereiktMijlpaal(voor.streak, statistiek.streak);
+    const zichtbaar = nieuweBadges.slice(0, mijlpaal ? 2 : 3);
+    const meer = nieuweBadges.length - zichtbaar.length;
     const reactie = vanWekker && alarm ? minutenNaAlarm(gestartOp, alarm.tijd) : null;
     const gemiddeld =
       reactie !== null
@@ -378,11 +389,14 @@ export default function MissieScherm() {
               {mijlpaal && (
                 <Text style={styles.nieuwTekst}>{t('missie.klaar.mijlpaal', { n: mijlpaal })}</Text>
               )}
-              {nieuweBadges.map((b) => (
-                <Text key={b.naam} style={styles.nieuwTekst}>
+              {zichtbaar.map((b) => (
+                <Text key={b.id} style={styles.nieuwTekst}>
                   {t('missie.klaar.badge', { emoji: b.emoji, naam: b.naam })}
                 </Text>
               ))}
+              {meer > 0 && (
+                <Text style={styles.nieuwTekst}>{t('missie.klaar.meerBadges', { n: meer })}</Text>
+              )}
             </View>
           )}
           <PrimaryButton
@@ -764,7 +778,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     marginTop: 20,
-    marginBottom: -16,
+    marginBottom: 16,
     gap: 4,
     alignSelf: 'stretch',
   },

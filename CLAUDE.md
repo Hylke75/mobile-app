@@ -68,7 +68,7 @@ Draai `lint`, `typecheck` en `test` voordat een taak af is.
 ## Checklist voor de stores
 
 - [x] Privacyverklaring geschreven (`docs/store/privacyverklaring.md`)
-- [ ] Privacyverklaring online zetten (kant-en-klare statische site in `site/`: `/`, `/privacy`, `/account-verwijderen`) en de URL invullen in App Store Connect en Google Play Console
+- [ ] Privacyverklaring online zetten (kant-en-klare statische site in `site/`: `/`, `/privacy`, `/account-verwijderen`, ook onder `/en`, `/es`, `/de`, `/fr`; vertaalde pagina's bouwen met `npm run site` uit `src/i18n/teksten/privacy.ts`) en de URL invullen in App Store Connect en Google Play Console
 - [x] Account verwijderen kan in de app zelf (Profiel → Account verwijderen)
 - [ ] Web-URL voor verwijderverzoeken (verplicht voor Google Play): `/account-verwijderen` van de site in `site/`
 - [ ] App Store privacylabels (App Privacy) ingevuld volgens `docs/store/app-store.md`

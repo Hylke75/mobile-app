@@ -65,6 +65,7 @@ const nl = {
     missiesKlaar: 'MISSIES KLAAR',
     mijlpaal: '🎉 Mijlpaal: {{n}} dagen op rij!',
     badge: '{{emoji}} Nieuwe badge: {{naam}}',
+    meerBadges: '+ {{n}} andere nieuwe badges',
     terug: 'Terug naar vandaag',
   },
   camera: {
@@ -170,6 +171,7 @@ export const missie: Vertalingen<typeof nl> = {
       missiesKlaar: 'MISSIONS DONE',
       mijlpaal: '🎉 Milestone: {{n}} days in a row!',
       badge: '{{emoji}} New badge: {{naam}}',
+      meerBadges: '+ {{n}} more new badges',
       terug: 'Back to today',
     },
     camera: {
@@ -272,6 +274,7 @@ export const missie: Vertalingen<typeof nl> = {
       missiesKlaar: 'MISIONES HECHAS',
       mijlpaal: '🎉 Hito: ¡{{n}} días seguidos!',
       badge: '{{emoji}} Nueva insignia: {{naam}}',
+      meerBadges: '+ {{n}} insignias nuevas más',
       terug: 'Volver a hoy',
     },
     camera: {
@@ -376,6 +379,7 @@ export const missie: Vertalingen<typeof nl> = {
       missiesKlaar: 'MISSIONEN ERLEDIGT',
       mijlpaal: '🎉 Meilenstein: {{n}} Tage am Stück!',
       badge: '{{emoji}} Neues Abzeichen: {{naam}}',
+      meerBadges: '+ {{n}} weitere neue Abzeichen',
       terug: 'Zurück zu Heute',
     },
     camera: {
@@ -481,6 +485,7 @@ export const missie: Vertalingen<typeof nl> = {
       missiesKlaar: 'MISSIONS FAITES',
       mijlpaal: '🎉 Cap franchi : {{n}} jours d’affilée !',
       badge: '{{emoji}} Nouveau badge : {{naam}}',
+      meerBadges: '+ {{n}} autres nouveaux badges',
       terug: 'Retour à aujourd’hui',
     },
     camera: {

@@ -101,3 +101,15 @@ Les images de la caméra sont traitées uniquement sur ton téléphone et ne son
 Mooove utilise de vraies alarmes système qui sonnent même en mode silencieux ou Ne pas déranger. Vérifie-le en 30 secondes avec le test d'alarme intégré.
 
 Disponible en français, anglais, néerlandais, espagnol et allemand. Mooove nécessite iOS 26 ou une version ultérieure pour les alarmes système. _(Play : « Fonctionne sur Android 8.0 et versions ultérieures. »)_
+
+## Privacy- en verwijder-URL per taal
+
+Na het online zetten van `site/` (zie de checklist in `CLAUDE.md`) per taal invullen in App Store Connect en Google Play Console:
+
+| Taal       | Privacyverklaring | Account verwijderen       |
+| ---------- | ----------------- | ------------------------- |
+| Nederlands | `/privacy`        | `/account-verwijderen`    |
+| Engels     | `/en/privacy`     | `/en/account-verwijderen` |
+| Spaans     | `/es/privacy`     | `/es/account-verwijderen` |
+| Duits      | `/de/privacy`     | `/de/account-verwijderen` |
+| Frans      | `/fr/privacy`     | `/fr/account-verwijderen` |
