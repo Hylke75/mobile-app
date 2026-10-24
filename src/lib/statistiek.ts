@@ -89,3 +89,25 @@ export function berekenStatistiek(sessies: Sessie[], weekdoel = 7, nu = new Date
     vroegeStarts: voltooid.filter((s) => s.gestartOp.getHours() < 8).length,
   };
 }
+
+export type Badge = { emoji: string; naam: string; detail: string; behaald: boolean };
+
+export function badgesVoor(s: Statistiek): Badge[] {
+  return [
+    { emoji: '⚡', naam: 'Early mover', detail: '5 vroege starts', behaald: s.vroegeStarts >= 5 },
+    {
+      emoji: '🔥',
+      naam: 'Streak master',
+      detail: '10 dagen op rij',
+      behaald: s.langsteStreak >= 10,
+    },
+    { emoji: '🏆', naam: 'Legend', detail: '30 dagen op rij', behaald: s.langsteStreak >= 30 },
+  ];
+}
+
+const MIJLPALEN = [3, 7, 14, 21, 30, 50, 100, 365];
+
+// Geeft de mijlpaal terug als de streak die net heeft bereikt
+export function bereiktMijlpaal(voor: number, na: number): number | null {
+  return MIJLPALEN.find((m) => voor < m && na >= m) ?? null;
+}

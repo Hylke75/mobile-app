@@ -1,4 +1,4 @@
-import { dagIndex, startVanWeek, volgendAlarm, volgendeKeer } from '@/lib/tijd';
+import { dagIndex, startVanWeek, tijdTot, volgendAlarm, volgendeKeer } from '@/lib/tijd';
 import type { Alarm } from '@/types/app';
 
 // Zaterdag 24 oktober 2026, 12:00
@@ -47,5 +47,15 @@ describe('tijd', () => {
     const vroeg = alarm({ id: 'vroeg', tijd: '06:00' });
     const laat = alarm({ id: 'laat', tijd: '20:00', dagen: [5] }); // vanavond
     expect(volgendAlarm([vroeg, laat], NU)?.alarm.id).toBe('laat');
+  });
+
+  it('beschrijft de tijd tot een alarm', () => {
+    const over = (min: number) => new Date(NU.getTime() + min * 60000);
+    expect(tijdTot(over(0.5), NU)).toBe('minder dan een minuut');
+    expect(tijdTot(over(45), NU)).toBe('45 min');
+    expect(tijdTot(over(120), NU)).toBe('2 u');
+    expect(tijdTot(over(7 * 60 + 12), NU)).toBe('7 u 12 min');
+    expect(tijdTot(over(26 * 60), NU)).toBe('1 d 2 u');
+    expect(tijdTot(over(-5), NU)).toBe('minder dan een minuut');
   });
 });

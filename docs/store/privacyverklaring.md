@@ -38,7 +38,7 @@ We verwerken je gegevens omdat dit nodig is om de app aan je te leveren (uitvoer
 
 ## Je rechten
 
-Je hebt het recht om je gegevens in te zien, te corrigeren en te laten verwijderen. Je kunt je account en al je gegevens op elk moment zelf verwijderen in de app via **Profiel → Account verwijderen**. Alle gegevens worden dan direct en definitief gewist. Lukt dat niet, kijk dan op de pagina [Account verwijderen](./account-verwijderen.md) of neem contact met ons op.
+Je hebt het recht om je gegevens in te zien, te corrigeren en te laten verwijderen. Via **Profiel → Mijn gegevens downloaden** krijg je direct een kopie van al je gegevens. Je kunt je account en al je gegevens op elk moment zelf verwijderen in de app via **Profiel → Account verwijderen**. Alle gegevens worden dan direct en definitief gewist. Lukt dat niet, kijk dan op de pagina [Account verwijderen](./account-verwijderen.md) of neem contact met ons op.
 
 Heb je een klacht over hoe we met je gegevens omgaan? Je kunt ook een klacht indienen bij de Autoriteit Persoonsgegevens.
 

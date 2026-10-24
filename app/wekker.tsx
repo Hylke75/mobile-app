@@ -254,7 +254,9 @@ function WekkerLayout({
       <StatusBar style="light" />
       <View style={styles.wrap}>
         <Text style={styles.kicker}>{kicker}</Text>
-        <Text style={styles.klok}>{tijd}</Text>
+        <Text maxFontSizeMultiplier={1.2} style={styles.klok}>
+          {tijd}
+        </Text>
         <Text style={styles.titel}>{titel}</Text>
         {children}
       </View>

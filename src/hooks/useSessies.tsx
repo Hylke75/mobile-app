@@ -24,6 +24,8 @@ type SessiesContextWaarde = {
   statistiek: Statistiek;
   slaOp: (sessie: NieuweSessie) => Promise<string | null>;
   vernieuw: () => Promise<void>;
+  // Missies die nog op internet wachten
+  wachtend: number;
 };
 
 const SessiesContext = createContext<SessiesContextWaarde | undefined>(undefined);
@@ -105,13 +107,51 @@ function verstuurWachtrij(userId: string): Promise<void> {
   return versturen;
 }
 
+type Opgeslagen = { eigenaar: string; rijen: SessieRij[] };
+
+function uitWachtrij(item: WachtrijItem): Sessie {
+  return {
+    id: item.id,
+    alarmId: item.alarmId,
+    gestartOp: new Date(item.gestartOp),
+    afgerondOp: new Date(item.afgerondOp),
+    status: item.status,
+    stappen: item.stappen,
+    totaalHerhalingen: item.totaalHerhalingen,
+  };
+}
+
+// Server eerst, anders de lokale kopie; missies in de wachtrij tellen altijd mee
+async function laadSessies(userId: string): Promise<{ sessies: Sessie[]; wachtend: number }> {
+  await verstuurWachtrij(userId).catch(() => {});
+  const { data: rijen, error } = await haalSessiesOp();
+  let lijst: SessieRij[] = [];
+  if (!error && rijen) {
+    lijst = rijen;
+    await schrijfLokaal<Opgeslagen>(SLEUTELS.sessies, { eigenaar: userId, rijen });
+  } else {
+    const lokaal = await leesLokaal<Opgeslagen>(SLEUTELS.sessies);
+    if (lokaal?.eigenaar === userId) lijst = lokaal.rijen;
+  }
+  const wachtrij = ((await leesLokaal<WachtrijItem[]>(SLEUTELS.sessieWachtrij)) ?? []).filter(
+    (i) => !i.eigenaar || i.eigenaar === userId,
+  );
+  const bekend = new Set(lijst.map((r) => r.id));
+  const sessies = [
+    ...wachtrij.filter((i) => !bekend.has(i.id)).map(uitWachtrij),
+    ...lijst.map(naarSessie),
+  ].sort((a, b) => b.afgerondOp.getTime() - a.afgerondOp.getTime());
+  return { sessies, wachtend: wachtrij.filter((i) => !bekend.has(i.id)).length };
+}
+
 export function SessiesProvider({ children }: { children: ReactNode }) {
   const { user, profiel } = useAuth();
   const weekdoel = profiel?.weekdoel ?? 7;
-  const [data, setData] = useState<{ eigenaar: string | null; sessies: Sessie[] }>({
-    eigenaar: null,
-    sessies: [],
-  });
+  const [data, setData] = useState<{
+    eigenaar: string | null;
+    sessies: Sessie[];
+    wachtend: number;
+  }>({ eigenaar: null, sessies: [], wachtend: 0 });
   const [dag, setDag] = useState(() => new Date().toDateString());
   const eigenaar = user?.id ?? null;
   const sessies = useMemo(
@@ -120,23 +160,21 @@ export function SessiesProvider({ children }: { children: ReactNode }) {
   );
 
   const userId = eigenaar;
+  const wachtend = eigenaar !== null && data.eigenaar === eigenaar ? data.wachtend : 0;
 
   const vernieuw = useCallback(async () => {
     if (!userId) return;
-    await verstuurWachtrij(userId);
-    const { data: rijen } = await haalSessiesOp();
-    if (rijen) setData({ eigenaar: userId, sessies: rijen.map(naarSessie) });
+    const resultaat = await laadSessies(userId);
+    setData({ eigenaar: userId, ...resultaat });
   }, [userId]);
 
   useEffect(() => {
     if (!userId) return;
     let actief = true;
     const laad = () =>
-      verstuurWachtrij(userId)
-        .then(() => haalSessiesOp())
-        .then(({ data: rijen }) => {
-          if (actief && rijen) setData({ eigenaar: userId, sessies: rijen.map(naarSessie) });
-        });
+      laadSessies(userId).then((resultaat) => {
+        if (actief) setData({ eigenaar: userId, ...resultaat });
+      });
     laad();
     const sub = AppState.addEventListener('change', (status) => {
       if (status !== 'active') return;
@@ -169,6 +207,7 @@ export function SessiesProvider({ children }: { children: ReactNode }) {
         setData((h) => ({
           eigenaar: userId,
           sessies: [nieuw, ...h.sessies.filter((x) => x.id !== item.id)],
+          wachtend: (h.eigenaar === userId ? h.wachtend : 0) + (gelukt ? 0 : 1),
         }));
       }
       return null;
@@ -183,7 +222,7 @@ export function SessiesProvider({ children }: { children: ReactNode }) {
   }, [sessies, weekdoel, dag]);
 
   return (
-    <SessiesContext.Provider value={{ sessies, statistiek, slaOp, vernieuw }}>
+    <SessiesContext.Provider value={{ sessies, statistiek, slaOp, vernieuw, wachtend }}>
       {children}
     </SessiesContext.Provider>
   );

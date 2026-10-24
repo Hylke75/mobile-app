@@ -58,7 +58,7 @@ export const PRIVACYVERKLARING: PrivacySectie[] = [
   {
     kop: 'Je rechten',
     alineas: [
-      'Je hebt het recht om je gegevens in te zien, te corrigeren en te laten verwijderen. Je kunt je account en al je gegevens op elk moment zelf verwijderen via Profiel → Account verwijderen. Alle gegevens worden dan direct en definitief gewist.',
+      'Je hebt het recht om je gegevens in te zien, te corrigeren en te laten verwijderen. Via Profiel → Mijn gegevens downloaden krijg je direct een kopie van al je gegevens. Je kunt je account en al je gegevens op elk moment zelf verwijderen via Profiel → Account verwijderen. Alle gegevens worden dan direct en definitief gewist.',
       'Heb je een klacht over hoe we met je gegevens omgaan? Je kunt ook een klacht indienen bij de Autoriteit Persoonsgegevens.',
     ],
   },

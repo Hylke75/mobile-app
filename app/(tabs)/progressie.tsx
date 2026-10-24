@@ -6,6 +6,7 @@ import { DAG_LETTERS, DAG_NAMEN } from '@/constants/alarm';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
 import { useSessies } from '@/hooks/useSessies';
+import { badgesVoor } from '@/lib/statistiek';
 import { dagIndex } from '@/lib/tijd';
 
 const MAANDEN = [
@@ -38,7 +39,7 @@ function verschilTekst(waarde: number | null, eenheid = ''): string | null {
 }
 
 export default function ProgressieScherm() {
-  const { statistiek } = useSessies();
+  const { statistiek, vernieuw } = useSessies();
   const { profiel } = useAuth();
   const s = statistiek;
   const weekdoel = profiel?.weekdoel ?? 7;
@@ -46,20 +47,11 @@ export default function ProgressieScherm() {
   const hoogste = Math.max(...s.weekBalken, 1);
   const vandaag = dagIndex(new Date());
 
-  const badges = [
-    { emoji: '⚡', naam: 'Early mover', detail: '5 vroege starts', behaald: s.vroegeStarts >= 5 },
-    {
-      emoji: '🔥',
-      naam: 'Streak master',
-      detail: '10 dagen op rij',
-      behaald: s.langsteStreak >= 10,
-    },
-    { emoji: '🏆', naam: 'Legend', detail: '30 dagen op rij', behaald: s.langsteStreak >= 30 },
-  ];
+  const badges = badgesVoor(s);
   const ontgrendeld = badges.filter((b) => b.behaald).length;
 
   return (
-    <Screen>
+    <Screen onRefresh={vernieuw}>
       <ScreenHeader
         kicker="SHOW UP. LEVEL UP."
         titel="Progressie"
@@ -69,7 +61,7 @@ export default function ProgressieScherm() {
 
       <View style={styles.hero}>
         <Text style={styles.heroEyebrow}>JOUW MOMENTUM ↗</Text>
-        <Text style={styles.heroTitle}>
+        <Text maxFontSizeMultiplier={1.2} style={styles.heroTitle}>
           {s.streak} {s.streak === 1 ? 'DAG' : 'DAGEN'}
           {'\n'}
           <Text style={styles.heroAccent}>{s.streak > 0 ? 'ON FIRE.' : 'LET’S START.'}</Text>
@@ -79,7 +71,9 @@ export default function ProgressieScherm() {
             ? 'Elke beweging telt. Je bouwt een routine die blijft hangen.'
             : 'Rond een missie af om je streak te starten.'}
         </Text>
-        <Text style={styles.starburst}>✳</Text>
+        <Text maxFontSizeMultiplier={1.2} style={styles.starburst}>
+          ✳
+        </Text>
       </View>
 
       <View style={styles.metricRow}>

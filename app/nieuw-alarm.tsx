@@ -2,21 +2,22 @@ import DateTimePicker, {
   DateTimePickerAndroid,
   type DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { router, useLocalSearchParams, useNavigation, usePreventRemove } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Alert, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import { gedeeld, PrimaryButton, SecondaryButton } from '@/components/ui';
-import { DAG_LETTERS, DAG_NAMEN, NIVEAUS, OEFENINGEN } from '@/constants/alarm';
+import { DAG_LETTERS, DAG_NAMEN, dagenTekst, NIVEAUS, OEFENINGEN } from '@/constants/alarm';
 import { DOEL_BEREIK, doelVoor, OEFENING_INFO } from '@/constants/oefeningen';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useToast } from '@/hooks/useToast';
 import { haalRechtenOp, vraagRechtenAan } from '@/lib/alarmen';
 import { cameraStatus, vraagCameraAan } from '@/lib/camera';
-import type { Doelen, Niveau, Oefening } from '@/types/app';
+import { tijdTot, volgendeKeer } from '@/lib/tijd';
+import type { Alarm, Doelen, Niveau, Oefening } from '@/types/app';
 
 const NIVEAU_RIJEN: (Niveau | null)[][] = [
   ['Vrij', 'Flexibel', 'Uitstelbaar'],
@@ -48,6 +49,14 @@ export default function NieuwAlarmScherm() {
   const [doelen, setDoelen] = useState<Doelen>(bestaand?.doelen ?? {});
   const [bezig, setBezig] = useState(false);
   const [iosPickerOpen, setIosPickerOpen] = useState(false);
+  const navigation = useNavigation();
+  // Na opslaan of verwijderen mag het scherm zonder vraag dicht: eerst de blokkade
+  // opheffen, dan (na de volgende render) pas navigeren
+  const [vervolg, setVervolg] = useState<{ actie: () => void } | null>(null);
+  useEffect(() => {
+    vervolg?.actie();
+  }, [vervolg]);
+  const sluitEn = (actie: () => void) => setVervolg({ actie });
 
   const wissel = <T,>(lijst: T[], waarde: T) =>
     lijst.includes(waarde) ? lijst.filter((x) => x !== waarde) : [...lijst, waarde];
@@ -77,12 +86,85 @@ export default function NieuwAlarmScherm() {
     }
   };
 
+  const geldigeTijd = /^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(time);
+  const invoer = () => ({
+    naam: naam.trim(),
+    tijd: time,
+    dagen: [...days].sort((a, b) => a - b),
+    niveau: level,
+    oefeningen: exercises,
+    // Alleen doelen bewaren voor gekozen oefeningen die afwijken van de standaard
+    doelen: Object.fromEntries(
+      instelbaar
+        .map((o) => [o, doelVoor(o, doelen)] as const)
+        .filter(([o, n]) => n !== OEFENING_INFO[o].doel),
+    ) as Doelen,
+  });
+  const volgende =
+    geldigeTijd && days.length ? volgendeKeer({ ...invoer(), id: '', aan: true } as Alarm) : null;
+
+  const gewijzigd =
+    JSON.stringify(invoer()) !==
+    JSON.stringify(
+      bestaand
+        ? {
+            naam: bestaand.naam,
+            tijd: bestaand.tijd,
+            dagen: bestaand.dagen,
+            niveau: bestaand.niveau,
+            oefeningen: bestaand.oefeningen,
+            doelen: bestaand.doelen ?? {},
+          }
+        : {
+            naam: 'Mijn Mooove-missie',
+            tijd: '07:00',
+            dagen: [0, 1, 2, 3, 4],
+            niveau: 'Verplicht',
+            oefeningen: ['Squats', 'Bed opmaken'],
+            doelen: {},
+          },
+    );
+
+  usePreventRemove(gewijzigd && !vervolg && Platform.OS !== 'web', ({ data }) => {
+    Alert.alert('Wijzigingen weggooien?', 'Je aanpassingen aan dit alarm worden niet bewaard.', [
+      { text: 'Verder bewerken', style: 'cancel' },
+      {
+        text: 'Weggooien',
+        style: 'destructive',
+        onPress: () => sluitEn(() => navigation.dispatch(data.action)),
+      },
+    ]);
+  });
+
+  const vraag = (titel: string, tekst: string, knop: string) =>
+    new Promise<boolean>((klaar) => {
+      if (Platform.OS === 'web') return klaar(window.confirm(`${titel}\n\n${tekst}`));
+      Alert.alert(titel, tekst, [
+        { text: 'Annuleren', style: 'cancel', onPress: () => klaar(false) },
+        { text: knop, onPress: () => klaar(true) },
+      ]);
+    });
+
   const opslaan = async () => {
     if (bezig) return;
-    if (!/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(time)) return showToast('Kies een geldige tijd.');
+    if (!geldigeTijd) return showToast('Kies een geldige tijd.');
     if (!naam.trim()) return showToast('Geef je alarm een naam.');
     if (!days.length) return showToast('Kies minimaal één dag.');
     if (!exercises.length) return showToast('Kies minimaal één missie.');
+    const dubbel = alarms.find(
+      (a) =>
+        a.id !== bestaand?.id && a.aan && a.tijd === time && a.dagen.some((d) => days.includes(d)),
+    );
+    if (
+      dubbel &&
+      !(await vraag(
+        'Dubbel alarm?',
+        `"${dubbel.naam}" gaat ook om ${time} af (${dagenTekst(dubbel.dagen)}). Toch opslaan?`,
+        'Opslaan',
+      ))
+    ) {
+      return;
+    }
     setBezig(true);
 
     const rechten = await haalRechtenOp().catch(() => null);
@@ -91,33 +173,46 @@ export default function NieuwAlarmScherm() {
     }
     if (cameraStatus() === 'onbekend') await vraagCameraAan().catch(() => false);
 
-    const invoer = {
-      naam: naam.trim(),
-      tijd: time,
-      dagen: [...days].sort((a, b) => a - b),
-      niveau: level,
-      oefeningen: exercises,
-      // Alleen doelen bewaren voor gekozen oefeningen die afwijken van de standaard
-      doelen: Object.fromEntries(
-        instelbaar
-          .map((o) => [o, doelVoor(o, doelen)] as const)
-          .filter(([o, n]) => n !== OEFENING_INFO[o].doel),
-      ) as Doelen,
-    };
-    const fout = bestaand ? await werkBij(bestaand.id, invoer) : await maakAan(invoer);
+    const gegevens = invoer();
+    const fout = bestaand ? await werkBij(bestaand.id, gegevens) : await maakAan(gegevens);
     setBezig(false);
     if (fout) return showToast(fout);
-    router.dismissTo('/alarmen');
-    showToast(bestaand ? 'Je alarm is bijgewerkt.' : 'Je nieuwe alarm staat in de lijst!');
+    sluitEn(() => router.dismissTo('/alarmen'));
+    const wanneer = volgendeKeer({ ...gegevens, id: '', aan: true } as Alarm);
+    showToast(
+      wanneer
+        ? `Opgeslagen. Je alarm gaat over ${tijdTot(wanneer)} af.`
+        : bestaand
+          ? 'Je alarm is bijgewerkt.'
+          : 'Je nieuwe alarm staat in de lijst!',
+    );
+  };
+
+  const dupliceer = async () => {
+    if (!bestaand || bezig) return;
+    setBezig(true);
+    const kopieNaam = `${naam.trim() || bestaand.naam} (kopie)`.slice(0, 40);
+    const fout = await maakAan({ ...invoer(), naam: kopieNaam });
+    setBezig(false);
+    if (fout) return showToast(fout);
+    sluitEn(() => router.dismissTo('/alarmen'));
+    showToast(`"${kopieNaam}" staat in de lijst.`);
   };
 
   const verwijderAlarm = () => {
     if (!bestaand) return;
     const actie = async () => {
+      const { id: _id, aan: _aan, ...kopie } = bestaand;
       const fout = await verwijder(bestaand.id);
       if (fout) return showToast(fout);
-      router.dismissTo('/alarmen');
-      showToast('Alarm verwijderd.');
+      sluitEn(() => router.dismissTo('/alarmen'));
+      showToast('Alarm verwijderd.', {
+        label: 'Ongedaan maken',
+        onPress: async () => {
+          const terug = await maakAan(kopie);
+          showToast(terug ?? 'Je alarm is teruggezet.');
+        },
+      });
     };
     if (Platform.OS === 'web') {
       if (window.confirm('Alarm verwijderen?')) actie();
@@ -131,11 +226,7 @@ export default function NieuwAlarmScherm() {
 
   return (
     <Screen>
-      <Pressable
-        accessibilityRole="button"
-        onPress={() => router.dismissTo('/alarmen')}
-        style={gedeeld.backLink}
-      >
+      <Pressable accessibilityRole="button" onPress={() => router.back()} style={gedeeld.backLink}>
         <Icon name="chevron" color={kleuren.ink} />
         <Text style={gedeeld.backLinkText}>Terug naar alarmen</Text>
       </Pressable>
@@ -153,6 +244,7 @@ export default function NieuwAlarmScherm() {
             onChangeText={setTime}
             maxLength={5}
             style={styles.timeValue}
+            maxFontSizeMultiplier={1.2}
           />
         ) : (
           <Pressable
@@ -160,9 +252,14 @@ export default function NieuwAlarmScherm() {
             accessibilityLabel="Alarmtijd"
             onPress={openTijdkiezer}
           >
-            <Text style={styles.timeValue}>{time}</Text>
+            <Text maxFontSizeMultiplier={1.2} style={styles.timeValue}>
+              {time}
+            </Text>
           </Pressable>
         )}
+        <Text style={styles.timeHint} accessibilityLiveRegion="polite">
+          {volgende ? `Gaat af over ${tijdTot(volgende)}` : 'Kies een tijd en minimaal één dag'}
+        </Text>
         {Platform.OS === 'ios' && iosPickerOpen && (
           <DateTimePicker
             value={naarDatum(time)}
@@ -314,7 +411,14 @@ export default function NieuwAlarmScherm() {
         style={styles.save}
       />
       {bestaand && (
-        <SecondaryButton label="Alarm verwijderen" onPress={verwijderAlarm} style={styles.delete} />
+        <>
+          <SecondaryButton label="Dupliceer alarm" onPress={dupliceer} style={styles.delete} />
+          <SecondaryButton
+            label="Alarm verwijderen"
+            onPress={verwijderAlarm}
+            style={styles.delete}
+          />
+        </>
       )}
     </Screen>
   );
@@ -344,6 +448,7 @@ const styles = StyleSheet.create({
     color: '#5F6E60',
     marginBottom: 8,
   },
+  timeHint: { fontFamily: fonts.body600, fontSize: 11, color: '#5F6E60', marginTop: 6 },
   timeValue: {
     fontFamily: fonts.head700,
     fontSize: 55,

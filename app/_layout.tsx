@@ -15,6 +15,7 @@ import { useEffect } from 'react';
 import { View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { Foutscherm } from '@/components/Foutscherm';
 import { Toast } from '@/components/Toast';
 import { kleuren } from '@/constants/theme';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
@@ -24,6 +25,8 @@ import { ToastProvider } from '@/hooks/useToast';
 import { useWekkerRouting } from '@/hooks/useWekkerRouting';
 
 SplashScreen.preventAutoHideAsync();
+
+export const ErrorBoundary = Foutscherm;
 
 export default function RootLayout() {
   const [fontsGeladen, fontFout] = useFonts({

@@ -23,11 +23,18 @@ export const SLEUTELS = {
   profiel: 'mooove.profiel',
   alarmen: 'mooove.alarmen',
   sessieWachtrij: 'mooove.sessie-wachtrij',
+  sessies: 'mooove.sessies',
   klaargezet: 'mooove.klaargezet',
   alarmgeluid: 'mooove.alarmgeluid',
+  beoordelingGevraagd: 'mooove.beoordeling-gevraagd',
 } as const;
 
 export async function wisLokaal(): Promise<void> {
-  const perAccount = [SLEUTELS.profiel, SLEUTELS.alarmen, SLEUTELS.sessieWachtrij];
+  const perAccount = [
+    SLEUTELS.profiel,
+    SLEUTELS.alarmen,
+    SLEUTELS.sessieWachtrij,
+    SLEUTELS.sessies,
+  ];
   await Promise.all(perAccount.map((s) => schrijfLokaal(s, null)));
 }

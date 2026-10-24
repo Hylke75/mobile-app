@@ -7,11 +7,14 @@ import { LevelTag, RoundPlus, ScreenHeader, Toggle } from '@/components/ui';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { dagenTekst, missiesTekst } from '@/constants/alarm';
 import { useAlarmen } from '@/hooks/useAlarmen';
+import { useNu } from '@/hooks/useNu';
+import { tijdTot, volgendeKeer } from '@/lib/tijd';
 import { useToast } from '@/hooks/useToast';
 
 export default function AlarmenScherm() {
-  const { alarms, geladen, fout, wisselAan } = useAlarmen();
+  const { alarms, geladen, fout, wisselAan, vernieuw } = useAlarmen();
   const { showToast } = useToast();
+  const nu = useNu();
   const nieuwAlarm = () => router.push('/nieuw-alarm');
 
   const wissel = async (id: string) => {
@@ -20,7 +23,7 @@ export default function AlarmenScherm() {
   };
 
   return (
-    <Screen>
+    <Screen onRefresh={vernieuw}>
       <ScreenHeader
         kicker="STAY CONSISTENT"
         titel="Mijn alarmen"
@@ -36,30 +39,38 @@ export default function AlarmenScherm() {
         <Text style={styles.leeg}>Je hebt nog geen alarmen. Maak hieronder je eerste aan.</Text>
       )}
 
-      {alarms.map((a) => (
-        <Pressable
-          key={a.id}
-          accessibilityRole="button"
-          accessibilityLabel={`${a.naam} om ${a.tijd} bewerken`}
-          onPress={() => router.push({ pathname: '/nieuw-alarm', params: { id: a.id } })}
-          style={[styles.card, !a.aan && styles.cardDisabled]}
-        >
-          <View style={styles.cardHead}>
-            <Text style={styles.time}>{a.tijd}</Text>
-            <Toggle
-              on={a.aan}
-              onPress={() => wissel(a.id)}
-              label={`${a.naam} ${a.aan ? 'uitschakelen' : 'inschakelen'}`}
-            />
-          </View>
-          <Text style={styles.name}>{a.naam}</Text>
-          <Text style={styles.days}>{dagenTekst(a.dagen)}</Text>
-          <View style={styles.footer}>
-            <LevelTag level={a.niveau} />
-            <Text style={styles.count}>{missiesTekst(a.oefeningen.length)}</Text>
-          </View>
-        </Pressable>
-      ))}
+      {alarms.map((a) => {
+        const op = volgendeKeer(a, nu);
+        return (
+          <Pressable
+            key={a.id}
+            accessibilityRole="button"
+            accessibilityLabel={`${a.naam} om ${a.tijd} bewerken`}
+            onPress={() => router.push({ pathname: '/nieuw-alarm', params: { id: a.id } })}
+            style={[styles.card, !a.aan && styles.cardDisabled]}
+          >
+            <View style={styles.cardHead}>
+              <Text maxFontSizeMultiplier={1.2} style={styles.time}>
+                {a.tijd}
+              </Text>
+              <Toggle
+                on={a.aan}
+                onPress={() => wissel(a.id)}
+                label={`${a.naam} ${a.aan ? 'uitschakelen' : 'inschakelen'}`}
+              />
+            </View>
+            <Text style={styles.name}>{a.naam}</Text>
+            <Text style={styles.days}>
+              {dagenTekst(a.dagen)}
+              {op ? ` · over ${tijdTot(op, nu)}` : ''}
+            </Text>
+            <View style={styles.footer}>
+              <LevelTag level={a.niveau} />
+              <Text style={styles.count}>{missiesTekst(a.oefeningen.length)}</Text>
+            </View>
+          </Pressable>
+        );
+      })}
 
       <View style={styles.banner}>
         <View style={styles.flex}>

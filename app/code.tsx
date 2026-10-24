@@ -1,6 +1,6 @@
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, Text, TextInput } from 'react-native';
 
 import { AuthScreen } from '@/components/AuthScreen';
@@ -16,6 +16,16 @@ export default function CodeScherm() {
   const [code, setCode] = useState('');
   const [fout, setFout] = useState<string | null>(null);
   const [bezig, setBezig] = useState(false);
+  // Supabase staat maar één code per minuut toe; daarom een korte wachttijd
+  const [wachtTot, setWachtTot] = useState(() => Date.now() + 60000);
+  const [nu, setNu] = useState(() => Date.now());
+  const resterend = Math.max(0, Math.ceil((wachtTot - nu) / 1000));
+
+  useEffect(() => {
+    if (resterend === 0) return;
+    const t = setInterval(() => setNu(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [resterend]);
 
   const controleer = async () => {
     if (!email) return;
@@ -29,7 +39,9 @@ export default function CodeScherm() {
   };
 
   const opnieuw = async () => {
-    if (!email) return;
+    if (!email || resterend > 0) return;
+    setWachtTot(Date.now() + 60000);
+    setNu(Date.now());
     const resultaat = await vraagCodeAan(email);
     if (resultaat) setFout(resultaat);
     else showToast('Nieuwe code verstuurd.');
@@ -44,7 +56,9 @@ export default function CodeScherm() {
       <Text style={s.titel}>
         Check je <Text style={s.accent}>mail.</Text>
       </Text>
-      <Text style={s.tekst}>We hebben een code gestuurd naar {email}.</Text>
+      <Text style={s.tekst}>
+        We hebben een code gestuurd naar {email}. Niets ontvangen? Kijk ook in je spam.
+      </Text>
       <Text style={s.label}>JOUW CODE</Text>
       <TextInput
         value={code}
@@ -64,8 +78,16 @@ export default function CodeScherm() {
         onPress={bezig ? () => {} : controleer}
         style={s.knop}
       />
-      <Pressable accessibilityRole="button" onPress={opnieuw} style={s.link}>
-        <Text style={s.linkTekst}>Stuur een nieuwe code</Text>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ disabled: resterend > 0 }}
+        disabled={resterend > 0}
+        onPress={opnieuw}
+        style={s.link}
+      >
+        <Text style={[s.linkTekst, resterend > 0 && { opacity: 0.5 }]}>
+          {resterend > 0 ? `Nieuwe code over ${resterend} s` : 'Stuur een nieuwe code'}
+        </Text>
       </Pressable>
       <Pressable accessibilityRole="button" onPress={() => router.back()} style={s.link}>
         <Text style={s.linkTekst}>Ander e-mailadres gebruiken</Text>

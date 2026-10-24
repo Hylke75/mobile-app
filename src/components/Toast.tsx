@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Animated, StyleSheet, Text } from 'react-native';
+import { Animated, Pressable, StyleSheet, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/Icon';
@@ -7,7 +7,7 @@ import { fonts, kleuren } from '@/constants/theme';
 import { useToast } from '@/hooks/useToast';
 
 export function Toast() {
-  const { toast } = useToast();
+  const { toast, actie, sluitToast } = useToast();
   const insets = useSafeAreaInsets();
   const [anim] = useState(() => new Animated.Value(0));
 
@@ -21,7 +21,7 @@ export function Toast() {
 
   return (
     <Animated.View
-      pointerEvents="none"
+      pointerEvents={actie ? 'box-none' : 'none'}
       accessibilityLiveRegion="polite"
       style={[
         styles.toast,
@@ -36,6 +36,18 @@ export function Toast() {
     >
       <Icon name="check" color={kleuren.lime} />
       <Text style={styles.text}>{toast}</Text>
+      {actie && (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => {
+            sluitToast();
+            actie.onPress();
+          }}
+          hitSlop={10}
+        >
+          <Text style={styles.actie}>{actie.label}</Text>
+        </Pressable>
+      )}
     </Animated.View>
   );
 }
@@ -60,4 +72,5 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   text: { flex: 1, color: kleuren.white, fontFamily: fonts.body400, fontSize: 11 },
+  actie: { color: kleuren.lime, fontFamily: fonts.body800, fontSize: 12 },
 });

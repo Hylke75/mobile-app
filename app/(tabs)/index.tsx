@@ -14,7 +14,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useSessies } from '@/hooks/useSessies';
 import { alarmenBeschikbaar } from '@/lib/alarmen';
 import { datumKicker } from '@/lib/datum';
-import { dagSleutel, startVanDag, volgendAlarm } from '@/lib/tijd';
+import { useNu } from '@/hooks/useNu';
+import { dagSleutel, startVanDag, tijdTot, volgendAlarm } from '@/lib/tijd';
 import type { Oefening } from '@/types/app';
 
 const STANDAARD_MISSIE: Oefening[] = ['Squats', 'Bed opmaken', 'Gordijnen open'];
@@ -32,12 +33,13 @@ function wanneerTekst(op: Date): string {
 
 export default function VandaagScherm() {
   const { profiel } = useAuth();
-  const { alarms } = useAlarmen();
-  const { sessies, statistiek } = useSessies();
+  const { alarms, vernieuw: vernieuwAlarmen } = useAlarmen();
+  const { sessies, statistiek, vernieuw, wachtend } = useSessies();
   const { allesInOrde } = useAlarmCheck();
   const voornaam = profiel?.voornaam ?? '';
 
-  const volgend = volgendAlarm(alarms);
+  const nu = useNu();
+  const volgend = volgendAlarm(alarms, nu);
   const missie = volgend?.alarm.oefeningen ?? STANDAARD_MISSIE;
   const vandaagKlaar = sessies.some(
     (s) =>
@@ -47,7 +49,7 @@ export default function VandaagScherm() {
   );
 
   return (
-    <Screen>
+    <Screen onRefresh={() => Promise.all([vernieuwAlarmen(), vernieuw()])}>
       <View style={[gedeeld.rowBetween, styles.helloRow]}>
         <View>
           <Text style={[gedeeld.sectionKicker, styles.helloKicker]}>{datumKicker()}</Text>
@@ -105,7 +107,9 @@ export default function VandaagScherm() {
           </View>
         </View>
         <View style={styles.streakRow}>
-          <Text style={styles.streakCount}>{statistiek.streak}</Text>
+          <Text maxFontSizeMultiplier={1.2} style={styles.streakCount}>
+            {statistiek.streak}
+          </Text>
           <Text style={styles.streakSmall}>{statistiek.streak === 1 ? 'DAG' : 'DAGEN'}</Text>
         </View>
         <Text style={styles.streakSub}>
@@ -113,7 +117,9 @@ export default function VandaagScherm() {
             ? 'Je bent niet te stoppen. Keep going!'
             : 'Rond vandaag je eerste missie af en start je streak.'}
         </Text>
-        <Text style={styles.sparkle}>✳</Text>
+        <Text maxFontSizeMultiplier={1.2} style={styles.sparkle}>
+          ✳
+        </Text>
       </View>
 
       <SectionTitleRow
@@ -134,7 +140,9 @@ export default function VandaagScherm() {
         >
           <View style={gedeeld.rowBetween}>
             <View style={styles.alarmTimeRow}>
-              <Text style={styles.alarmTime}>{volgend.alarm.tijd}</Text>
+              <Text maxFontSizeMultiplier={1.2} style={styles.alarmTime}>
+                {volgend.alarm.tijd}
+              </Text>
               <Text style={styles.alarmTimeSmall}>
                 {dagenTekst(volgend.alarm.dagen).toUpperCase()}
               </Text>
@@ -146,9 +154,14 @@ export default function VandaagScherm() {
           <Text style={styles.alarmSub}>{volgend.alarm.naam}</Text>
           <Text style={styles.alarmCaption}>
             {missiesTekst(volgend.alarm.oefeningen.length)} · {wanneerTekst(volgend.op)}
+            {volgend.op.getTime() - nu.getTime() < 86400000
+              ? ` · over ${tijdTot(volgend.op, nu)}`
+              : ''}
           </Text>
           <View style={styles.alarmShape}>
-            <Text style={styles.alarmShapeArrow}>↗</Text>
+            <Text maxFontSizeMultiplier={1.2} style={styles.alarmShapeArrow}>
+              ↗
+            </Text>
           </View>
         </Pressable>
       ) : (
@@ -160,7 +173,9 @@ export default function VandaagScherm() {
           <Text style={styles.alarmSub}>Nog geen alarm gepland.</Text>
           <Text style={styles.alarmCaption}>Tik hier om je eerste Mooove-alarm te zetten.</Text>
           <View style={styles.alarmShape}>
-            <Text style={styles.alarmShapeArrow}>↗</Text>
+            <Text maxFontSizeMultiplier={1.2} style={styles.alarmShapeArrow}>
+              ↗
+            </Text>
           </View>
         </Pressable>
       )}
@@ -214,6 +229,22 @@ export default function VandaagScherm() {
                 profiel.
               </>
             )}
+          </Text>
+        </Pressable>
+      )}
+      {wachtend > 0 && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityHint="Probeert de missies nu te versturen"
+          onPress={() => vernieuw()}
+          style={styles.insight}
+        >
+          <Icon name="activity" size={17} color="#5F6E60" />
+          <Text style={styles.insightText}>
+            <Text style={styles.insightStrong}>
+              {wachtend === 1 ? '1 missie wacht' : `${wachtend} missies wachten`} op internet.
+            </Text>{' '}
+            Ze tellen al mee en worden vanzelf verstuurd. Tik om het nu te proberen.
           </Text>
         </Pressable>
       )}

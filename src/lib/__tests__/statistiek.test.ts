@@ -1,4 +1,4 @@
-import { berekenStatistiek } from '@/lib/statistiek';
+import { badgesVoor, berekenStatistiek, bereiktMijlpaal } from '@/lib/statistiek';
 import type { Sessie } from '@/types/app';
 
 // Vaste "nu": zaterdag 24 oktober 2026, 12:00
@@ -68,5 +68,23 @@ describe('berekenStatistiek', () => {
     expect(s.weekTotaal).toBe(3);
     expect(s.repsDezeWeek).toBe(30);
     expect(s.repsVerschil).toBe(20);
+  });
+});
+
+describe('badges en mijlpalen', () => {
+  it('ontgrendelt badges op basis van de statistiek', () => {
+    const basis = berekenStatistiek([], 7, NU);
+    expect(badgesVoor(basis).filter((b) => b.behaald)).toHaveLength(0);
+    const namen = badgesVoor({ ...basis, vroegeStarts: 5, langsteStreak: 12 })
+      .filter((b) => b.behaald)
+      .map((b) => b.naam);
+    expect(namen).toEqual(['Early mover', 'Streak master']);
+  });
+
+  it('meldt een mijlpaal alleen als die net is bereikt', () => {
+    expect(bereiktMijlpaal(6, 7)).toBe(7);
+    expect(bereiktMijlpaal(7, 8)).toBeNull();
+    expect(bereiktMijlpaal(0, 3)).toBe(3);
+    expect(bereiktMijlpaal(2, 2)).toBeNull();
   });
 });

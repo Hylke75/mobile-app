@@ -1,7 +1,17 @@
 import { router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Linking, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Alert,
+  Linking,
+  Modal,
+  Platform,
+  Pressable,
+  Share,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
@@ -16,7 +26,9 @@ import {
   wisAlarmgeluid,
   type Alarmgeluid,
 } from '@/lib/alarmgeluid';
+import { appVersie, toestelInfo } from '@/lib/appInfo';
 import { openBatterijInstellingen } from '@/lib/batterij';
+import { verzamelMijnGegevens } from '@/lib/export';
 import { useSessies } from '@/hooks/useSessies';
 import { useToast } from '@/hooks/useToast';
 import {
@@ -163,6 +175,24 @@ export default function ProfielScherm() {
     }
   };
 
+  const downloadGegevens = async () => {
+    try {
+      const json = await verzamelMijnGegevens(user?.email);
+      if (Platform.OS === 'web') {
+        const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'mooove-gegevens.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        return;
+      }
+      await Share.share({ title: 'Mijn Mooove-gegevens', message: json });
+    } catch {
+      showToast('Je gegevens konden niet worden opgehaald. Controleer je internet.');
+    }
+  };
+
   const onUitloggen = () =>
     bevestig('Uitloggen?', 'Je kunt altijd weer inloggen met je e-mailadres.', 'Uitloggen', () => {
       uitloggen();
@@ -287,9 +317,9 @@ export default function ProfielScherm() {
       <Pressable
         accessibilityRole="button"
         onPress={() =>
-          Linking.openURL(`mailto:${CONTACT_EMAIL}?subject=Vraag over Mooove`).catch(() =>
-            showToast(`Mail ons op ${CONTACT_EMAIL}`),
-          )
+          Linking.openURL(
+            `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Vraag over Mooove')}&body=${encodeURIComponent(`\n\n—\n${toestelInfo()}`)}`,
+          ).catch(() => showToast(`Mail ons op ${CONTACT_EMAIL}`))
         }
         style={styles.setting}
       >
@@ -304,6 +334,11 @@ export default function ProfielScherm() {
         <Text style={styles.settingLabel}>E-mailadres</Text>
         <Text style={styles.settingValue}>{user?.email}</Text>
       </View>
+      <Pressable accessibilityRole="button" onPress={downloadGegevens} style={styles.setting}>
+        <Icon name="shield" color={kleuren.ink} />
+        <Text style={styles.settingLabel}>Mijn gegevens downloaden</Text>
+        <Text style={styles.settingValue}>JSON →</Text>
+      </Pressable>
       <Pressable accessibilityRole="button" onPress={onUitloggen} style={styles.setting}>
         <Icon name="arrow" color={kleuren.ink} />
         <Text style={styles.settingLabel}>Uitloggen</Text>
@@ -314,6 +349,7 @@ export default function ProfielScherm() {
         <Text style={[styles.settingLabel, styles.gevaar]}>Account verwijderen</Text>
         <Text style={styles.settingValue}>Definitief</Text>
       </Pressable>
+      <Text style={styles.versie}>Mooove {appVersie()}</Text>
 
       <Modal
         visible={test !== 'uit'}
@@ -325,7 +361,7 @@ export default function ProfielScherm() {
         <StatusBar style="light" />
         <View style={styles.overlay}>
           <Text style={styles.testLabel}>MOOOVE SYSTEM CHECK</Text>
-          <Text style={styles.testClock}>
+          <Text maxFontSizeMultiplier={1.2} style={styles.testClock}>
             00:{String(test === 'aftellen' ? resterend : 0).padStart(2, '0')}
           </Text>
           <Text style={styles.testTitle}>{test === 'aftellen' ? 'Even testen.' : 'Gehoord?'}</Text>
@@ -459,6 +495,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   settingLabel: { fontFamily: fonts.body800, fontSize: 12, color: kleuren.ink },
+  versie: {
+    fontFamily: fonts.body600,
+    fontSize: 11,
+    color: '#5F6E60',
+    textAlign: 'center',
+    marginTop: 18,
+  },
   gevaar: { color: '#C2462F' },
   settingValue: { fontFamily: fonts.body800, fontSize: 10, color: '#5F6E60', maxWidth: 150 },
   doelUitleg: {

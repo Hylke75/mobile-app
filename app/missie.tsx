@@ -1,7 +1,16 @@
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, BackHandler, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  AccessibilityInfo,
+  Alert,
+  BackHandler,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import { Icon } from '@/components/Icon';
 import { StapDetector } from '@/components/missie/StapDetector';
@@ -11,13 +20,17 @@ import { isStreng } from '@/constants/alarm';
 import { doelenUitTekst, doelVoor, OEFENING_INFO } from '@/constants/oefeningen';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmen } from '@/hooks/useAlarmen';
+import { useSchermAan } from '@/hooks/useSchermAan';
 import { useSessies } from '@/hooks/useSessies';
 import { useStartDoel } from '@/hooks/useStartDoel';
 import { useToast } from '@/hooks/useToast';
 import { alarmenBeschikbaar, planWakkerCheck, rondWekkerAf } from '@/lib/alarmen';
+import { vraagBeoordelingNaStreak } from '@/lib/beoordeling';
 import { actieveMissie, zetActieveMissie } from '@/lib/missieStatus';
 import { spreek, stopSpraak } from '@/lib/spraak';
+import { badgesVoor, bereiktMijlpaal } from '@/lib/statistiek';
 import { volgendAlarm } from '@/lib/tijd';
+import { succes, tik } from '@/lib/trilling';
 import type { Niveau, Oefening, StapResultaat } from '@/types/app';
 
 const STANDAARD_MISSIE: Oefening[] = ['Squats', 'Bed opmaken', 'Gordijnen open'];
@@ -52,7 +65,16 @@ export default function MissieScherm() {
   const [doelen] = useState(() => alarm?.doelen ?? doelenUitTekst(params.doelen));
   const streng = vanWekker ? isStreng(niveau ?? 'Verplicht') : false;
 
+  // Het scherm mag niet op slot gaan terwijl de camera je oefeningen volgt
+  useSchermAan();
   const [gestartOp] = useState(() => new Date());
+  // Stand bij de start, om nieuwe badges en mijlpalen op het eindscherm te tonen
+  const [voor] = useState(() => ({
+    streak: statistiek.streak,
+    badges: badgesVoor(statistiek)
+      .filter((b) => b.behaald)
+      .map((b) => b.naam),
+  }));
   const [stap, setStap] = useState(0);
   const [poging, setPoging] = useState(0);
   const [gedaan, setGedaan] = useState(0);
@@ -63,6 +85,7 @@ export default function MissieScherm() {
   const [feedback, setFeedback] = useState('');
   const [stil, setStil] = useState(false);
   const opgeslagen = useRef(false);
+  const teller = useRef(0);
 
   const oefening = oefeningen[stap]!;
   const info = OEFENING_INFO[oefening];
@@ -88,6 +111,13 @@ export default function MissieScherm() {
   const onVoortgang = useCallback(
     (waarde: number) => {
       const begrensd = Math.min(waarde, doel);
+      if (begrensd > teller.current) {
+        tik();
+        if (begrensd % 5 === 0 || begrensd === doel) {
+          AccessibilityInfo.announceForAccessibility(`${begrensd} van ${doel}`);
+        }
+      }
+      teller.current = begrensd;
       setGedaan(begrensd);
       if (info.eenheid === 'herhalingen') {
         const zin =
@@ -103,6 +133,7 @@ export default function MissieScherm() {
       setMethode(m);
       setGedaan(doel);
       setStapKlaar(true);
+      succes();
       zegt('Yes! Volgende stap.');
     },
     [doel, zegt],
@@ -116,6 +147,7 @@ export default function MissieScherm() {
 
   const opnieuw = () => {
     setGedaan(0);
+    teller.current = 0;
     setStapKlaar(false);
     setPoging((p) => p + 1);
   };
@@ -152,12 +184,14 @@ export default function MissieScherm() {
     setResultaten(nieuw);
     if (laatsteStap) {
       setKlaar(true);
+      succes();
       zegt('You did it! Je missie is klaar.');
       await rondAf('voltooid', nieuw);
       return;
     }
     setStap(stap + 1);
     setGedaan(0);
+    teller.current = 0;
     setStapKlaar(false);
   };
 
@@ -215,6 +249,10 @@ export default function MissieScherm() {
   if (!vanWekker && startDoel) return <Redirect href={startDoel} />;
 
   if (klaar) {
+    const nieuweBadges = badgesVoor(statistiek).filter(
+      (b) => b.behaald && !voor.badges.includes(b.naam),
+    );
+    const mijlpaal = bereiktMijlpaal(voor.streak, statistiek.streak);
     return (
       <Screen dark>
         <StatusBar style="light" />
@@ -226,7 +264,7 @@ export default function MissieScherm() {
           <View style={styles.doneIcon}>
             <Icon name="check" size={52} strokeWidth={2.5} color={kleuren.ink} />
           </View>
-          <Text style={styles.doneTitle}>
+          <Text maxFontSizeMultiplier={1.2} style={styles.doneTitle}>
             YOU DID{'\n'}
             <Text style={styles.lime}>IT.</Text>
           </Text>
@@ -245,7 +283,25 @@ export default function MissieScherm() {
               <Text style={styles.doneStatLabel}>MISSIES KLAAR</Text>
             </View>
           </View>
-          <PrimaryButton label="Terug naar vandaag" onPress={() => router.dismissTo('/')} />
+          {(mijlpaal || nieuweBadges.length > 0) && (
+            <View style={styles.nieuw} accessibilityLiveRegion="polite">
+              {mijlpaal && (
+                <Text style={styles.nieuwTekst}>🎉 Mijlpaal: {mijlpaal} dagen op rij!</Text>
+              )}
+              {nieuweBadges.map((b) => (
+                <Text key={b.naam} style={styles.nieuwTekst}>
+                  {b.emoji} Nieuwe badge: {b.naam}
+                </Text>
+              ))}
+            </View>
+          )}
+          <PrimaryButton
+            label="Terug naar vandaag"
+            onPress={() => {
+              router.dismissTo('/');
+              vraagBeoordelingNaStreak(statistiek.streak);
+            }}
+          />
         </View>
       </Screen>
     );
@@ -272,7 +328,7 @@ export default function MissieScherm() {
         </Text>
         <SluitKnop label="Missie verlaten" onPress={sluit} />
       </View>
-      <Text style={styles.title}>
+      <Text maxFontSizeMultiplier={1.2} style={styles.title}>
         {titel}
         <Text style={styles.lime}>{accent}</Text>
       </Text>
@@ -294,7 +350,9 @@ export default function MissieScherm() {
         />
       ) : (
         <View style={styles.stapKlaar}>
-          <Text style={styles.stapKlaarEmoji}>{info.emoji}</Text>
+          <Text maxFontSizeMultiplier={1.2} style={styles.stapKlaarEmoji}>
+            {info.emoji}
+          </Text>
           <Text style={styles.stapKlaarTekst}>Stap afgerond</Text>
         </View>
       )}
@@ -302,7 +360,11 @@ export default function MissieScherm() {
       <View style={styles.repsRow}>
         <View>
           <Text style={styles.repsLabel}>{label}</Text>
-          <Text style={styles.repsCount}>
+          <Text
+            maxFontSizeMultiplier={1.2}
+            style={styles.repsCount}
+            accessibilityLabel={`${gedaan} van ${doel} ${label.toLowerCase()}`}
+          >
             {gedaan}
             <Text style={styles.repsTotal}> / {doel}</Text>
           </Text>
@@ -524,6 +586,17 @@ const styles = StyleSheet.create({
     color: '#B2C2B0',
     textAlign: 'center',
   },
+  nieuw: {
+    backgroundColor: '#D8FB59',
+    borderRadius: 15,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginTop: 20,
+    marginBottom: -16,
+    gap: 4,
+    alignSelf: 'stretch',
+  },
+  nieuwTekst: { fontFamily: fonts.body800, fontSize: 13, color: kleuren.ink, textAlign: 'center' },
   doneStat: {
     backgroundColor: '#283B2D',
     borderWidth: 1,
