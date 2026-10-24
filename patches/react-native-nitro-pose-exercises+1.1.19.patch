@@ -1,0 +1,13 @@
+diff --git a/node_modules/react-native-nitro-pose-exercises/android/build.gradle b/node_modules/react-native-nitro-pose-exercises/android/build.gradle
+index 1be40e2..96a630d 100644
+--- a/node_modules/react-native-nitro-pose-exercises/android/build.gradle
++++ b/node_modules/react-native-nitro-pose-exercises/android/build.gradle
+@@ -40,7 +40,7 @@ apply plugin: "com.facebook.react"
+ android {
+   namespace "com.margelo.nitro.nitroposeexercises"
+ 
+-  compileSdkVersion 36
++  compileSdkVersion getExtOrDefault("compileSdkVersion")
+ 
+   defaultConfig {
+     minSdkVersion 26
