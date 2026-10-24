@@ -58,9 +58,9 @@ Draai `lint` en `typecheck` voordat een taak af is.
 ## Checklist voor de stores
 
 - [x] Privacyverklaring geschreven (`docs/store/privacyverklaring.md`)
-- [ ] Privacyverklaring online zetten en de URL invullen in App Store Connect en Google Play Console
+- [ ] Privacyverklaring online zetten (kant-en-klare statische site in `site/`: `/`, `/privacy`, `/account-verwijderen`) en de URL invullen in App Store Connect en Google Play Console
 - [x] Account verwijderen kan in de app zelf (Profiel → Account verwijderen)
-- [ ] Web-URL voor verwijderverzoeken (verplicht voor Google Play)
+- [ ] Web-URL voor verwijderverzoeken (verplicht voor Google Play): `/account-verwijderen` van de site in `site/`
 - [ ] App Store privacylabels (App Privacy) ingevuld
 - [ ] Google Play Data safety-formulier ingevuld
 - [x] Screenshots iPhone 6,9" en 6,5" en Android, plus feature graphic (`docs/store/screenshots/`); iPad is uitgeschakeld
