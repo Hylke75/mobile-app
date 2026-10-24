@@ -19,6 +19,9 @@ updates:
           ['expo', 'expo-*', '@expo/*', 'react-native', 'react-native-*', 'react', 'react-dom']
         update-types: ['minor', 'patch']
     ignore:
+      # Grote versiesprongen (breaking changes) doen we bewust zelf
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
       - dependency-name: 'expo*'
         update-types: ['version-update:semver-major', 'version-update:semver-minor']
       - dependency-name: 'react-native*'
