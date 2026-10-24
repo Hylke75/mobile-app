@@ -4,6 +4,7 @@ import type { AlarmPermissionResponse } from 'react-native-alarm-scheduler';
 
 import { useAuth } from '@/hooks/useAuth';
 import { haalRechtenOp, vraagRechtenAan } from '@/lib/alarmen';
+import { batterijOptimalisatieAan } from '@/lib/batterij';
 import { cameraStatus, vraagCameraAan, type CameraStatus } from '@/lib/camera';
 
 export type CheckRegel = { label: string; ok: boolean; waarde: string };
@@ -12,6 +13,7 @@ export function useAlarmCheck() {
   const { profiel } = useAuth();
   const [rechten, setRechten] = useState<AlarmPermissionResponse | null>(null);
   const [camera, setCamera] = useState<CameraStatus>('onbekend');
+  const [batterijAan, setBatterijAan] = useState(false);
 
   const vernieuw = useCallback(() => {
     haalRechtenOp()
@@ -20,6 +22,7 @@ export function useAlarmCheck() {
         setRechten(r);
         setCamera(cameraStatus());
       });
+    batterijOptimalisatieAan().then(setBatterijAan);
   }, []);
 
   useEffect(() => {
@@ -78,6 +81,15 @@ export function useAlarmCheck() {
             ? 'Nog niet gevraagd'
             : 'Niet toegestaan',
     },
+    ...(Platform.OS === 'android'
+      ? [
+          {
+            label: 'Batterijbesparing',
+            ok: !batterijAan,
+            waarde: batterijAan ? 'Aan, zet uit' : 'Uit',
+          },
+        ]
+      : []),
     {
       label: 'Niet storen test',
       ok: testGeslaagd,
@@ -90,6 +102,7 @@ export function useAlarmCheck() {
     regels,
     allesInOrde: regels.every((r) => r.ok),
     rechtenInOrde: alarmen && camera === 'toegestaan',
+    batterijAan,
     vernieuw,
     vraagAlleRechtenAan,
   };

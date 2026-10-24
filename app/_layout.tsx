@@ -92,6 +92,10 @@ function RootNavigator() {
         <Stack.Protected guard={ingelogd && heeftNaam}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="nieuw-alarm" />
+          <Stack.Screen
+            name="klaarzetten"
+            options={{ contentStyle: { backgroundColor: kleuren.ink }, gestureEnabled: false }}
+          />
         </Stack.Protected>
 
         <Stack.Screen

@@ -9,6 +9,7 @@ import { PrimaryButton, ScreenHeader, SecondaryButton, SectionTitleRow } from '@
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmCheck } from '@/hooks/useAlarmCheck';
 import { useAuth } from '@/hooks/useAuth';
+import { openBatterijInstellingen } from '@/lib/batterij';
 import { useSessies } from '@/hooks/useSessies';
 import { useToast } from '@/hooks/useToast';
 import {
@@ -30,7 +31,7 @@ export default function ProfielScherm() {
   const { showToast } = useToast();
   const { profiel, user, uitloggen, verwijderAccount, werkProfielBij } = useAuth();
   const { statistiek } = useSessies();
-  const { regels, allesInOrde, rechten, vraagAlleRechtenAan } = useAlarmCheck();
+  const { regels, allesInOrde, rechten, batterijAan, vraagAlleRechtenAan } = useAlarmCheck();
   const [test, setTest] = useState<'uit' | 'aftellen' | 'vraag'>('uit');
   const [resterend, setResterend] = useState(TEST_SECONDEN);
   const [doelOpen, setDoelOpen] = useState(false);
@@ -190,6 +191,13 @@ export default function ProfielScherm() {
               const inOrde = await vraagAlleRechtenAan();
               if (!inOrde) Linking.openSettings();
             }}
+            style={styles.testBtn}
+          />
+        )}
+        {batterijAan && (
+          <SecondaryButton
+            label="Zet batterijbesparing uit"
+            onPress={openBatterijInstellingen}
             style={styles.testBtn}
           />
         )}

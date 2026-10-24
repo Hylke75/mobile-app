@@ -41,7 +41,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   plugins: [
     'expo-router',
     // react-native-nitro-pose-exercises vereist minimaal Android 8.0 (API 26)
-    ['expo-build-properties', { android: { minSdkVersion: 26 } }],
+    [
+      'expo-build-properties',
+      // iOS 26: AlarmKit (echte alarmen) bestaat pas vanaf deze versie
+      { android: { minSdkVersion: 26 }, ios: { deploymentTarget: '26.0' } },
+    ],
     [
       './plugins/withAlarmScheduler',
       {
@@ -59,6 +63,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
   ],
+  runtimeVersion: { policy: 'appVersion' },
+  updates: {
+    url: 'https://u.expo.dev/46bc55fa-0937-4b34-889d-e9b5e62afff8',
+  },
   extra: {
     eas: {
       projectId: '46bc55fa-0937-4b34-889d-e9b5e62afff8',
