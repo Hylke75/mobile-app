@@ -23,10 +23,11 @@ Stop snoozing. Start moving. Mooove zet je wekker pas uit als je echt in bewegin
 Mooove is de wekker die je dag sterk laat beginnen. Geen eindeloos snoozen meer: je alarm stopt pas als je je ochtendmissie hebt afgerond.
 
 **Zo werkt het**
-• Kies je tijd, dagen en missies: squats, push-ups, jumping jacks, plank, je bed opmaken of de gordijnen open.
+• Kies je tijd, dagen en missies uit 16 ochtendmissies, zoals squats, push-ups, plank, je bed opmaken of de gordijnen open. Of maak je eigen missie met een timer of foto.
 • Kies hoe streng Mooove is: van Vrij (snoozen mag) tot Hardcore (geen snooze én een wakker-check).
 • Als je alarm afgaat, start je missie. De camera telt je herhalingen en controleert of je het echt doet.
-• Bouw een streak op, verdien badges en zie je voortgang per week.
+• Bouw een streak op, verdien badges en zie je voortgang per week. Mis je een dag, dan vangt je maandelijkse joker hem op.
+• Sla een alarm één keer over, pauzeer al je alarmen voor een vakantie en krijg als je wilt de avond ervoor een herinnering.
 
 **Privacy voorop**
 Camerabeelden worden alleen op je eigen telefoon verwerkt en nooit opgeslagen of verstuurd.

@@ -14,10 +14,11 @@ De Nederlandse teksten staan in `app-store.md` en `google-play.md`. Hieronder de
 Mooove is the alarm clock that gets your day off to a strong start. No more endless snoozing: your alarm only stops once you've finished your morning mission.
 
 **How it works**
-• Choose your time, days and missions: squats, push-ups, jumping jacks, plank, making your bed or opening the curtains.
+• Choose your time, days and missions from 16 morning missions, like squats, push-ups, plank, making your bed or opening the curtains. Or create your own mission with a timer or photo.
 • Choose how strict Mooove is: from Free (snoozing allowed) to Hardcore (no snooze plus an awake check).
 • When your alarm goes off, your mission starts. The camera counts your reps and checks you're really doing it.
-• Build a streak, earn badges and track your progress every week.
+• Build a streak, earn badges and track your progress every week. Miss a day and your monthly joker has your back.
+• Skip an alarm once, pause all alarms for a holiday and, if you like, get a reminder the evening before.
 
 **Privacy first**
 Camera images are processed only on your own phone and are never stored or sent.
@@ -39,10 +40,11 @@ Available in English, Dutch, Spanish, German and French. Mooove requires iOS 26 
 Mooove es el despertador que hace que empieces el día con fuerza. Se acabó posponer sin fin: tu alarma solo se apaga cuando completas tu misión matutina.
 
 **Cómo funciona**
-• Elige la hora, los días y tus misiones: sentadillas, flexiones, jumping jacks, plancha, hacer la cama o abrir las cortinas.
+• Elige la hora, los días y tus misiones entre 16 misiones matutinas, como sentadillas, flexiones, plancha, hacer la cama o abrir las cortinas. O crea tu propia misión con temporizador o foto.
 • Elige lo estricto que es Mooove: de Libre (puedes posponer) a Hardcore (sin posponer y con control de despertar).
 • Cuando suena la alarma, empieza tu misión. La cámara cuenta tus repeticiones y comprueba que lo haces de verdad.
-• Construye una racha, gana insignias y sigue tu progreso cada semana.
+• Construye una racha, gana insignias y sigue tu progreso cada semana. Si fallas un día, el comodín del mes te cubre.
+• Salta una alarma una vez, pausa todas tus alarmas en vacaciones y, si quieres, recibe un recordatorio la noche anterior.
 
 **La privacidad, primero**
 Las imágenes de la cámara se procesan solo en tu propio móvil y nunca se guardan ni se envían.
@@ -64,10 +66,11 @@ Disponible en español, inglés, neerlandés, alemán y francés. Mooove requier
 Mooove ist der Wecker, mit dem dein Tag stark beginnt. Kein endloses Schlummern mehr: Dein Wecker hört erst auf, wenn du deine Morgenmission geschafft hast.
 
 **So funktioniert's**
-• Wähle Uhrzeit, Tage und Missionen: Kniebeugen, Liegestütze, Hampelmänner, Unterarmstütz, Bett machen oder Vorhänge öffnen.
+• Wähle Uhrzeit, Tage und Missionen aus 16 Morgenmissionen, etwa Kniebeugen, Liegestütze, Unterarmstütz, Bett machen oder Vorhänge öffnen. Oder erstelle deine eigene Mission mit Timer oder Foto.
 • Wähle, wie streng Mooove ist: von Frei (Schlummern erlaubt) bis Hardcore (kein Schlummern plus Wach-Check).
 • Wenn dein Wecker klingelt, startet deine Mission. Die Kamera zählt deine Wiederholungen und prüft, ob du es wirklich machst.
-• Baue eine Serie auf, sammle Abzeichen und verfolge deinen Fortschritt jede Woche.
+• Baue eine Serie auf, sammle Abzeichen und verfolge deinen Fortschritt jede Woche. Verpasst du einen Tag, fängt ihn dein monatlicher Joker auf.
+• Überspringe einen Wecker einmal, pausiere alle Wecker im Urlaub und erhalte auf Wunsch am Abend davor eine Erinnerung.
 
 **Privatsphäre zuerst**
 Kamerabilder werden nur auf deinem eigenen Handy verarbeitet und nie gespeichert oder gesendet.
@@ -89,10 +92,11 @@ Verfügbar auf Deutsch, Englisch, Niederländisch, Spanisch und Französisch. F�
 Mooove est le réveil qui fait bien commencer ta journée. Fini les répétitions sans fin : ton alarme ne s'arrête que quand tu as terminé ta mission du matin.
 
 **Comment ça marche**
-• Choisis l'heure, les jours et tes missions : squats, pompes, jumping jacks, gainage, faire ton lit ou ouvrir les rideaux.
+• Choisis l'heure, les jours et tes missions parmi 16 missions du matin, comme squats, pompes, gainage, faire ton lit ou ouvrir les rideaux. Ou crée ta propre mission avec minuteur ou photo.
 • Choisis à quel point Mooove est strict : de Libre (répétition autorisée) à Hardcore (sans répétition, avec contrôle de réveil).
 • Quand ton alarme sonne, ta mission commence. La caméra compte tes répétitions et vérifie que tu les fais vraiment.
-• Construis une série, gagne des badges et suis tes progrès chaque semaine.
+• Construis une série, gagne des badges et suis tes progrès chaque semaine. Tu manques un jour ? Ton joker du mois le rattrape.
+• Saute une alarme une fois, mets toutes tes alarmes en pause pendant les vacances et, si tu veux, reçois un rappel la veille au soir.
 
 **La vie privée d'abord**
 Les images de la caméra sont traitées uniquement sur ton téléphone et ne sont jamais enregistrées ni envoyées.
