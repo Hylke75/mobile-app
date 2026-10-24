@@ -152,7 +152,7 @@ export const gedeeld = StyleSheet.create({
     fontFamily: fonts.body800,
     fontSize: 10,
     letterSpacing: em(0.16, 10),
-    color: '#77857A',
+    color: '#5F6E60',
   },
   rowBetween: {
     flexDirection: 'row',
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body800,
     fontSize: 10,
     letterSpacing: em(0.14, 10),
-    color: '#7C8B7B',
+    color: '#5F6E60',
   },
   screenTitle: {
     fontFamily: fonts.head700,

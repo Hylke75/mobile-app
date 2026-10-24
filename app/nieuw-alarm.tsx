@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body800,
     fontSize: 10,
     letterSpacing: em(0.14, 10),
-    color: '#7C8C7E',
+    color: '#5F6E60',
     marginBottom: 8,
   },
   timeValue: {
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   formLabelInRow: { fontFamily: fonts.body800, fontSize: 11, color: kleuren.ink },
-  formLabelHint: { fontFamily: fonts.body600, fontSize: 10, color: '#879486' },
+  formLabelHint: { fontFamily: fonts.body600, fontSize: 10, color: '#5F6E60' },
   days: { flexDirection: 'row', justifyContent: 'space-between', gap: 5 },
   dayChip: {
     width: 37,
@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dayChipActive: { backgroundColor: kleuren.ink },
-  dayChipText: { fontFamily: fonts.body800, fontSize: 11, color: '#819080' },
+  dayChipText: { fontFamily: fonts.body800, fontSize: 11, color: '#5F6E60' },
   dayChipTextActive: { color: kleuren.lime },
   levelGrid: { gap: 6 },
   levelRow: { flexDirection: 'row', gap: 6 },
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   levelChoiceSelected: { backgroundColor: kleuren.lime, borderColor: kleuren.lime },
-  levelChoiceText: { fontFamily: fonts.body800, fontSize: 10, color: '#8B978C' },
+  levelChoiceText: { fontFamily: fonts.body800, fontSize: 10, color: '#5F6E60' },
   levelChoiceTextSelected: { color: kleuren.ink },
   levelPlaceholder: { flex: 1, flexBasis: 0 },
   levelExplain: {
@@ -424,7 +424,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   exerciseSelected: { borderColor: kleuren.ink, backgroundColor: '#EDF4D5' },
-  exerciseText: { fontFamily: fonts.body800, fontSize: 11, color: '#7E8E7F' },
+  exerciseText: { fontFamily: fonts.body800, fontSize: 11, color: '#5F6E60' },
   exerciseTextSelected: { color: kleuren.ink },
   doelen: {
     backgroundColor: kleuren.white,

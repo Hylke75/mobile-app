@@ -106,7 +106,8 @@ function verstuurWachtrij(userId: string): Promise<void> {
 }
 
 export function SessiesProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const { user, profiel } = useAuth();
+  const weekdoel = profiel?.weekdoel ?? 7;
   const [data, setData] = useState<{ eigenaar: string | null; sessies: Sessie[] }>({
     eigenaar: null,
     sessies: [],
@@ -178,8 +179,8 @@ export function SessiesProvider({ children }: { children: ReactNode }) {
   // Herberekenen bij een nieuwe dag, zodat streak en weekgrafiek na middernacht kloppen
   const statistiek = useMemo(() => {
     void dag;
-    return berekenStatistiek(sessies);
-  }, [sessies, dag]);
+    return berekenStatistiek(sessies, weekdoel);
+  }, [sessies, weekdoel, dag]);
 
   return (
     <SessiesContext.Provider value={{ sessies, statistiek, slaOp, vernieuw }}>

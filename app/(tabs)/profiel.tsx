@@ -363,6 +363,10 @@ export default function ProfielScherm() {
         <Pressable style={styles.doelOverlay} onPress={() => setDoelOpen(false)}>
           <View style={styles.doelKaart}>
             <Text style={styles.setupTitle}>Hoe vaak wil je bewegen?</Text>
+            <Text style={styles.doelUitleg}>
+              Je streak houdt rekening met rustdagen: bij 5 dagen per week mag je 2 dagen per week
+              overslaan.
+            </Text>
             {[7, 5, 3].map((d) => (
               <Pressable
                 key={d}
@@ -437,7 +441,7 @@ const styles = StyleSheet.create({
   },
   setupCheckOpen: { backgroundColor: '#FBE4DE' },
   setupLabel: { fontFamily: fonts.body700, fontSize: 11, color: kleuren.ink },
-  setupValue: { marginLeft: 'auto', fontFamily: fonts.body700, fontSize: 10, color: '#91A092' },
+  setupValue: { marginLeft: 'auto', fontFamily: fonts.body700, fontSize: 10, color: '#5F6E60' },
   testBtn: { marginTop: 12 },
   sectionHeading: {
     fontFamily: fonts.body800,
@@ -456,7 +460,14 @@ const styles = StyleSheet.create({
   },
   settingLabel: { fontFamily: fonts.body800, fontSize: 12, color: kleuren.ink },
   gevaar: { color: '#C2462F' },
-  settingValue: { fontFamily: fonts.body800, fontSize: 10, color: '#8B9A8A', maxWidth: 150 },
+  settingValue: { fontFamily: fonts.body800, fontSize: 10, color: '#5F6E60', maxWidth: 150 },
+  doelUitleg: {
+    fontFamily: fonts.body400,
+    fontSize: 12,
+    lineHeight: 17,
+    color: '#4F5D51',
+    marginBottom: 6,
+  },
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(16,23,20,0.92)',

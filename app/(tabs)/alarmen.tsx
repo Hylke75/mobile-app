@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
   description: {
     fontFamily: fonts.body400,
     fontSize: 12,
-    color: '#77857D',
+    color: '#5F6E60',
     lineHeight: 18,
     marginTop: -7,
     marginBottom: 20,
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
   },
   cardDisabled: { opacity: 0.58 },
   fout: { fontFamily: fonts.body600, fontSize: 12, color: '#C2462F', marginBottom: 12 },
-  leeg: { fontFamily: fonts.body400, fontSize: 12, color: '#77857D', marginBottom: 12 },
+  leeg: { fontFamily: fonts.body400, fontSize: 12, color: '#5F6E60', marginBottom: 12 },
   cardHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   time: {
     fontFamily: fonts.head700,
@@ -109,9 +109,9 @@ const styles = StyleSheet.create({
     color: kleuren.ink,
   },
   name: { fontFamily: fonts.body800, fontSize: 13, marginTop: 7, color: kleuren.ink },
-  days: { fontFamily: fonts.body400, fontSize: 10, color: '#829087', marginTop: 3 },
+  days: { fontFamily: fonts.body400, fontSize: 10, color: '#5F6E60', marginTop: 3 },
   footer: { flexDirection: 'row', gap: 8, alignItems: 'center', marginTop: 15 },
-  count: { fontFamily: fonts.body400, fontSize: 10, color: '#9AA59A', marginLeft: 'auto' },
+  count: { fontFamily: fonts.body400, fontSize: 10, color: '#5F6E60', marginLeft: 'auto' },
   banner: {
     backgroundColor: kleuren.ink,
     borderRadius: 20,

@@ -193,8 +193,8 @@ const styles = StyleSheet.create({
     color: kleuren.ink,
   },
   metricUnit: { fontSize: 20 },
-  metricLabel: { fontFamily: fonts.body700, fontSize: 10, color: '#798679' },
-  metricChange: { fontFamily: fonts.body800, color: '#538A47' },
+  metricLabel: { fontFamily: fonts.body700, fontSize: 10, color: '#5F6E60' },
+  metricChange: { fontFamily: fonts.body800, color: '#3F6E35' },
   weekly: {
     backgroundColor: kleuren.white,
     borderWidth: 1,
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     paddingHorizontal: 16,
   },
-  weekdoel: { fontFamily: fonts.body600, fontSize: 10, color: '#538A47', marginTop: 6 },
+  weekdoel: { fontFamily: fonts.body600, fontSize: 10, color: '#3F6E35', marginTop: 6 },
   weeklyTitle: { fontFamily: fonts.body700, fontSize: 11, color: kleuren.ink },
   chart: {
     height: 120,
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 4,
   },
   barActive: { backgroundColor: kleuren.ink },
-  barLabel: { fontFamily: fonts.body800, fontSize: 9, color: '#849286' },
+  barLabel: { fontFamily: fonts.body800, fontSize: 9, color: '#5F6E60' },
   badgeRow: { flexDirection: 'row', gap: 10 },
   badge: {
     flex: 1,
@@ -246,5 +246,5 @@ const styles = StyleSheet.create({
     color: kleuren.ink,
     textAlign: 'center',
   },
-  badgeDetail: { fontFamily: fonts.body400, fontSize: 9, color: '#8D998B', textAlign: 'center' },
+  badgeDetail: { fontFamily: fonts.body400, fontSize: 9, color: '#5F6E60', textAlign: 'center' },
 });

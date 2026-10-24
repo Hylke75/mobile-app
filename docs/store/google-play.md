@@ -45,7 +45,7 @@
 ## App-toegang (voor reviewers)
 
 - **Inloggegevens:** appreview@linkandlead.nl, wachtwoord: _niet in de repo_
-- **Instructies:** "Tik op het inlogscherm op 'Inloggen met wachtwoord'. Profiel → 'Test je alarm' laat na 30 seconden een alarm afgaan."
+- **Instructies:** "Houd op het inlogscherm het logo 'm.' linksboven 2 seconden ingedrukt; dan verschijnt het wachtwoordveld. Profiel → 'Test je alarm' laat na 30 seconden een alarm afgaan."
 
 ## Inhoudsclassificatie
 

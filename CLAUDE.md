@@ -26,7 +26,7 @@ De app is volledig functioneel (Mooove Coach blijft een aangekondigd V2-concept)
 - **Offline** — profiel en alarmen worden lokaal gecachet (`src/lib/opslag.ts`, AsyncStorage); missies die niet direct opgeslagen kunnen worden, gaan in een wachtrij en worden later verstuurd. Native alarmen worden opnieuw gesynchroniseerd bij elke terugkeer naar de voorgrond en na elk afgerond alarm.
 - **Missie** — `app/missie.tsx` met `src/components/missie/StapDetector.tsx`: pose-herkenning op het toestel (`react-native-nitro-pose-exercises`, Apple Vision / ML Kit, VisionCamera v5) voor squats, push-ups, jumping jacks en plank; lichtmeting op het Y-vlak voor gordijnen; foto-bevestiging (niet opgeslagen) voor bed opmaken. Handmatig afvinken alleen bij Vrij/Flexibel/Uitstelbaar of zonder alarmmodule. Gesproken coaching via `expo-speech`.
 - **Voortgang** — tabel `missie_sessies`; streak, percentages, reps, weekgrafiek, weekdoel en badges in `src/lib/statistiek.ts`.
-- **Reviewers** — op het inlogscherm kan een testaccount met wachtwoord inloggen (`appreview@linkandlead.nl`; wachtwoord staat niet in de repo). Store-teksten, privacyverklaring en screenshots staan in `docs/store/`.
+- **Reviewers** — na 2 seconden lang drukken op het logo van het inlogscherm kan een testaccount met wachtwoord inloggen (`appreview@linkandlead.nl`; wachtwoord staat niet in de repo). Store-teksten, privacyverklaring en screenshots staan in `docs/store/`.
 - **Alarm-check** — echte rechtenstatus (meldingen, alarmen, camera) en een echt testalarm van 30 seconden (`src/hooks/useAlarmCheck.ts`).
 
 Native code: de app draait **niet in Expo Go**; gebruik een development build (`eas build --profile development`). Op web werken alarmen en camera niet (`*.web.ts(x)`-varianten); handig voor UI-tests.

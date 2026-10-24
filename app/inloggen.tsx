@@ -37,7 +37,12 @@ export default function InloggenScherm() {
   };
 
   return (
-    <AuthScreen>
+    <AuthScreen
+      onLogoLangIngedrukt={() => {
+        setMetWachtwoord(true);
+        setFout(null);
+      }}
+    >
       <StatusBar style="light" />
       <Text style={s.kicker}>STOP SNOOZING. START MOVING.</Text>
       <Text style={s.titel}>
@@ -84,18 +89,18 @@ export default function InloggenScherm() {
         onPress={bezig ? () => {} : verstuur}
         style={s.knop}
       />
-      <Pressable
-        accessibilityRole="button"
-        onPress={() => {
-          setMetWachtwoord(!metWachtwoord);
-          setFout(null);
-        }}
-        style={s.link}
-      >
-        <Text style={s.linkTekst}>
-          {metWachtwoord ? 'Inloggen met een code' : 'Testaccount? Inloggen met wachtwoord'}
-        </Text>
-      </Pressable>
+      {metWachtwoord && (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => {
+            setMetWachtwoord(false);
+            setFout(null);
+          }}
+          style={s.link}
+        >
+          <Text style={s.linkTekst}>Inloggen met een code</Text>
+        </Pressable>
+      )}
     </AuthScreen>
   );
 }

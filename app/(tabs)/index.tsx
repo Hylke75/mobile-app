@@ -364,7 +364,7 @@ const styles = StyleSheet.create({
     borderBottomColor: kleuren.line,
   },
   missionRowLast: { borderBottomWidth: 0 },
-  missionIndex: { fontFamily: fonts.head700, fontSize: 12, color: '#89958C', width: 20 },
+  missionIndex: { fontFamily: fonts.head700, fontSize: 12, color: '#5F6E60', width: 20 },
   missionEmoji: {
     width: 34,
     height: 34,
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
   },
   missionEmojiText: { fontSize: 18 },
   missionName: { fontFamily: fonts.body800, fontSize: 12, color: kleuren.ink },
-  missionDetail: { fontFamily: fonts.body400, fontSize: 10, color: '#879489', marginTop: 3 },
+  missionDetail: { fontFamily: fonts.body400, fontSize: 10, color: '#5F6E60', marginTop: 3 },
   missionCheckKlaar: { backgroundColor: kleuren.lime, borderColor: kleuren.lime },
   missionCheck: {
     width: 21,
@@ -388,6 +388,6 @@ const styles = StyleSheet.create({
   },
   homeStart: { marginTop: 14 },
   insight: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 13 },
-  insightText: { flex: 1, fontFamily: fonts.body400, fontSize: 10, color: '#7A877B' },
+  insightText: { flex: 1, fontFamily: fonts.body400, fontSize: 10, color: '#5F6E60' },
   insightStrong: { fontFamily: fonts.body700, color: kleuren.ink },
 });

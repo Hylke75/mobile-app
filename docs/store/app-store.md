@@ -53,7 +53,7 @@ wekker,alarm,ochtend,bewegen,squats,fitness,routine,streak,opstaan,snooze,missie
 - **Wachtwoord:** _staat niet in de repo; zie het bericht van Claude of je wachtwoordkluis_
 - **Notities voor de reviewer:**
 
-> Log in via "Inloggen met wachtwoord" op het inlogscherm (normale gebruikers krijgen een eenmalige code per e-mail). Het account bevat voorbeeldalarmen en voortgang.
+> Houd op het inlogscherm het logo "m." linksboven 2 seconden ingedrukt; dan verschijnt het wachtwoordveld (normale gebruikers krijgen een eenmalige code per e-mail). Het account bevat voorbeeldalarmen en voortgang.
 >
 > Mooove is een wekker: alarmen worden ingepland met AlarmKit (iOS 26+). Bij de niveaus Verplicht en Hardcore stopt het alarm pas als de gebruiker een korte bewegingsmissie heeft afgerond. Dit is de kernfunctie van de app. Een noodstop is altijd beschikbaar in de missie.
 >

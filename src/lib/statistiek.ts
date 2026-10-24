@@ -15,43 +15,36 @@ export type Statistiek = {
   vroegeStarts: number;
 };
 
-function streakVanaf(dagen: Set<string>, start: Date): number {
+// Een gemiste dag breekt de streak pas als er in die week meer rustdagen zijn
+// dan het weekdoel toestaat (weekdoel 7 = elke dag, 5 = twee rustdagen per week)
+function streaks(voltooid: Sessie[], weekdoel: number, vandaag: Date) {
+  const rustdagen = 7 - Math.min(7, Math.max(1, weekdoel));
+  const dagen = new Set(voltooid.map((s) => dagSleutel(s.afgerondOp)));
+  if (!voltooid.length) return { streak: 0, langsteStreak: 0, actieveDagen: 0 };
+  const dag = startVanDag(new Date(Math.min(...voltooid.map((s) => s.afgerondOp.getTime()))));
+  const gemist = new Map<string, number>();
   let teller = 0;
-  const d = new Date(start);
-  while (dagen.has(dagSleutel(d))) {
-    teller++;
-    d.setDate(d.getDate() - 1);
+  let langste = 0;
+  while (dag <= vandaag) {
+    const sleutel = dagSleutel(dag);
+    if (dagen.has(sleutel)) {
+      teller++;
+      langste = Math.max(langste, teller);
+    } else if (sleutel !== dagSleutel(vandaag)) {
+      // Vandaag kan nog: die dag telt pas mee als hij voorbij is
+      const week = dagSleutel(startVanWeek(dag));
+      const aantal = (gemist.get(week) ?? 0) + 1;
+      gemist.set(week, aantal);
+      if (aantal > rustdagen) teller = 0;
+    }
+    dag.setDate(dag.getDate() + 1);
   }
-  return teller;
+  return { streak: teller, langsteStreak: langste, actieveDagen: dagen.size };
 }
 
-export function berekenStatistiek(sessies: Sessie[], nu = new Date()): Statistiek {
+export function berekenStatistiek(sessies: Sessie[], weekdoel = 7, nu = new Date()): Statistiek {
   const voltooid = sessies.filter((s) => s.status === 'voltooid');
-  const dagen = new Set(voltooid.map((s) => dagSleutel(s.afgerondOp)));
-
-  const vandaag = startVanDag(nu);
-  const gisteren = new Date(vandaag);
-  gisteren.setDate(gisteren.getDate() - 1);
-  const streak = dagen.has(dagSleutel(vandaag))
-    ? streakVanaf(dagen, vandaag)
-    : streakVanaf(dagen, gisteren);
-
-  let langsteStreak = 0;
-  for (const sleutel of dagen) {
-    const [j, m, d] = sleutel.split('-').map(Number);
-    const datum = new Date(j!, m! - 1, d!);
-    const vorige = new Date(datum);
-    vorige.setDate(vorige.getDate() - 1);
-    if (!dagen.has(dagSleutel(vorige))) {
-      let teller = 0;
-      const loop = new Date(datum);
-      while (dagen.has(dagSleutel(loop))) {
-        teller++;
-        loop.setDate(loop.getDate() + 1);
-      }
-      langsteStreak = Math.max(langsteStreak, teller);
-    }
-  }
+  const { streak, langsteStreak, actieveDagen } = streaks(voltooid, weekdoel, startVanDag(nu));
 
   const periode = 30 * 24 * 3600 * 1000;
   const recent = sessies.filter((s) => nu.getTime() - s.afgerondOp.getTime() < periode);
@@ -82,7 +75,7 @@ export function berekenStatistiek(sessies: Sessie[], nu = new Date()): Statistie
   return {
     streak,
     langsteStreak,
-    actieveDagen: dagen.size,
+    actieveDagen,
     voltooidPercentage,
     voltooidVerschil:
       voltooidPercentage !== null && vorigPercentage !== null

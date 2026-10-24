@@ -71,6 +71,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   iconWrapActief: { backgroundColor: kleuren.lime },
-  label: { fontFamily: fonts.body800, fontSize: 9, color: '#8F9991' },
+  label: { fontFamily: fonts.body800, fontSize: 9, color: '#5F6E60' },
   labelActief: { color: kleuren.ink },
 });
