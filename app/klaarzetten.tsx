@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AuthScreen } from '@/components/AuthScreen';
 import { authStyles as s } from '@/components/authStyles';
@@ -13,6 +13,7 @@ import { useAlarmen } from '@/hooks/useAlarmen';
 import { useTaal } from '@/i18n';
 import { alarmenBeschikbaar, vraagRechtenAan } from '@/lib/alarmen';
 import { openBatterijInstellingen } from '@/lib/batterij';
+import { openInstellingen } from '@/lib/instellingen';
 import { cameraStatus, vraagCameraAan } from '@/lib/camera';
 import { schrijfLokaal, SLEUTELS } from '@/lib/opslag';
 
@@ -44,7 +45,7 @@ export default function KlaarzettenScherm() {
       knop: t('auth.klaarzetten.alarmenKnop'),
       actie: metBezig(async () => {
         const nieuw = await vraagRechtenAan().catch(() => null);
-        if (!nieuw?.canScheduleExactAlarms && nieuw?.canOpenSettings) await Linking.openSettings();
+        if (!nieuw?.canScheduleExactAlarms && nieuw?.canOpenSettings) await openInstellingen();
       }),
     },
     {
@@ -54,7 +55,7 @@ export default function KlaarzettenScherm() {
       knop: t('auth.klaarzetten.cameraKnop'),
       actie: metBezig(async () => {
         const gelukt = await vraagCameraAan().catch(() => false);
-        if (!gelukt) await Linking.openSettings();
+        if (!gelukt) await openInstellingen();
       }),
     },
     ...(Platform.OS === 'android'

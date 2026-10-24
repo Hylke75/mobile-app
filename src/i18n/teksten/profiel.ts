@@ -25,6 +25,7 @@ const nl = {
     testKnop: 'Test je alarm ↗',
   },
   test: {
+    alleenOpTelefoon: 'Toestemmingen geef je in de app op je telefoon.',
     alleenInApp: 'Het testalarm werkt alleen in de app.',
     geenToestemming: 'Geef Mooove eerst toestemming voor alarmen.',
     nietGepland: 'Het testalarm kon niet worden ingepland.',
@@ -128,6 +129,7 @@ export const profiel: Vertalingen<typeof nl> = {
       testKnop: 'Test your alarm ↗',
     },
     test: {
+      alleenOpTelefoon: 'You grant permissions in the app on your phone.',
       alleenInApp: 'The test alarm only works in the app.',
       geenToestemming: 'Allow Mooove to set alarms first.',
       nietGepland: 'The test alarm couldn’t be scheduled.',
@@ -228,6 +230,7 @@ export const profiel: Vertalingen<typeof nl> = {
       testKnop: 'Prueba tu alarma ↗',
     },
     test: {
+      alleenOpTelefoon: 'Los permisos se conceden en la app del móvil.',
       alleenInApp: 'La alarma de prueba solo funciona en la app.',
       geenToestemming: 'Primero da permiso a Mooove para las alarmas.',
       nietGepland: 'No se pudo programar la alarma de prueba.',
@@ -328,6 +331,7 @@ export const profiel: Vertalingen<typeof nl> = {
       testKnop: 'Teste deinen Wecker ↗',
     },
     test: {
+      alleenOpTelefoon: 'Berechtigungen erteilst du in der App auf deinem Handy.',
       alleenInApp: 'Der Testwecker funktioniert nur in der App.',
       geenToestemming: 'Erlaube Mooove zuerst, Wecker zu stellen.',
       nietGepland: 'Der Testwecker konnte nicht geplant werden.',
@@ -430,6 +434,7 @@ export const profiel: Vertalingen<typeof nl> = {
       testKnop: 'Teste ton alarme ↗',
     },
     test: {
+      alleenOpTelefoon: 'Les autorisations se donnent dans l’app sur ton téléphone.',
       alleenInApp: 'L’alarme test ne fonctionne que dans l’app.',
       geenToestemming: 'Autorise d’abord Mooove à programmer des alarmes.',
       nietGepland: 'L’alarme test n’a pas pu être programmée.',

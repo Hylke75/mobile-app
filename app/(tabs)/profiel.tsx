@@ -30,6 +30,7 @@ import {
 } from '@/lib/alarmgeluid';
 import { appVersie, toestelInfo } from '@/lib/appInfo';
 import { openBatterijInstellingen } from '@/lib/batterij';
+import { openInstellingen } from '@/lib/instellingen';
 import { verzamelMijnGegevens } from '@/lib/export';
 import { hervatOp, naarDatumSleutel } from '@/lib/tijd';
 import { useSessies } from '@/hooks/useSessies';
@@ -348,8 +349,9 @@ export default function ProfielScherm() {
           <SecondaryButton
             label={t('profiel.check.geefToestemming')}
             onPress={async () => {
+              if (!alarmenBeschikbaar) return showToast(t('profiel.test.alleenOpTelefoon'));
               const inOrde = await vraagAlleRechtenAan();
-              if (!inOrde) Linking.openSettings();
+              if (!inOrde) await openInstellingen();
             }}
             style={styles.testBtn}
           />
@@ -405,7 +407,9 @@ export default function ProfielScherm() {
       </Pressable>
       <Pressable
         accessibilityRole="button"
-        onPress={() => (alarmenBeschikbaar ? Linking.openSettings() : undefined)}
+        onPress={() =>
+          alarmenBeschikbaar ? openInstellingen() : showToast(t('profiel.test.alleenOpTelefoon'))
+        }
         style={styles.setting}
       >
         <Icon name="bell" color={kleuren.ink} />
