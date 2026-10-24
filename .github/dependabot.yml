@@ -26,7 +26,11 @@ updates:
         update-types: ['version-update:semver-major', 'version-update:semver-minor']
       - dependency-name: 'react-native*'
         update-types: ['version-update:semver-major', 'version-update:semver-minor']
+      # React moet exact gelijk blijven aan de versie die bij React Native hoort; Expo bepaalt die
       - dependency-name: 'react'
+      - dependency-name: 'react-dom'
+      # Sentry volgt de versie die `npx expo install` voor deze SDK kiest
+      - dependency-name: '@sentry/react-native'
         update-types: ['version-update:semver-major', 'version-update:semver-minor']
   - package-ecosystem: github-actions
     directory: /
