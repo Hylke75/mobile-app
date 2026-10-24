@@ -1,0 +1,7 @@
+{
+  "CFBundleDisplayName": "Mooove",
+  "NSCameraUsageDescription": "Mooove uses your camera to check your mission, like counting your squats. Images stay on your device.",
+  "NSMicrophoneUsageDescription": "Mooove doesn’t record sound. Camera images are processed without audio and only on your device.",
+  "NSMotionUsageDescription": "Mooove uses the motion sensor to count your jumps when the camera can’t see you.",
+  "NSAlarmKitUsageDescription": "Mooove sets your alarms so they go off even when your phone is on silent."
+}

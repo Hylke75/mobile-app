@@ -1,92 +1,53 @@
+import { t } from '@/i18n';
 import type { Doelen, Oefening } from '@/types/app';
 
 export type OefeningInfo = {
-  titel: [string, string];
-  beschrijving: string;
   emoji: string;
   doel: number;
   eenheid: 'herhalingen' | 'seconden' | 'handeling';
   methode: 'pose' | 'licht' | 'foto';
   camera: 'front' | 'back';
-  instructie: string;
-  spraak: string[];
 };
 
 export const OEFENING_INFO: Record<Oefening, OefeningInfo> = {
-  Squats: {
-    titel: ['LET’S ', 'GO.'],
-    beschrijving: 'Zak door je knieën en kom weer omhoog',
-    emoji: '🏋️',
-    doel: 10,
-    eenheid: 'herhalingen',
-    methode: 'pose',
-    camera: 'front',
-    instructie: 'Zet je telefoon rechtop, zo’n 2 meter van je af. Ga er zijdelings voor staan.',
-    spraak: [
-      'Zakken maar. Jij kunt dit!',
-      'Mooi! Hou je rug recht.',
-      'Lekker bezig. Nog even doorzetten.',
-    ],
-  },
-  'Push-ups': {
-    titel: ['PUSH ', 'IT.'],
-    beschrijving: 'Laat je borst zakken en duw jezelf weer omhoog',
-    emoji: '💪',
-    doel: 10,
-    eenheid: 'herhalingen',
-    methode: 'pose',
-    camera: 'front',
-    instructie:
-      'Leg je telefoon op de grond, zijdelings van je af, zodat je hele lichaam zichtbaar is.',
-    spraak: ['Lichaam recht, daar gaan we!', 'Sterk! Blijf ademen.', 'Laatste paar, kom op!'],
-  },
+  Squats: { emoji: '🏋️', doel: 10, eenheid: 'herhalingen', methode: 'pose', camera: 'front' },
+  'Push-ups': { emoji: '💪', doel: 10, eenheid: 'herhalingen', methode: 'pose', camera: 'front' },
   'Jumping jacks': {
-    titel: ['JUMP ', 'IN.'],
-    beschrijving: 'Spring met je armen en benen wijd en weer terug',
     emoji: '⭐',
     doel: 20,
     eenheid: 'herhalingen',
     methode: 'pose',
     camera: 'front',
-    instructie: 'Zet je telefoon rechtop, zo’n 2 meter van je af. Ga er recht voor staan.',
-    spraak: ['Springen maar!', 'Armen helemaal omhoog.', 'Bijna! Hou het tempo vast.'],
   },
-  Plank: {
-    titel: ['HOLD ', 'ON.'],
-    beschrijving: 'Houd je lichaam recht op je onderarmen',
-    emoji: '🧱',
-    doel: 30,
-    eenheid: 'seconden',
-    methode: 'pose',
-    camera: 'front',
-    instructie:
-      'Leg je telefoon op de grond, zijdelings van je af, zodat je hele lichaam zichtbaar is.',
-    spraak: ['Buik aan, rug recht.', 'Je doet het goed, vasthouden!', 'Nog heel even!'],
-  },
-  'Bed opmaken': {
-    titel: ['MAKE ', 'IT.'],
-    beschrijving: 'Maak je bed netjes op',
-    emoji: '🛏️',
-    doel: 1,
-    eenheid: 'handeling',
-    methode: 'foto',
-    camera: 'back',
-    instructie: 'Maak je bed op en maak daarna een foto van je bed als bevestiging.',
-    spraak: ['Top! Maak nu je bed op.'],
-  },
+  Plank: { emoji: '🧱', doel: 30, eenheid: 'seconden', methode: 'pose', camera: 'front' },
+  'Bed opmaken': { emoji: '🛏️', doel: 1, eenheid: 'handeling', methode: 'foto', camera: 'back' },
   'Gordijnen open': {
-    titel: ['OPEN ', 'UP.'],
-    beschrijving: 'Laat het daglicht binnen',
     emoji: '☀️',
     doel: 1,
     eenheid: 'handeling',
     methode: 'licht',
     camera: 'back',
-    instructie:
-      'Richt je camera op het raam en open de gordijnen. Mooove meet of het lichter wordt.',
-    spraak: ['Laat die dag maar beginnen.'],
   },
 };
+
+// Teksten in de gekozen taal; de sleutel (bijv. "Bed opmaken") blijft zo in de database staan
+export function oefeningNaam(oefening: Oefening): string {
+  return t(`oefeningen.${oefening}.naam`);
+}
+
+export function oefeningTekst(oefening: Oefening) {
+  return {
+    naam: oefeningNaam(oefening),
+    titel: [t(`oefeningen.${oefening}.titel1`), t(`oefeningen.${oefening}.titel2`)] as const,
+    beschrijving: t(`oefeningen.${oefening}.beschrijving`),
+    instructie: t(`oefeningen.${oefening}.instructie`),
+    spraak: [
+      t(`oefeningen.${oefening}.spraak1`),
+      t(`oefeningen.${oefening}.spraak2`),
+      t(`oefeningen.${oefening}.spraak3`),
+    ],
+  };
+}
 
 // Grenzen en stapgrootte voor een eigen doel in de alarm-editor
 export const DOEL_BEREIK: Record<
@@ -109,9 +70,9 @@ export function doelVoor(oefening: Oefening, doelen?: Doelen): number {
 export function doelTekst(oefening: Oefening, doelen?: Doelen): string {
   const info = OEFENING_INFO[oefening];
   const doel = doelVoor(oefening, doelen);
-  if (info.eenheid === 'herhalingen') return `${doel} herhalingen`;
-  if (info.eenheid === 'seconden') return `${doel} seconden`;
-  return '1 handeling';
+  if (info.eenheid === 'herhalingen') return t('algemeen.herhalingen', { n: doel });
+  if (info.eenheid === 'seconden') return t('algemeen.seconden', { n: doel });
+  return t('algemeen.handeling');
 }
 
 // Compacte vorm voor native metadata en routeparameters, bijv. "Squats:15,Plank:45"

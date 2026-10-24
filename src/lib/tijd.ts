@@ -1,3 +1,4 @@
+import { t } from '@/i18n';
 import type { Alarm } from '@/types/app';
 
 // 0 = maandag … 6 = zondag
@@ -42,16 +43,24 @@ export function volgendAlarm(alarms: Alarm[], nu = new Date()): { alarm: Alarm; 
   return beste;
 }
 
-// "7 u 12 min", "45 min" of "minder dan een minuut"
+// "7 u 12 min", "45 min" of "minder dan een minuut" (in de gekozen taal)
 export function tijdTot(op: Date, nu = new Date()): string {
   const minuten = Math.max(0, Math.floor((op.getTime() - nu.getTime()) / 60000));
-  if (minuten < 1) return 'minder dan een minuut';
+  if (minuten < 1) return t('algemeen.tijd.minderDanMinuut');
   const dagen = Math.floor(minuten / 1440);
   const uren = Math.floor((minuten % 1440) / 60);
   const rest = minuten % 60;
-  if (dagen > 0) return uren > 0 ? `${dagen} d ${uren} u` : `${dagen} d`;
-  if (uren > 0) return rest > 0 ? `${uren} u ${rest} min` : `${uren} u`;
-  return `${rest} min`;
+  if (dagen > 0) {
+    return uren > 0
+      ? t('algemeen.tijd.dagUur', { d: dagen, u: uren })
+      : t('algemeen.tijd.dag', { n: dagen });
+  }
+  if (uren > 0) {
+    return rest > 0
+      ? t('algemeen.tijd.uurMin', { u: uren, m: rest })
+      : t('algemeen.tijd.uur', { n: uren });
+  }
+  return t('algemeen.tijd.min', { n: rest });
 }
 
 // Pauze "tot en met" een datum (YYYY-MM-DD): alarmen gaan weer af vanaf de dag erna

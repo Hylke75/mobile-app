@@ -1,0 +1,82 @@
+import type { Vertalingen } from '@/i18n/talen';
+
+// Foutmeldingen uit de hooks (inloggen, alarmen, opslaan)
+const nl = {
+  nietIngelogd: 'Je bent niet ingelogd.',
+  verkeerdWachtwoord: 'E-mailadres of wachtwoord klopt niet.',
+  opslaanMislukt: 'Opslaan is niet gelukt. Probeer het opnieuw.',
+  opslaanMisluktInternet: 'Opslaan is niet gelukt. Controleer je internet en probeer het opnieuw.',
+  verwijderenMislukt: 'Verwijderen is niet gelukt. Probeer het later opnieuw.',
+  verwijderenMisluktInternet:
+    'Verwijderen is niet gelukt. Controleer je internet en probeer het opnieuw.',
+  codeOngeldig: 'Deze code klopt niet of is verlopen.',
+  wachtMetCode: 'Even wachten voordat je een nieuwe code aanvraagt.',
+  controleerEmail: 'Controleer je e-mailadres.',
+  ietsMis: 'Er ging iets mis. Probeer het opnieuw.',
+  alarmenNietGepland: 'Alarmen konden niet op je toestel worden ingepland.',
+  alarmenNietGeladen: 'Je alarmen konden niet worden geladen.',
+};
+
+export const meldingen: Vertalingen<typeof nl> = {
+  nl,
+  en: {
+    nietIngelogd: 'You’re not logged in.',
+    verkeerdWachtwoord: 'Email address or password is incorrect.',
+    opslaanMislukt: 'Saving didn’t work. Please try again.',
+    opslaanMisluktInternet: 'Saving didn’t work. Check your internet connection and try again.',
+    verwijderenMislukt: 'Deleting didn’t work. Please try again later.',
+    verwijderenMisluktInternet:
+      'Deleting didn’t work. Check your internet connection and try again.',
+    codeOngeldig: 'This code is incorrect or has expired.',
+    wachtMetCode: 'Please wait a moment before requesting a new code.',
+    controleerEmail: 'Check your email address.',
+    ietsMis: 'Something went wrong. Please try again.',
+    alarmenNietGepland: 'Your alarms couldn’t be set on your phone.',
+    alarmenNietGeladen: 'Your alarms couldn’t be loaded.',
+  },
+  es: {
+    nietIngelogd: 'No has iniciado sesión.',
+    verkeerdWachtwoord: 'El correo o la contraseña no son correctos.',
+    opslaanMislukt: 'No se ha podido guardar. Inténtalo de nuevo.',
+    opslaanMisluktInternet: 'No se ha podido guardar. Comprueba tu conexión e inténtalo de nuevo.',
+    verwijderenMislukt: 'No se ha podido eliminar. Inténtalo más tarde.',
+    verwijderenMisluktInternet:
+      'No se ha podido eliminar. Comprueba tu conexión e inténtalo de nuevo.',
+    codeOngeldig: 'Este código no es correcto o ha caducado.',
+    wachtMetCode: 'Espera un momento antes de pedir un código nuevo.',
+    controleerEmail: 'Revisa tu dirección de correo.',
+    ietsMis: 'Algo ha salido mal. Inténtalo de nuevo.',
+    alarmenNietGepland: 'No se han podido programar las alarmas en tu móvil.',
+    alarmenNietGeladen: 'No se han podido cargar tus alarmas.',
+  },
+  de: {
+    nietIngelogd: 'Du bist nicht angemeldet.',
+    verkeerdWachtwoord: 'E-Mail-Adresse oder Passwort ist falsch.',
+    opslaanMislukt: 'Speichern hat nicht geklappt. Versuche es erneut.',
+    opslaanMisluktInternet:
+      'Speichern hat nicht geklappt. Prüfe deine Internetverbindung und versuche es erneut.',
+    verwijderenMislukt: 'Löschen hat nicht geklappt. Versuche es später erneut.',
+    verwijderenMisluktInternet:
+      'Löschen hat nicht geklappt. Prüfe deine Internetverbindung und versuche es erneut.',
+    codeOngeldig: 'Dieser Code ist falsch oder abgelaufen.',
+    wachtMetCode: 'Warte kurz, bevor du einen neuen Code anforderst.',
+    controleerEmail: 'Prüfe deine E-Mail-Adresse.',
+    ietsMis: 'Etwas ist schiefgelaufen. Versuche es erneut.',
+    alarmenNietGepland: 'Deine Wecker konnten nicht auf deinem Handy eingeplant werden.',
+    alarmenNietGeladen: 'Deine Wecker konnten nicht geladen werden.',
+  },
+  fr: {
+    nietIngelogd: 'Tu n’es pas connecté·e.',
+    verkeerdWachtwoord: 'L’adresse e-mail ou le mot de passe est incorrect.',
+    opslaanMislukt: 'L’enregistrement a échoué. Réessaie.',
+    opslaanMisluktInternet: 'L’enregistrement a échoué. Vérifie ta connexion et réessaie.',
+    verwijderenMislukt: 'La suppression a échoué. Réessaie plus tard.',
+    verwijderenMisluktInternet: 'La suppression a échoué. Vérifie ta connexion et réessaie.',
+    codeOngeldig: 'Ce code est incorrect ou a expiré.',
+    wachtMetCode: 'Patiente un instant avant de demander un nouveau code.',
+    controleerEmail: 'Vérifie ton adresse e-mail.',
+    ietsMis: 'Un problème est survenu. Réessaie.',
+    alarmenNietGepland: 'Tes alarmes n’ont pas pu être programmées sur ton téléphone.',
+    alarmenNietGeladen: 'Tes alarmes n’ont pas pu être chargées.',
+  },
+};

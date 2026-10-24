@@ -1,0 +1,74 @@
+import type { Vertalingen } from '@/i18n/talen';
+
+const nl = {
+  titel: 'Mijn alarmen',
+  nieuwAlarm: 'Nieuw alarm',
+  beschrijving: 'Jouw momenten om in beweging te komen. Kies zelf hoe streng Mooove voor je is.',
+  leeg: 'Je hebt nog geen alarmen. Maak hieronder je eerste aan.',
+  bewerken: '{{naam}} om {{tijd}} bewerken',
+  inschakelen: '{{naam}} inschakelen',
+  uitschakelen: '{{naam}} uitschakelen',
+  over: 'over {{tijd}}',
+  bannerTitel: 'Maak je eigen routine.',
+  bannerTekst: 'Meer bewegen begint met één goed moment.',
+  maakAlarm: 'Maak een alarm',
+};
+
+export const alarmen: Vertalingen<typeof nl> = {
+  nl,
+  en: {
+    titel: 'My alarms',
+    nieuwAlarm: 'New alarm',
+    beschrijving: 'Your moments to get moving. You choose how strict Mooove is with you.',
+    leeg: 'You don’t have any alarms yet. Create your first one below.',
+    bewerken: 'Edit {{naam}} at {{tijd}}',
+    inschakelen: 'Turn on {{naam}}',
+    uitschakelen: 'Turn off {{naam}}',
+    over: 'in {{tijd}}',
+    bannerTitel: 'Build your own routine.',
+    bannerTekst: 'Moving more starts with one good moment.',
+    maakAlarm: 'Create an alarm',
+  },
+  es: {
+    titel: 'Mis alarmas',
+    nieuwAlarm: 'Nueva alarma',
+    beschrijving:
+      'Tus momentos para ponerte en marcha. Tú decides lo estricto que es Mooove contigo.',
+    leeg: 'Aún no tienes alarmas. Crea la primera aquí abajo.',
+    bewerken: 'Editar {{naam}} a las {{tijd}}',
+    inschakelen: 'Activar {{naam}}',
+    uitschakelen: 'Desactivar {{naam}}',
+    over: 'en {{tijd}}',
+    bannerTitel: 'Crea tu propia rutina.',
+    bannerTekst: 'Moverte más empieza con un buen momento.',
+    maakAlarm: 'Crear una alarma',
+  },
+  de: {
+    titel: 'Meine Wecker',
+    nieuwAlarm: 'Neuer Wecker',
+    beschrijving:
+      'Deine Momente, um in Bewegung zu kommen. Du bestimmst, wie streng Mooove mit dir ist.',
+    leeg: 'Du hast noch keine Wecker. Erstelle unten deinen ersten.',
+    bewerken: '{{naam}} um {{tijd}} bearbeiten',
+    inschakelen: '{{naam}} einschalten',
+    uitschakelen: '{{naam}} ausschalten',
+    over: 'in {{tijd}}',
+    bannerTitel: 'Bau dir deine eigene Routine.',
+    bannerTekst: 'Mehr Bewegung beginnt mit einem guten Moment.',
+    maakAlarm: 'Wecker erstellen',
+  },
+  fr: {
+    titel: 'Mes alarmes',
+    nieuwAlarm: 'Nouvelle alarme',
+    beschrijving:
+      'Tes moments pour te mettre en mouvement. Choisis à quel point Mooove est strict avec toi.',
+    leeg: 'Tu n’as pas encore d’alarme. Crée ta première ci-dessous.',
+    bewerken: 'Modifier {{naam}} à {{tijd}}',
+    inschakelen: 'Activer {{naam}}',
+    uitschakelen: 'Désactiver {{naam}}',
+    over: 'dans {{tijd}}',
+    bannerTitel: 'Crée ta propre routine.',
+    bannerTekst: 'Bouger plus commence par un bon moment.',
+    maakAlarm: 'Créer une alarme',
+  },
+};

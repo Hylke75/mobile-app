@@ -10,11 +10,13 @@ import { useAlarmen } from '@/hooks/useAlarmen';
 import { useNu } from '@/hooks/useNu';
 import { tijdTot, volgendeKeer } from '@/lib/tijd';
 import { useToast } from '@/hooks/useToast';
+import { useTaal } from '@/i18n';
 
 export default function AlarmenScherm() {
   const { alarms, geladen, fout, wisselAan, vernieuw } = useAlarmen();
   const { showToast } = useToast();
   const nu = useNu();
+  const { t } = useTaal();
   const nieuwAlarm = () => router.push('/nieuw-alarm');
 
   const wissel = async (id: string) => {
@@ -26,18 +28,14 @@ export default function AlarmenScherm() {
     <Screen onRefresh={vernieuw}>
       <ScreenHeader
         kicker="STAY CONSISTENT"
-        titel="Mijn alarmen"
+        titel={t('alarmen.titel')}
         puntKleur="#8EB64F"
-        rechts={<RoundPlus onPress={nieuwAlarm} label="Nieuw alarm" />}
+        rechts={<RoundPlus onPress={nieuwAlarm} label={t('alarmen.nieuwAlarm')} />}
       />
-      <Text style={styles.description}>
-        Jouw momenten om in beweging te komen. Kies zelf hoe streng Mooove voor je is.
-      </Text>
+      <Text style={styles.description}>{t('alarmen.beschrijving')}</Text>
 
       {fout && <Text style={styles.fout}>{fout}</Text>}
-      {geladen && alarms.length === 0 && (
-        <Text style={styles.leeg}>Je hebt nog geen alarmen. Maak hieronder je eerste aan.</Text>
-      )}
+      {geladen && alarms.length === 0 && <Text style={styles.leeg}>{t('alarmen.leeg')}</Text>}
 
       {alarms.map((a) => {
         const op = volgendeKeer(a, nu);
@@ -45,7 +43,7 @@ export default function AlarmenScherm() {
           <Pressable
             key={a.id}
             accessibilityRole="button"
-            accessibilityLabel={`${a.naam} om ${a.tijd} bewerken`}
+            accessibilityLabel={t('alarmen.bewerken', { naam: a.naam, tijd: a.tijd })}
             onPress={() => router.push({ pathname: '/nieuw-alarm', params: { id: a.id } })}
             style={[styles.card, !a.aan && styles.cardDisabled]}
           >
@@ -56,13 +54,13 @@ export default function AlarmenScherm() {
               <Toggle
                 on={a.aan}
                 onPress={() => wissel(a.id)}
-                label={`${a.naam} ${a.aan ? 'uitschakelen' : 'inschakelen'}`}
+                label={t(a.aan ? 'alarmen.uitschakelen' : 'alarmen.inschakelen', { naam: a.naam })}
               />
             </View>
             <Text style={styles.name}>{a.naam}</Text>
             <Text style={styles.days}>
               {dagenTekst(a.dagen)}
-              {op ? ` · over ${tijdTot(op, nu)}` : ''}
+              {op ? ` · ${t('alarmen.over', { tijd: tijdTot(op, nu) })}` : ''}
             </Text>
             <View style={styles.footer}>
               <LevelTag level={a.niveau} />
@@ -74,12 +72,12 @@ export default function AlarmenScherm() {
 
       <View style={styles.banner}>
         <View style={styles.flex}>
-          <Text style={styles.bannerTitle}>Maak je eigen routine.</Text>
-          <Text style={styles.bannerText}>Meer bewegen begint met één goed moment.</Text>
+          <Text style={styles.bannerTitle}>{t('alarmen.bannerTitel')}</Text>
+          <Text style={styles.bannerText}>{t('alarmen.bannerTekst')}</Text>
         </View>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Maak een alarm"
+          accessibilityLabel={t('alarmen.maakAlarm')}
           onPress={nieuwAlarm}
           style={styles.bannerBtn}
         >

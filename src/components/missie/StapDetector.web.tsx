@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { CameraFrame } from '@/components/missie/CameraFrame';
 import { CameraIllustratie } from '@/components/missie/CameraIllustratie';
 import { OEFENING_INFO } from '@/constants/oefeningen';
+import { useTaal } from '@/i18n';
 import type { Oefening } from '@/types/app';
 
 export type StapDetectorProps = {
@@ -17,15 +18,16 @@ export type StapDetectorProps = {
 
 export function StapDetector({ oefening, onFeedback }: StapDetectorProps) {
   const info = OEFENING_INFO[oefening];
+  const { t } = useTaal();
 
   useEffect(() => {
-    onFeedback('Camera-controle werkt alleen in de app op je telefoon.');
-  }, [onFeedback]);
+    onFeedback(t('missie.detector.alleenApp'));
+  }, [onFeedback, t]);
 
   return (
     <CameraFrame
-      label="GEEN CAMERA"
-      notitie="ALLEEN IN DE APP"
+      label={t('missie.detector.geenCamera')}
+      notitie={t('missie.camera.alleenInApp')}
       achtergrond={
         <CameraIllustratie modus={info.methode === 'pose' ? 'pose' : 'object'} emoji={info.emoji} />
       }

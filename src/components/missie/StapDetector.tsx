@@ -18,8 +18,9 @@ import {
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { CameraFrame } from '@/components/missie/CameraFrame';
-import { OEFENING_INFO } from '@/constants/oefeningen';
+import { OEFENING_INFO, oefeningTekst } from '@/constants/oefeningen';
 import { em, fonts, kleuren } from '@/constants/theme';
+import { t, useTaal } from '@/i18n';
 import type { Oefening } from '@/types/app';
 
 export type StapDetectorProps = {
@@ -66,21 +67,22 @@ function poseConfig(oefening: Oefening, doel: number): ExerciseConfig {
 export function StapDetector(props: StapDetectorProps) {
   const info = OEFENING_INFO[props.oefening];
   const { hasPermission, requestPermission, canRequestPermission } = useCameraPermission();
+  const { t } = useTaal();
 
   if (!hasPermission) {
     return (
-      <CameraFrame label="CAMERA NODIG">
+      <CameraFrame label={t('missie.detector.cameraNodig')}>
         <View style={styles.midden}>
-          <Text style={styles.uitleg}>
-            Mooove gebruikt je camera om je missie te controleren. Beelden blijven op je toestel.
-          </Text>
+          <Text style={styles.uitleg}>{t('missie.detector.cameraUitleg')}</Text>
           <Pressable
             accessibilityRole="button"
             onPress={() => (canRequestPermission ? requestPermission() : Linking.openSettings())}
             style={styles.knop}
           >
             <Text style={styles.knopTekst}>
-              {canRequestPermission ? 'Geef toegang tot camera' : 'Open instellingen'}
+              {canRequestPermission
+                ? t('missie.detector.geefToegang')
+                : t('missie.detector.openInstellingen')}
             </Text>
           </Pressable>
         </View>
@@ -108,6 +110,7 @@ function PoseStap({ oefening, doel, onVoortgang, onFeedback, onKlaar }: StapDete
   const runner = useAsyncRunner();
   const [gestart, setGestart] = useState(false);
   const isIos = Platform.OS === 'ios';
+  const { t: vertaal } = useTaal();
   // Callbacks via refs: een nieuwe callback (bijv. spraak aan/uit) mag de sessie niet herstarten
   const voortgang = useLaatste(onVoortgang);
   const feedback = useLaatste(onFeedback);
@@ -126,18 +129,18 @@ function PoseStap({ oefening, doel, onVoortgang, onFeedback, onKlaar }: StapDete
       nitroPoseExercises.onRepComplete = (data) => voortgang.current(data.repNumber);
       nitroPoseExercises.onHoldProgress = (p) => voortgang.current(Math.floor(p.elapsedMs / 1000));
       nitroPoseExercises.onSessionComplete = () => klaar.current('camera');
-      nitroPoseExercises.onPostureLost = () => feedback.current('Ga weer in positie.');
-      nitroPoseExercises.onPostureRegained = () => feedback.current('Top, ga door!');
-      nitroPoseExercises.onPoseLost = () =>
-        feedback.current('Ik zie je niet goed. Zorg dat je helemaal in beeld bent.');
-      feedback.current(stap.instructie);
+      nitroPoseExercises.onPostureLost = () => feedback.current(t('missie.detector.positieKwijt'));
+      nitroPoseExercises.onPostureRegained = () =>
+        feedback.current(t('missie.detector.positieTerug'));
+      nitroPoseExercises.onPoseLost = () => feedback.current(t('missie.detector.nietInBeeld'));
+      feedback.current(oefeningTekst(oefening).instructie);
       // De engine verwerkt pas frames als de sessie loopt; houding wordt intern gecontroleerd
       nitroPoseExercises.startSession(stap.eenheid === 'seconden' ? 1 : doel, 3);
       interval = setInterval(() => {
         if (nitroPoseExercises.status === 'active') {
           clearInterval(interval);
           setGestart(true);
-          feedback.current(stap.spraak[0] ?? 'Daar gaan we!');
+          feedback.current(oefeningTekst(oefening).spraak[0]);
         }
       }, 300);
     })();
@@ -177,7 +180,7 @@ function PoseStap({ oefening, doel, onVoortgang, onFeedback, onKlaar }: StapDete
   });
 
   return (
-    <CameraFrame label={gestart ? 'POSE DETECTION' : 'GA IN POSITIE'}>
+    <CameraFrame label={gestart ? 'POSE DETECTION' : vertaal('missie.detector.inPositie')}>
       <Camera
         style={StyleSheet.absoluteFill}
         device={info.camera}
@@ -203,17 +206,18 @@ function LichtStap({ onFeedback, onKlaar }: StapDetectorProps) {
   const [terugval, setTerugval] = useState(false);
   const feedback = useLaatste(onFeedback);
   const klaar = useLaatste(onKlaar);
+  const { t: vertaal } = useTaal();
 
   useEffect(() => {
     start.current = Date.now();
-    feedback.current(OEFENING_INFO['Gordijnen open'].instructie);
-    const t = setTimeout(() => {
+    feedback.current(oefeningTekst('Gordijnen open').instructie);
+    const timer = setTimeout(() => {
       if (!afgerond.current) {
         setTerugval(true);
-        feedback.current('Lukt de lichtmeting niet? Maak dan een foto van je open gordijnen.');
+        feedback.current(t('missie.detector.lichtTerugval'));
       }
     }, LICHT_TERUGVAL_MS);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [feedback]);
 
   const verwerk = useCallback(
@@ -233,7 +237,7 @@ function LichtStap({ onFeedback, onKlaar }: StapDetectorProps) {
       lichtTeller.current = genoeg ? lichtTeller.current + 1 : 0;
       if (lichtTeller.current >= LICHT_STAPPEN_NODIG) {
         afgerond.current = true;
-        feedback.current('Daglicht gedetecteerd. Goedemorgen!');
+        feedback.current(t('missie.detector.daglicht'));
         klaar.current('licht');
       }
     },
@@ -279,7 +283,7 @@ function LichtStap({ onFeedback, onKlaar }: StapDetectorProps) {
   }
 
   return (
-    <CameraFrame label="LICHTMETING">
+    <CameraFrame label={vertaal('missie.detector.lichtmeting')}>
       <Camera
         style={StyleSheet.absoluteFill}
         device="back"
@@ -289,7 +293,9 @@ function LichtStap({ onFeedback, onKlaar }: StapDetectorProps) {
       />
       {helderheid !== null && (
         <View style={styles.meter}>
-          <Text style={styles.meterTekst}>LICHT {Math.round((helderheid / 255) * 100)}%</Text>
+          <Text style={styles.meterTekst}>
+            {vertaal('missie.detector.licht', { n: Math.round((helderheid / 255) * 100) })}
+          </Text>
         </View>
       )}
     </CameraFrame>
@@ -300,11 +306,12 @@ function FotoStap({ oefening, onFeedback, onKlaar }: StapDetectorProps) {
   const photoOutput = usePhotoOutput({ qualityPrioritization: 'speed' });
   const [bezig, setBezig] = useState(false);
   const [gemaakt, setGemaakt] = useState(false);
+  const { t: vertaal } = useTaal();
   const feedback = useLaatste(onFeedback);
   const klaar = useLaatste(onKlaar);
 
   useEffect(() => {
-    if (oefening === 'Bed opmaken') feedback.current(OEFENING_INFO['Bed opmaken'].instructie);
+    if (oefening === 'Bed opmaken') feedback.current(oefeningTekst('Bed opmaken').instructie);
   }, [oefening, feedback]);
 
   const maakFoto = async () => {
@@ -314,17 +321,19 @@ function FotoStap({ oefening, onFeedback, onKlaar }: StapDetectorProps) {
       const foto = await photoOutput.capturePhoto({ flashMode: 'off' }, {});
       foto.dispose();
       setGemaakt(true);
-      feedback.current(oefening === 'Bed opmaken' ? 'Netjes! Je bed is opgemaakt.' : 'Top!');
+      feedback.current(
+        oefening === 'Bed opmaken' ? t('missie.detector.bedKlaar') : t('missie.detector.top'),
+      );
       klaar.current('foto');
     } catch {
-      feedback.current('De foto lukte niet. Probeer het nog eens.');
+      feedback.current(t('missie.detector.fotoMislukt'));
     } finally {
       setBezig(false);
     }
   };
 
   return (
-    <CameraFrame label="FOTO-BEVESTIGING">
+    <CameraFrame label={vertaal('missie.detector.fotoBevestiging')}>
       <Camera
         style={StyleSheet.absoluteFill}
         device="back"
@@ -336,12 +345,18 @@ function FotoStap({ oefening, onFeedback, onKlaar }: StapDetectorProps) {
         <View style={styles.fotoKnopWrap}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Maak foto van je bed"
+            accessibilityLabel={vertaal(
+              oefening === 'Bed opmaken'
+                ? 'missie.detector.fotoBedA11y'
+                : 'missie.detector.fotoGordijnenA11y',
+            )}
             disabled={bezig}
             onPress={maakFoto}
             style={styles.fotoKnop}
           >
-            <Text style={styles.knopTekst}>{bezig ? 'Bezig…' : '📸  Maak foto'}</Text>
+            <Text style={styles.knopTekst}>
+              {bezig ? vertaal('algemeen.bezig') : vertaal('missie.detector.maakFoto')}
+            </Text>
           </Pressable>
         </View>
       )}

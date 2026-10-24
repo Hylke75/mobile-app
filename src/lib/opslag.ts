@@ -28,6 +28,7 @@ export const SLEUTELS = {
   alarmgeluid: 'mooove.alarmgeluid',
   beoordelingGevraagd: 'mooove.beoordeling-gevraagd',
   weekoverzichtGezien: 'mooove.weekoverzicht-gezien',
+  taal: 'mooove.taal',
 } as const;
 
 export async function wisLokaal(): Promise<void> {

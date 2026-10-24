@@ -4,16 +4,18 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon, type IconNaam } from '@/components/Icon';
 import { fonts, kleuren } from '@/constants/theme';
+import { useTaal, type Sleutel } from '@/i18n';
 
-const TABS: { route: string; icon: IconNaam; label: string }[] = [
-  { route: 'index', icon: 'home', label: 'Vandaag' },
-  { route: 'alarmen', icon: 'clock', label: 'Alarmen' },
-  { route: 'progressie', icon: 'chart', label: 'Progressie' },
-  { route: 'profiel', icon: 'user', label: 'Profiel' },
+const TABS: { route: string; icon: IconNaam; label: Sleutel }[] = [
+  { route: 'index', icon: 'home', label: 'navigatie.tabs.vandaag' },
+  { route: 'alarmen', icon: 'clock', label: 'navigatie.tabs.alarmen' },
+  { route: 'progressie', icon: 'chart', label: 'navigatie.tabs.progressie' },
+  { route: 'profiel', icon: 'user', label: 'navigatie.tabs.profiel' },
 ];
 
 export function TabBar({ state, navigateToTab }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
+  const { t } = useTaal();
   const huidig = state.routes[state.index]?.name;
 
   return (
@@ -25,7 +27,7 @@ export function TabBar({ state, navigateToTab }: BottomTabBarProps) {
             key={tab.route}
             accessibilityRole="tab"
             accessibilityState={{ selected: isActief }}
-            accessibilityLabel={tab.label}
+            accessibilityLabel={t(tab.label)}
             onPress={() => {
               const route = state.routes.find((r) => r.name === tab.route);
               if (route) navigateToTab(route.key);
@@ -35,7 +37,7 @@ export function TabBar({ state, navigateToTab }: BottomTabBarProps) {
             <View style={[styles.iconWrap, isActief && styles.iconWrapActief]}>
               <Icon name={tab.icon} size={19} color={isActief ? kleuren.ink : '#8F9991'} />
             </View>
-            <Text style={[styles.label, isActief && styles.labelActief]}>{tab.label}</Text>
+            <Text style={[styles.label, isActief && styles.labelActief]}>{t(tab.label)}</Text>
           </Pressable>
         );
       })}

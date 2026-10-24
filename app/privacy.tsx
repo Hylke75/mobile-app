@@ -4,10 +4,14 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import { gedeeld, ScreenHeader } from '@/components/ui';
-import { PRIVACY_BIJGEWERKT, PRIVACYVERKLARING } from '@/constants/privacyverklaring';
+import { privacyBijgewerkt, privacyverklaring } from '@/constants/privacyverklaring';
 import { fonts, kleuren } from '@/constants/theme';
+import { useTaal } from '@/i18n';
 
 export default function PrivacyScherm() {
+  const { t, locale } = useTaal();
+  const voorrang = t('privacy.voorrang');
+
   return (
     <Screen>
       <Pressable
@@ -16,11 +20,14 @@ export default function PrivacyScherm() {
         style={gedeeld.backLink}
       >
         <Icon name="chevron" color={kleuren.ink} />
-        <Text style={gedeeld.backLinkText}>Terug</Text>
+        <Text style={gedeeld.backLinkText}>{t('algemeen.terug')}</Text>
       </Pressable>
-      <ScreenHeader kicker="JOUW GEGEVENS" titel="Privacy" puntKleur="#91B755" />
-      <Text style={styles.bijgewerkt}>Laatst bijgewerkt: {PRIVACY_BIJGEWERKT}</Text>
-      {PRIVACYVERKLARING.map((sectie) => (
+      <ScreenHeader kicker={t('privacy.kicker')} titel={t('privacy.titel')} puntKleur="#91B755" />
+      <Text style={styles.bijgewerkt}>
+        {t('privacy.bijgewerkt', { datum: privacyBijgewerkt(locale) })}
+      </Text>
+      {voorrang ? <Text style={[styles.tekst, styles.voorrang]}>{voorrang}</Text> : null}
+      {privacyverklaring(t).map((sectie) => (
         <View key={sectie.kop} style={styles.sectie}>
           <Text style={styles.kop} accessibilityRole="header">
             {sectie.kop}
@@ -48,6 +55,7 @@ const styles = StyleSheet.create({
   kop: { fontFamily: fonts.body800, fontSize: 14, color: kleuren.ink, marginBottom: 6 },
   tekst: { fontFamily: fonts.body400, fontSize: 13, lineHeight: 19, color: '#3D4A3F' },
   alinea: { marginBottom: 8 },
+  voorrang: { fontStyle: 'italic', marginBottom: 4 },
   punt: { flexDirection: 'row', gap: 8, marginBottom: 4 },
   puntTekst: { flex: 1 },
 });

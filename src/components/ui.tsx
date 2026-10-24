@@ -2,7 +2,9 @@ import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { Icon, type IconNaam } from '@/components/Icon';
+import { niveauNaam } from '@/constants/alarm';
 import { em, fonts, kleuren } from '@/constants/theme';
+import { useTaal } from '@/i18n';
 import type { Niveau } from '@/types/app';
 
 export function ScreenHeader({
@@ -105,6 +107,8 @@ export function RoundPlus({
 }
 
 export function LevelTag({ level, label }: { level: Niveau | 'hard'; label?: string }) {
+  // Via useTaal, zodat de niveaunaam meewisselt met de taal
+  useTaal();
   const variant =
     level === 'hard' || level === 'Verplicht' || level === 'Hardcore'
       ? styles.levelHard
@@ -119,7 +123,9 @@ export function LevelTag({ level, label }: { level: Niveau | 'hard'; label?: str
         : null;
   return (
     <View style={[styles.levelTag, variant]}>
-      <Text style={[styles.levelTagText, tekstVariant]}>{label ?? level}</Text>
+      <Text style={[styles.levelTagText, tekstVariant]}>
+        {label ?? (level === 'hard' ? level : niveauNaam(level))}
+      </Text>
     </View>
   );
 }

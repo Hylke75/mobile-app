@@ -23,6 +23,7 @@ import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { AlarmenProvider } from '@/hooks/useAlarmen';
 import { SessiesProvider } from '@/hooks/useSessies';
 import { ToastProvider } from '@/hooks/useToast';
+import { TaalProvider } from '@/i18n';
 import { useWekkerRouting } from '@/hooks/useWekkerRouting';
 
 SplashScreen.preventAutoHideAsync();
@@ -48,15 +49,17 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <ToastProvider>
-        <AuthProvider>
-          <AlarmenProvider>
-            <SessiesProvider>
-              <RootNavigator />
-            </SessiesProvider>
-          </AlarmenProvider>
-        </AuthProvider>
-      </ToastProvider>
+      <TaalProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <AlarmenProvider>
+              <SessiesProvider>
+                <RootNavigator />
+              </SessiesProvider>
+            </AlarmenProvider>
+          </AuthProvider>
+        </ToastProvider>
+      </TaalProvider>
     </SafeAreaProvider>
   );
 }

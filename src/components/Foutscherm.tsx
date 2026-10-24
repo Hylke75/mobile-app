@@ -4,10 +4,12 @@ import { useEffect } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { kleuren } from '@/constants/theme';
+import { t } from '@/i18n';
 import { meldFout } from '@/lib/fouten';
 
 // Vangt onverwachte fouten op, zodat de gebruiker nooit een leeg scherm ziet.
 // Gebruikt systeemlettertypes: de eigen lettertypes zijn op dit punt mogelijk niet geladen.
+// Gebruikt de losse t(): dit scherm kan buiten de TaalProvider renderen.
 export function Foutscherm({ error, retry }: ErrorBoundaryProps) {
   useEffect(() => {
     SplashScreen.hideAsync().catch(() => {});
@@ -16,21 +18,18 @@ export function Foutscherm({ error, retry }: ErrorBoundaryProps) {
 
   const meld = () =>
     Linking.openURL(
-      `mailto:hylke@linkandlead.nl?subject=${encodeURIComponent('Fout in Mooove')}&body=${encodeURIComponent(error.message)}`,
+      `mailto:hylke@linkandlead.nl?subject=${encodeURIComponent(t('fout.onderwerp'))}&body=${encodeURIComponent(error.message)}`,
     ).catch(() => {});
 
   return (
     <View style={styles.root} accessibilityRole="alert">
-      <Text style={styles.titel}>Oeps, er ging iets mis.</Text>
-      <Text style={styles.tekst}>
-        Je alarmen blijven gewoon ingesteld. Probeer het opnieuw; lukt het niet, sluit de app dan
-        helemaal af en open hem opnieuw.
-      </Text>
+      <Text style={styles.titel}>{t('fout.titel')}</Text>
+      <Text style={styles.tekst}>{t('fout.tekst')}</Text>
       <Pressable accessibilityRole="button" onPress={retry} style={styles.knop}>
-        <Text style={styles.knopTekst}>Probeer opnieuw</Text>
+        <Text style={styles.knopTekst}>{t('fout.opnieuw')}</Text>
       </Pressable>
       <Pressable accessibilityRole="button" onPress={meld} style={styles.link}>
-        <Text style={styles.linkTekst}>Meld deze fout</Text>
+        <Text style={styles.linkTekst}>{t('fout.melden')}</Text>
       </Pressable>
     </View>
   );

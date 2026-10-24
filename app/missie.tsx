@@ -18,7 +18,8 @@ import { StapDetector } from '@/components/missie/StapDetector';
 import { Screen } from '@/components/Screen';
 import { LevelTag, PrimaryButton } from '@/components/ui';
 import { isStreng } from '@/constants/alarm';
-import { doelenUitTekst, doelVoor, OEFENING_INFO } from '@/constants/oefeningen';
+import { useTaal } from '@/i18n';
+import { doelenUitTekst, doelVoor, OEFENING_INFO, oefeningTekst } from '@/constants/oefeningen';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useSchermAan } from '@/hooks/useSchermAan';
@@ -50,6 +51,7 @@ export default function MissieScherm() {
   const { alarms, herplan } = useAlarmen();
   const { slaOp, statistiek, sessies } = useSessies();
   const { showToast } = useToast();
+  const { t, taal } = useTaal();
 
   const vanWekker = params.vanWekker === '1';
   // Proefronde vanuit de editor: eigen oefeningen, niet gekoppeld aan een alarm en niet opgeslagen
@@ -94,6 +96,9 @@ export default function MissieScherm() {
 
   const oefening = oefeningen[stap]!;
   const info = OEFENING_INFO[oefening];
+  // Opnieuw vertalen bij een taalwissel
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const tekst = useMemo(() => oefeningTekst(oefening), [oefening, taal]);
   // Herkent de camera je niet, dan mag je in plaats daarvan springen met je telefoon
   const [alternatief, setAlternatief] = useState(false);
   const [wisselZichtbaar, setWisselZichtbaar] = useState(false);
@@ -112,8 +117,8 @@ export default function MissieScherm() {
 
   useEffect(() => {
     if (info.methode !== 'pose' || stapKlaar || alternatief || gedaan > 0) return;
-    const t = setTimeout(() => setWisselZichtbaar(true), 90000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setWisselZichtbaar(true), 90000);
+    return () => clearTimeout(timer);
   }, [info.methode, stapKlaar, alternatief, gedaan, stap, poging]);
 
   const kiesAlternatief = () => {
@@ -121,7 +126,7 @@ export default function MissieScherm() {
     setWisselZichtbaar(false);
     setGedaan(0);
     teller.current = 0;
-    zegt(`Pak je telefoon en spring ${SPRONGEN_DOEL} keer.`);
+    zegt(t('missie.spraak.alternatief', { n: SPRONGEN_DOEL }));
   };
 
   useEffect(() => {
@@ -136,18 +141,18 @@ export default function MissieScherm() {
       if (begrensd > teller.current) {
         tik();
         if (begrensd % 5 === 0 || begrensd === doel) {
-          AccessibilityInfo.announceForAccessibility(`${begrensd} van ${doel}`);
+          AccessibilityInfo.announceForAccessibility(t('missie.teller', { n: begrensd, doel }));
         }
       }
       teller.current = begrensd;
       setGedaan(begrensd);
       if (info.eenheid === 'herhalingen') {
         const zin =
-          info.spraak[Math.min(Math.floor((begrensd / doel) * 3), info.spraak.length - 1)];
+          tekst.spraak[Math.min(Math.floor((begrensd / doel) * 3), tekst.spraak.length - 1)];
         if (zin && begrensd > 0 && begrensd % 5 === 0 && begrensd < doel) zegt(zin);
       }
     },
-    [info, doel, zegt],
+    [info, tekst, doel, zegt, t],
   );
 
   const onKlaar = useCallback(
@@ -156,9 +161,9 @@ export default function MissieScherm() {
       setGedaan(doel);
       setStapKlaar(true);
       succes();
-      zegt('Yes! Volgende stap.');
+      zegt(t('missie.spraak.volgendeStap'));
     },
-    [doel, zegt],
+    [doel, zegt, t],
   );
 
   const handmatigAfvinken = () => {
@@ -187,7 +192,7 @@ export default function MissieScherm() {
       herplan();
       if (status === 'voltooid' && niveau === 'Hardcore') {
         await planWakkerCheck(params.alarmId).catch(() => {});
-        showToast('Wakker-check over 5 minuten.');
+        showToast(t('missie.wakkerCheckToast'));
       }
     }
     if (proef) return;
@@ -210,7 +215,7 @@ export default function MissieScherm() {
     if (laatsteStap) {
       setKlaar(true);
       succes();
-      zegt('You did it! Je missie is klaar.');
+      zegt(t('missie.spraak.klaar'));
       await rondAf('voltooid', nieuw);
       return;
     }
@@ -228,8 +233,8 @@ export default function MissieScherm() {
       return;
     }
     Alert.alert(titel, tekst, [
-      { text: 'Annuleren', style: 'cancel' },
-      { text: 'Doorgaan', style: 'destructive', onPress: actie },
+      { text: t('algemeen.annuleren'), style: 'cancel' },
+      { text: t('algemeen.doorgaan'), style: 'destructive', onPress: actie },
     ]);
   };
 
@@ -244,11 +249,7 @@ export default function MissieScherm() {
       return;
     }
     if (vanWekker && streng) {
-      bevestig(
-        'Missie verlaten?',
-        'Je alarm gaat binnen een paar minuten opnieuw af tot je missie klaar is.',
-        () => router.dismissTo('/'),
-      );
+      bevestig(t('missie.verlatenTitel'), t('missie.verlatenTekst'), () => router.dismissTo('/'));
     } else {
       router.dismissTo('/');
     }
@@ -266,19 +267,15 @@ export default function MissieScherm() {
   }, []);
 
   const noodstop = () =>
-    bevestig(
-      'Noodstop',
-      'Het alarm stopt en deze missie wordt als afgebroken opgeslagen.',
-      async () => {
-        await rondAf('afgebroken', resultaten);
-        if (proef) {
-          router.back();
-          return;
-        }
-        router.dismissTo('/');
-        showToast('Missie gestopt.');
-      },
-    );
+    bevestig(t('missie.noodstop'), t('missie.noodstopTekst'), async () => {
+      await rondAf('afgebroken', resultaten);
+      if (proef) {
+        router.back();
+        return;
+      }
+      router.dismissTo('/');
+      showToast(t('missie.gestopt'));
+    });
 
   // Zonder alarm is de missie alleen voor ingelogde gebruikers met een profiel
   if (!vanWekker && startDoel) return <Redirect href={startDoel} />;
@@ -302,15 +299,17 @@ export default function MissieScherm() {
               <Icon name="check" size={52} strokeWidth={2.5} color={kleuren.ink} />
             </View>
             <Text maxFontSizeMultiplier={1.2} style={styles.doneTitle}>
-              KLAAR VOOR{'\n'}
-              <Text style={styles.lime}>MORGEN.</Text>
+              {t('missie.proef.titel')}
+              {'\n'}
+              <Text style={styles.lime}>{t('missie.proef.accent')}</Text>
             </Text>
             <Text style={styles.doneText}>
-              Je proefronde zit erop. Zet je telefoon morgen op dezelfde plek.{'\n'}Een proefronde
-              telt niet mee voor je streak.
+              {t('missie.proef.tekst')}
+              {'\n'}
+              {t('missie.proef.telt')}
             </Text>
             <PrimaryButton
-              label="Terug naar je alarm"
+              label={t('missie.proef.terug')}
               onPress={() => router.back()}
               style={styles.proefKnop}
             />
@@ -323,7 +322,7 @@ export default function MissieScherm() {
         <StatusBar style="light" />
         <View style={styles.top}>
           <Text style={styles.stage}>MISSION COMPLETE</Text>
-          <SluitKnop label="Sluiten" onPress={() => router.dismissTo('/')} />
+          <SluitKnop label={t('algemeen.sluiten')} onPress={() => router.dismissTo('/')} />
         </View>
         <View style={styles.done}>
           <View style={styles.doneIcon}>
@@ -334,41 +333,44 @@ export default function MissieScherm() {
             <Text style={styles.lime}>IT.</Text>
           </Text>
           <Text style={styles.doneText}>
-            Je hebt je hele missie afgemaakt.{'\n'}Dat is hoe je een dag begint. 💪
+            {t('missie.klaar.tekst')}
+            {'\n'}
+            {t('missie.klaar.tekst2')}
           </Text>
           {reactie !== null && (
             <Text style={styles.reactie}>
-              Je was {reactie === 0 ? 'binnen een minuut' : `${reactie} min`} na je alarm in
-              beweging
-              {gemiddeld !== null ? ` · gemiddeld deze week ${gemiddeld} min` : ''}.
+              {t(reactie === 0 ? 'missie.klaar.reactieSnel' : 'missie.klaar.reactie', {
+                n: reactie,
+                gemiddeld: gemiddeld !== null ? t('missie.klaar.gemiddeld', { n: gemiddeld }) : '',
+              })}
             </Text>
           )}
           <View style={styles.doneStat}>
             <View style={styles.doneStatItem}>
               <Text style={styles.doneStatValue}>{Math.max(statistiek.streak, 1)}</Text>
-              <Text style={styles.doneStatLabel}>DAGEN STREAK</Text>
+              <Text style={styles.doneStatLabel}>{t('missie.klaar.dagenStreak')}</Text>
             </View>
             <View style={styles.doneStatItem}>
               <Text style={styles.doneStatValue}>
                 {oefeningen.length}/{oefeningen.length}
               </Text>
-              <Text style={styles.doneStatLabel}>MISSIES KLAAR</Text>
+              <Text style={styles.doneStatLabel}>{t('missie.klaar.missiesKlaar')}</Text>
             </View>
           </View>
           {(mijlpaal || nieuweBadges.length > 0) && (
             <View style={styles.nieuw} accessibilityLiveRegion="polite">
               {mijlpaal && (
-                <Text style={styles.nieuwTekst}>🎉 Mijlpaal: {mijlpaal} dagen op rij!</Text>
+                <Text style={styles.nieuwTekst}>{t('missie.klaar.mijlpaal', { n: mijlpaal })}</Text>
               )}
               {nieuweBadges.map((b) => (
                 <Text key={b.naam} style={styles.nieuwTekst}>
-                  {b.emoji} Nieuwe badge: {b.naam}
+                  {t('missie.klaar.badge', { emoji: b.emoji, naam: b.naam })}
                 </Text>
               ))}
             </View>
           )}
           <PrimaryButton
-            label="Terug naar vandaag"
+            label={t('missie.klaar.terug')}
             onPress={() => {
               router.dismissTo('/');
               vraagBeoordelingNaStreak(statistiek.streak);
@@ -379,32 +381,33 @@ export default function MissieScherm() {
     );
   }
 
-  const [titel, accent] = info.titel;
+  const [titel, accent] = tekst.titel;
   const handmatigToegestaan = !streng || !alarmenBeschikbaar;
-  const label =
+  const eenheid =
     info.eenheid === 'herhalingen'
-      ? 'HERHALINGEN'
+      ? 'herhalingen'
       : info.eenheid === 'seconden'
-        ? 'SECONDEN'
-        : 'UITGEVOERD';
+        ? 'seconden'
+        : 'uitgevoerd';
+  const label = t(`missie.eenheid.${eenheid}`);
 
   return (
     <Screen dark>
       <StatusBar style="light" />
       <View style={styles.top}>
         <Text style={styles.stage}>
-          {proef ? 'PROEFRONDE' : 'LIVE MISSIE'}{' '}
+          {proef ? t('missie.proefronde') : t('missie.live')}{' '}
           <Text style={styles.stageMuted}>
-            / {stap + 1} VAN {oefeningen.length}
+            {t('missie.stapVan', { stap: stap + 1, totaal: oefeningen.length })}
           </Text>
         </Text>
-        <SluitKnop label="Missie verlaten" onPress={sluit} />
+        <SluitKnop label={t('missie.verlaten')} onPress={sluit} />
       </View>
       <Text maxFontSizeMultiplier={1.2} style={styles.title}>
         {titel}
         <Text style={styles.lime}>{accent}</Text>
       </Text>
-      <Text style={styles.subtitle}>{info.beschrijving}</Text>
+      <Text style={styles.subtitle}>{tekst.beschrijving}</Text>
       <View style={styles.steps}>
         {oefeningen.map((o, i) => (
           <View key={`${o}-${i}`} style={[styles.step, i <= stap && styles.stepFilled]} />
@@ -427,15 +430,13 @@ export default function MissieScherm() {
           <Text maxFontSizeMultiplier={1.2} style={styles.stapKlaarEmoji}>
             {info.emoji}
           </Text>
-          <Text style={styles.stapKlaarTekst}>Stap afgerond</Text>
+          <Text style={styles.stapKlaarTekst}>{t('missie.stapAfgerond')}</Text>
         </View>
       )}
 
       {wisselZichtbaar && !stapKlaar && !alternatief && (
         <Pressable accessibilityRole="button" onPress={kiesAlternatief} style={styles.wissel}>
-          <Text style={styles.wisselTekst}>
-            Ziet de camera je niet? Spring {SPRONGEN_DOEL} keer met je telefoon in je hand →
-          </Text>
+          <Text style={styles.wisselTekst}>{t('missie.wissel', { n: SPRONGEN_DOEL })}</Text>
         </Pressable>
       )}
 
@@ -445,18 +446,18 @@ export default function MissieScherm() {
           <Text
             maxFontSizeMultiplier={1.2}
             style={styles.repsCount}
-            accessibilityLabel={`${gedaan} van ${doel} ${label.toLowerCase()}`}
+            accessibilityLabel={t(`missie.tellerA11y.${eenheid}`, { n: gedaan, doel })}
           >
             {gedaan}
             <Text style={styles.repsTotal}> / {doel}</Text>
           </Text>
         </View>
-        <LevelTag level="hard" label={stapKlaar ? 'KLAAR ✓' : 'BEZIG'} />
+        <LevelTag level="hard" label={stapKlaar ? t('missie.klaarTag') : t('missie.bezig')} />
       </View>
 
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={stil ? 'Spraak aanzetten' : 'Spraak uitzetten'}
+        accessibilityLabel={stil ? t('missie.spraakAan') : t('missie.spraakUit')}
         onPress={() => {
           if (!stil) stopSpraak();
           setStil(!stil);
@@ -464,31 +465,31 @@ export default function MissieScherm() {
         style={styles.voice}
       >
         <Icon name="sound" size={17} color={stil ? '#668068' : kleuren.lime} />
-        <Text style={styles.voiceText}>{feedback || info.spraak[0]}</Text>
+        <Text style={styles.voiceText}>{feedback || tekst.spraak[0]}</Text>
       </Pressable>
 
       <View style={styles.actions}>
         {stapKlaar ? (
           <PrimaryButton
-            label={laatsteStap ? 'Rond missie af' : 'Volgende ronde'}
+            label={laatsteStap ? t('missie.rondAf') : t('missie.volgendeRonde')}
             onPress={volgende}
             style={styles.flex}
           />
         ) : handmatigToegestaan ? (
           <PrimaryButton
-            label="Markeer als uitgevoerd"
+            label={t('missie.markeer')}
             icon="check"
             onPress={handmatigAfvinken}
             style={styles.flex}
           />
         ) : (
           <View style={[styles.flex, styles.wachtKnop]}>
-            <Text style={styles.wachtTekst}>Rond de stap af voor de camera</Text>
+            <Text style={styles.wachtTekst}>{t('missie.wachtCamera')}</Text>
           </View>
         )}
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Start ronde opnieuw"
+          accessibilityLabel={t('missie.opnieuw')}
           onPress={opnieuw}
           style={styles.outlineBtn}
         >
@@ -497,11 +498,9 @@ export default function MissieScherm() {
       </View>
 
       <Pressable accessibilityRole="button" onPress={noodstop} style={styles.emergency}>
-        <Text style={styles.emergencyText}>Noodstop</Text>
+        <Text style={styles.emergencyText}>{t('missie.noodstop')}</Text>
       </Pressable>
-      <Text style={styles.gezondheid}>
-        Beweeg binnen je eigen grenzen. Pijn of duizelig? Stop en gebruik de noodstop.
-      </Text>
+      <Text style={styles.gezondheid}>{t('missie.gezondheid')}</Text>
     </Screen>
   );
 }

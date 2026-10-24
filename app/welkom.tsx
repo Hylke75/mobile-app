@@ -7,8 +7,10 @@ import { AuthScreen } from '@/components/AuthScreen';
 import { authStyles as s } from '@/components/authStyles';
 import { PrimaryButton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
+import { useTaal } from '@/i18n';
 
 export default function WelkomScherm() {
+  const { t } = useTaal();
   const { slaVoornaamOp } = useAuth();
   const [naam, setNaam] = useState('');
   const [fout, setFout] = useState<string | null>(null);
@@ -16,7 +18,7 @@ export default function WelkomScherm() {
 
   const opslaan = async () => {
     const voornaam = naam.trim();
-    if (voornaam.length < 1 || voornaam.length > 40) return setFout('Vul je voornaam in.');
+    if (voornaam.length < 1 || voornaam.length > 40) return setFout(t('auth.welkom.ongeldig'));
     setBezig(true);
     const resultaat = await slaVoornaamOp(voornaam);
     setBezig(false);
@@ -27,12 +29,13 @@ export default function WelkomScherm() {
   return (
     <AuthScreen>
       <StatusBar style="light" />
-      <Text style={s.kicker}>WELKOM BIJ MOOOVE</Text>
+      <Text style={s.kicker}>{t('auth.welkom.kicker')}</Text>
       <Text style={s.titel}>
-        Hoe mogen we je <Text style={s.accent}>noemen?</Text>
+        {t('auth.welkom.titel')}
+        <Text style={s.accent}>{t('auth.welkom.titelAccent')}</Text>
       </Text>
-      <Text style={s.tekst}>Je voornaam gebruiken we alleen om je in de app te begroeten.</Text>
-      <Text style={s.label}>VOORNAAM</Text>
+      <Text style={s.tekst}>{t('auth.welkom.tekst')}</Text>
+      <Text style={s.label}>{t('auth.welkom.label')}</Text>
       <TextInput
         value={naam}
         onChangeText={setNaam}
@@ -42,19 +45,16 @@ export default function WelkomScherm() {
         maxLength={40}
         returnKeyType="done"
         onSubmitEditing={opslaan}
-        accessibilityLabel="Voornaam"
+        accessibilityLabel={t('auth.welkom.voornaamA11y')}
         style={s.input}
       />
       {fout && <Text style={s.fout}>{fout}</Text>}
       <PrimaryButton
-        label={bezig ? 'Bezig…' : "Let's go"}
+        label={bezig ? t('algemeen.bezig') : "Let's go"}
         onPress={bezig ? () => {} : opslaan}
         style={s.knop}
       />
-      <Text style={[s.tekst, styles.gezondheid]}>
-        Mooove is geen medisch hulpmiddel. Beweeg binnen je eigen grenzen en overleg met je arts als
-        je twijfelt of je een oefening kunt doen.
-      </Text>
+      <Text style={[s.tekst, styles.gezondheid]}>{t('auth.welkom.gezondheid')}</Text>
     </AuthScreen>
   );
 }

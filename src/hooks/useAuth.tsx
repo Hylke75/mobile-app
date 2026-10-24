@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 
+import { t } from '@/i18n';
 import { annuleerAlles } from '@/lib/alarmen';
 import { leesLokaal, schrijfLokaal, SLEUTELS, wisLokaal } from '@/lib/opslag';
 import { supabase } from '@/lib/supabase';
@@ -122,7 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email,
         password: wachtwoord,
       });
-      if (error || !data.session) return 'E-mailadres of wachtwoord klopt niet.';
+      if (error || !data.session) return t('meldingen.verkeerdWachtwoord');
       await laadProfiel(data.session.user.id);
       return null;
     },
@@ -135,14 +136,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         Pick<Profiel, 'voornaam' | 'weekdoel' | 'alarmtest_geslaagd_op' | 'pauze_tot'>
       >,
     ) => {
-      if (!session) return 'Je bent niet ingelogd.';
+      if (!session) return t('meldingen.nietIngelogd');
       const { data, error } = await supabase
         .from('profiles')
         .update(wijziging)
         .eq('id', session.user.id)
         .select()
         .single();
-      if (error) return 'Opslaan is niet gelukt. Probeer het opnieuw.';
+      if (error) return t('meldingen.opslaanMislukt');
       setProfiel(data);
       await schrijfLokaal(SLEUTELS.profiel, data);
       return null;
@@ -163,7 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const verwijderAccount = useCallback(async () => {
     const { error } = await supabase.functions.invoke('delete-account', { method: 'POST' });
-    if (error) return 'Verwijderen is niet gelukt. Probeer het later opnieuw.';
+    if (error) return t('meldingen.verwijderenMislukt');
     await annuleerAlles().catch(() => {});
     await wisLokaal();
     await supabase.auth.signOut({ scope: 'local' });
@@ -196,13 +197,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 function vertaalFout(bericht?: string): string {
   const tekst = (bericht ?? '').toLowerCase();
   if (tekst.includes('expired') || tekst.includes('invalid')) {
-    return 'Deze code klopt niet of is verlopen.';
+    return t('meldingen.codeOngeldig');
   }
   if (tekst.includes('rate') || tekst.includes('seconds')) {
-    return 'Even wachten voordat je een nieuwe code aanvraagt.';
+    return t('meldingen.wachtMetCode');
   }
-  if (tekst.includes('email')) return 'Controleer je e-mailadres.';
-  return 'Er ging iets mis. Probeer het opnieuw.';
+  if (tekst.includes('email')) return t('meldingen.controleerEmail');
+  return t('meldingen.ietsMis');
 }
 
 export function useAuth(): AuthContextWaarde {

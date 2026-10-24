@@ -3,12 +3,13 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { Icon } from '@/components/Icon';
 import { em, fonts, kleuren } from '@/constants/theme';
+import { useTaal } from '@/i18n';
 
 export const CAMERA_HOOGTE = 285;
 
 export function CameraFrame({
   label,
-  notitie = 'CAMERA · OP JE TOESTEL',
+  notitie,
   achtergrond,
   children,
 }: {
@@ -17,6 +18,7 @@ export function CameraFrame({
   achtergrond?: ReactNode;
   children?: ReactNode;
 }) {
+  const { t } = useTaal();
   return (
     <View style={styles.card}>
       {achtergrond}
@@ -32,7 +34,7 @@ export function CameraFrame({
       <View style={styles.noteWrap} pointerEvents="none">
         <View style={styles.note}>
           <Icon name="shield" size={11} color="#C5D6BE" />
-          <Text style={styles.noteText}>{notitie}</Text>
+          <Text style={styles.noteText}>{notitie ?? t('missie.camera.notitie')}</Text>
         </View>
       </View>
     </View>

@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { CameraFrame } from '@/components/missie/CameraFrame';
 import { fonts, kleuren } from '@/constants/theme';
+import { useTaal } from '@/i18n';
 
 export const SPRONGEN_DOEL = 20;
 
@@ -10,10 +11,11 @@ export function BewegingStap(_props: {
   onVoortgang: (gedaan: number) => void;
   onKlaar: () => void;
 }) {
+  const { t } = useTaal();
   return (
-    <CameraFrame label="BEWEGINGSSENSOR" notitie="ALLEEN IN DE APP">
+    <CameraFrame label={t('missie.beweging.label')} notitie={t('missie.camera.alleenInApp')}>
       <View style={styles.midden}>
-        <Text style={styles.uitleg}>De bewegingssensor werkt alleen in de app op je telefoon.</Text>
+        <Text style={styles.uitleg}>{t('missie.beweging.alleenApp')}</Text>
       </View>
     </CameraFrame>
   );

@@ -20,6 +20,7 @@ import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmCheck } from '@/hooks/useAlarmCheck';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useAuth } from '@/hooks/useAuth';
+import { TAALNAMEN, TALEN, useTaal, type TaalKeuze } from '@/i18n';
 import {
   kiesAlarmgeluid,
   kiesZachtGeluid,
@@ -45,18 +46,24 @@ import {
 const TEST_SECONDEN = 30;
 const CONTACT_EMAIL = 'hylke@linkandlead.nl';
 
-function doelTekst(weekdoel: number): string {
-  return weekdoel === 7 ? 'Iedere dag bewegen' : `${weekdoel} dagen per week`;
+function doelTekst(weekdoel: number, t: ReturnType<typeof useTaal>['t']): string {
+  return weekdoel === 7
+    ? t('profiel.weekdoel.elkeDag')
+    : t('profiel.weekdoel.dagenPerWeek', { n: weekdoel });
 }
+
+const TAALKEUZES: TaalKeuze[] = ['auto', ...TALEN];
 
 export default function ProfielScherm() {
   const { showToast } = useToast();
+  const { t, locale, keuze, kiesTaal } = useTaal();
   const { profiel, user, uitloggen, verwijderAccount, werkProfielBij } = useAuth();
   const { statistiek } = useSessies();
   const { regels, allesInOrde, rechten, batterijAan, vraagAlleRechtenAan } = useAlarmCheck();
   const [test, setTest] = useState<'uit' | 'aftellen' | 'vraag'>('uit');
   const [resterend, setResterend] = useState(TEST_SECONDEN);
   const [doelOpen, setDoelOpen] = useState(false);
+  const [taalOpen, setTaalOpen] = useState(false);
   const testId = useRef<string | null>(null);
   const { herplan } = useAlarmen();
   const [geluid, setGeluid] = useState<Alarmgeluid | null>(null);
@@ -67,8 +74,14 @@ export default function ProfielScherm() {
 
   const hervat = hervatOp(profiel?.pauze_tot);
   const pauzeTekst = hervat
-    ? `Tot ${hervat.toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' })}`
-    : 'Uit';
+    ? t('profiel.pauze.tot', {
+        datum: hervat.toLocaleDateString(locale, {
+          weekday: 'short',
+          day: 'numeric',
+          month: 'short',
+        }),
+      })
+    : t('profiel.pauze.uit');
 
   const zetPauze = async (dagen: number | null) => {
     let pauzeTot: string | null = null;
@@ -81,28 +94,31 @@ export default function ProfielScherm() {
     if (fout) return showToast(fout);
     showToast(
       pauzeTot
-        ? `Je alarmen zijn gepauzeerd. Ze gaan weer af vanaf ${hervatOp(pauzeTot)?.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' })}.`
-        : 'Je alarmen gaan weer gewoon af.',
+        ? t('profiel.pauze.gepauzeerd', {
+            datum:
+              hervatOp(pauzeTot)?.toLocaleDateString(locale, {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+              }) ?? '',
+          })
+        : t('profiel.pauze.hervat'),
     );
   };
 
   const pauzeOpties = () => {
     if (Platform.OS === 'web') {
       if (hervat) zetPauze(null);
-      else if (window.confirm('Alarmen een week pauzeren?')) zetPauze(7);
+      else if (window.confirm(t('profiel.pauze.webVraag'))) zetPauze(7);
       return;
     }
-    Alert.alert(
-      'Alarmen pauzeren',
-      'Handig voor vakantie of ziekte. Je alarmen blijven bewaard en gaan daarna vanzelf weer af.',
-      [
-        ...(hervat ? [{ text: 'Pauze stoppen', onPress: () => zetPauze(null) }] : []),
-        { text: '3 dagen', onPress: () => zetPauze(3) },
-        { text: '1 week', onPress: () => zetPauze(7) },
-        { text: '2 weken', onPress: () => zetPauze(14) },
-        { text: 'Annuleren', style: 'cancel' as const },
-      ],
-    );
+    Alert.alert(t('profiel.pauze.label'), t('profiel.pauze.uitleg'), [
+      ...(hervat ? [{ text: t('profiel.pauze.stoppen'), onPress: () => zetPauze(null) }] : []),
+      { text: t('profiel.pauze.drieDagen'), onPress: () => zetPauze(3) },
+      { text: t('profiel.pauze.eenWeek'), onPress: () => zetPauze(7) },
+      { text: t('profiel.pauze.tweeWeken'), onPress: () => zetPauze(14) },
+      { text: t('algemeen.annuleren'), style: 'cancel' as const },
+    ]);
   };
 
   const kiesGeluid = async () => {
@@ -111,9 +127,9 @@ export default function ProfielScherm() {
       if (!nieuw) return;
       setGeluid(nieuw);
       herplan();
-      showToast('Je alarmen gebruiken nu dit geluid.');
+      showToast(t('profiel.geluid.gekozen'));
     } catch {
-      showToast('Dit geluid kon niet worden gebruikt.');
+      showToast(t('profiel.geluid.fout'));
     }
   };
 
@@ -124,28 +140,31 @@ export default function ProfielScherm() {
       herplan();
       showToast(melding);
     } catch {
-      showToast('Dit geluid kon niet worden gebruikt.');
+      showToast(t('profiel.geluid.fout'));
     }
   };
 
   const geluidOpties = () => {
-    Alert.alert('Alarmgeluid', `Nu: ${geluid?.naam ?? 'Standaard'}`, [
-      {
-        text: 'Standaardgeluid',
-        onPress: () =>
-          zetGeluid(async () => {
-            await wisAlarmgeluid();
-            return null;
-          }, 'Je alarmen gebruiken weer het standaardgeluid.'),
-      },
-      {
-        text: 'Zacht opbouwend',
-        onPress: () =>
-          zetGeluid(kiesZachtGeluid, 'Je alarm begint zacht en wordt langzaam luider.'),
-      },
-      { text: 'Eigen geluid kiezen', onPress: kiesGeluid },
-      { text: 'Annuleren', style: 'cancel' },
-    ]);
+    Alert.alert(
+      t('profiel.geluid.label'),
+      t('profiel.geluid.nu', { naam: geluid?.naam ?? t('profiel.geluid.standaard') }),
+      [
+        {
+          text: t('profiel.geluid.standaardGeluid'),
+          onPress: () =>
+            zetGeluid(async () => {
+              await wisAlarmgeluid();
+              return null;
+            }, t('profiel.geluid.terugStandaard')),
+        },
+        {
+          text: t('profiel.geluid.zacht'),
+          onPress: () => zetGeluid(kiesZachtGeluid, t('profiel.geluid.zachtGekozen')),
+        },
+        { text: t('profiel.geluid.eigen'), onPress: kiesGeluid },
+        { text: t('algemeen.annuleren'), style: 'cancel' },
+      ],
+    );
   };
 
   // Opent de wekker-routing het testalarm, dan neemt dat scherm het over
@@ -177,18 +196,18 @@ export default function ProfielScherm() {
       return;
     }
     Alert.alert(titel, tekst, [
-      { text: 'Annuleren', style: 'cancel' },
+      { text: t('algemeen.annuleren'), style: 'cancel' },
       { text: knop, style: 'destructive', onPress: actie },
     ]);
   };
 
   const startTest = async () => {
-    if (!alarmenBeschikbaar) return showToast('Het testalarm werkt alleen in de app.');
+    if (!alarmenBeschikbaar) return showToast(t('profiel.test.alleenInApp'));
     if (!rechten?.canScheduleExactAlarms) {
       await vraagAlleRechtenAan();
       const nieuw = await haalRechtenOp().catch(() => null);
       if (!nieuw?.canScheduleExactAlarms) {
-        return showToast('Geef Mooove eerst toestemming voor alarmen.');
+        return showToast(t('profiel.test.geenToestemming'));
       }
     }
     try {
@@ -196,7 +215,7 @@ export default function ProfielScherm() {
       setResterend(TEST_SECONDEN);
       setTest('aftellen');
     } catch {
-      showToast('Het testalarm kon niet worden ingepland.');
+      showToast(t('profiel.test.nietGepland'));
     }
   };
 
@@ -218,16 +237,12 @@ export default function ProfielScherm() {
     await ruimTestOp();
     if (gelukt) {
       const fout = await werkProfielBij({ alarmtest_geslaagd_op: new Date().toISOString() });
-      showToast(fout ?? 'Testalarm geslaagd ✓');
+      showToast(fout ?? t('profiel.test.geslaagd'));
     } else {
-      Alert.alert(
-        'Alarm niet gehoord?',
-        'Controleer of Mooove alarmen en meldingen mag tonen en of je alarmvolume aan staat. Op Android: zet batterij-optimalisatie voor Mooove uit.',
-        [
-          { text: 'Sluiten', style: 'cancel' },
-          { text: 'Open instellingen', onPress: () => openAlarmInstellingen() },
-        ],
-      );
+      Alert.alert(t('profiel.test.nietGehoordTitel'), t('profiel.test.nietGehoordTekst'), [
+        { text: t('algemeen.sluiten'), style: 'cancel' },
+        { text: t('profiel.test.openInstellingen'), onPress: () => openAlarmInstellingen() },
+      ]);
     }
   };
 
@@ -243,22 +258,27 @@ export default function ProfielScherm() {
         URL.revokeObjectURL(url);
         return;
       }
-      await Share.share({ title: 'Mijn Mooove-gegevens', message: json });
+      await Share.share({ title: t('profiel.downloadTitel'), message: json });
     } catch {
-      showToast('Je gegevens konden niet worden opgehaald. Controleer je internet.');
+      showToast(t('profiel.downloadFout'));
     }
   };
 
   const onUitloggen = () =>
-    bevestig('Uitloggen?', 'Je kunt altijd weer inloggen met je e-mailadres.', 'Uitloggen', () => {
-      uitloggen();
-    });
+    bevestig(
+      t('profiel.uitloggen.titel'),
+      t('profiel.uitloggen.tekst'),
+      t('profiel.uitloggen.label'),
+      () => {
+        uitloggen();
+      },
+    );
 
   const onVerwijderen = () =>
     bevestig(
-      'Account verwijderen?',
-      'Je account, alarmen en voortgang worden definitief verwijderd. Dit kun je niet ongedaan maken.',
-      'Verwijderen',
+      t('profiel.verwijderen.titel'),
+      t('profiel.verwijderen.tekst'),
+      t('algemeen.verwijderen'),
       async () => {
         const fout = await verwijderAccount();
         if (fout) showToast(fout);
@@ -271,9 +291,14 @@ export default function ProfielScherm() {
     if (fout) showToast(fout);
   };
 
+  const kiesTaalKeuze = (nieuw: TaalKeuze) => {
+    setTaalOpen(false);
+    kiesTaal(nieuw);
+  };
+
   return (
     <Screen>
-      <ScreenHeader kicker="YOUR MOOOVE SPACE" titel="Profiel" puntKleur="#9FBC63" />
+      <ScreenHeader kicker="YOUR MOOOVE SPACE" titel={t('profiel.titel')} puntKleur="#9FBC63" />
       <View style={styles.profileCard}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{voornaam.charAt(0).toUpperCase()}</Text>
@@ -281,19 +306,25 @@ export default function ProfielScherm() {
         <View>
           <Text style={styles.profileName}>{voornaam}</Text>
           <Text style={styles.profileSub}>
-            Mooove member · {statistiek.actieveDagen}{' '}
-            {statistiek.actieveDagen === 1 ? 'dag' : 'dagen'} actief
+            {statistiek.actieveDagen === 1
+              ? t('profiel.memberDag', { n: statistiek.actieveDagen })
+              : t('profiel.memberDagen', { n: statistiek.actieveDagen })}
           </Text>
         </View>
       </View>
 
-      <SectionTitleRow titel="Alarm-check" rechts={allesInOrde ? 'ALLES GEREED' : 'ACTIE NODIG'} />
+      <SectionTitleRow
+        titel={t('profiel.check.titel')}
+        rechts={allesInOrde ? t('profiel.check.allesGereed') : t('profiel.check.actieNodig')}
+      />
       <View style={styles.setupCard}>
         <View style={styles.setupTop}>
-          <Text style={styles.setupTitle}>{allesInOrde ? 'Ready to Mooove.' : 'Bijna klaar.'}</Text>
+          <Text style={styles.setupTitle}>
+            {allesInOrde ? t('profiel.check.klaar') : t('profiel.check.bijnaKlaar')}
+          </Text>
           <View style={[styles.secureTag, !allesInOrde && styles.secureTagOpen]}>
             <Text style={[styles.secureTagText, !allesInOrde && styles.secureTagTextOpen]}>
-              {allesInOrde ? '✓ Veilig ingesteld' : 'Nog niet compleet'}
+              {allesInOrde ? t('profiel.check.veilig') : t('profiel.check.nietCompleet')}
             </Text>
           </View>
         </View>
@@ -315,7 +346,7 @@ export default function ProfielScherm() {
         ))}
         {!regels.slice(0, 3).every((r) => r.ok) && (
           <SecondaryButton
-            label="Geef toestemming"
+            label={t('profiel.check.geefToestemming')}
             onPress={async () => {
               const inOrde = await vraagAlleRechtenAan();
               if (!inOrde) Linking.openSettings();
@@ -325,46 +356,63 @@ export default function ProfielScherm() {
         )}
         {batterijAan && (
           <SecondaryButton
-            label="Zet batterijbesparing uit"
+            label={t('profiel.check.batterijUit')}
             onPress={openBatterijInstellingen}
             style={styles.testBtn}
           />
         )}
-        <SecondaryButton label="Test je alarm ↗" onPress={startTest} style={styles.testBtn} />
+        <SecondaryButton
+          label={t('profiel.check.testKnop')}
+          onPress={startTest}
+          style={styles.testBtn}
+        />
       </View>
 
-      <Text style={styles.sectionHeading}>MEER MOOOVE</Text>
+      <Text style={styles.sectionHeading}>{t('profiel.meer')}</Text>
       <Pressable
         accessibilityRole="button"
         onPress={() => setDoelOpen(true)}
         style={styles.setting}
       >
         <Icon name="target" color={kleuren.ink} />
-        <Text style={styles.settingLabel}>Mijn doelen</Text>
-        <Text style={styles.settingValue}>{doelTekst(profiel?.weekdoel ?? 7)}</Text>
+        <Text style={styles.settingLabel}>{t('profiel.mijnDoelen')}</Text>
+        <Text style={styles.settingValue}>{doelTekst(profiel?.weekdoel ?? 7, t)}</Text>
       </Pressable>
       <Pressable accessibilityRole="button" onPress={pauzeOpties} style={styles.setting}>
         <Icon name="calendar" color={kleuren.ink} />
-        <Text style={styles.settingLabel}>Alarmen pauzeren</Text>
+        <Text style={styles.settingLabel}>{t('profiel.pauze.label')}</Text>
         <Text style={styles.settingValue}>{pauzeTekst}</Text>
       </Pressable>
       {alarmenBeschikbaar && (
         <Pressable accessibilityRole="button" onPress={geluidOpties} style={styles.setting}>
           <Icon name="sound" color={kleuren.ink} />
-          <Text style={styles.settingLabel}>Alarmgeluid</Text>
+          <Text style={styles.settingLabel}>{t('profiel.geluid.label')}</Text>
           <Text style={styles.settingValue} numberOfLines={1}>
-            {geluid?.naam ?? 'Standaard'}
+            {geluid?.naam ?? t('profiel.geluid.standaard')}
           </Text>
         </Pressable>
       )}
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => setTaalOpen(true)}
+        style={styles.setting}
+      >
+        <Icon name="info" color={kleuren.ink} />
+        <Text style={styles.settingLabel}>{t('profiel.taal.label')}</Text>
+        <Text style={styles.settingValue} numberOfLines={1}>
+          {keuze === 'auto' ? t('profiel.taal.automatisch') : TAALNAMEN[keuze]}
+        </Text>
+      </Pressable>
       <Pressable
         accessibilityRole="button"
         onPress={() => (alarmenBeschikbaar ? Linking.openSettings() : undefined)}
         style={styles.setting}
       >
         <Icon name="bell" color={kleuren.ink} />
-        <Text style={styles.settingLabel}>Meldingen</Text>
-        <Text style={styles.settingValue}>{meldingenAan ? 'Ingeschakeld' : 'Uitgeschakeld'}</Text>
+        <Text style={styles.settingLabel}>{t('profiel.meldingen')}</Text>
+        <Text style={styles.settingValue}>
+          {meldingenAan ? t('profiel.ingeschakeld') : t('profiel.uitgeschakeld')}
+        </Text>
       </Pressable>
       <Pressable
         accessibilityRole="button"
@@ -372,43 +420,43 @@ export default function ProfielScherm() {
         style={styles.setting}
       >
         <Icon name="shield" color={kleuren.ink} />
-        <Text style={styles.settingLabel}>Privacy</Text>
-        <Text style={styles.settingValue}>Lees de verklaring →</Text>
+        <Text style={styles.settingLabel}>{t('profiel.privacy')}</Text>
+        <Text style={styles.settingValue}>{t('profiel.leesVerklaring')}</Text>
       </Pressable>
       <Pressable
         accessibilityRole="button"
         onPress={() =>
           Linking.openURL(
-            `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Vraag over Mooove')}&body=${encodeURIComponent(`\n\n—\n${toestelInfo()}`)}`,
-          ).catch(() => showToast(`Mail ons op ${CONTACT_EMAIL}`))
+            `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(t('profiel.mailOnderwerp'))}&body=${encodeURIComponent(`\n\n—\n${toestelInfo()}`)}`,
+          ).catch(() => showToast(t('profiel.mailOnsOp', { email: CONTACT_EMAIL })))
         }
         style={styles.setting}
       >
         <Icon name="info" color={kleuren.ink} />
-        <Text style={styles.settingLabel}>Hulp & contact</Text>
-        <Text style={styles.settingValue}>Mail ons →</Text>
+        <Text style={styles.settingLabel}>{t('profiel.hulp')}</Text>
+        <Text style={styles.settingValue}>{t('profiel.mailOns')}</Text>
       </Pressable>
 
-      <Text style={styles.sectionHeading}>ACCOUNT</Text>
+      <Text style={styles.sectionHeading}>{t('profiel.account')}</Text>
       <View style={styles.setting}>
         <Icon name="user" color={kleuren.ink} />
-        <Text style={styles.settingLabel}>E-mailadres</Text>
+        <Text style={styles.settingLabel}>{t('profiel.email')}</Text>
         <Text style={styles.settingValue}>{user?.email}</Text>
       </View>
       <Pressable accessibilityRole="button" onPress={downloadGegevens} style={styles.setting}>
         <Icon name="shield" color={kleuren.ink} />
-        <Text style={styles.settingLabel}>Mijn gegevens downloaden</Text>
+        <Text style={styles.settingLabel}>{t('profiel.download')}</Text>
         <Text style={styles.settingValue}>JSON →</Text>
       </Pressable>
       <Pressable accessibilityRole="button" onPress={onUitloggen} style={styles.setting}>
         <Icon name="arrow" color={kleuren.ink} />
-        <Text style={styles.settingLabel}>Uitloggen</Text>
+        <Text style={styles.settingLabel}>{t('profiel.uitloggen.label')}</Text>
         <Text style={styles.settingValue}>→</Text>
       </Pressable>
       <Pressable accessibilityRole="button" onPress={onVerwijderen} style={styles.setting}>
         <Icon name="close" color="#C2462F" />
-        <Text style={[styles.settingLabel, styles.gevaar]}>Account verwijderen</Text>
-        <Text style={styles.settingValue}>Definitief</Text>
+        <Text style={[styles.settingLabel, styles.gevaar]}>{t('profiel.verwijderen.label')}</Text>
+        <Text style={styles.settingValue}>{t('profiel.verwijderen.waarde')}</Text>
       </Pressable>
       <Text style={styles.versie}>Mooove {appVersie()}</Text>
 
@@ -425,28 +473,32 @@ export default function ProfielScherm() {
           <Text maxFontSizeMultiplier={1.2} style={styles.testClock}>
             00:{String(test === 'aftellen' ? resterend : 0).padStart(2, '0')}
           </Text>
-          <Text style={styles.testTitle}>{test === 'aftellen' ? 'Even testen.' : 'Gehoord?'}</Text>
+          <Text style={styles.testTitle}>
+            {test === 'aftellen' ? t('profiel.test.evenTesten') : t('profiel.test.gehoord')}
+          </Text>
           <Text style={styles.testText}>
-            {test === 'aftellen'
-              ? 'Zet je telefoon op stil of Niet storen en vergrendel hem. Over een paar seconden gaat je testalarm af.'
-              : 'Ging het alarm af terwijl je telefoon op stil of Niet storen stond?'}
+            {test === 'aftellen' ? t('profiel.test.aftellenTekst') : t('profiel.test.vraagTekst')}
           </Text>
           {test === 'vraag' ? (
             <>
               <PrimaryButton
-                label="Ja, test geslaagd"
+                label={t('profiel.test.ja')}
                 icon="check"
                 onPress={() => testResultaat(true)}
                 style={styles.testCta}
               />
               <SecondaryButton
-                label="Nee, ik hoorde niets"
+                label={t('profiel.test.nee')}
                 onPress={() => testResultaat(false)}
                 style={styles.testSecundair}
               />
             </>
           ) : (
-            <SecondaryButton label="Annuleren" onPress={annuleerTest} style={styles.testCta} />
+            <SecondaryButton
+              label={t('algemeen.annuleren')}
+              onPress={annuleerTest}
+              style={styles.testCta}
+            />
           )}
         </View>
       </Modal>
@@ -459,11 +511,8 @@ export default function ProfielScherm() {
       >
         <Pressable style={styles.doelOverlay} onPress={() => setDoelOpen(false)}>
           <View style={styles.doelKaart}>
-            <Text style={styles.setupTitle}>Hoe vaak wil je bewegen?</Text>
-            <Text style={styles.doelUitleg}>
-              Je streak houdt rekening met rustdagen: bij 5 dagen per week mag je 2 dagen per week
-              overslaan.
-            </Text>
+            <Text style={styles.setupTitle}>{t('profiel.weekdoel.titel')}</Text>
+            <Text style={styles.doelUitleg}>{t('profiel.weekdoel.uitleg')}</Text>
             {[7, 5, 3].map((d) => (
               <Pressable
                 key={d}
@@ -471,7 +520,33 @@ export default function ProfielScherm() {
                 onPress={() => kiesDoel(d)}
                 style={[styles.doelOptie, profiel?.weekdoel === d && styles.doelOptieActief]}
               >
-                <Text style={styles.settingLabel}>{doelTekst(d)}</Text>
+                <Text style={styles.settingLabel}>{doelTekst(d, t)}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </Pressable>
+      </Modal>
+
+      <Modal
+        visible={taalOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setTaalOpen(false)}
+      >
+        <Pressable style={styles.doelOverlay} onPress={() => setTaalOpen(false)}>
+          <View style={styles.doelKaart}>
+            <Text style={styles.setupTitle}>{t('profiel.taal.titel')}</Text>
+            {TAALKEUZES.map((k) => (
+              <Pressable
+                key={k}
+                accessibilityRole="button"
+                accessibilityState={{ selected: keuze === k }}
+                onPress={() => kiesTaalKeuze(k)}
+                style={[styles.doelOptie, keuze === k && styles.doelOptieActief]}
+              >
+                <Text style={styles.settingLabel}>
+                  {k === 'auto' ? t('profiel.taal.automatischLang') : TAALNAMEN[k]}
+                </Text>
               </Pressable>
             ))}
           </View>

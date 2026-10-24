@@ -8,8 +8,10 @@ import { authStyles as s } from '@/components/authStyles';
 import { PrimaryButton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
+import { useTaal } from '@/i18n';
 
 export default function CodeScherm() {
+  const { t } = useTaal();
   const { email } = useLocalSearchParams<{ email: string }>();
   const { controleerCode, vraagCodeAan } = useAuth();
   const { showToast } = useToast();
@@ -23,13 +25,13 @@ export default function CodeScherm() {
 
   useEffect(() => {
     if (resterend === 0) return;
-    const t = setInterval(() => setNu(Date.now()), 1000);
-    return () => clearInterval(t);
+    const timer = setInterval(() => setNu(Date.now()), 1000);
+    return () => clearInterval(timer);
   }, [resterend]);
 
   const controleer = async () => {
     if (!email) return;
-    if (!/^\d{6,10}$/.test(code)) return setFout('Vul de code uit je e-mail in.');
+    if (!/^\d{6,10}$/.test(code)) return setFout(t('auth.code.ongeldig'));
     setBezig(true);
     setFout(null);
     const resultaat = await controleerCode(email, code);
@@ -44,7 +46,7 @@ export default function CodeScherm() {
     setNu(Date.now());
     const resultaat = await vraagCodeAan(email);
     if (resultaat) setFout(resultaat);
-    else showToast('Nieuwe code verstuurd.');
+    else showToast(t('auth.code.verstuurd'));
   };
 
   if (!email) return <Redirect href="/inloggen" />;
@@ -52,29 +54,28 @@ export default function CodeScherm() {
   return (
     <AuthScreen>
       <StatusBar style="light" />
-      <Text style={s.kicker}>BIJNA KLAAR</Text>
+      <Text style={s.kicker}>{t('auth.code.kicker')}</Text>
       <Text style={s.titel}>
-        Check je <Text style={s.accent}>mail.</Text>
+        {t('auth.code.titel')}
+        <Text style={s.accent}>{t('auth.code.titelAccent')}</Text>
       </Text>
-      <Text style={s.tekst}>
-        We hebben een code gestuurd naar {email}. Niets ontvangen? Kijk ook in je spam.
-      </Text>
-      <Text style={s.label}>JOUW CODE</Text>
+      <Text style={s.tekst}>{t('auth.code.tekst', { email })}</Text>
+      <Text style={s.label}>{t('auth.code.label')}</Text>
       <TextInput
         value={code}
-        onChangeText={(t) => setCode(t.replace(/\D/g, ''))}
+        onChangeText={(tekst) => setCode(tekst.replace(/\D/g, ''))}
         keyboardType="number-pad"
         autoComplete="one-time-code"
         textContentType="oneTimeCode"
         maxLength={10}
         autoFocus
         onSubmitEditing={controleer}
-        accessibilityLabel="Code uit je e-mail"
+        accessibilityLabel={t('auth.code.codeA11y')}
         style={[s.input, s.codeInput]}
       />
       {fout && <Text style={s.fout}>{fout}</Text>}
       <PrimaryButton
-        label={bezig ? 'Bezig…' : 'Inloggen'}
+        label={bezig ? t('algemeen.bezig') : t('auth.code.inloggen')}
         onPress={bezig ? () => {} : controleer}
         style={s.knop}
       />
@@ -86,11 +87,11 @@ export default function CodeScherm() {
         style={s.link}
       >
         <Text style={[s.linkTekst, resterend > 0 && { opacity: 0.5 }]}>
-          {resterend > 0 ? `Nieuwe code over ${resterend} s` : 'Stuur een nieuwe code'}
+          {resterend > 0 ? t('auth.code.wachten', { n: resterend }) : t('auth.code.nieuweCode')}
         </Text>
       </Pressable>
       <Pressable accessibilityRole="button" onPress={() => router.back()} style={s.link}>
-        <Text style={s.linkTekst}>Ander e-mailadres gebruiken</Text>
+        <Text style={s.linkTekst}>{t('auth.code.anderAdres')}</Text>
       </Pressable>
     </AuthScreen>
   );

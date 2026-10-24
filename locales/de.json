@@ -1,0 +1,7 @@
+{
+  "CFBundleDisplayName": "Mooove",
+  "NSCameraUsageDescription": "Mooove nutzt deine Kamera, um deine Mission zu prüfen, zum Beispiel deine Kniebeugen zu zählen. Die Bilder bleiben auf deinem Gerät.",
+  "NSMicrophoneUsageDescription": "Mooove nimmt keinen Ton auf. Kamerabilder werden ohne Ton und nur auf deinem Gerät verarbeitet.",
+  "NSMotionUsageDescription": "Mooove nutzt den Bewegungssensor, um deine Sprünge zu zählen, wenn die Kamera dich nicht erkennt.",
+  "NSAlarmKitUsageDescription": "Mooove stellt deine Wecker so, dass sie auch klingeln, wenn dein Handy stumm ist."
+}

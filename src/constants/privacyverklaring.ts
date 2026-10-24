@@ -1,81 +1,60 @@
+import { huidigeLocale, t, type Sleutel } from '@/i18n';
+
 // Inhoud van docs/store/privacyverklaring.md, zodat de verklaring ook offline in de app te lezen is.
-// Pas beide aan als de verklaring verandert.
-export const PRIVACY_BIJGEWERKT = '24 oktober 2026';
+// De teksten staan per taal in src/i18n/teksten/privacy.ts. Pas alles aan als de verklaring verandert
+// (ook site/privacy.html); de Nederlandse tekst is leidend.
+export const PRIVACY_BIJGEWERKT = '2026-10-24';
+
+// Datum van de laatste wijziging, opgemaakt voor de huidige taal
+export function privacyBijgewerkt(locale: string = huidigeLocale()): string {
+  const [jaar, maand, dag] = PRIVACY_BIJGEWERKT.split('-').map(Number);
+  return new Date(jaar!, maand! - 1, dag!).toLocaleDateString(locale, {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
 
 export type PrivacySectie = { kop: string; alineas?: string[]; punten?: string[] };
 
-export const PRIVACYVERKLARING: PrivacySectie[] = [
+type SectieSleutels = {
+  kop: Sleutel;
+  alineas?: readonly Sleutel[];
+  punten?: readonly Sleutel[];
+};
+
+const SECTIES: readonly SectieSleutels[] = [
+  { kop: 'privacy.over.kop', alineas: ['privacy.over.a1'] },
   {
-    kop: 'Over deze verklaring',
-    alineas: [
-      'Mooove is een wekker-app die je helpt om \'s ochtends in beweging te komen. Mooove wordt aangeboden door Link & Lead ("wij"). Hier lees je welke gegevens we verwerken, waarom, en welke rechten je hebt.',
-    ],
-  },
-  {
-    kop: 'Welke gegevens verwerken we?',
-    alineas: ['We bewaren deze gegevens zolang je account bestaat:'],
+    kop: 'privacy.gegevens.kop',
+    alineas: ['privacy.gegevens.a1'],
     punten: [
-      'E-mailadres: om in te loggen met een eenmalige code en je account te beheren.',
-      'Voornaam: om je in de app te begroeten.',
-      'Alarmen (tijd, dagen, niveau, gekozen oefeningen en aantallen, naam): om je alarmen in te plannen en op al je toestellen beschikbaar te maken.',
-      'Missieresultaten (start- en eindtijd, oefeningen, aantal herhalingen, voltooid of afgebroken): om je streak, voortgang en badges te tonen.',
-      'Weekdoel en datum van je laatste geslaagde alarmtest: om je instellingen en alarm-check te tonen.',
+      'privacy.gegevens.p1',
+      'privacy.gegevens.p2',
+      'privacy.gegevens.p3',
+      'privacy.gegevens.p4',
+      'privacy.gegevens.p5',
     ],
   },
+  { kop: 'privacy.camera.kop', alineas: ['privacy.camera.a1', 'privacy.camera.a2'] },
+  { kop: 'privacy.lokaal.kop', alineas: ['privacy.lokaal.a1'] },
+  { kop: 'privacy.foutrapporten.kop', alineas: ['privacy.foutrapporten.a1'] },
   {
-    kop: 'Camera',
-    alineas: [
-      'Mooove gebruikt de camera tijdens een missie om oefeningen te herkennen (bijvoorbeeld het tellen van squats), om te meten of het lichter wordt als je de gordijnen opent, en voor een foto als bevestiging dat je bed is opgemaakt.',
-      'Deze beelden worden uitsluitend op je eigen toestel verwerkt. Ze worden nooit opgeslagen, nooit naar onze servers gestuurd en nooit met anderen gedeeld. De bevestigingsfoto wordt direct na het maken weer verwijderd. Mooove neemt geen geluid op.',
-    ],
+    kop: 'privacy.nietDoen.kop',
+    punten: ['privacy.nietDoen.p1', 'privacy.nietDoen.p2', 'privacy.nietDoen.p3'],
   },
-  {
-    kop: 'Alleen op je toestel',
-    alineas: [
-      'Een eigen alarmgeluid dat je kiest, blijft op je toestel en wordt niet naar ons verstuurd. Hetzelfde geldt voor de lokale kopie van je alarmen en voortgang, die Mooove bewaart zodat de app ook zonder internet werkt.',
-    ],
-  },
-  {
-    kop: 'Foutrapporten',
-    alineas: [
-      "Crasht de app, dan kan Mooove een technisch foutrapport sturen naar Sentry (servers in de EU). Zo'n rapport bevat het type toestel, de versie van de app en waar het misging, maar geen naam, e-mailadres, IP-adres of camerabeelden, en is niet aan je account gekoppeld. Rapporten worden na maximaal 90 dagen verwijderd.",
-    ],
-  },
-  {
-    kop: 'Wat we niet doen',
-    punten: [
-      'We tonen geen advertenties en gebruiken geen advertentie- of trackingdiensten.',
-      'We verkopen of delen je gegevens niet met derden voor marketing.',
-      'We verwerken geen gezondheids- of medische gegevens.',
-    ],
-  },
-  {
-    kop: 'Verwerkers',
-    alineas: [
-      'Je gegevens worden opgeslagen bij Supabase (database en inloggen), in een datacenter in de Europese Unie (Frankfurt, Duitsland). Foutrapporten gaan naar Sentry, eveneens in de EU. Beide verwerken de gegevens uitsluitend in onze opdracht.',
-    ],
-  },
-  {
-    kop: 'Grondslag',
-    alineas: [
-      'We verwerken je gegevens omdat dit nodig is om de app aan je te leveren (uitvoering van de overeenkomst, artikel 6 lid 1 sub b AVG).',
-    ],
-  },
-  {
-    kop: 'Je rechten',
-    alineas: [
-      'Je hebt het recht om je gegevens in te zien, te corrigeren en te laten verwijderen. Via Profiel → Mijn gegevens downloaden krijg je direct een kopie van al je gegevens. Je kunt je account en al je gegevens op elk moment zelf verwijderen via Profiel → Account verwijderen. Alle gegevens worden dan direct en definitief gewist.',
-      'Heb je een klacht over hoe we met je gegevens omgaan? Je kunt ook een klacht indienen bij de Autoriteit Persoonsgegevens.',
-    ],
-  },
-  {
-    kop: 'Beveiliging',
-    alineas: [
-      'Gegevens worden versleuteld verzonden (HTTPS). Je sessie wordt versleuteld op je toestel bewaard. In de database kan elke gebruiker alleen bij zijn eigen gegevens.',
-    ],
-  },
-  {
-    kop: 'Contact',
-    alineas: ['Link & Lead — hylke@linkandlead.nl'],
-  },
+  { kop: 'privacy.verwerkers.kop', alineas: ['privacy.verwerkers.a1'] },
+  { kop: 'privacy.grondslag.kop', alineas: ['privacy.grondslag.a1'] },
+  { kop: 'privacy.rechten.kop', alineas: ['privacy.rechten.a1', 'privacy.rechten.a2'] },
+  { kop: 'privacy.beveiliging.kop', alineas: ['privacy.beveiliging.a1'] },
+  { kop: 'privacy.contact.kop', alineas: ['privacy.contact.a1'] },
 ];
+
+// De verklaring in de huidige taal; geef de t van useTaal() mee in een scherm
+export function privacyverklaring(vertaal: (sleutel: Sleutel) => string = t): PrivacySectie[] {
+  return SECTIES.map((sectie) => ({
+    kop: vertaal(sectie.kop),
+    alineas: sectie.alineas?.map((sleutel) => vertaal(sleutel)),
+    punten: sectie.punten?.map((sleutel) => vertaal(sleutel)),
+  }));
+}

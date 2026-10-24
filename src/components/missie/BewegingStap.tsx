@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { CameraFrame } from '@/components/missie/CameraFrame';
 import { fonts, kleuren } from '@/constants/theme';
+import { useTaal } from '@/i18n';
 
 export const SPRONGEN_DOEL = 20;
 
@@ -21,6 +22,7 @@ type Props = {
 export function BewegingStap({ onVoortgang, onKlaar }: Props) {
   const voortgang = useRef(onVoortgang);
   const klaar = useRef(onKlaar);
+  const { t } = useTaal();
   useEffect(() => {
     voortgang.current = onVoortgang;
     klaar.current = onKlaar;
@@ -53,12 +55,10 @@ export function BewegingStap({ onVoortgang, onKlaar }: Props) {
   }, []);
 
   return (
-    <CameraFrame label="BEWEGINGSSENSOR" notitie="SENSOR · OP JE TOESTEL">
+    <CameraFrame label={t('missie.beweging.label')} notitie={t('missie.beweging.notitie')}>
       <View style={styles.midden}>
         <Text style={styles.emoji}>🤸</Text>
-        <Text style={styles.uitleg}>
-          Houd je telefoon stevig vast en spring {SPRONGEN_DOEL} keer. Mooove telt elke sprong.
-        </Text>
+        <Text style={styles.uitleg}>{t('missie.beweging.uitleg', { n: SPRONGEN_DOEL })}</Text>
       </View>
     </CameraFrame>
   );

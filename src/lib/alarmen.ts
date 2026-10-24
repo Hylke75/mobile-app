@@ -9,6 +9,7 @@ import AlarmScheduler, {
 import { MISSIE_TIMEOUT_MINUTEN, WAKKERCHECK_MINUTEN } from '@/constants/alarm';
 import { doelenNaarTekst, doelenUitTekst } from '@/constants/oefeningen';
 import { leesAlarmgeluid, type Alarmgeluid } from '@/lib/alarmgeluid';
+import { huidigeTaal, t } from '@/i18n';
 import { hervatOp, volgendeKeer } from '@/lib/tijd';
 import type { Alarm, Doelen, Niveau, Oefening } from '@/types/app';
 
@@ -43,13 +44,13 @@ function basisOpties(
         metadata: { ...metadata, afgeschermd: false },
         alertTitle: titel,
         alertActionMode: 'default',
-        stopButtonTitle: 'Stop',
-        secondaryButtonTitle: 'Open Mooove',
+        stopButtonTitle: t('systeem.alarm.stop'),
+        secondaryButtonTitle: t('systeem.alarm.openApp'),
         secondaryButtonBehavior: 'openApp',
         stopIntentBehavior: 'recordOnly',
       },
       android: {
-        alertBody: 'Tijd om te bewegen',
+        alertBody: t('systeem.alarm.tijdOmTeBewegen'),
         launchUri: LAUNCH_URI,
         maxRingDurationSeconds: 300,
       },
@@ -60,12 +61,12 @@ function basisOpties(
       metadata: { ...metadata, afgeschermd: true },
       alertTitle: titel,
       alertActionMode: 'openAppOnly',
-      secondaryButtonTitle: 'Start missie',
+      secondaryButtonTitle: t('systeem.alarm.startMissie'),
       secondaryButtonBehavior: 'openApp',
       stopIntentBehavior: 'rescheduleImmediate',
     },
     android: {
-      alertBody: 'Rond je missie af om het alarm te stoppen',
+      alertBody: t('systeem.alarm.rondMissieAf'),
       launchUri: LAUNCH_URI,
       maxRingDurationSeconds: 0,
     },
@@ -82,6 +83,7 @@ function versieVan(alarm: Alarm, geluid: Alarmgeluid | null, hervat: Date | null
     doelenNaarTekst(alarm.doelen),
     geluid?.uri ?? '',
     hervat ? `pauze:${hervat.getTime()}` : '',
+    huidigeTaal(),
   ].join('|');
 }
 
@@ -233,9 +235,9 @@ export async function planTestAlarm(seconden: number): Promise<string> {
     hour: op.getHours(),
     minute: op.getMinutes(),
     timestamp: op.getTime(),
-    title: 'Mooove testalarm',
+    title: t('systeem.alarm.testalarm'),
     soundUri: (await leesAlarmgeluid())?.uri,
-    ...basisOpties('Mooove testalarm', { type: 'test' }, false),
+    ...basisOpties(t('systeem.alarm.testalarm'), { type: 'test' }, false),
   });
   return id;
 }
@@ -247,8 +249,8 @@ export async function planWakkerCheck(alarmId: string): Promise<void> {
     hour: op.getHours(),
     minute: op.getMinutes(),
     timestamp: op.getTime(),
-    title: 'Wakker-check',
-    ...basisOpties('Wakker-check', { type: 'wakkercheck', alarmId }, true),
+    title: t('systeem.alarm.wakkercheck'),
+    ...basisOpties(t('systeem.alarm.wakkercheck'), { type: 'wakkercheck', alarmId }, true),
   });
 }
 

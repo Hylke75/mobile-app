@@ -7,10 +7,12 @@ import { AuthScreen } from '@/components/AuthScreen';
 import { authStyles as s } from '@/components/authStyles';
 import { PrimaryButton } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
+import { useTaal } from '@/i18n';
 
 const EMAIL_PATROON = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function InloggenScherm() {
+  const { t } = useTaal();
   const { vraagCodeAan, loginMetWachtwoord } = useAuth();
   const [email, setEmail] = useState('');
   const [metWachtwoord, setMetWachtwoord] = useState(false);
@@ -20,7 +22,7 @@ export default function InloggenScherm() {
 
   const verstuur = async () => {
     const adres = email.trim().toLowerCase();
-    if (!EMAIL_PATROON.test(adres)) return setFout('Vul een geldig e-mailadres in.');
+    if (!EMAIL_PATROON.test(adres)) return setFout(t('auth.inloggen.ongeldigEmail'));
     setBezig(true);
     setFout(null);
     if (metWachtwoord) {
@@ -43,15 +45,12 @@ export default function InloggenScherm() {
       <Text style={s.titel}>
         Wake up{'\n'}& <Text style={s.accent}>move.</Text>
       </Text>
-      <Text style={s.tekst}>
-        Log in met je e-mailadres. Je krijgt een eenmalige code per e-mail. Met een account bewaren
-        we je alarmen, streak en voortgang, ook als je een nieuwe telefoon neemt.
-      </Text>
-      <Text style={s.label}>E-MAILADRES</Text>
+      <Text style={s.tekst}>{t('auth.inloggen.tekst')}</Text>
+      <Text style={s.label}>{t('auth.inloggen.emailLabel')}</Text>
       <TextInput
         value={email}
         onChangeText={setEmail}
-        placeholder="jij@voorbeeld.nl"
+        placeholder={t('auth.inloggen.emailVoorbeeld')}
         placeholderTextColor="#668068"
         keyboardType="email-address"
         autoCapitalize="none"
@@ -60,12 +59,12 @@ export default function InloggenScherm() {
         textContentType="emailAddress"
         returnKeyType="send"
         onSubmitEditing={verstuur}
-        accessibilityLabel="E-mailadres"
+        accessibilityLabel={t('auth.inloggen.emailA11y')}
         style={s.input}
       />
       {metWachtwoord && (
         <>
-          <Text style={[s.label, s.labelExtra]}>WACHTWOORD</Text>
+          <Text style={[s.label, s.labelExtra]}>{t('auth.inloggen.wachtwoordLabel')}</Text>
           <TextInput
             value={wachtwoord}
             onChangeText={setWachtwoord}
@@ -74,14 +73,20 @@ export default function InloggenScherm() {
             autoComplete="password"
             textContentType="password"
             onSubmitEditing={verstuur}
-            accessibilityLabel="Wachtwoord"
+            accessibilityLabel={t('auth.inloggen.wachtwoordA11y')}
             style={s.input}
           />
         </>
       )}
       {fout && <Text style={s.fout}>{fout}</Text>}
       <PrimaryButton
-        label={bezig ? 'Bezig…' : metWachtwoord ? 'Inloggen' : 'Stuur mij een code'}
+        label={
+          bezig
+            ? t('algemeen.bezig')
+            : metWachtwoord
+              ? t('auth.inloggen.inloggen')
+              : t('auth.inloggen.stuurCode')
+        }
         onPress={bezig ? () => {} : verstuur}
         style={s.knop}
       />
@@ -94,11 +99,11 @@ export default function InloggenScherm() {
         style={s.link}
       >
         <Text style={s.linkTekst}>
-          {metWachtwoord ? 'Inloggen met een code' : 'Inloggen met wachtwoord'}
+          {metWachtwoord ? t('auth.inloggen.metCode') : t('auth.inloggen.metWachtwoord')}
         </Text>
       </Pressable>
       <Pressable accessibilityRole="link" onPress={() => router.push('/privacy')} style={s.link}>
-        <Text style={s.linkTekst}>Privacyverklaring</Text>
+        <Text style={s.linkTekst}>{t('auth.inloggen.privacy')}</Text>
       </Pressable>
     </AuthScreen>
   );

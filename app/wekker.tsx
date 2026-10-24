@@ -8,6 +8,7 @@ import { LevelTag, PrimaryButton, SecondaryButton } from '@/components/ui';
 import { dagenTekst, MAX_SNOOZES, missiesTekst, SNOOZE_MINUTEN } from '@/constants/alarm';
 import { doelenNaarTekst, doelenUitTekst } from '@/constants/oefeningen';
 import { em, fonts, kleuren } from '@/constants/theme';
+import { useTaal } from '@/i18n';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useAuth } from '@/hooks/useAuth';
 import { useStartDoel } from '@/hooks/useStartDoel';
@@ -43,6 +44,7 @@ export default function WekkerScherm() {
   const { alarms, herplan } = useAlarmen();
   const { werkProfielBij } = useAuth();
   const { showToast } = useToast();
+  const { t } = useTaal();
   const [tijd, setTijd] = useState(tijdNu);
   const [bezig, setBezig] = useState(false);
 
@@ -50,8 +52,8 @@ export default function WekkerScherm() {
   const startDoel = useStartDoel();
 
   useEffect(() => {
-    const t = setInterval(() => setTijd(tijdNu()), 10000);
-    return () => clearInterval(t);
+    const timer = setInterval(() => setTijd(tijdNu()), 10000);
+    return () => clearInterval(timer);
   }, []);
 
   // Het alarm loopt door tot de gebruiker een keuze maakt; terug mag niet
@@ -89,7 +91,7 @@ export default function WekkerScherm() {
     try {
       await actie();
     } catch {
-      showToast('Er ging iets mis met het alarm. Probeer het opnieuw.');
+      showToast(t('wekker.fout'));
     } finally {
       setBezig(false);
     }
@@ -120,7 +122,7 @@ export default function WekkerScherm() {
   const snooze = (minuten: number, telt: boolean) =>
     voerUit(async () => {
       await stelUit(wekker, minuten, { snoozes: wekker.snoozes + (telt ? 1 : 0) });
-      showToast(`Alarm gaat over ${minuten} minuten opnieuw.`);
+      showToast(t('wekker.snoozeToast', { n: minuten }));
       router.dismissTo('/');
     });
 
@@ -135,19 +137,17 @@ export default function WekkerScherm() {
 
   if (wekker.type === 'test') {
     return (
-      <WekkerLayout tijd={tijd} kicker="MOOOVE SYSTEM CHECK" titel="Testalarm.">
-        <Text style={styles.tekst}>
-          Hoorde je het alarm, ook met je telefoon op stil? Dan werken je alarmen zoals het hoort.
-        </Text>
+      <WekkerLayout tijd={tijd} kicker="MOOOVE SYSTEM CHECK" titel={t('wekker.test.titel')}>
+        <Text style={styles.tekst}>{t('wekker.test.tekst')}</Text>
         <PrimaryButton
-          label="Test geslaagd"
+          label={t('wekker.test.geslaagd')}
           icon="check"
           onPress={() =>
             voerUit(async () => {
               await rondWekkerAf(wekker.alarmId, wekker.occurrenceId);
               await verwijderEenmaligAlarm(wekker.alarmId);
               await werkProfielBij({ alarmtest_geslaagd_op: new Date().toISOString() });
-              showToast('Testalarm geslaagd ✓');
+              showToast(t('wekker.test.toast'));
               router.dismissTo('/profiel');
             })
           }
@@ -159,16 +159,20 @@ export default function WekkerScherm() {
 
   if (wekker.type === 'wakkercheck') {
     return (
-      <WekkerLayout tijd={tijd} kicker="HARDCORE · WAKKER-CHECK" titel="Nog wakker?">
-        <Text style={styles.tekst}>Bevestig dat je niet weer in slaap bent gevallen.</Text>
+      <WekkerLayout
+        tijd={tijd}
+        kicker={t('wekker.wakkerCheck.kicker')}
+        titel={t('wekker.wakkerCheck.titel')}
+      >
+        <Text style={styles.tekst}>{t('wekker.wakkerCheck.tekst')}</Text>
         <PrimaryButton
-          label="Ja, ik ben wakker"
+          label={t('wekker.wakkerCheck.knop')}
           icon="check"
           onPress={() =>
             voerUit(async () => {
               await rondWekkerAf(wekker.alarmId, wekker.occurrenceId);
               await verwijderEenmaligAlarm(wekker.alarmId);
-              showToast('Lekker bezig. Fijne dag!');
+              showToast(t('wekker.wakkerCheck.toast'));
               router.dismissTo('/');
             })
           }
@@ -185,8 +189,8 @@ export default function WekkerScherm() {
   return (
     <WekkerLayout
       tijd={tijd}
-      kicker={wekker.missieBezig ? 'JE MISSIE IS NOG NIET KLAAR' : 'WAKE UP & MOVE'}
-      titel={wekker.naam ?? 'Tijd om te bewegen.'}
+      kicker={wekker.missieBezig ? t('wekker.nietKlaar') : 'WAKE UP & MOVE'}
+      titel={wekker.naam ?? t('wekker.standaardTitel')}
     >
       <View style={styles.info}>
         <LevelTag level={niveau} />
@@ -198,18 +202,18 @@ export default function WekkerScherm() {
         )}
       </View>
       <PrimaryButton
-        label={wekker.missieBezig ? 'Ga verder met je missie' : 'Start missie'}
+        label={wekker.missieBezig ? t('wekker.verder') : t('wekker.start')}
         onPress={startMissie}
         style={styles.knop}
       />
       {!wekker.missieBezig && niveau === 'Vrij' && (
         <>
           <SecondaryButton
-            label={`Snooze ${SNOOZE_MINUTEN} minuten`}
+            label={t('wekker.snooze', { n: SNOOZE_MINUTEN })}
             onPress={() => snooze(SNOOZE_MINUTEN, false)}
             style={styles.knopKlein}
           />
-          <SecondaryButton label="Stop alarm" onPress={stop} style={styles.knopKlein} />
+          <SecondaryButton label={t('wekker.stop')} onPress={stop} style={styles.knopKlein} />
         </>
       )}
       {!wekker.missieBezig && niveau === 'Flexibel' && (
@@ -217,7 +221,7 @@ export default function WekkerScherm() {
           {[15, 30, 60].map((m) => (
             <SecondaryButton
               key={m}
-              label={m === 60 ? '+1 uur' : `+${m} min`}
+              label={m === 60 ? t('wekker.plusUur') : t('wekker.plusMin', { n: m })}
               onPress={() => snooze(m, false)}
               style={styles.rijKnop}
             />
@@ -226,13 +230,13 @@ export default function WekkerScherm() {
       )}
       {!wekker.missieBezig && niveau === 'Uitstelbaar' && snoozesOver > 0 && (
         <SecondaryButton
-          label={`Snooze ${SNOOZE_MINUTEN} min (nog ${snoozesOver}×)`}
+          label={t('wekker.snoozeNog', { min: SNOOZE_MINUTEN, n: snoozesOver })}
           onPress={() => snooze(SNOOZE_MINUTEN, true)}
           style={styles.knopKlein}
         />
       )}
       {(niveau === 'Verplicht' || niveau === 'Hardcore') && (
-        <Text style={styles.streng}>Geen snooze. Het alarm stopt pas als je missie klaar is.</Text>
+        <Text style={styles.streng}>{t('wekker.streng')}</Text>
       )}
     </WekkerLayout>
   );

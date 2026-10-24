@@ -6,13 +6,14 @@ import Svg, { Circle } from 'react-native-svg';
 import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import { gedeeld, PrimaryButton, SectionTitleRow } from '@/components/ui';
-import { dagenTekst, missiesTekst } from '@/constants/alarm';
-import { doelTekst, OEFENING_INFO } from '@/constants/oefeningen';
+import { dagenTekst, dagNaam, missiesTekst, niveauNaam } from '@/constants/alarm';
+import { doelTekst, OEFENING_INFO, oefeningNaam } from '@/constants/oefeningen';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmCheck } from '@/hooks/useAlarmCheck';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useAuth } from '@/hooks/useAuth';
 import { useSessies } from '@/hooks/useSessies';
+import { useTaal, type t as T } from '@/i18n';
 import { alarmenBeschikbaar } from '@/lib/alarmen';
 import { datumKicker } from '@/lib/datum';
 import { useNu } from '@/hooks/useNu';
@@ -23,15 +24,13 @@ import type { Oefening } from '@/types/app';
 
 const STANDAARD_MISSIE: Oefening[] = ['Squats', 'Bed opmaken', 'Gordijnen open'];
 
-const WEEKDAGEN = ['zondag', 'maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag'];
-
-function wanneerTekst(op: Date): string {
+function wanneerTekst(op: Date, t: typeof T): string {
   const vandaag = startVanDag(new Date());
   const dag = startVanDag(op);
   const verschil = Math.round((dag.getTime() - vandaag.getTime()) / 86400000);
-  if (verschil === 0) return 'Vandaag';
-  if (verschil === 1) return 'Morgen';
-  return `A.s. ${WEEKDAGEN[op.getDay()]}`;
+  if (verschil === 0) return t('vandaag.vandaag');
+  if (verschil === 1) return t('vandaag.morgen');
+  return t('vandaag.aanstaande', { dag: dagNaam(dagIndex(op)) });
 }
 
 export default function VandaagScherm() {
@@ -39,6 +38,7 @@ export default function VandaagScherm() {
   const { alarms, vernieuw: vernieuwAlarmen } = useAlarmen();
   const { sessies, statistiek, vernieuw, wachtend } = useSessies();
   const { allesInOrde } = useAlarmCheck();
+  const { t, locale } = useTaal();
   const voornaam = profiel?.voornaam ?? '';
 
   const nu = useNu();
@@ -67,11 +67,11 @@ export default function VandaagScherm() {
       <View style={[gedeeld.rowBetween, styles.helloRow]}>
         <View>
           <Text style={[gedeeld.sectionKicker, styles.helloKicker]}>{datumKicker()}</Text>
-          <Text style={styles.helloName}>Hey {voornaam} ✌️</Text>
+          <Text style={styles.helloName}>{t('vandaag.groet', { naam: voornaam })}</Text>
         </View>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Open profiel"
+          accessibilityLabel={t('vandaag.profielOpenen')}
           onPress={() => router.navigate('/profiel')}
           style={styles.avatar}
         >
@@ -115,7 +115,7 @@ export default function VandaagScherm() {
           />
         </Svg>
         <View style={styles.streakTopline}>
-          <Text style={styles.streakToplineText}>JOUW STREAK</Text>
+          <Text style={styles.streakToplineText}>{t('vandaag.jouwStreak')}</Text>
           <View style={styles.flameTag}>
             <Icon name="flame" color={kleuren.lime} />
           </View>
@@ -124,12 +124,12 @@ export default function VandaagScherm() {
           <Text maxFontSizeMultiplier={1.2} style={styles.streakCount}>
             {statistiek.streak}
           </Text>
-          <Text style={styles.streakSmall}>{statistiek.streak === 1 ? 'DAG' : 'DAGEN'}</Text>
+          <Text style={styles.streakSmall}>
+            {statistiek.streak === 1 ? t('vandaag.dag') : t('vandaag.dagen')}
+          </Text>
         </View>
         <Text style={styles.streakSub}>
-          {statistiek.streak > 0
-            ? 'Je bent niet te stoppen. Keep going!'
-            : 'Rond vandaag je eerste missie af en start je streak.'}
+          {statistiek.streak > 0 ? t('vandaag.streakBezig') : t('vandaag.streakStart')}
         </Text>
         <Text maxFontSizeMultiplier={1.2} style={styles.sparkle}>
           ✳
@@ -139,21 +139,22 @@ export default function VandaagScherm() {
       {toonOverzicht && (
         <View style={styles.week} accessibilityRole="summary">
           <View style={styles.flex}>
-            <Text style={styles.weekKicker}>JOUW VORIGE WEEK</Text>
+            <Text style={styles.weekKicker}>{t('vandaag.vorigeWeek')}</Text>
             <Text style={styles.weekTekst}>
-              {overzicht.actieveDagen} {overzicht.actieveDagen === 1 ? 'dag' : 'dagen'} bewogen ·{' '}
-              {overzicht.missies} {overzicht.missies === 1 ? 'missie' : 'missies'} ·{' '}
-              {overzicht.reps} reps
+              {overzicht.actieveDagen === 1
+                ? t('vandaag.weekDag')
+                : t('vandaag.weekDagen', { n: overzicht.actieveDagen })}{' '}
+              · {missiesTekst(overzicht.missies)} · {t('vandaag.reps', { n: overzicht.reps })}
             </Text>
             <Text style={styles.weekSub}>
               {overzicht.actieveDagen >= (profiel?.weekdoel ?? 7)
-                ? 'Weekdoel gehaald. Zo ga je door! 🎉'
-                : 'Nieuwe week, nieuwe kans. Jij kunt dit.'}
+                ? t('vandaag.weekdoelGehaald')
+                : t('vandaag.nieuweWeek')}
             </Text>
           </View>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Weekoverzicht sluiten"
+            accessibilityLabel={t('vandaag.weekoverzichtSluiten')}
             hitSlop={10}
             onPress={() => {
               setGezien(weekSleutel);
@@ -166,25 +167,30 @@ export default function VandaagScherm() {
       )}
 
       <SectionTitleRow
-        titel="Volgende alarm"
+        titel={t('vandaag.volgendeAlarm')}
         rechts={
           <Pressable onPress={() => router.navigate('/alarmen')} hitSlop={8}>
-            <Text style={styles.textLink}>Alle alarmen ↗</Text>
+            <Text style={styles.textLink}>{t('vandaag.alleAlarmen')}</Text>
           </Pressable>
         }
       />
       {hervat && (
         <Pressable
           accessibilityRole="button"
-          accessibilityHint="Zet je alarmen weer aan"
+          accessibilityHint={t('vandaag.pauzeHint')}
           onPress={() => werkProfielBij({ pauze_tot: null })}
           style={styles.pauze}
         >
           <Icon name="calendar" size={17} color={kleuren.ink} />
           <Text style={styles.pauzeTekst}>
-            <Text style={styles.insightStrong}>Alarmen gepauzeerd</Text> tot{' '}
-            {hervat.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' })}
-            . Tik om ze nu weer aan te zetten.
+            <Text style={styles.insightStrong}>{t('vandaag.pauzeTitel')}</Text>{' '}
+            {t('vandaag.pauzeTekst', {
+              datum: hervat.toLocaleDateString(locale, {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+              }),
+            })}
           </Text>
         </Pressable>
       )}
@@ -202,18 +208,20 @@ export default function VandaagScherm() {
                 {volgend.alarm.tijd}
               </Text>
               <Text style={styles.alarmTimeSmall}>
-                {dagenTekst(volgend.alarm.dagen).toUpperCase()}
+                {dagenTekst(volgend.alarm.dagen).toLocaleUpperCase(locale)}
               </Text>
             </View>
             <View style={styles.pillLabel}>
-              <Text style={styles.pillLabelText}>{volgend.alarm.niveau.toUpperCase()}</Text>
+              <Text style={styles.pillLabelText}>
+                {niveauNaam(volgend.alarm.niveau).toLocaleUpperCase(locale)}
+              </Text>
             </View>
           </View>
           <Text style={styles.alarmSub}>{volgend.alarm.naam}</Text>
           <Text style={styles.alarmCaption}>
-            {missiesTekst(volgend.alarm.oefeningen.length)} · {wanneerTekst(volgend.op)}
+            {missiesTekst(volgend.alarm.oefeningen.length)} · {wanneerTekst(volgend.op, t)}
             {volgend.op.getTime() - nu.getTime() < 86400000
-              ? ` · over ${tijdTot(volgend.op, nu)}`
+              ? ` · ${t('vandaag.over', { tijd: tijdTot(volgend.op, nu) })}`
               : ''}
           </Text>
           <View style={styles.alarmShape}>
@@ -228,8 +236,8 @@ export default function VandaagScherm() {
           onPress={() => router.push('/nieuw-alarm')}
           style={styles.nextAlarm}
         >
-          <Text style={styles.alarmSub}>Nog geen alarm gepland.</Text>
-          <Text style={styles.alarmCaption}>Tik hier om je eerste Mooove-alarm te zetten.</Text>
+          <Text style={styles.alarmSub}>{t('vandaag.geenAlarm')}</Text>
+          <Text style={styles.alarmCaption}>{t('vandaag.geenAlarmTekst')}</Text>
           <View style={styles.alarmShape}>
             <Text maxFontSizeMultiplier={1.2} style={styles.alarmShapeArrow}>
               ↗
@@ -239,8 +247,10 @@ export default function VandaagScherm() {
       )}
 
       <SectionTitleRow
-        titel="Jouw ochtendmissie"
-        rechts={`${String(missie.length).padStart(2, '0')} STAPPEN`}
+        titel={t('vandaag.ochtendmissie')}
+        rechts={t(missie.length === 1 ? 'vandaag.stap' : 'vandaag.stappen', {
+          n: String(missie.length).padStart(2, '0'),
+        })}
       />
       <View style={styles.missionList}>
         {missie.map((oefening, i) => (
@@ -253,7 +263,7 @@ export default function VandaagScherm() {
               <Text style={styles.missionEmojiText}>{OEFENING_INFO[oefening].emoji}</Text>
             </View>
             <View>
-              <Text style={styles.missionName}>{oefening}</Text>
+              <Text style={styles.missionName}>{oefeningNaam(oefening)}</Text>
               <Text style={styles.missionDetail}>{doelTekst(oefening, volgend?.alarm.doelen)}</Text>
             </View>
             <View style={[styles.missionCheck, vandaagKlaar && styles.missionCheckKlaar]}>
@@ -264,7 +274,7 @@ export default function VandaagScherm() {
       </View>
 
       <PrimaryButton
-        label={vandaagKlaar ? 'Doe je missie nog een keer' : 'Start je missie nu'}
+        label={vandaagKlaar ? t('vandaag.missieOpnieuw') : t('vandaag.missieStart')}
         onPress={() =>
           router.push({
             pathname: '/missie',
@@ -279,12 +289,12 @@ export default function VandaagScherm() {
           <Text style={styles.insightText}>
             {allesInOrde ? (
               <>
-                <Text style={styles.insightStrong}>Ready to go.</Text> Je alarm-check is in orde.
+                <Text style={styles.insightStrong}>Ready to go.</Text> {t('vandaag.checkInOrde')}
               </>
             ) : (
               <>
-                <Text style={styles.insightStrong}>Let op.</Text> Rond je alarm-check af in je
-                profiel.
+                <Text style={styles.insightStrong}>{t('vandaag.letOp')}</Text>{' '}
+                {t('vandaag.checkAfronden')}
               </>
             )}
           </Text>
@@ -293,16 +303,16 @@ export default function VandaagScherm() {
       {wachtend > 0 && (
         <Pressable
           accessibilityRole="button"
-          accessibilityHint="Probeert de missies nu te versturen"
+          accessibilityHint={t('vandaag.wachtHint')}
           onPress={() => vernieuw()}
           style={styles.insight}
         >
           <Icon name="activity" size={17} color="#5F6E60" />
           <Text style={styles.insightText}>
             <Text style={styles.insightStrong}>
-              {wachtend === 1 ? '1 missie wacht' : `${wachtend} missies wachten`} op internet.
+              {wachtend === 1 ? t('vandaag.wachtEen') : t('vandaag.wachtMeer', { n: wachtend })}
             </Text>{' '}
-            Ze tellen al mee en worden vanzelf verstuurd. Tik om het nu te proberen.
+            {t('vandaag.wachtTekst')}
           </Text>
         </Pressable>
       )}

@@ -11,6 +11,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   // Conceptlogo uit docs/ontwerp; het merk is nog niet definitief vastgelegd
   icon: './assets/icon.png',
   userInterfaceStyle: 'light',
+  // Teksten voor iOS-toestemmingen per taal (de rest van de app vertaalt src/i18n)
+  locales: {
+    nl: './locales/nl.json',
+    en: './locales/en.json',
+    es: './locales/es.json',
+    de: './locales/de.json',
+    fr: './locales/fr.json',
+  },
   ios: {
     bundleIdentifier: 'nl.linkandlead.mobileapp',
     buildNumber: '1',
@@ -25,6 +33,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         'Alleen in testversies: Mooove zoekt de ontwikkelserver op je lokale netwerk.',
       // Alleen standaard HTTPS: geen exportdocumentatie nodig
       ITSAppUsesNonExemptEncryption: false,
+      CFBundleDevelopmentRegion: 'nl',
     },
     // Required reason API's die de app en bibliotheken zonder eigen manifest gebruiken
     privacyManifests: {
@@ -111,6 +120,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     'expo-router',
+    [
+      'expo-localization',
+      {
+        supportedLocales: {
+          ios: ['nl', 'en', 'es', 'de', 'fr'],
+          android: ['nl', 'en', 'es', 'de', 'fr'],
+        },
+      },
+    ],
     // react-native-nitro-pose-exercises vereist minimaal Android 8.0 (API 26)
     [
       'expo-build-properties',

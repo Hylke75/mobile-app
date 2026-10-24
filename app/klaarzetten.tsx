@@ -10,18 +10,21 @@ import { PrimaryButton, SecondaryButton } from '@/components/ui';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmCheck } from '@/hooks/useAlarmCheck';
 import { useAlarmen } from '@/hooks/useAlarmen';
+import { useTaal } from '@/i18n';
 import { alarmenBeschikbaar, vraagRechtenAan } from '@/lib/alarmen';
 import { openBatterijInstellingen } from '@/lib/batterij';
-import { vraagCameraAan } from '@/lib/camera';
+import { cameraStatus, vraagCameraAan } from '@/lib/camera';
 import { schrijfLokaal, SLEUTELS } from '@/lib/opslag';
 
 type Stap = { titel: string; uitleg: string; ok: boolean; actie: () => void; knop: string };
 
 export default function KlaarzettenScherm() {
-  const { rechten, regels, batterijAan, vernieuw } = useAlarmCheck();
+  const { t } = useTaal();
+  // De hook rendert opnieuw na elke vernieuw(), dus de camerastatus is hier actueel
+  const { rechten, batterijAan, vernieuw } = useAlarmCheck();
   const { alarms, geladen } = useAlarmen();
   const [bezig, setBezig] = useState(false);
-  const camera = regels.find((r) => r.label === 'Camera')?.ok ?? false;
+  const camera = cameraStatus() === 'toegestaan';
 
   const metBezig = (actie: () => Promise<unknown>) => async () => {
     setBezig(true);
@@ -35,20 +38,20 @@ export default function KlaarzettenScherm() {
 
   const stappen: Stap[] = [
     {
-      titel: 'Alarmen',
-      uitleg: 'Zodat je alarm afgaat, ook als je telefoon op stil of Niet storen staat.',
+      titel: t('auth.klaarzetten.alarmenTitel'),
+      uitleg: t('auth.klaarzetten.alarmenUitleg'),
       ok: Boolean(rechten?.canScheduleExactAlarms),
-      knop: 'Sta alarmen toe',
+      knop: t('auth.klaarzetten.alarmenKnop'),
       actie: metBezig(async () => {
         const nieuw = await vraagRechtenAan().catch(() => null);
         if (!nieuw?.canScheduleExactAlarms && nieuw?.canOpenSettings) await Linking.openSettings();
       }),
     },
     {
-      titel: 'Camera',
-      uitleg: 'Om je oefeningen te herkennen. Beelden blijven altijd op je toestel.',
+      titel: t('auth.klaarzetten.cameraTitel'),
+      uitleg: t('auth.klaarzetten.cameraUitleg'),
       ok: camera,
-      knop: 'Sta camera toe',
+      knop: t('auth.klaarzetten.cameraKnop'),
       actie: metBezig(async () => {
         const gelukt = await vraagCameraAan().catch(() => false);
         if (!gelukt) await Linking.openSettings();
@@ -57,11 +60,10 @@ export default function KlaarzettenScherm() {
     ...(Platform.OS === 'android'
       ? [
           {
-            titel: 'Batterijbesparing uit',
-            uitleg:
-              'Sommige telefoons sluiten apps om batterij te sparen. Zet dit voor Mooove uit, anders kan een alarm wegvallen.',
+            titel: t('auth.klaarzetten.batterijTitel'),
+            uitleg: t('auth.klaarzetten.batterijUitleg'),
             ok: !batterijAan,
-            knop: 'Open instellingen',
+            knop: t('auth.klaarzetten.batterijKnop'),
             actie: metBezig(openBatterijInstellingen),
           },
         ]
@@ -84,14 +86,13 @@ export default function KlaarzettenScherm() {
   return (
     <AuthScreen>
       <StatusBar style="light" />
-      <Text style={s.kicker}>NOG ÉÉN DING</Text>
+      <Text style={s.kicker}>{t('auth.klaarzetten.kicker')}</Text>
       <Text style={s.titel}>
-        Zet je wekker <Text style={s.accent}>klaar.</Text>
+        {t('auth.klaarzetten.titel')}
+        <Text style={s.accent}>{t('auth.klaarzetten.titelAccent')}</Text>
       </Text>
       <Text style={s.tekst}>
-        {alarmenBeschikbaar
-          ? 'Mooove heeft een paar rechten nodig om je echt wakker te krijgen.'
-          : 'Alarmen en camera werken alleen in de app op je telefoon.'}
+        {alarmenBeschikbaar ? t('auth.klaarzetten.tekst') : t('auth.klaarzetten.tekstWeb')}
       </Text>
 
       {alarmenBeschikbaar &&
@@ -122,12 +123,16 @@ export default function KlaarzettenScherm() {
         ))}
 
       <PrimaryButton
-        label={alarmenBeschikbaar ? 'Klaar, test mijn alarm' : 'Verder'}
+        label={alarmenBeschikbaar ? t('auth.klaarzetten.testen') : t('auth.klaarzetten.verder')}
         onPress={() => klaar(alarmenBeschikbaar)}
         style={s.knop}
       />
       {alarmenBeschikbaar && (
-        <SecondaryButton label="Later" onPress={() => klaar(false)} style={styles.later} />
+        <SecondaryButton
+          label={t('auth.klaarzetten.later')}
+          onPress={() => klaar(false)}
+          style={styles.later}
+        />
       )}
     </AuthScreen>
   );

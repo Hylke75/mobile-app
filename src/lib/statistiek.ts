@@ -1,3 +1,4 @@
+import { t } from '@/i18n';
 import { dagIndex, dagSleutel, startVanDag, startVanWeek } from '@/lib/tijd';
 import type { Oefening, Sessie } from '@/types/app';
 
@@ -119,35 +120,39 @@ export function berekenStatistiek(sessies: Sessie[], weekdoel = 7, nu = new Date
   };
 }
 
-export type Badge = { emoji: string; naam: string; detail: string; behaald: boolean };
+export type Badge = { id: string; emoji: string; naam: string; detail: string; behaald: boolean };
+
+type BadgeId =
+  | 'eersteStap'
+  | 'earlyMover'
+  | 'weekendWarrior'
+  | 'squatSquad'
+  | 'pushupPro'
+  | 'plankmeester'
+  | 'streakMaster'
+  | 'legend'
+  | 'honderd';
+
+const badge = (id: BadgeId, emoji: string, behaald: boolean): Badge => ({
+  id,
+  emoji,
+  naam: t(`badges.${id}.naam`),
+  detail: t(`badges.${id}.detail`),
+  behaald,
+});
 
 export function badgesVoor(s: Statistiek): Badge[] {
   const totaal = (o: Oefening) => s.totaalPerOefening[o] ?? 0;
   return [
-    { emoji: '🌱', naam: 'Eerste stap', detail: 'Eerste missie', behaald: s.aantalVoltooid >= 1 },
-    { emoji: '⚡', naam: 'Early mover', detail: '5 vroege starts', behaald: s.vroegeStarts >= 5 },
-    { emoji: '🏖️', naam: 'Weekend warrior', detail: 'Za én zo bewogen', behaald: s.weekendWarrior },
-    { emoji: '🦵', naam: 'Squat squad', detail: '100 squats', behaald: totaal('Squats') >= 100 },
-    {
-      emoji: '💪',
-      naam: 'Push-up pro',
-      detail: '100 push-ups',
-      behaald: totaal('Push-ups') >= 100,
-    },
-    { emoji: '🧱', naam: 'Plankmeester', detail: '10 min plank', behaald: totaal('Plank') >= 600 },
-    {
-      emoji: '🔥',
-      naam: 'Streak master',
-      detail: '10 dagen op rij',
-      behaald: s.langsteStreak >= 10,
-    },
-    { emoji: '🏆', naam: 'Legend', detail: '30 dagen op rij', behaald: s.langsteStreak >= 30 },
-    {
-      emoji: '💯',
-      naam: 'Honderdklapper',
-      detail: '100 missies',
-      behaald: s.aantalVoltooid >= 100,
-    },
+    badge('eersteStap', '🌱', s.aantalVoltooid >= 1),
+    badge('earlyMover', '⚡', s.vroegeStarts >= 5),
+    badge('weekendWarrior', '🏖️', s.weekendWarrior),
+    badge('squatSquad', '🦵', totaal('Squats') >= 100),
+    badge('pushupPro', '💪', totaal('Push-ups') >= 100),
+    badge('plankmeester', '🧱', totaal('Plank') >= 600),
+    badge('streakMaster', '🔥', s.langsteStreak >= 10),
+    badge('legend', '🏆', s.langsteStreak >= 30),
+    badge('honderd', '💯', s.aantalVoltooid >= 100),
   ];
 }
 

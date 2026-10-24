@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { AppState } from 'react-native';
 
+import { luisterNaarTaal, t } from '@/i18n';
 import { doelenUitJson } from '@/constants/oefeningen';
 import { useAuth } from '@/hooks/useAuth';
 import { annuleerAlarm, deblokkeerSynchronisatie, synchroniseer } from '@/lib/alarmen';
@@ -77,7 +78,7 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
     if (!lijstBekend.current) return;
     synchroniseer(lijst, pauze.current)
       .then(() => setFout(null))
-      .catch(() => setFout('Alarmen konden niet op je toestel worden ingepland.'));
+      .catch(() => setFout(t('meldingen.alarmenNietGepland')));
   }, []);
 
   const zetEnSync = useCallback(
@@ -96,6 +97,9 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
 
   const herplan = useCallback(() => plan(huidig.current), [plan]);
 
+  // Andere taal: de knoppen en teksten op het native alarm opnieuw zetten
+  useEffect(() => luisterNaarTaal(() => plan(huidig.current)), [plan]);
+
   // Pauze aan, uit of verlengd: alles opnieuw inplannen
   useEffect(() => {
     pauze.current = pauzeTot;
@@ -105,7 +109,7 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
   const verwerk = useCallback(
     (id: string, resultaat: Awaited<ReturnType<typeof haalAlarmenOp>>) => {
       if (resultaat.error) {
-        setFout('Je alarmen konden niet worden geladen.');
+        setFout(t('meldingen.alarmenNietGeladen'));
         return;
       }
       setFout(null);
@@ -157,13 +161,13 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
 
   const maakAan = useCallback(
     async (invoer: AlarmInvoer) => {
-      if (!user) return 'Je bent niet ingelogd.';
+      if (!user) return t('meldingen.nietIngelogd');
       const { data: rij, error } = await supabase
         .from('alarms')
         .insert({ ...invoer, aan: true })
         .select()
         .single();
-      if (error) return 'Opslaan is niet gelukt. Controleer je internet en probeer het opnieuw.';
+      if (error) return t('meldingen.opslaanMisluktInternet');
       zetEnSync(user.id, [...huidig.current, naarAlarm(rij)]);
       return null;
     },
@@ -172,7 +176,7 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
 
   const werkBij = useCallback(
     async (id: string, invoer: Partial<Alarm>) => {
-      if (!user) return 'Je bent niet ingelogd.';
+      if (!user) return t('meldingen.nietIngelogd');
       const { id: _id, ...wijziging } = invoer;
       const { data: rij, error } = await supabase
         .from('alarms')
@@ -180,7 +184,7 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
         .eq('id', id)
         .select()
         .single();
-      if (error) return 'Opslaan is niet gelukt. Controleer je internet en probeer het opnieuw.';
+      if (error) return t('meldingen.opslaanMisluktInternet');
       zetEnSync(
         user.id,
         huidig.current.map((a) => (a.id === id ? naarAlarm(rij) : a)),
@@ -192,10 +196,9 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
 
   const verwijder = useCallback(
     async (id: string) => {
-      if (!user) return 'Je bent niet ingelogd.';
+      if (!user) return t('meldingen.nietIngelogd');
       const { error } = await supabase.from('alarms').delete().eq('id', id);
-      if (error)
-        return 'Verwijderen is niet gelukt. Controleer je internet en probeer het opnieuw.';
+      if (error) return t('meldingen.verwijderenMisluktInternet');
       await annuleerAlarm(id).catch(() => {});
       zetEnSync(
         user.id,

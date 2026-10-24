@@ -3,6 +3,7 @@ import { AppState, Platform } from 'react-native';
 import type { AlarmPermissionResponse } from 'react-native-alarm-scheduler';
 
 import { useAuth } from '@/hooks/useAuth';
+import { useTaal } from '@/i18n';
 import {
   alarmenBeschikbaar,
   haalRechtenOp,
@@ -14,10 +15,17 @@ import {
 import { batterijOptimalisatieAan } from '@/lib/batterij';
 import { cameraStatus, vraagCameraAan, type CameraStatus } from '@/lib/camera';
 
-export type CheckRegel = { label: string; ok: boolean; waarde: string };
+export type CheckRegel = {
+  id: 'meldingen' | 'alarmen' | 'camera' | 'batterij' | 'opToestel' | 'test';
+  label: string;
+  ok: boolean;
+  waarde: string;
+};
 
 export function useAlarmCheck() {
   const { profiel } = useAuth();
+  // Labels in de gekozen taal; opnieuw berekend bij een taalwissel
+  const { t } = useTaal();
   const [rechten, setRechten] = useState<AlarmPermissionResponse | null>(null);
   const [camera, setCamera] = useState<CameraStatus>('onbekend');
   const [batterijAan, setBatterijAan] = useState(false);
@@ -61,61 +69,77 @@ export function useAlarmCheck() {
   const alarmen = Boolean(rechten?.canScheduleExactAlarms);
   const testGeslaagd = Boolean(profiel?.alarmtest_geslaagd_op);
 
+  const tijdVan = (d: Date) =>
+    `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+
   const regels: CheckRegel[] = [
     {
-      label: 'Meldingen',
+      id: 'meldingen',
+      label: t('systeem.check.meldingen'),
       ok: Boolean(rechten) && meldingen,
       waarde:
         meldingen && rechten
           ? Platform.OS === 'ios'
-            ? 'Via AlarmKit'
-            : 'Toegestaan'
-          : 'Niet toegestaan',
+            ? t('systeem.check.viaAlarmKit')
+            : t('systeem.check.toegestaan')
+          : t('systeem.check.nietToegestaan'),
     },
     {
-      label: 'Alarmrechten',
+      id: 'alarmen',
+      label: t('systeem.check.alarmrechten'),
       ok: alarmen,
       waarde: alarmen
-        ? 'Toegestaan'
+        ? t('systeem.check.toegestaan')
         : rechten?.status === 'unavailable'
-          ? 'Niet beschikbaar'
-          : 'Niet toegestaan',
+          ? t('systeem.check.nietBeschikbaar')
+          : t('systeem.check.nietToegestaan'),
     },
     {
-      label: 'Camera',
+      id: 'camera',
+      label: t('systeem.check.camera'),
       ok: camera === 'toegestaan',
       waarde:
         camera === 'toegestaan'
-          ? 'Toegestaan'
+          ? t('systeem.check.toegestaan')
           : camera === 'onbekend'
-            ? 'Nog niet gevraagd'
-            : 'Niet toegestaan',
+            ? t('systeem.check.nogNietGevraagd')
+            : t('systeem.check.nietToegestaan'),
     },
     ...(Platform.OS === 'android'
       ? [
           {
-            label: 'Batterijbesparing',
+            id: 'batterij' as const,
+            label: t('systeem.check.batterij'),
             ok: !batterijAan,
-            waarde: batterijAan ? 'Aan, zet uit' : 'Uit',
+            waarde: batterijAan ? t('systeem.check.batterijAan') : t('systeem.check.uit'),
           },
         ]
       : []),
     ...(alarmenBeschikbaar && sync && sync.verwacht > 0
       ? [
           {
-            label: 'Alarmen op toestel',
+            id: 'opToestel' as const,
+            label: t('systeem.check.opToestel'),
             ok: sync.gepland >= sync.verwacht,
             waarde:
               sync.gepland >= sync.verwacht
-                ? `${sync.gepland} van ${sync.verwacht} · ${String(sync.op.getHours()).padStart(2, '0')}:${String(sync.op.getMinutes()).padStart(2, '0')}`
-                : `${sync.gepland} van ${sync.verwacht}, open de app opnieuw`,
+                ? t('systeem.check.opToestelOk', {
+                    gepland: sync.gepland,
+                    verwacht: sync.verwacht,
+                    tijd: tijdVan(sync.op),
+                  })
+                : t('systeem.check.opToestelFout', {
+                    gepland: sync.gepland,
+                    verwacht: sync.verwacht,
+                  }),
           },
         ]
       : []),
     {
-      label: 'Niet storen test',
+      id: 'test',
+      label: t('systeem.check.test'),
       ok: testGeslaagd,
-      waarde: testGeslaagd ? 'Geslaagd' : 'Nog niet gedaan',
+      waarde: testGeslaagd ? t('systeem.check.geslaagd') : t('systeem.check.nogNietGedaan'),
     },
   ];
 

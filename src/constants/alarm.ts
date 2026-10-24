@@ -1,26 +1,19 @@
+import { t } from '@/i18n';
 import type { Niveau, Oefening } from '@/types/app';
 
-export const DAG_LETTERS = ['M', 'D', 'W', 'D', 'V', 'Z', 'Z'];
-export const DAG_NAMEN = [
-  'maandag',
-  'dinsdag',
-  'woensdag',
-  'donderdag',
-  'vrijdag',
-  'zaterdag',
-  'zondag',
-];
-export const DAG_AFKORTINGEN = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo'];
+// Dagen: 0 = maandag … 6 = zondag
+export const DAGEN = [0, 1, 2, 3, 4, 5, 6] as const;
 
-export const NIVEAUS: Record<Niveau, string> = {
-  Vrij: 'Herinnering zonder druk. Je kunt stoppen of snoozen.',
-  Flexibel: 'Je kunt verplaatsen naar een beter moment.',
-  Uitstelbaar: 'Een paar keer snoozen, daarna echt beginnen.',
-  Verplicht: 'Geen snoozen. Alle rondes afronden.',
-  Hardcore: 'Maximale focus, inclusief wakker-check.',
-};
+const dag = (i: number) => `d${i}` as 'd0';
 
-export const NIVEAU_LIJST = Object.keys(NIVEAUS) as Niveau[];
+export const dagLetter = (i: number) => t(`algemeen.dagLetters.${dag(i)}`);
+export const dagNaam = (i: number) => t(`algemeen.dagNamen.${dag(i)}`);
+export const dagAfkorting = (i: number) => t(`algemeen.dagAfkortingen.${dag(i)}`);
+
+export const NIVEAU_LIJST: Niveau[] = ['Vrij', 'Flexibel', 'Uitstelbaar', 'Verplicht', 'Hardcore'];
+
+export const niveauNaam = (niveau: Niveau) => t(`algemeen.niveaus.${niveau}.naam`);
+export const niveauUitleg = (niveau: Niveau) => t(`algemeen.niveaus.${niveau}.uitleg`);
 
 export const OEFENINGEN: Oefening[] = [
   'Squats',
@@ -39,14 +32,14 @@ export const WAKKERCHECK_MINUTEN = 5;
 export function dagenTekst(dagen: number[]): string {
   const d = [...dagen].sort((a, b) => a - b);
   const sleutel = d.join(',');
-  if (d.length === 7) return 'Elke dag';
-  if (sleutel === '0,1,2,3,4') return 'Ma – Vr';
-  if (sleutel === '5,6') return 'Weekend';
-  return d.map((i) => DAG_AFKORTINGEN[i]).join(', ');
+  if (d.length === 7) return t('algemeen.elkeDag');
+  if (sleutel === '0,1,2,3,4') return t('algemeen.werkdagen');
+  if (sleutel === '5,6') return t('algemeen.weekend');
+  return d.map((i) => dagAfkorting(i)).join(', ');
 }
 
 export function missiesTekst(aantal: number): string {
-  return aantal === 1 ? '1 missie' : `${aantal} missies`;
+  return aantal === 1 ? t('algemeen.missie') : t('algemeen.missies', { n: aantal });
 }
 
 export function isStreng(niveau: Niveau): boolean {

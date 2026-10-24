@@ -2,6 +2,7 @@ import { Asset } from 'expo-asset';
 import * as DocumentPicker from 'expo-document-picker';
 import { File, Paths } from 'expo-file-system';
 
+import { t } from '@/i18n';
 import { leesLokaal, schrijfLokaal, SLEUTELS } from '@/lib/opslag';
 
 export type Alarmgeluid = { uri: string; naam: string };
@@ -47,7 +48,7 @@ export async function kiesZachtGeluid(): Promise<Alarmgeluid> {
   const doel = new File(Paths.document, `alarmgeluid-zacht-${Date.now()}.wav`);
   await new File(asset.localUri).copy(doel);
   const vorig = await leesAlarmgeluid();
-  const geluid = { uri: doel.uri, naam: 'Zacht opbouwend' };
+  const geluid = { uri: doel.uri, naam: t('systeem.geluid.zacht') };
   await schrijfLokaal(SLEUTELS.alarmgeluid, geluid);
   ruimOp(vorig?.uri);
   return geluid;

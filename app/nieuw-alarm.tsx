@@ -9,10 +9,26 @@ import { Alert, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'r
 import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import { gedeeld, PrimaryButton, SecondaryButton } from '@/components/ui';
-import { DAG_LETTERS, DAG_NAMEN, dagenTekst, NIVEAUS, OEFENINGEN } from '@/constants/alarm';
-import { DOEL_BEREIK, doelenNaarTekst, doelVoor, OEFENING_INFO } from '@/constants/oefeningen';
+import {
+  DAGEN,
+  dagenTekst,
+  dagLetter,
+  dagNaam,
+  niveauNaam,
+  niveauUitleg,
+  OEFENINGEN,
+} from '@/constants/alarm';
+import {
+  DOEL_BEREIK,
+  doelenNaarTekst,
+  doelTekst,
+  doelVoor,
+  OEFENING_INFO,
+  oefeningNaam,
+} from '@/constants/oefeningen';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmen } from '@/hooks/useAlarmen';
+import { useTaal } from '@/i18n';
 import { useToast } from '@/hooks/useToast';
 import { haalRechtenOp, vraagRechtenAan } from '@/lib/alarmen';
 import { cameraStatus, vraagCameraAan } from '@/lib/camera';
@@ -38,8 +54,11 @@ export default function NieuwAlarmScherm() {
   const { id, eerste } = useLocalSearchParams<{ id?: string; eerste?: string }>();
   const { alarms, maakAan, werkBij, verwijder } = useAlarmen();
   const { showToast } = useToast();
+  const { t, locale } = useTaal();
   const bestaand = id ? alarms.find((a) => a.id === id) : undefined;
-  const [naam, setNaam] = useState(bestaand?.naam ?? 'Mijn Mooove-missie');
+  // Standaardnaam één keer vastleggen, zodat 'gewijzigd' klopt ook als de taal wisselt
+  const [standaardNaam] = useState(() => t('editor.standaardNaam'));
+  const [naam, setNaam] = useState(bestaand?.naam ?? standaardNaam);
   const [time, setTime] = useState(bestaand?.tijd ?? '07:00');
   const [days, setDays] = useState<number[]>(bestaand?.dagen ?? [0, 1, 2, 3, 4]);
   const [level, setLevel] = useState<Niveau>(bestaand?.niveau ?? 'Verplicht');
@@ -135,7 +154,7 @@ export default function NieuwAlarmScherm() {
             doelen: bestaand.doelen ?? {},
           }
         : {
-            naam: 'Mijn Mooove-missie',
+            naam: standaardNaam,
             tijd: '07:00',
             dagen: [0, 1, 2, 3, 4],
             niveau: 'Verplicht',
@@ -145,10 +164,10 @@ export default function NieuwAlarmScherm() {
     );
 
   usePreventRemove(gewijzigd && !vervolg && Platform.OS !== 'web', ({ data }) => {
-    Alert.alert('Wijzigingen weggooien?', 'Je aanpassingen aan dit alarm worden niet bewaard.', [
-      { text: 'Verder bewerken', style: 'cancel' },
+    Alert.alert(t('editor.weggooien.titel'), t('editor.weggooien.tekst'), [
+      { text: t('editor.weggooien.verderBewerken'), style: 'cancel' },
       {
-        text: 'Weggooien',
+        text: t('editor.weggooien.weggooien'),
         style: 'destructive',
         onPress: () => sluitEn(() => navigation.dispatch(data.action)),
       },
@@ -159,17 +178,17 @@ export default function NieuwAlarmScherm() {
     new Promise<boolean>((klaar) => {
       if (Platform.OS === 'web') return klaar(window.confirm(`${titel}\n\n${tekst}`));
       Alert.alert(titel, tekst, [
-        { text: 'Annuleren', style: 'cancel', onPress: () => klaar(false) },
+        { text: t('algemeen.annuleren'), style: 'cancel', onPress: () => klaar(false) },
         { text: knop, onPress: () => klaar(true) },
       ]);
     });
 
   const opslaan = async () => {
     if (bezig) return;
-    if (!geldigeTijd) return showToast('Kies een geldige tijd.');
-    if (!naam.trim()) return showToast('Geef je alarm een naam.');
-    if (!days.length) return showToast('Kies minimaal één dag.');
-    if (!exercises.length) return showToast('Kies minimaal één missie.');
+    if (!geldigeTijd) return showToast(t('editor.fouten.tijd'));
+    if (!naam.trim()) return showToast(t('editor.fouten.naam'));
+    if (!days.length) return showToast(t('editor.fouten.dag'));
+    if (!exercises.length) return showToast(t('editor.fouten.missie'));
     const dubbel = alarms.find(
       (a) =>
         a.id !== bestaand?.id && a.aan && a.tijd === time && a.dagen.some((d) => days.includes(d)),
@@ -177,9 +196,13 @@ export default function NieuwAlarmScherm() {
     if (
       dubbel &&
       !(await vraag(
-        'Dubbel alarm?',
-        `"${dubbel.naam}" gaat ook om ${time} af (${dagenTekst(dubbel.dagen)}). Toch opslaan?`,
-        'Opslaan',
+        t('editor.dubbel.titel'),
+        t('editor.dubbel.tekst', {
+          naam: dubbel.naam,
+          tijd: time,
+          dagen: dagenTekst(dubbel.dagen),
+        }),
+        t('algemeen.opslaan'),
       ))
     ) {
       return;
@@ -200,22 +223,22 @@ export default function NieuwAlarmScherm() {
     const wanneer = volgendeKeer({ ...gegevens, id: '', aan: true } as Alarm);
     showToast(
       wanneer
-        ? `Opgeslagen. Je alarm gaat over ${tijdTot(wanneer)} af.`
+        ? t('editor.opgeslagen', { tijd: tijdTot(wanneer) })
         : bestaand
-          ? 'Je alarm is bijgewerkt.'
-          : 'Je nieuwe alarm staat in de lijst!',
+          ? t('editor.bijgewerkt')
+          : t('editor.nieuwInLijst'),
     );
   };
 
   const dupliceer = async () => {
     if (!bestaand || bezig) return;
     setBezig(true);
-    const kopieNaam = `${naam.trim() || bestaand.naam} (kopie)`.slice(0, 40);
+    const kopieNaam = t('editor.kopieNaam', { naam: naam.trim() || bestaand.naam }).slice(0, 40);
     const fout = await maakAan({ ...invoer(), naam: kopieNaam });
     setBezig(false);
     if (fout) return showToast(fout);
     sluitEn(() => router.dismissTo('/alarmen'));
-    showToast(`"${kopieNaam}" staat in de lijst.`);
+    showToast(t('editor.kopieInLijst', { naam: kopieNaam }));
   };
 
   const verwijderAlarm = () => {
@@ -225,21 +248,21 @@ export default function NieuwAlarmScherm() {
       const fout = await verwijder(bestaand.id);
       if (fout) return showToast(fout);
       sluitEn(() => router.dismissTo('/alarmen'));
-      showToast('Alarm verwijderd.', {
-        label: 'Ongedaan maken',
+      showToast(t('editor.verwijderd'), {
+        label: t('editor.ongedaanMaken'),
         onPress: async () => {
           const terug = await maakAan(kopie);
-          showToast(terug ?? 'Je alarm is teruggezet.');
+          showToast(terug ?? t('editor.teruggezet'));
         },
       });
     };
     if (Platform.OS === 'web') {
-      if (window.confirm('Alarm verwijderen?')) actie();
+      if (window.confirm(t('editor.verwijderVraag.titel'))) actie();
       return;
     }
-    Alert.alert('Alarm verwijderen?', 'Dit alarm gaat daarna niet meer af.', [
-      { text: 'Annuleren', style: 'cancel' },
-      { text: 'Verwijderen', style: 'destructive', onPress: actie },
+    Alert.alert(t('editor.verwijderVraag.titel'), t('editor.verwijderVraag.tekst'), [
+      { text: t('algemeen.annuleren'), style: 'cancel' },
+      { text: t('algemeen.verwijderen'), style: 'destructive', onPress: actie },
     ]);
   };
 
@@ -247,27 +270,24 @@ export default function NieuwAlarmScherm() {
     <Screen>
       <Pressable accessibilityRole="button" onPress={() => router.back()} style={gedeeld.backLink}>
         <Icon name="chevron" color={kleuren.ink} />
-        <Text style={gedeeld.backLinkText}>Terug naar alarmen</Text>
+        <Text style={gedeeld.backLinkText}>{t('editor.terugNaarAlarmen')}</Text>
       </Pressable>
       {eerste === '1' && !bestaand && (
         <View style={styles.eerste}>
-          <Text style={styles.eersteKop}>Je eerste Mooove-alarm</Text>
-          <Text style={styles.eersteTekst}>
-            Kies je tijd, je dagen en je missie. Twijfel je over het niveau? Begin met Flexibel; je
-            kunt alles later aanpassen.
-          </Text>
+          <Text style={styles.eersteKop}>{t('editor.eersteKop')}</Text>
+          <Text style={styles.eersteTekst}>{t('editor.eersteTekst')}</Text>
         </View>
       )}
       <Text style={styles.title}>
-        {bestaand ? 'Alarm bewerken' : 'Nieuw alarm'}
+        {bestaand ? t('editor.titelBewerken') : t('editor.titelNieuw')}
         <Text style={{ color: '#91B755' }}>.</Text>
       </Text>
 
       <View style={styles.timeEditor}>
-        <Text style={styles.timeLabel}>KIES JE TIJDSTIP</Text>
+        <Text style={styles.timeLabel}>{t('editor.tijdLabel')}</Text>
         {Platform.OS === 'web' ? (
           <TextInput
-            accessibilityLabel="Alarmtijd"
+            accessibilityLabel={t('editor.alarmtijd')}
             value={time}
             onChangeText={setTime}
             maxLength={5}
@@ -277,7 +297,7 @@ export default function NieuwAlarmScherm() {
         ) : (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Alarmtijd"
+            accessibilityLabel={t('editor.alarmtijd')}
             onPress={openTijdkiezer}
           >
             <Text maxFontSizeMultiplier={1.2} style={styles.timeValue}>
@@ -286,7 +306,7 @@ export default function NieuwAlarmScherm() {
           </Pressable>
         )}
         <Text style={styles.timeHint} accessibilityLiveRegion="polite">
-          {volgende ? `Gaat af over ${tijdTot(volgende)}` : 'Kies een tijd en minimaal één dag'}
+          {volgende ? t('editor.gaatAf', { tijd: tijdTot(volgende) }) : t('editor.kiesTijdEnDag')}
         </Text>
         {Platform.OS === 'ios' && iosPickerOpen && (
           <DateTimePicker
@@ -294,32 +314,33 @@ export default function NieuwAlarmScherm() {
             mode="time"
             display="spinner"
             is24Hour
-            locale="nl-NL"
+            locale={locale}
             themeVariant="light"
             onChange={onTijdGekozen}
           />
         )}
       </View>
 
-      <Text style={styles.formLabel}>Naam</Text>
+      <Text style={styles.formLabel}>{t('editor.naam')}</Text>
       <TextInput
         value={naam}
         onChangeText={setNaam}
         maxLength={40}
-        accessibilityLabel="Naam van het alarm"
+        accessibilityLabel={t('editor.naamLabel')}
         style={styles.naamInput}
       />
 
-      <Text style={styles.formLabel}>Herhaal op</Text>
+      <Text style={styles.formLabel}>{t('editor.herhaalOp')}</Text>
       <View style={styles.days}>
-        {DAG_LETTERS.map((letter, i) => {
+        {DAGEN.map((i) => {
+          const letter = dagLetter(i);
           const actief = days.includes(i);
           return (
             <Pressable
-              key={DAG_NAMEN[i]}
+              key={i}
               accessibilityRole="button"
               accessibilityState={{ selected: actief }}
-              accessibilityLabel={DAG_NAMEN[i]}
+              accessibilityLabel={dagNaam(i)}
               onPress={() => setDays((d) => wissel(d, i))}
               style={[styles.dayChip, actief && styles.dayChipActive]}
             >
@@ -330,8 +351,8 @@ export default function NieuwAlarmScherm() {
       </View>
 
       <View style={styles.formLabelRow}>
-        <Text style={styles.formLabelInRow}>Strengheidsniveau</Text>
-        <Text style={styles.formLabelHint}>5 opties</Text>
+        <Text style={styles.formLabelInRow}>{t('editor.niveau')}</Text>
+        <Text style={styles.formLabelHint}>{t('editor.vijfOpties')}</Text>
       </View>
       <View style={styles.levelGrid}>
         {NIVEAU_RIJEN.map((rij, r) => (
@@ -348,7 +369,7 @@ export default function NieuwAlarmScherm() {
                   <Text
                     style={[styles.levelChoiceText, level === l && styles.levelChoiceTextSelected]}
                   >
-                    {l}
+                    {niveauNaam(l)}
                   </Text>
                 </Pressable>
               ) : (
@@ -360,12 +381,12 @@ export default function NieuwAlarmScherm() {
       </View>
       <View style={styles.levelExplain}>
         <Icon name={level === 'Verplicht' ? 'lock' : 'info'} color="#657265" />
-        <Text style={styles.levelExplainText}>{NIVEAUS[level]}</Text>
+        <Text style={styles.levelExplainText}>{niveauUitleg(level)}</Text>
       </View>
 
       <View style={styles.formLabelRow}>
-        <Text style={styles.formLabelInRow}>Kies jouw missies</Text>
-        <Text style={styles.formLabelHint}>Meerdere mogelijk</Text>
+        <Text style={styles.formLabelInRow}>{t('editor.kiesMissies')}</Text>
+        <Text style={styles.formLabelHint}>{t('editor.meerdereMogelijk')}</Text>
       </View>
       <View style={styles.exerciseOptions}>
         {OEFENINGEN.map((o) => {
@@ -380,7 +401,7 @@ export default function NieuwAlarmScherm() {
             >
               <Text style={[styles.exerciseText, gekozen && styles.exerciseTextSelected]}>
                 {gekozen ? '✓ ' : ''}
-                {o}
+                {oefeningNaam(o)}
               </Text>
             </Pressable>
           );
@@ -390,22 +411,26 @@ export default function NieuwAlarmScherm() {
       {exercises.length > 0 && (
         <>
           <View style={styles.formLabelRow}>
-            <Text style={styles.formLabelInRow}>Jouw missie</Text>
-            <Text style={styles.formLabelHint}>Volgorde en aantal</Text>
+            <Text style={styles.formLabelInRow}>{t('editor.jouwMissie')}</Text>
+            <Text style={styles.formLabelHint}>{t('editor.volgordeEnAantal')}</Text>
           </View>
           <View style={styles.doelen}>
             {exercises.map((o, i) => {
               const info = OEFENING_INFO[o];
               const bereik = DOEL_BEREIK[info.eenheid];
               const doel = doelVoor(o, doelen);
-              const eenheid = info.eenheid === 'seconden' ? 'sec' : 'x';
+              const eenheid =
+                info.eenheid === 'seconden'
+                  ? t('editor.eenheidSeconden')
+                  : t('editor.eenheidHerhalingen');
+              const naamOefening = oefeningNaam(o);
               const instelbareOefening = info.eenheid !== 'handeling';
               return (
                 <View key={o} style={[styles.doelRij, i > 0 && styles.doelRijRand]}>
                   <View style={styles.volgorde}>
                     <Pressable
                       accessibilityRole="button"
-                      accessibilityLabel={`${o} eerder`}
+                      accessibilityLabel={t('editor.eerder', { oefening: naamOefening })}
                       disabled={i === 0}
                       onPress={() => verplaats(i, -1)}
                       hitSlop={6}
@@ -415,7 +440,7 @@ export default function NieuwAlarmScherm() {
                     </Pressable>
                     <Pressable
                       accessibilityRole="button"
-                      accessibilityLabel={`${o} later`}
+                      accessibilityLabel={t('editor.later', { oefening: naamOefening })}
                       disabled={i === exercises.length - 1}
                       onPress={() => verplaats(i, 1)}
                       hitSlop={6}
@@ -425,13 +450,13 @@ export default function NieuwAlarmScherm() {
                     </Pressable>
                   </View>
                   <Text style={styles.doelNaam}>
-                    {i + 1}. {info.emoji} {o}
+                    {i + 1}. {info.emoji} {naamOefening}
                   </Text>
                   {instelbareOefening ? (
                     <>
                       <Pressable
                         accessibilityRole="button"
-                        accessibilityLabel={`Minder ${o}`}
+                        accessibilityLabel={t('editor.minder', { oefening: naamOefening })}
                         disabled={doel <= bereik.min}
                         onPress={() => pasDoelAan(o, -1)}
                         style={[styles.stepper, doel <= bereik.min && styles.stepperUit]}
@@ -440,14 +465,17 @@ export default function NieuwAlarmScherm() {
                       </Pressable>
                       <Text
                         style={styles.doelWaarde}
-                        accessibilityLabel={`${doel} ${info.eenheid} ${o}`}
+                        accessibilityLabel={t('editor.doelLabel', {
+                          oefening: naamOefening,
+                          doel: doelTekst(o, doelen),
+                        })}
                       >
                         {doel}
                         <Text style={styles.doelEenheid}> {eenheid}</Text>
                       </Text>
                       <Pressable
                         accessibilityRole="button"
-                        accessibilityLabel={`Meer ${o}`}
+                        accessibilityLabel={t('editor.meer', { oefening: naamOefening })}
                         disabled={doel >= bereik.max}
                         onPress={() => pasDoelAan(o, 1)}
                         style={[styles.stepper, doel >= bereik.max && styles.stepperUit]}
@@ -456,26 +484,30 @@ export default function NieuwAlarmScherm() {
                       </Pressable>
                     </>
                   ) : (
-                    <Text style={styles.doelEenheid}>1 handeling</Text>
+                    <Text style={styles.doelEenheid}>{t('algemeen.handeling')}</Text>
                   )}
                 </View>
               );
             })}
           </View>
-          <SecondaryButton label="Oefen deze missie" onPress={oefen} style={styles.oefen} />
+          <SecondaryButton label={t('editor.oefen')} onPress={oefen} style={styles.oefen} />
         </>
       )}
 
       <PrimaryButton
-        label={bezig ? 'Bezig…' : 'Alarm opslaan'}
+        label={bezig ? t('algemeen.bezig') : t('editor.opslaan')}
         onPress={opslaan}
         style={styles.save}
       />
       {bestaand && (
         <>
-          <SecondaryButton label="Dupliceer alarm" onPress={dupliceer} style={styles.delete} />
           <SecondaryButton
-            label="Alarm verwijderen"
+            label={t('editor.dupliceer')}
+            onPress={dupliceer}
+            style={styles.delete}
+          />
+          <SecondaryButton
+            label={t('editor.verwijder')}
             onPress={verwijderAlarm}
             style={styles.delete}
           />

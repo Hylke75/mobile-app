@@ -3,37 +3,31 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Screen } from '@/components/Screen';
 import { gedeeld, RoundPlus, ScreenHeader, SectionTitleRow } from '@/components/ui';
-import { DAG_LETTERS, DAG_NAMEN } from '@/constants/alarm';
+import { dagLetter } from '@/constants/alarm';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
 import { useSessies } from '@/hooks/useSessies';
 import { useToast } from '@/hooks/useToast';
+import { useTaal } from '@/i18n';
 import { deelAlsAfbeelding } from '@/lib/delen';
 import { badgesVoor } from '@/lib/statistiek';
 import { dagIndex } from '@/lib/tijd';
 
-const MAANDEN = [
-  'JAN',
-  'FEB',
-  'MRT',
-  'APR',
-  'MEI',
-  'JUN',
-  'JUL',
-  'AUG',
-  'SEP',
-  'OKT',
-  'NOV',
-  'DEC',
-];
+// Korte maandnaam in de gekozen taal, bijvoorbeeld "OKT"
+function maand(datum: Date, locale: string): string {
+  return datum
+    .toLocaleDateString(locale, { month: 'short' })
+    .replace(/\./g, '')
+    .toLocaleUpperCase(locale);
+}
 
-function weekLabel(start: Date): string {
+function weekLabel(start: Date, locale: string): string {
   const eind = new Date(start);
   eind.setDate(eind.getDate() + 6);
   if (start.getMonth() === eind.getMonth()) {
-    return `${start.getDate()} – ${eind.getDate()} ${MAANDEN[eind.getMonth()]}`;
+    return `${start.getDate()} – ${eind.getDate()} ${maand(eind, locale)}`;
   }
-  return `${start.getDate()} ${MAANDEN[start.getMonth()]} – ${eind.getDate()} ${MAANDEN[eind.getMonth()]}`;
+  return `${start.getDate()} ${maand(start, locale)} – ${eind.getDate()} ${maand(eind, locale)}`;
 }
 
 function verschilTekst(waarde: number | null, eenheid = ''): string | null {
@@ -46,6 +40,7 @@ export default function ProgressieScherm() {
   const { showToast } = useToast();
   const kaart = useRef<ComponentRef<typeof View>>(null);
   const { profiel } = useAuth();
+  const { t, locale } = useTaal();
   const s = statistiek;
   const weekdoel = profiel?.weekdoel ?? 7;
   const actieveDagenDezeWeek = s.weekBalken.filter((w) => w > 0).length;
@@ -59,22 +54,20 @@ export default function ProgressieScherm() {
     <Screen onRefresh={vernieuw}>
       <ScreenHeader
         kicker="SHOW UP. LEVEL UP."
-        titel="Progressie"
+        titel={t('progressie.titel')}
         puntKleur="#9BBF55"
         rechts={<RoundPlus icon="chart" />}
       />
 
       <View ref={kaart} collapsable={false} style={styles.hero}>
-        <Text style={styles.heroEyebrow}>JOUW MOMENTUM ↗</Text>
+        <Text style={styles.heroEyebrow}>{t('progressie.momentum')}</Text>
         <Text maxFontSizeMultiplier={1.2} style={styles.heroTitle}>
-          {s.streak} {s.streak === 1 ? 'DAG' : 'DAGEN'}
+          {s.streak} {s.streak === 1 ? t('progressie.dag') : t('progressie.dagen')}
           {'\n'}
           <Text style={styles.heroAccent}>{s.streak > 0 ? 'ON FIRE.' : 'LET’S START.'}</Text>
         </Text>
         <Text style={styles.heroText}>
-          {s.streak > 0
-            ? 'Elke beweging telt. Je bouwt een routine die blijft hangen.'
-            : 'Rond een missie af om je streak te starten.'}
+          {s.streak > 0 ? t('progressie.heroBezig') : t('progressie.heroStart')}
         </Text>
         <Text maxFontSizeMultiplier={1.2} style={styles.starburst}>
           ✳
@@ -87,12 +80,14 @@ export default function ProgressieScherm() {
           onPress={() =>
             deelAlsAfbeelding(
               kaart,
-              `${s.streak} ${s.streak === 1 ? 'dag' : 'dagen'} op rij in beweging met Mooove 🔥`,
-            ).catch(() => showToast('Delen is niet gelukt.'))
+              s.streak === 1
+                ? t('progressie.deelTekstDag')
+                : t('progressie.deelTekstDagen', { n: s.streak }),
+            ).catch(() => showToast(t('progressie.delenMislukt')))
           }
           style={styles.deel}
         >
-          <Text style={styles.deelTekst}>Deel je streak ↗</Text>
+          <Text style={styles.deelTekst}>{t('progressie.deelKnop')}</Text>
         </Pressable>
       )}
 
@@ -103,31 +98,34 @@ export default function ProgressieScherm() {
             {s.voltooidPercentage !== null && <Text style={styles.metricUnit}>%</Text>}
           </Text>
           <Text style={styles.metricLabel}>
-            Missies voltooid{' '}
+            {t('progressie.missiesVoltooid')}{' '}
             <Text style={styles.metricChange}>{verschilTekst(s.voltooidVerschil, '%')}</Text>
           </Text>
         </View>
         <View style={styles.metric}>
           <Text style={styles.metricValue}>{s.repsDezeWeek}</Text>
           <Text style={styles.metricLabel}>
-            Reps deze week <Text style={styles.metricChange}>{verschilTekst(s.repsVerschil)}</Text>
+            {t('progressie.repsDezeWeek')}{' '}
+            <Text style={styles.metricChange}>{verschilTekst(s.repsVerschil)}</Text>
           </Text>
         </View>
       </View>
 
-      <SectionTitleRow titel="Deze week" rechts={weekLabel(s.weekStart)} />
+      <SectionTitleRow titel={t('progressie.dezeWeek')} rechts={weekLabel(s.weekStart, locale)} />
       <View style={styles.weekly}>
         <View style={gedeeld.rowBetween}>
-          <Text style={styles.weeklyTitle}>Beweegmomenten</Text>
-          <Text style={gedeeld.sectionKicker}>TOTAAL {s.weekTotaal}</Text>
+          <Text style={styles.weeklyTitle}>{t('progressie.beweegmomenten')}</Text>
+          <Text style={gedeeld.sectionKicker}>{t('progressie.totaal', { n: s.weekTotaal })}</Text>
         </View>
         <Text style={styles.weekdoel}>
-          {actieveDagenDezeWeek} van {weekdoel} {weekdoel === 1 ? 'dag' : 'dagen'} van je weekdoel
-          {actieveDagenDezeWeek >= weekdoel ? ' · gehaald! 🎉' : ''}
+          {weekdoel === 1
+            ? t('progressie.weekdoelDag', { actief: actieveDagenDezeWeek })
+            : t('progressie.weekdoelDagen', { actief: actieveDagenDezeWeek, doel: weekdoel })}
+          {actieveDagenDezeWeek >= weekdoel ? t('progressie.gehaald') : ''}
         </Text>
         <View style={styles.chart}>
           {s.weekBalken.map((waarde, i) => (
-            <View key={DAG_NAMEN[i]} style={styles.barCol}>
+            <View key={i} style={styles.barCol}>
               <View style={styles.barArea}>
                 <View
                   style={[
@@ -137,13 +135,16 @@ export default function ProgressieScherm() {
                   ]}
                 />
               </View>
-              <Text style={styles.barLabel}>{DAG_LETTERS[i]}</Text>
+              <Text style={styles.barLabel}>{dagLetter(i)}</Text>
             </View>
           ))}
         </View>
       </View>
 
-      <SectionTitleRow titel="Badges" rechts={`${ontgrendeld} ONTGRENDELD`} />
+      <SectionTitleRow
+        titel={t('progressie.badges')}
+        rechts={t('progressie.ontgrendeld', { n: ontgrendeld })}
+      />
       <View style={styles.badgeRow}>
         {badges.map((b) => (
           <View key={b.naam} style={[styles.badge, !b.behaald && styles.badgeLocked]}>
