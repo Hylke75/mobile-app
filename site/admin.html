@@ -1,0 +1,1325 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Mooove Beheer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #101714;
+        --lime: #d8fb59;
+        --paper: #f3f3ed;
+        --card: #fff;
+        --line: #e4e7dd;
+        --muted: #5f6b63;
+        --soft: #eef1e8;
+        --tekst: #101714;
+        --grid: #e9ece4;
+        --s-voltooid: #4f8a2b;
+        --s-afgebroken: #8a63d2;
+        --goed: #2f7a3a;
+        --let: #9a6a00;
+        --slecht: #b43d2a;
+        --neutraal: #5f6b63;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) {
+          --paper: #0e1411;
+          --card: #151c18;
+          --line: #26302a;
+          --muted: #9aa79d;
+          --soft: #1c2520;
+          --tekst: #eef2ec;
+          --grid: #222c26;
+          --s-voltooid: #6fa83f;
+          --s-afgebroken: #9c7ae0;
+          --goed: #6cc07a;
+          --let: #e0b04a;
+          --slecht: #f07a64;
+          --neutraal: #9aa79d;
+        }
+      }
+      :root[data-theme='dark'] {
+        --paper: #0e1411;
+        --card: #151c18;
+        --line: #26302a;
+        --muted: #9aa79d;
+        --soft: #1c2520;
+        --tekst: #eef2ec;
+        --grid: #222c26;
+        --s-voltooid: #6fa83f;
+        --s-afgebroken: #9c7ae0;
+        --goed: #6cc07a;
+        --let: #e0b04a;
+        --slecht: #f07a64;
+        --neutraal: #9aa79d;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--tekst);
+        font:
+          15px/1.5 'DM Sans',
+          Arial,
+          sans-serif;
+      }
+      header {
+        background: var(--ink);
+        color: #f3f3ed;
+        padding: 16px 24px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+      header .merk {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #f3f3ed;
+        text-decoration: none;
+      }
+      .glyph {
+        width: 34px;
+        height: 34px;
+        border-radius: 11px;
+        background: var(--lime);
+        color: #101714;
+        display: grid;
+        place-items: center;
+        font:
+          700 26px/1 'Space Grotesk',
+          Arial;
+        letter-spacing: -3px;
+        padding-right: 4px;
+      }
+      .glyph i {
+        font-style: normal;
+        color: #569126;
+      }
+      .woord {
+        font:
+          700 26px 'Space Grotesk',
+          Arial;
+        letter-spacing: -2px;
+      }
+      .woord span {
+        color: var(--lime);
+      }
+      .label-beheer {
+        font-weight: 800;
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        color: var(--lime);
+        border: 1px solid #2c3a31;
+        border-radius: 999px;
+        padding: 3px 10px;
+      }
+      header .rechts {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 13px;
+        color: #b4c0b4;
+      }
+      button,
+      .knop {
+        font: inherit;
+        font-weight: 800;
+        border: 0;
+        border-radius: 12px;
+        padding: 10px 16px;
+        cursor: pointer;
+        background: var(--lime);
+        color: #101714;
+      }
+      button.zacht {
+        background: var(--soft);
+        color: var(--tekst);
+        border: 1px solid var(--line);
+      }
+      header button.zacht {
+        background: transparent;
+        color: #f3f3ed;
+        border-color: #2c3a31;
+      }
+      button:focus-visible,
+      input:focus-visible,
+      select:focus-visible,
+      th button:focus-visible {
+        outline: 2px solid #569126;
+        outline-offset: 2px;
+      }
+      main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 28px 24px 60px;
+      }
+      h1 {
+        font:
+          700 clamp(28px, 5vw, 40px)/1.05 'Space Grotesk',
+          Arial;
+        letter-spacing: -0.04em;
+        margin: 0 0 6px;
+      }
+      h2 {
+        font:
+          700 18px 'Space Grotesk',
+          Arial;
+        letter-spacing: -0.02em;
+        margin: 0;
+      }
+      .sub {
+        color: var(--muted);
+        margin: 0 0 22px;
+      }
+      .kaart {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 18px;
+      }
+      #inloggen {
+        max-width: 420px;
+        margin: 40px auto;
+      }
+      #inloggen label {
+        display: block;
+        font-weight: 700;
+        font-size: 13px;
+        margin: 14px 0 6px;
+      }
+      input,
+      select {
+        font: inherit;
+        width: 100%;
+        padding: 11px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: var(--paper);
+        color: var(--tekst);
+      }
+      .rij {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .melding {
+        margin-top: 12px;
+        font-size: 13px;
+        color: var(--slecht);
+        min-height: 18px;
+      }
+      .link {
+        background: none;
+        border: 0;
+        padding: 0;
+        color: #3f6b2a;
+        font-weight: 700;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+      .filters {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+      }
+      .segment {
+        display: inline-flex;
+        background: var(--soft);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 3px;
+      }
+      .segment button {
+        background: transparent;
+        color: var(--muted);
+        padding: 7px 12px;
+        border-radius: 9px;
+      }
+      .segment button[aria-pressed='true'] {
+        background: var(--card);
+        color: var(--tekst);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+      }
+      .vink {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 13px;
+        color: var(--muted);
+        cursor: pointer;
+      }
+      .vink input {
+        width: auto;
+      }
+      .bijgewerkt {
+        font-size: 12px;
+        color: var(--muted);
+        margin-left: auto;
+      }
+      .tegels {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .tegel {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 16px;
+      }
+      .tegel .lbl {
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 600;
+      }
+      .tegel .waarde {
+        font:
+          700 30px/1.1 'DM Sans',
+          Arial;
+        margin-top: 6px;
+        letter-spacing: -0.02em;
+      }
+      .tegel .extra {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      .tegel.held {
+        background: var(--ink);
+        border-color: var(--ink);
+        color: #f3f3ed;
+      }
+      .tegel.held .lbl,
+      .tegel.held .extra {
+        color: #b4c0b4;
+      }
+      .tegel.held .waarde {
+        font-size: 48px;
+        color: var(--lime);
+      }
+      .raster {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+      @media (max-width: 860px) {
+        .raster {
+          grid-template-columns: 1fr;
+        }
+      }
+      .kaart-kop {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+      }
+      .kaart-kop p {
+        margin: 2px 0 0;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .legenda {
+        display: flex;
+        gap: 14px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .legenda span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .legenda i {
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        display: inline-block;
+      }
+      .grafiek {
+        position: relative;
+      }
+      .grafiek svg {
+        display: block;
+        width: 100%;
+        height: 220px;
+        overflow: visible;
+      }
+      .grafiek .as {
+        font-size: 11px;
+        fill: var(--muted);
+      }
+      .tip {
+        position: absolute;
+        pointer-events: none;
+        background: var(--ink);
+        color: #f3f3ed;
+        font-size: 12px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        white-space: nowrap;
+        transform: translate(-50%, -100%);
+        opacity: 0;
+        transition: opacity 0.1s;
+        z-index: 2;
+      }
+      .tip b {
+        display: block;
+        margin-bottom: 2px;
+      }
+      .tip i {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+        margin-right: 6px;
+      }
+      .balklijst {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 10px;
+      }
+      .balklijst li {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 4px 10px;
+        font-size: 13px;
+      }
+      .balklijst .spoor {
+        grid-column: 1/-1;
+        height: 8px;
+        background: var(--soft);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .balklijst .vul {
+        height: 100%;
+        background: var(--s-voltooid);
+        border-radius: 0 4px 4px 0;
+      }
+      .balklijst .aantal {
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .tabel-wrap {
+        overflow-x: auto;
+        margin: 0 -18px -18px;
+        border-top: 1px solid var(--line);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--line);
+        white-space: nowrap;
+      }
+      th {
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 700;
+        background: var(--soft);
+        position: sticky;
+        top: 0;
+      }
+      th button {
+        all: unset;
+        cursor: pointer;
+        display: inline-flex;
+        gap: 4px;
+        align-items: center;
+      }
+      td.getal,
+      th.getal {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      tbody tr:hover {
+        background: var(--soft);
+      }
+      .naam {
+        font-weight: 700;
+      }
+      .mail {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .pil {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 12px;
+        font-weight: 700;
+        border-radius: 999px;
+        padding: 2px 9px;
+        border: 1px solid currentColor;
+      }
+      .pil::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+      .p-actief {
+        color: var(--goed);
+      }
+      .p-nieuw {
+        color: var(--s-afgebroken);
+      }
+      .p-slapend {
+        color: var(--let);
+      }
+      .p-geen {
+        color: var(--neutraal);
+      }
+      .p-onbevestigd {
+        color: var(--slecht);
+      }
+      .tag {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--muted);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 1px 6px;
+        margin-left: 6px;
+      }
+      .zoek {
+        width: 260px;
+        flex: none;
+      }
+      @media (max-width: 600px) {
+        .zoek {
+          width: 100%;
+          flex: 1;
+        }
+      }
+      .leeg {
+        color: var(--muted);
+        font-size: 13px;
+        padding: 16px 0;
+      }
+      .verborgen {
+        display: none !important;
+      }
+      .sr {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+      }
+      footer {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px 30px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      @media (max-width: 600px) {
+        main {
+          padding: 20px 16px 48px;
+        }
+        header {
+          padding: 14px 16px;
+        }
+        .tegel.held .waarde {
+          font-size: 40px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a class="merk" href="/"
+        ><span class="glyph"
+          ><b>m<i>.</i></b></span
+        ><span class="woord">mooove<span>.</span></span></a
+      >
+      <span class="label-beheer">BEHEER</span>
+      <div class="rechts verborgen" id="account">
+        <span id="wie"></span><button class="zacht" id="uitloggen">Uitloggen</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="inloggen" class="kaart">
+        <h1>Inloggen</h1>
+        <p class="sub">Alleen voor beheerders van Mooove.</p>
+        <form id="form-email">
+          <label for="email">E-mailadres</label>
+          <input id="email" type="email" autocomplete="email" required />
+          <div id="wachtwoord-veld" class="verborgen">
+            <label for="wachtwoord">Wachtwoord</label>
+            <input id="wachtwoord" type="password" autocomplete="current-password" />
+          </div>
+          <div class="rij" style="margin-top: 16px">
+            <button type="submit" id="verstuur">Stuur mij een code</button>
+            <button type="button" class="link" id="wissel">Inloggen met wachtwoord</button>
+          </div>
+        </form>
+        <form id="form-code" class="verborgen">
+          <label for="code">Code uit je e-mail</label>
+          <input
+            id="code"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            maxlength="10"
+            required
+          />
+          <div class="rij" style="margin-top: 16px">
+            <button type="submit">Inloggen</button>
+            <button type="button" class="link" id="terug">Ander e-mailadres</button>
+          </div>
+        </form>
+        <div class="melding" id="melding" role="alert"></div>
+      </section>
+
+      <section id="dashboard" class="verborgen">
+        <h1>Wie gebruikt Mooove?</h1>
+        <p class="sub">
+          Accounts, activiteit en missies. Camerabeelden en inhoud van eigen missies zijn nooit
+          zichtbaar.
+        </p>
+
+        <div class="filters">
+          <div class="segment" role="group" aria-label="Periode">
+            <button type="button" data-dagen="7" aria-pressed="false">7 dagen</button>
+            <button type="button" data-dagen="30" aria-pressed="true">30 dagen</button>
+            <button type="button" data-dagen="90" aria-pressed="false">90 dagen</button>
+          </div>
+          <label class="vink"
+            ><input type="checkbox" id="testaccounts" /> Test- en reviewaccounts tonen</label
+          >
+          <button type="button" class="zacht" id="vernieuw">Vernieuwen</button>
+          <span class="bijgewerkt" id="bijgewerkt"></span>
+        </div>
+
+        <div class="tegels" id="tegels"></div>
+
+        <div class="raster">
+          <div class="kaart">
+            <div class="kaart-kop">
+              <div>
+                <h2>Missies per dag</h2>
+                <p id="missies-sub"></p>
+              </div>
+              <div class="legenda">
+                <span><i style="background: var(--s-voltooid)"></i>Voltooid</span
+                ><span><i style="background: var(--s-afgebroken)"></i>Afgebroken</span>
+              </div>
+            </div>
+            <div class="grafiek" id="grafiek-missies"></div>
+          </div>
+          <div class="kaart">
+            <div class="kaart-kop">
+              <div>
+                <h2>Nieuwe accounts per dag</h2>
+                <p id="nieuw-sub"></p>
+              </div>
+            </div>
+            <div class="grafiek" id="grafiek-nieuw"></div>
+          </div>
+        </div>
+
+        <div class="raster" style="grid-template-columns: 1fr 1fr">
+          <div class="kaart">
+            <div class="kaart-kop">
+              <div>
+                <h2>Niveaus in alarmen</h2>
+                <p>Ingeschakelde alarmen</p>
+              </div>
+            </div>
+            <ul class="balklijst" id="niveaus"></ul>
+          </div>
+          <div class="kaart">
+            <div class="kaart-kop">
+              <div>
+                <h2>Populairste missies</h2>
+                <p>Hoe vaak een missie in een ingeschakeld alarm staat</p>
+              </div>
+            </div>
+            <ul class="balklijst" id="populair"></ul>
+          </div>
+        </div>
+
+        <div class="kaart">
+          <div class="kaart-kop">
+            <div>
+              <h2>Gebruikers</h2>
+              <p id="gebruikers-sub"></p>
+            </div>
+            <div class="rij">
+              <label class="sr" for="zoek">Zoek op naam of e-mail</label>
+              <input id="zoek" class="zoek" type="search" placeholder="Zoek op naam of e-mail" />
+              <button type="button" class="zacht" id="csv">Exporteer CSV</button>
+            </div>
+          </div>
+          <div class="tabel-wrap">
+            <table>
+              <thead>
+                <tr id="kolommen"></tr>
+              </thead>
+              <tbody id="rijen"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer>
+      Mooove beheer · alleen toegankelijk voor accounts met beheerrechten · gegevens worden niet in
+      deze browser bewaard.
+    </footer>
+
+    <script type="module">
+      import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/+esm';
+
+      const SUPABASE_URL = 'https://akxnqxuztrtkquzbrsvx.supabase.co';
+      const SUPABASE_KEY = 'sb_publishable_C5ZYBnaCvDzc9HkXBHdw9w_MSTVBdZK';
+      const sb = createClient(SUPABASE_URL, SUPABASE_KEY, {
+        auth: { persistSession: true, storageKey: 'mooove-beheer' },
+      });
+
+      const $ = (id) => document.getElementById(id);
+      const toon = (el, aan) => el.classList.toggle('verborgen', !aan);
+      const melding = (tekst) => {
+        $('melding').textContent = tekst;
+      };
+      const NIVEAUS = ['Vrij', 'Flexibel', 'Uitstelbaar', 'Verplicht', 'Hardcore'];
+      const DAG = 86400000;
+
+      let metWachtwoord = false;
+      let data = null;
+      let periode = 30;
+      let sortering = { kolom: 'laatsteActiviteit', op: -1 };
+
+      // ---------- Inloggen ----------
+      $('wissel').onclick = () => {
+        metWachtwoord = !metWachtwoord;
+        toon($('wachtwoord-veld'), metWachtwoord);
+        $('wachtwoord').required = metWachtwoord;
+        $('verstuur').textContent = metWachtwoord ? 'Inloggen' : 'Stuur mij een code';
+        $('wissel').textContent = metWachtwoord
+          ? 'Inloggen met een code'
+          : 'Inloggen met wachtwoord';
+        melding('');
+      };
+      $('terug').onclick = () => {
+        toon($('form-code'), false);
+        toon($('form-email'), true);
+        melding('');
+      };
+
+      $('form-email').onsubmit = async (e) => {
+        e.preventDefault();
+        melding('');
+        const email = $('email').value.trim();
+        if (metWachtwoord) {
+          const { error } = await sb.auth.signInWithPassword({
+            email,
+            password: $('wachtwoord').value,
+          });
+          if (error) return melding('E-mailadres of wachtwoord klopt niet.');
+          return start();
+        }
+        const { error } = await sb.auth.signInWithOtp({
+          email,
+          options: { shouldCreateUser: false },
+        });
+        if (error)
+          return melding(
+            'Versturen lukte niet. Controleer het e-mailadres of probeer het straks opnieuw.',
+          );
+        toon($('form-email'), false);
+        toon($('form-code'), true);
+        $('code').focus();
+      };
+
+      $('form-code').onsubmit = async (e) => {
+        e.preventDefault();
+        const { error } = await sb.auth.verifyOtp({
+          email: $('email').value.trim(),
+          token: $('code').value.trim(),
+          type: 'email',
+        });
+        if (error) return melding('Deze code klopt niet of is verlopen.');
+        start();
+      };
+
+      $('uitloggen').onclick = async () => {
+        await sb.auth.signOut();
+        data = null;
+        toon($('dashboard'), false);
+        toon($('account'), false);
+        toon($('inloggen'), true);
+        toon($('form-code'), false);
+        toon($('form-email'), true);
+      };
+
+      async function start() {
+        const {
+          data: { session },
+        } = await sb.auth.getSession();
+        if (!session) return;
+        const { data: antwoord, error } = await sb.functions.invoke('admin-overzicht', {
+          method: 'POST',
+        });
+        if (error) {
+          const status = error.context?.status;
+          await sb.auth.signOut();
+          toon($('inloggen'), true);
+          toon($('form-code'), false);
+          toon($('form-email'), true);
+          return melding(
+            status === 403
+              ? 'Dit account heeft geen beheerrechten.'
+              : 'Het overzicht laden lukte niet. Probeer het opnieuw.',
+          );
+        }
+        data = antwoord;
+        $('wie').textContent = session.user.email;
+        toon($('account'), true);
+        toon($('inloggen'), false);
+        toon($('dashboard'), true);
+        teken();
+      }
+
+      $('vernieuw').onclick = () => start();
+      $('testaccounts').onchange = () => teken();
+      $('zoek').oninput = () => tekenTabel();
+      document.querySelectorAll('.segment button').forEach((knop) => {
+        knop.onclick = () => {
+          periode = Number(knop.dataset.dagen);
+          document
+            .querySelectorAll('.segment button')
+            .forEach((k) => k.setAttribute('aria-pressed', String(k === knop)));
+          teken();
+        };
+      });
+
+      // ---------- Berekeningen ----------
+      const isTest = (g) => /\.invalid$/i.test(g.email) || /^appreview@/i.test(g.email);
+      const dagSleutel = (d) => d.toLocaleDateString('sv-SE', { timeZone: 'Europe/Amsterdam' });
+      const getal = (n) =>
+        new Intl.NumberFormat('nl-NL', { notation: n >= 10000 ? 'compact' : 'standard' }).format(n);
+      const datum = (iso) =>
+        iso
+          ? new Date(iso).toLocaleDateString('nl-NL', {
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric',
+            })
+          : '—';
+      function geleden(iso) {
+        if (!iso) return '—';
+        const dagen = Math.floor((Date.now() - new Date(iso).getTime()) / DAG);
+        if (dagen <= 0) return 'vandaag';
+        if (dagen === 1) return 'gisteren';
+        if (dagen < 30) return `${dagen} dagen geleden`;
+        return datum(iso);
+      }
+
+      function dagenReeks(n) {
+        const lijst = [];
+        for (let i = n - 1; i >= 0; i--) lijst.push(dagSleutel(new Date(Date.now() - i * DAG)));
+        return lijst;
+      }
+
+      function selectie() {
+        const metTest = $('testaccounts').checked;
+        const gebruikers = data.gebruikers.filter((g) => metTest || !isTest(g));
+        const ids = new Set(gebruikers.map((g) => g.id));
+        const dagen = dagenReeks(periode);
+        const vanaf = dagen[0];
+        const missies = data.missies.filter((m) => ids.has(m.gebruiker) && m.dag >= vanaf);
+        const alarmen = data.alarmen.filter((a) => ids.has(a.gebruiker));
+        return { gebruikers, ids, dagen, vanaf, missies, alarmen };
+      }
+
+      function status(g) {
+        if (!g.bevestigd) return ['onbevestigd', 'Niet bevestigd'];
+        const sindsMissie = g.laatsteMissie
+          ? (Date.now() - new Date(g.laatsteMissie).getTime()) / DAG
+          : Infinity;
+        if (sindsMissie <= 7) return ['actief', 'Actief'];
+        if ((Date.now() - new Date(g.aangemeld).getTime()) / DAG <= 7) return ['nieuw', 'Nieuw'];
+        if (sindsMissie < Infinity) return ['slapend', 'Slapend'];
+        return ['geen', 'Nog geen missie'];
+      }
+
+      // ---------- Tekenen ----------
+      function teken() {
+        if (!data) return;
+        const s = selectie();
+        const actief = (dagen) =>
+          new Set(
+            data.missies
+              .filter(
+                (m) =>
+                  s.ids.has(m.gebruiker) &&
+                  m.dag >= dagSleutel(new Date(Date.now() - (dagen - 1) * DAG)),
+              )
+              .map((m) => m.gebruiker),
+          ).size;
+        const nieuw = s.gebruikers.filter(
+          (g) => dagSleutel(new Date(g.aangemeld)) >= s.vanaf,
+        ).length;
+        const voltooid = s.missies.filter((m) => m.voltooid).length;
+        const pct = s.missies.length ? Math.round((voltooid / s.missies.length) * 100) : null;
+        const herhalingen = s.missies.reduce((som, m) => som + (m.herhalingen || 0), 0);
+        const metAlarm = new Set(s.alarmen.filter((a) => a.aan).map((a) => a.gebruiker)).size;
+
+        const tegels = [
+          {
+            lbl: 'Gebruikers',
+            waarde: getal(s.gebruikers.length),
+            extra: `${getal(nieuw)} nieuw in ${periode} dagen`,
+            held: true,
+          },
+          { lbl: 'Actief laatste 7 dagen', waarde: getal(actief(7)), extra: 'minstens één missie' },
+          {
+            lbl: `Actief laatste ${periode} dagen`,
+            waarde: getal(actief(periode)),
+            extra: 'minstens één missie',
+          },
+          {
+            lbl: 'Met een alarm aan',
+            waarde: getal(metAlarm),
+            extra: `${getal(s.alarmen.filter((a) => a.aan).length)} alarmen aan`,
+          },
+          {
+            lbl: `Missies in ${periode} dagen`,
+            waarde: getal(s.missies.length),
+            extra: pct === null ? 'nog geen missies' : `${pct}% voltooid`,
+          },
+          {
+            lbl: `Herhalingen in ${periode} dagen`,
+            waarde: getal(herhalingen),
+            extra: 'squats, push-ups en meer',
+          },
+        ];
+        const houder = $('tegels');
+        houder.replaceChildren(
+          ...tegels.map((t) => {
+            const div = document.createElement('div');
+            div.className = 'tegel' + (t.held ? ' held' : '');
+            for (const [klasse, tekst] of [
+              ['lbl', t.lbl],
+              ['waarde', t.waarde],
+              ['extra', t.extra],
+            ]) {
+              const el = document.createElement('div');
+              el.className = klasse;
+              el.textContent = tekst;
+              div.append(el);
+            }
+            return div;
+          }),
+        );
+
+        // Missies per dag
+        const perDag = new Map(s.dagen.map((d) => [d, { voltooid: 0, afgebroken: 0 }]));
+        for (const m of s.missies) {
+          const rij = perDag.get(m.dag);
+          if (rij) rij[m.voltooid ? 'voltooid' : 'afgebroken']++;
+        }
+        $('missies-sub').textContent =
+          `Laatste ${periode} dagen · ${getal(s.missies.length)} missies`;
+        kolommen(
+          $('grafiek-missies'),
+          s.dagen.map((d) => ({
+            dag: d,
+            delen: [
+              { naam: 'Voltooid', waarde: perDag.get(d).voltooid, kleur: 'var(--s-voltooid)' },
+              {
+                naam: 'Afgebroken',
+                waarde: perDag.get(d).afgebroken,
+                kleur: 'var(--s-afgebroken)',
+              },
+            ],
+          })),
+        );
+
+        // Nieuwe accounts per dag
+        const nieuwPerDag = new Map(s.dagen.map((d) => [d, 0]));
+        for (const g of s.gebruikers) {
+          const d = dagSleutel(new Date(g.aangemeld));
+          if (nieuwPerDag.has(d)) nieuwPerDag.set(d, nieuwPerDag.get(d) + 1);
+        }
+        $('nieuw-sub').textContent = `Laatste ${periode} dagen · ${getal(nieuw)} accounts`;
+        kolommen(
+          $('grafiek-nieuw'),
+          s.dagen.map((d) => ({
+            dag: d,
+            delen: [
+              { naam: 'Nieuwe accounts', waarde: nieuwPerDag.get(d), kleur: 'var(--s-voltooid)' },
+            ],
+          })),
+        );
+
+        // Niveaus en populaire missies
+        const aan = s.alarmen.filter((a) => a.aan);
+        balken(
+          $('niveaus'),
+          NIVEAUS.map((n) => [n, aan.filter((a) => a.niveau === n).length]),
+          'Nog geen ingeschakelde alarmen.',
+        );
+        const telling = new Map();
+        for (const a of aan) for (const m of a.missies) telling.set(m, (telling.get(m) ?? 0) + 1);
+        const populair = [...telling]
+          .map(([m, n]) => [m === 'eigen' ? 'Eigen missies' : m, n])
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 8);
+        balken($('populair'), populair, 'Nog geen missies in alarmen.');
+
+        tekenTabel();
+        $('bijgewerkt').textContent =
+          `Bijgewerkt ${new Date(data.gegenereerd).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}`;
+      }
+
+      function balken(lijst, rijen, leeg) {
+        const max = Math.max(1, ...rijen.map((r) => r[1]));
+        if (!rijen.some((r) => r[1] > 0)) {
+          const li = document.createElement('li');
+          li.className = 'leeg';
+          li.textContent = leeg;
+          return lijst.replaceChildren(li);
+        }
+        lijst.replaceChildren(
+          ...rijen.map(([naam, n]) => {
+            const li = document.createElement('li');
+            const label = document.createElement('span');
+            label.textContent = naam;
+            const aantal = document.createElement('span');
+            aantal.className = 'aantal';
+            aantal.textContent = getal(n);
+            const spoor = document.createElement('div');
+            spoor.className = 'spoor';
+            const vul = document.createElement('div');
+            vul.className = 'vul';
+            vul.style.width = `${(n / max) * 100}%`;
+            spoor.append(vul);
+            li.append(label, aantal, spoor);
+            return li;
+          }),
+        );
+      }
+
+      // Gestapelde kolommen met een 2px oppervlak-tussenruimte, afgeronde top en tooltip per dag
+      function kolommen(houder, reeks) {
+        const B = Math.max(280, houder.clientWidth || 600),
+          H = 220,
+          links = 30,
+          onder = 22,
+          boven = 8;
+        const totaal = (r) => r.delen.reduce((s, d) => s + d.waarde, 0);
+        const maxRuw = Math.max(1, ...reeks.map(totaal));
+        const stap =
+          maxRuw <= 4 ? 1 : Math.ceil(maxRuw / 4 / (maxRuw > 20 ? 5 : 1)) * (maxRuw > 20 ? 5 : 1);
+        const max = Math.ceil(maxRuw / stap) * stap;
+        const breedte = (B - links) / reeks.length;
+        const dik = Math.min(24, breedte * 0.7);
+        const y = (w) => H - onder - (w / max) * (H - onder - boven);
+        const ns = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(ns, 'svg');
+        svg.setAttribute('viewBox', `0 0 ${B} ${H}`);
+        svg.setAttribute('role', 'img');
+        svg.setAttribute(
+          'aria-label',
+          reeks
+            .map((r) => `${r.dag}: ${r.delen.map((d) => `${d.naam} ${d.waarde}`).join(', ')}`)
+            .join('; '),
+        );
+        const el = (naam, attrs) => {
+          const e = document.createElementNS(ns, naam);
+          for (const k in attrs) e.setAttribute(k, attrs[k]);
+          return e;
+        };
+        for (let w = 0; w <= max; w += stap) {
+          svg.append(
+            el('line', {
+              x1: links,
+              x2: B,
+              y1: y(w),
+              y2: y(w),
+              stroke: 'var(--grid)',
+              'stroke-width': 1,
+            }),
+          );
+          const t = el('text', { x: links - 6, y: y(w) + 4, 'text-anchor': 'end', class: 'as' });
+          t.textContent = getal(w);
+          svg.append(t);
+        }
+        const labelElke = Math.ceil(reeks.length / 6);
+        reeks.forEach((r, i) => {
+          const x = links + i * breedte + (breedte - dik) / 2;
+          let basis = 0;
+          const zichtbaar = r.delen.filter((d) => d.waarde > 0);
+          zichtbaar.forEach((d, j) => {
+            const y0 = y(basis),
+              y1 = y(basis + d.waarde);
+            const bovenste = j === zichtbaar.length - 1;
+            const hoogte = Math.max(0, y0 - y1 - (j > 0 ? 2 : 0));
+            const top = y1;
+            const r4 = bovenste ? Math.min(4, hoogte, dik / 2) : 0;
+            const pad = `M${x},${top + hoogte} V${top + r4} Q${x},${top} ${x + r4},${top} H${x + dik - r4} Q${x + dik},${top} ${x + dik},${top + r4} V${top + hoogte} Z`;
+            svg.append(el('path', { d: pad, fill: d.kleur }));
+            basis += d.waarde;
+          });
+          if (i % labelElke === 0 || i === reeks.length - 1) {
+            const t = el('text', {
+              x: links + i * breedte + breedte / 2,
+              y: H - 6,
+              'text-anchor': 'middle',
+              class: 'as',
+            });
+            t.textContent = new Date(r.dag + 'T12:00').toLocaleDateString('nl-NL', {
+              day: 'numeric',
+              month: 'short',
+            });
+            svg.append(t);
+          }
+          const raak = el('rect', {
+            x: links + i * breedte,
+            y: 0,
+            width: breedte,
+            height: H - onder,
+            fill: 'transparent',
+          });
+          raak.addEventListener('pointerenter', () =>
+            tip(houder, r, (links + (i + 0.5) * breedte) / B, y(Math.max(totaal(r), 0)) / H),
+          );
+          raak.addEventListener('pointerleave', () => tip(houder, null));
+          svg.append(raak);
+        });
+        const tipEl = document.createElement('div');
+        tipEl.className = 'tip';
+        houder.replaceChildren(svg, tipEl);
+      }
+
+      function tip(houder, r, fx, fy) {
+        const el = houder.querySelector('.tip');
+        if (!r) return (el.style.opacity = 0);
+        el.replaceChildren();
+        const kop = document.createElement('b');
+        kop.textContent = new Date(r.dag + 'T12:00').toLocaleDateString('nl-NL', {
+          weekday: 'short',
+          day: 'numeric',
+          month: 'long',
+        });
+        el.append(kop);
+        for (const d of r.delen) {
+          const rij = document.createElement('div');
+          const sw = document.createElement('i');
+          sw.style.background = d.kleur;
+          rij.append(sw, `${d.naam}: ${getal(d.waarde)}`);
+          el.append(rij);
+        }
+        el.style.left = `${fx * 100}%`;
+        el.style.top = `${Math.max(fy * 220 - 8, 40)}px`;
+        el.style.opacity = 1;
+      }
+
+      // ---------- Gebruikerstabel ----------
+      const KOLOMMEN = [
+        { id: 'naam', titel: 'Gebruiker', waarde: (g) => (g.voornaam || g.email).toLowerCase() },
+        { id: 'status', titel: 'Status', waarde: (g) => status(g)[1] },
+        { id: 'aangemeld', titel: 'Aangemeld', waarde: (g) => g.aangemeld },
+        { id: 'laatsteActiviteit', titel: 'Laatste missie', waarde: (g) => g.laatsteMissie ?? '' },
+        { id: 'laatstIngelogd', titel: 'Laatst ingelogd', waarde: (g) => g.laatstIngelogd ?? '' },
+        { id: 'missies', titel: 'Missies', getal: true, waarde: (g) => g._missies },
+        { id: 'voltooid', titel: 'Voltooid', getal: true, waarde: (g) => g._pct ?? -1 },
+        { id: 'alarmen', titel: 'Alarmen aan', getal: true, waarde: (g) => g.alarmenAan },
+        { id: 'eigen', titel: 'Eigen missies', getal: true, waarde: (g) => g.eigenMissies },
+        { id: 'weekdoel', titel: 'Weekdoel', getal: true, waarde: (g) => g.weekdoel ?? 0 },
+      ];
+
+      function tekenTabel() {
+        if (!data) return;
+        const s = selectie();
+        const zoek = $('zoek').value.trim().toLowerCase();
+        const perGebruiker = new Map();
+        for (const m of s.missies) {
+          const r = perGebruiker.get(m.gebruiker) ?? { n: 0, v: 0 };
+          r.n++;
+          if (m.voltooid) r.v++;
+          perGebruiker.set(m.gebruiker, r);
+        }
+        const rijen = s.gebruikers
+          .map((g) => {
+            const r = perGebruiker.get(g.id);
+            return { ...g, _missies: r?.n ?? 0, _pct: r ? Math.round((r.v / r.n) * 100) : null };
+          })
+          .filter(
+            (g) =>
+              !zoek ||
+              g.email.toLowerCase().includes(zoek) ||
+              (g.voornaam ?? '').toLowerCase().includes(zoek),
+          );
+        const kolom = KOLOMMEN.find((k) => k.id === sortering.kolom) ?? KOLOMMEN[3];
+        rijen.sort((a, b) => {
+          const x = kolom.waarde(a),
+            y = kolom.waarde(b);
+          return (x < y ? -1 : x > y ? 1 : 0) * sortering.op;
+        });
+
+        $('kolommen').replaceChildren(
+          ...KOLOMMEN.map((k) => {
+            const th = document.createElement('th');
+            if (k.getal) th.className = 'getal';
+            const knop = document.createElement('button');
+            knop.textContent =
+              k.titel + (k.id === sortering.kolom ? (sortering.op === 1 ? ' ↑' : ' ↓') : '');
+            th.setAttribute(
+              'aria-sort',
+              k.id === sortering.kolom ? (sortering.op === 1 ? 'ascending' : 'descending') : 'none',
+            );
+            knop.onclick = () => {
+              sortering = {
+                kolom: k.id,
+                op: sortering.kolom === k.id ? -sortering.op : k.getal || k.id !== 'naam' ? -1 : 1,
+              };
+              tekenTabel();
+            };
+            th.append(knop);
+            return th;
+          }),
+        );
+
+        $('gebruikers-sub').textContent =
+          `${rijen.length} van ${s.gebruikers.length} accounts · missies over ${periode} dagen`;
+        if (!rijen.length) {
+          const tr = document.createElement('tr');
+          const td = document.createElement('td');
+          td.colSpan = KOLOMMEN.length;
+          td.className = 'leeg';
+          td.textContent = 'Geen gebruikers gevonden.';
+          tr.append(td);
+          return $('rijen').replaceChildren(tr);
+        }
+        $('rijen').replaceChildren(
+          ...rijen.map((g) => {
+            const tr = document.createElement('tr');
+            const cel = (inhoud, getalKolom) => {
+              const td = document.createElement('td');
+              if (getalKolom) td.className = 'getal';
+              if (inhoud instanceof Node) td.append(inhoud);
+              else td.textContent = inhoud;
+              tr.append(td);
+            };
+            const wie = document.createElement('div');
+            const naam = document.createElement('div');
+            naam.className = 'naam';
+            naam.textContent = g.voornaam || '—';
+            if (isTest(g)) {
+              const tag = document.createElement('span');
+              tag.className = 'tag';
+              tag.textContent = 'test';
+              naam.append(tag);
+            }
+            if (g.beheerder) {
+              const tag = document.createElement('span');
+              tag.className = 'tag';
+              tag.textContent = 'jij';
+              naam.append(tag);
+            }
+            const mail = document.createElement('div');
+            mail.className = 'mail';
+            mail.textContent = g.email;
+            wie.append(naam, mail);
+            cel(wie);
+            const [klasse, label] = status(g);
+            const pil = document.createElement('span');
+            pil.className = `pil p-${klasse}`;
+            pil.textContent = label;
+            cel(pil);
+            cel(datum(g.aangemeld));
+            cel(geleden(g.laatsteMissie));
+            cel(geleden(g.laatstIngelogd));
+            cel(getal(g._missies), true);
+            cel(g._pct === null ? '—' : `${g._pct}%`, true);
+            cel(`${g.alarmenAan}/${g.alarmen}`, true);
+            cel(getal(g.eigenMissies), true);
+            cel(g.weekdoel ? `${g.weekdoel}×` : '—', true);
+            return tr;
+          }),
+        );
+      }
+
+      $('csv').onclick = () => {
+        if (!data) return;
+        const s = selectie();
+        const kop = [
+          'email',
+          'voornaam',
+          'aangemeld',
+          'laatst_ingelogd',
+          'laatste_missie',
+          'status',
+          'alarmen',
+          'alarmen_aan',
+          'eigen_missies',
+          'weekdoel',
+        ];
+        const veld = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+        const regels = s.gebruikers.map((g) =>
+          [
+            g.email,
+            g.voornaam,
+            g.aangemeld,
+            g.laatstIngelogd,
+            g.laatsteMissie,
+            status(g)[1],
+            g.alarmen,
+            g.alarmenAan,
+            g.eigenMissies,
+            g.weekdoel,
+          ]
+            .map(veld)
+            .join(','),
+        );
+        const blob = new Blob([[kop.join(','), ...regels].join('\n')], {
+          type: 'text/csv;charset=utf-8',
+        });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `mooove-gebruikers-${dagSleutel(new Date())}.csv`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      };
+
+      let wachtOpFormaat;
+      window.addEventListener('resize', () => {
+        clearTimeout(wachtOpFormaat);
+        wachtOpFormaat = setTimeout(teken, 150);
+      });
+
+      start();
+    </script>
+  </body>
+</html>

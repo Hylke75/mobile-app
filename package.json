@@ -80,7 +80,7 @@
     "typecheck": "tsc --noEmit",
     "postinstall": "patch-package",
     "test": "jest",
-    "site": "node --experimental-strip-types --no-warnings scripts/bouw-site.mjs",
+    "site": "node --env-file-if-exists=.env --experimental-strip-types --no-warnings scripts/bouw-site.mjs",
     "e2e": "expo export -p web --output-dir dist-web && playwright test"
   },
   "private": true,

@@ -6,8 +6,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { privacy } from '../src/i18n/teksten/privacy.ts';
+import { landing } from './site-landing.mjs';
 
-const SITE = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'site');
+const HIER = path.dirname(fileURLToPath(import.meta.url));
+const SITE = path.join(HIER, '..', 'site');
 const BIJGEWERKT = new Date(2026, 9, 24);
 const MAIL = 'hylke@linkandlead.nl';
 const TALEN = ['nl', 'en', 'es', 'de', 'fr'];
@@ -122,9 +124,8 @@ const esc = (s) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const metMail = (s) => esc(s).replace(MAIL, `<a href="mailto:${MAIL}">${MAIL}</a>`);
 
-// Stijl en logo komen uit de Nederlandse startpagina, zodat alle pagina's gelijk blijven
-const bron = fs.readFileSync(path.join(SITE, 'index.html'), 'utf8');
-const stijl = bron.match(/<style>[\s\S]*?<\/style>/)[0];
+// Gedeelde stijl van de tekstpagina's (privacy, account verwijderen)
+const stijl = `<style>\n${fs.readFileSync(path.join(HIER, 'site-pagina.css'), 'utf8')}</style>`;
 
 function talenlijst(huidig, pagina) {
   return TALEN.map((taal) =>
@@ -177,19 +178,6 @@ for (const taal of TALEN.filter((t) => t !== 'nl')) {
   const map = path.join(SITE, taal);
   fs.mkdirSync(map, { recursive: true });
   fs.writeFileSync(
-    path.join(map, 'index.html'),
-    pagina(
-      taal,
-      'index',
-      'Mooove',
-      `<h1>Stop snoozing.<br>Start moving.</h1>
-<p>${x.intro}</p>
-<p>${x.camera}</p>
-<p><a class="cta" href="${url(taal, 'privacy')}">${x.privacy}</a><a class="cta" href="${url(taal, 'verwijderen')}">${x.verwijderen}</a></p>
-<h2>${x.contact}</h2><p>Hylke Thiry — <a href="mailto:${MAIL}">${MAIL}</a></p>`,
-    ),
-  );
-  fs.writeFileSync(
     path.join(map, 'privacy.html'),
     pagina(taal, 'privacy', `${x.privacy} · Mooove`, privacyInhoud(taal)),
   );
@@ -210,4 +198,39 @@ for (const taal of TALEN.filter((t) => t !== 'nl')) {
     ),
   );
 }
-console.log('Site gebouwd: en, es, de, fr');
+// Presentatiepagina in alle vijf talen (Nederlands op /)
+const LABELS = {
+  nl: { privacy: 'Privacyverklaring', verwijderen: 'Account verwijderen' },
+  ...Object.fromEntries(
+    Object.entries(TEKST).map(([t, x]) => [t, { privacy: x.privacy, verwijderen: x.verwijderen }]),
+  ),
+};
+for (const taal of TALEN) {
+  const map = taal === 'nl' ? SITE : path.join(SITE, taal);
+  fs.writeFileSync(
+    path.join(map, 'index.html'),
+    landing(taal, {
+      talen: TALEN,
+      taalnamen: TAALNAMEN,
+      url,
+      hreflang,
+      privacyLabel: LABELS[taal].privacy,
+      verwijderLabel: LABELS[taal].verwijderen,
+      mail: MAIL,
+    }),
+  );
+}
+
+// Beheeromgeving: alleen publieke sleutels (zelfde als de app), de toegang regelt de Edge Function
+const sbUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const sbKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+if (!sbUrl || !sbKey)
+  throw new Error('EXPO_PUBLIC_SUPABASE_URL en EXPO_PUBLIC_SUPABASE_ANON_KEY ontbreken (.env).');
+fs.writeFileSync(
+  path.join(SITE, 'admin.html'),
+  fs
+    .readFileSync(path.join(HIER, 'site-admin.html'), 'utf8')
+    .replace('__SUPABASE_URL__', sbUrl)
+    .replace('__SUPABASE_KEY__', sbKey),
+);
+console.log("Site gebouwd: presentatie in vijf talen, tekstpagina's en beheer");
