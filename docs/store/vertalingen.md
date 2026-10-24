@@ -108,8 +108,8 @@ Na het online zetten van `site/` (zie de checklist in `CLAUDE.md`) per taal invu
 
 | Taal       | Privacyverklaring                  | Account verwijderen                            |
 | ---------- | ---------------------------------- | ---------------------------------------------- |
-| Nederlands | `https://mooov-app.com/privacy`    | `https://mooov-app.com/account-verwijderen`    |
-| Engels     | `https://mooov-app.com/en/privacy` | `https://mooov-app.com/en/account-verwijderen` |
-| Spaans     | `https://mooov-app.com/es/privacy` | `https://mooov-app.com/es/account-verwijderen` |
-| Duits      | `https://mooov-app.com/de/privacy` | `https://mooov-app.com/de/account-verwijderen` |
-| Frans      | `https://mooov-app.com/fr/privacy` | `https://mooov-app.com/fr/account-verwijderen` |
+| Nederlands | `https://mooove-app.com/privacy`    | `https://mooove-app.com/account-verwijderen`    |
+| Engels     | `https://mooove-app.com/en/privacy` | `https://mooove-app.com/en/account-verwijderen` |
+| Spaans     | `https://mooove-app.com/es/privacy` | `https://mooove-app.com/es/account-verwijderen` |
+| Duits      | `https://mooove-app.com/de/privacy` | `https://mooove-app.com/de/account-verwijderen` |
+| Frans      | `https://mooove-app.com/fr/privacy` | `https://mooove-app.com/fr/account-verwijderen` |

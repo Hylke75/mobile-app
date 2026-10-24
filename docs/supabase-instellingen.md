@@ -42,4 +42,4 @@ Inloggen op `/admin` gaat met een e-mailcode (vereist het e-mailtemplate met `{{
 
 ## Domein
 
-De site staat op `https://mooov-app.com`. Zet in Supabase onder **Authentication → URL Configuration** de **Site URL** op `https://mooov-app.com` en voeg `https://mooov-app.com/admin` toe aan de **Redirect URLs**. Inloggen gaat met een code, dus links in e-mails zijn niet nodig, maar zo verwijst Supabase nooit naar een verkeerd adres.
+De site staat op `https://mooove-app.com`. Zet in Supabase onder **Authentication → URL Configuration** de **Site URL** op `https://mooove-app.com` en voeg `https://mooove-app.com/admin` toe aan de **Redirect URLs**. Inloggen gaat met een code, dus links in e-mails zijn niet nodig, maar zo verwijst Supabase nooit naar een verkeerd adres.
