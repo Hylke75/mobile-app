@@ -1,4 +1,5 @@
 import { t } from '@/i18n';
+import { isOefening } from '@/lib/missies';
 import { dagIndex, dagSleutel, startVanDag, startVanWeek } from '@/lib/tijd';
 import type { Oefening, Sessie } from '@/types/app';
 
@@ -51,7 +52,7 @@ function totalen(voltooid: Sessie[]): Partial<Record<Oefening, number>> {
   for (const sessie of voltooid) {
     for (const stap of sessie.stappen) {
       // Sprongen als alternatief tellen niet als herhalingen van de oorspronkelijke oefening
-      if (stap.methode === 'beweging') continue;
+      if (stap.methode === 'beweging' || !isOefening(stap.oefening)) continue;
       som[stap.oefening] = (som[stap.oefening] ?? 0) + stap.gedaan;
     }
   }
@@ -120,7 +121,16 @@ export function berekenStatistiek(sessies: Sessie[], weekdoel = 7, nu = new Date
   };
 }
 
-export type Badge = { id: string; emoji: string; naam: string; detail: string; behaald: boolean };
+export type Badge = {
+  id: string;
+  emoji: string;
+  naam: string;
+  detail: string;
+  behaald: boolean;
+  // Voortgang richting de badge, bijv. 34 van 100 squats
+  huidig: number;
+  doel: number;
+};
 
 type BadgeId =
   | 'eersteStap'
@@ -133,26 +143,29 @@ type BadgeId =
   | 'legend'
   | 'honderd';
 
-const badge = (id: BadgeId, emoji: string, behaald: boolean): Badge => ({
+const badge = (id: BadgeId, emoji: string, waarde: number, doel: number): Badge => ({
   id,
   emoji,
   naam: t(`badges.${id}.naam`),
   detail: t(`badges.${id}.detail`),
-  behaald,
+  behaald: waarde >= doel,
+  huidig: Math.min(waarde, doel),
+  doel,
 });
 
 export function badgesVoor(s: Statistiek): Badge[] {
   const totaal = (o: Oefening) => s.totaalPerOefening[o] ?? 0;
   return [
-    badge('eersteStap', '🌱', s.aantalVoltooid >= 1),
-    badge('earlyMover', '⚡', s.vroegeStarts >= 5),
-    badge('weekendWarrior', '🏖️', s.weekendWarrior),
-    badge('squatSquad', '🦵', totaal('Squats') >= 100),
-    badge('pushupPro', '💪', totaal('Push-ups') >= 100),
-    badge('plankmeester', '🧱', totaal('Plank') >= 600),
-    badge('streakMaster', '🔥', s.langsteStreak >= 10),
-    badge('legend', '🏆', s.langsteStreak >= 30),
-    badge('honderd', '💯', s.aantalVoltooid >= 100),
+    badge('eersteStap', '🌱', s.aantalVoltooid, 1),
+    badge('earlyMover', '⚡', s.vroegeStarts, 5),
+    badge('weekendWarrior', '🏖️', s.weekendWarrior ? 1 : 0, 1),
+    badge('squatSquad', '🦵', totaal('Squats'), 100),
+    badge('pushupPro', '💪', totaal('Push-ups'), 100),
+    // Plank in minuten, zodat de voortgang leesbaar blijft (bijv. 4/10)
+    badge('plankmeester', '🧱', Math.floor(totaal('Plank') / 60), 10),
+    badge('streakMaster', '🔥', s.langsteStreak, 10),
+    badge('legend', '🏆', s.langsteStreak, 30),
+    badge('honderd', '💯', s.aantalVoltooid, 100),
   ];
 }
 

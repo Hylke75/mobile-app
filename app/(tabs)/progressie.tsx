@@ -1,6 +1,7 @@
 import { useRef, type ComponentRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import { gedeeld, RoundPlus, ScreenHeader, SectionTitleRow } from '@/components/ui';
 import { dagLetter } from '@/constants/alarm';
@@ -147,10 +148,53 @@ export default function ProgressieScherm() {
       />
       <View style={styles.badgeRow}>
         {badges.map((b) => (
-          <View key={b.naam} style={[styles.badge, !b.behaald && styles.badgeLocked]}>
-            <Text style={styles.badgeEmoji}>{b.emoji}</Text>
-            <Text style={styles.badgeName}>{b.naam}</Text>
-            <Text style={styles.badgeDetail}>{b.detail}</Text>
+          <View
+            key={b.id}
+            accessible
+            accessibilityLabel={
+              b.behaald
+                ? t('progressie.badge.a11yBehaald', { naam: b.naam, detail: b.detail })
+                : t('progressie.badge.a11yVoortgang', {
+                    naam: b.naam,
+                    huidig: b.huidig,
+                    doel: b.doel,
+                  })
+            }
+            style={[styles.badge, b.behaald ? styles.badgeBehaald : styles.badgeOpen]}
+          >
+            <View style={[styles.badgeRond, b.behaald ? styles.badgeRondAan : styles.badgeRondUit]}>
+              <Text style={[styles.badgeEmoji, !b.behaald && styles.badgeEmojiUit]}>{b.emoji}</Text>
+              {!b.behaald && (
+                <View style={styles.badgeSlot}>
+                  <Icon name="lock" size={10} color={kleuren.white} strokeWidth={2.2} />
+                </View>
+              )}
+            </View>
+            <Text style={[styles.badgeName, !b.behaald && styles.badgeNameUit]} numberOfLines={2}>
+              {b.naam}
+            </Text>
+            <Text style={styles.badgeDetail} numberOfLines={2}>
+              {b.detail}
+            </Text>
+            {b.behaald ? (
+              <View style={styles.badgeTag}>
+                <Text style={styles.badgeTagTekst}>✓ {t('progressie.badge.behaald')}</Text>
+              </View>
+            ) : (
+              <View style={styles.badgeVoortgang}>
+                <View style={styles.badgeBalk}>
+                  <View
+                    style={[
+                      styles.badgeVulling,
+                      { width: `${Math.round((b.huidig / b.doel) * 100)}%` },
+                    ]}
+                  />
+                </View>
+                <Text style={styles.badgeTeller}>
+                  {b.huidig}/{b.doel}
+                </Text>
+              </View>
+            )}
           </View>
         ))}
       </View>
@@ -257,19 +301,71 @@ const styles = StyleSheet.create({
   badge: {
     flexBasis: '30%',
     flexGrow: 1,
-    backgroundColor: '#E8ECE2',
-    borderRadius: 16,
-    padding: 12,
+    maxWidth: 220,
+    borderRadius: 18,
+    paddingVertical: 14,
+    paddingHorizontal: 10,
     alignItems: 'center',
+    borderWidth: 1,
   },
-  badgeLocked: { opacity: 0.45 },
-  badgeEmoji: { fontSize: 28 },
+  badgeBehaald: { backgroundColor: kleuren.white, borderColor: '#C9E07A' },
+  badgeOpen: { backgroundColor: '#EEF0EA', borderColor: 'transparent' },
+  badgeRond: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  badgeRondAan: { backgroundColor: kleuren.lime },
+  badgeRondUit: { backgroundColor: '#E0E4DB' },
+  badgeEmoji: { fontSize: 26 },
+  badgeEmojiUit: { opacity: 0.35 },
+  badgeSlot: {
+    position: 'absolute',
+    right: -2,
+    bottom: -2,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#5F6E60',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#EEF0EA',
+  },
   badgeName: {
     fontFamily: fonts.head700,
-    fontSize: 11,
-    marginTop: 7,
+    fontSize: 12,
     color: kleuren.ink,
     textAlign: 'center',
   },
-  badgeDetail: { fontFamily: fonts.body400, fontSize: 9, color: '#5F6E60', textAlign: 'center' },
+  badgeNameUit: { color: '#4F5D51' },
+  badgeDetail: {
+    fontFamily: fonts.body400,
+    fontSize: 10,
+    lineHeight: 13,
+    color: '#5F6E60',
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  badgeTag: {
+    marginTop: 8,
+    backgroundColor: '#EDF4D5',
+    borderRadius: 100,
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+  },
+  badgeTagTekst: { fontFamily: fonts.body800, fontSize: 9, color: '#3F6E35' },
+  badgeVoortgang: { alignSelf: 'stretch', marginTop: 8, alignItems: 'center', gap: 4 },
+  badgeBalk: {
+    alignSelf: 'stretch',
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: '#DDE2D8',
+    overflow: 'hidden',
+  },
+  badgeVulling: { height: 5, borderRadius: 3, backgroundColor: kleuren.ink },
+  badgeTeller: { fontFamily: fonts.body800, fontSize: 9, color: '#5F6E60' },
 });

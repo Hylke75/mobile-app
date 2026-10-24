@@ -49,6 +49,36 @@ export type Database = {
         };
         Relationships: [];
       };
+      eigen_missies: {
+        Row: {
+          created_at: string;
+          duur_seconden: number;
+          emoji: string;
+          id: string;
+          naam: string;
+          soort: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          duur_seconden?: number;
+          emoji?: string;
+          id?: string;
+          naam: string;
+          soort: string;
+          user_id?: string;
+        };
+        Update: {
+          created_at?: string;
+          duur_seconden?: number;
+          emoji?: string;
+          id?: string;
+          naam?: string;
+          soort?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       missie_sessies: {
         Row: {
           afgerond_op: string;
@@ -134,3 +164,4 @@ export type Database = {
 export type Profiel = Database['public']['Tables']['profiles']['Row'];
 export type AlarmRij = Database['public']['Tables']['alarms']['Row'];
 export type SessieRij = Database['public']['Tables']['missie_sessies']['Row'];
+export type EigenMissieRij = Database['public']['Tables']['eigen_missies']['Row'];

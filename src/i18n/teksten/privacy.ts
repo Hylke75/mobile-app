@@ -19,6 +19,7 @@ const nl = {
     p3: 'Alarmen (tijd, dagen, niveau, gekozen oefeningen en aantallen, naam): om je alarmen in te plannen en op al je toestellen beschikbaar te maken.',
     p4: 'Missieresultaten (start- en eindtijd, oefeningen, aantal herhalingen, voltooid of afgebroken): om je streak, voortgang en badges te tonen.',
     p5: 'Weekdoel en datum van je laatste geslaagde alarmtest: om je instellingen en alarm-check te tonen.',
+    p6: 'Eigen missies (naam, icoon, timer of foto en duur): om ze in je alarmen te gebruiken.',
   },
   camera: {
     kop: 'Camera',
@@ -82,6 +83,7 @@ export const privacy: Vertalingen<typeof nl> = {
       p3: 'Alarms (time, days, level, chosen exercises and amounts, name): to schedule your alarms and make them available on all your devices.',
       p4: 'Mission results (start and end time, exercises, number of reps, completed or stopped): to show your streak, progress and badges.',
       p5: 'Weekly goal and the date of your last successful alarm test: to show your settings and alarm check.',
+      p6: 'Your own missions (name, icon, timer or photo and duration): to use them in your alarms.',
     },
     camera: {
       kop: 'Camera',
@@ -142,6 +144,7 @@ export const privacy: Vertalingen<typeof nl> = {
       p3: 'Alarmas (hora, días, nivel, ejercicios y cantidades elegidos, nombre): para programar tus alarmas y tenerlas disponibles en todos tus dispositivos.',
       p4: 'Resultados de las misiones (hora de inicio y fin, ejercicios, número de repeticiones, completada o interrumpida): para mostrar tu racha, tu progreso y tus insignias.',
       p5: 'Objetivo semanal y fecha de tu última prueba de alarma superada: para mostrar tus ajustes y la comprobación de alarma.',
+      p6: 'Tus misiones propias (nombre, icono, temporizador o foto y duración): para usarlas en tus alarmas.',
     },
     camera: {
       kop: 'Cámara',
@@ -202,6 +205,7 @@ export const privacy: Vertalingen<typeof nl> = {
       p3: 'Alarme (Uhrzeit, Tage, Stufe, gewählte Übungen und Anzahl, Name): um deine Alarme zu planen und auf all deinen Geräten verfügbar zu machen.',
       p4: 'Missionsergebnisse (Start- und Endzeit, Übungen, Anzahl der Wiederholungen, abgeschlossen oder abgebrochen): um deine Streak, deinen Fortschritt und deine Abzeichen anzuzeigen.',
       p5: 'Wochenziel und Datum deines letzten erfolgreichen Alarmtests: um deine Einstellungen und den Alarm-Check anzuzeigen.',
+      p6: 'Eigene Missionen (Name, Symbol, Timer oder Foto und Dauer): um sie in deinen Weckern zu verwenden.',
     },
     camera: {
       kop: 'Kamera',
@@ -262,6 +266,7 @@ export const privacy: Vertalingen<typeof nl> = {
       p3: 'Alarmes (heure, jours, niveau, exercices et quantités choisis, nom) : pour programmer tes alarmes et les rendre disponibles sur tous tes appareils.',
       p4: 'Résultats des missions (heure de début et de fin, exercices, nombre de répétitions, terminée ou interrompue) : pour afficher ta série, ta progression et tes badges.',
       p5: 'Objectif hebdomadaire et date de ton dernier test d’alarme réussi : pour afficher tes réglages et la vérification d’alarme.',
+      p6: 'Tes missions perso (nom, icône, minuteur ou photo et durée) : pour les utiliser dans tes alarmes.',
     },
     camera: {
       kop: 'Caméra',

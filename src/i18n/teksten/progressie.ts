@@ -1,6 +1,11 @@
 import type { Vertalingen } from '@/i18n/talen';
 
 const nl = {
+  badge: {
+    behaald: 'Behaald',
+    a11yBehaald: '{{naam}}, behaald: {{detail}}',
+    a11yVoortgang: '{{naam}}, nog niet behaald: {{huidig}} van {{doel}}',
+  },
   titel: 'Progressie',
   momentum: 'JOUW MOMENTUM ↗',
   dag: 'DAG',
@@ -26,6 +31,11 @@ const nl = {
 export const progressie: Vertalingen<typeof nl> = {
   nl,
   en: {
+    badge: {
+      behaald: 'Earned',
+      a11yBehaald: '{{naam}}, earned: {{detail}}',
+      a11yVoortgang: '{{naam}}, not earned yet: {{huidig}} of {{doel}}',
+    },
     titel: 'Progress',
     momentum: 'YOUR MOMENTUM ↗',
     dag: 'DAY',
@@ -48,6 +58,11 @@ export const progressie: Vertalingen<typeof nl> = {
     ontgrendeld: '{{n}} UNLOCKED',
   },
   es: {
+    badge: {
+      behaald: 'Conseguida',
+      a11yBehaald: '{{naam}}, conseguida: {{detail}}',
+      a11yVoortgang: '{{naam}}, aún no conseguida: {{huidig}} de {{doel}}',
+    },
     titel: 'Progreso',
     momentum: 'TU MOMENTUM ↗',
     dag: 'DÍA',
@@ -70,6 +85,11 @@ export const progressie: Vertalingen<typeof nl> = {
     ontgrendeld: '{{n}} DESBLOQUEADAS',
   },
   de: {
+    badge: {
+      behaald: 'Erreicht',
+      a11yBehaald: '{{naam}}, erreicht: {{detail}}',
+      a11yVoortgang: '{{naam}}, noch nicht erreicht: {{huidig}} von {{doel}}',
+    },
     titel: 'Fortschritt',
     momentum: 'DEIN MOMENTUM ↗',
     dag: 'TAG',
@@ -92,6 +112,11 @@ export const progressie: Vertalingen<typeof nl> = {
     ontgrendeld: '{{n}} FREIGESCHALTET',
   },
   fr: {
+    badge: {
+      behaald: 'Obtenu',
+      a11yBehaald: '{{naam}}, obtenu : {{detail}}',
+      a11yVoortgang: '{{naam}}, pas encore obtenu : {{huidig}} sur {{doel}}',
+    },
     titel: 'Progrès',
     momentum: 'TON ÉLAN ↗',
     dag: 'JOUR',

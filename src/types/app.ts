@@ -1,7 +1,35 @@
 export type Niveau = 'Vrij' | 'Flexibel' | 'Uitstelbaar' | 'Verplicht' | 'Hardcore';
 
+// Ingebouwde missies; de Nederlandse namen zijn ook de sleutels in de database
 export type Oefening =
-  'Squats' | 'Push-ups' | 'Jumping jacks' | 'Plank' | 'Bed opmaken' | 'Gordijnen open';
+  | 'Squats'
+  | 'Push-ups'
+  | 'Jumping jacks'
+  | 'Plank'
+  | 'Lunges'
+  | 'Kuitheffen'
+  | 'Bruggetje'
+  | 'Muurzit'
+  | 'Zijplank'
+  | 'Boomhouding'
+  | 'Bed opmaken'
+  | 'Gordijnen open'
+  | 'Glas water'
+  | 'Tanden poetsen'
+  | 'Ademhaling'
+  | 'Stretchen';
+
+// Zelfgemaakte missie van de gebruiker, afgerond met een timer of een foto
+export type EigenMissie = {
+  id: string;
+  naam: string;
+  emoji: string;
+  soort: 'timer' | 'foto';
+  duurSeconden: number;
+};
+
+// Een missie in een alarm: een ingebouwde oefening of "eigen:<uuid>"
+export type MissieId = Oefening | `eigen:${string}`;
 
 // Eigen aantal herhalingen of seconden per oefening; ontbrekend = standaarddoel
 export type Doelen = Partial<Record<Oefening, number>>;
@@ -13,16 +41,16 @@ export type Alarm = {
   // 0 = maandag … 6 = zondag
   dagen: number[];
   niveau: Niveau;
-  oefeningen: Oefening[];
+  oefeningen: MissieId[];
   doelen: Doelen;
   aan: boolean;
 };
 
 export type StapResultaat = {
-  oefening: Oefening;
+  oefening: MissieId;
   doel: number;
   gedaan: number;
-  methode: 'camera' | 'licht' | 'foto' | 'beweging' | 'handmatig';
+  methode: 'camera' | 'licht' | 'foto' | 'timer' | 'beweging' | 'handmatig';
 };
 
 export type Sessie = {

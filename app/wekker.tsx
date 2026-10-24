@@ -7,6 +7,7 @@ import { Screen } from '@/components/Screen';
 import { LevelTag, PrimaryButton, SecondaryButton } from '@/components/ui';
 import { dagenTekst, MAX_SNOOZES, missiesTekst, SNOOZE_MINUTEN } from '@/constants/alarm';
 import { doelenNaarTekst, doelenUitTekst } from '@/constants/oefeningen';
+import { eigenNaarTekst, eigenUitTekst } from '@/lib/missies';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useTaal } from '@/i18n';
 import { useAlarmen } from '@/hooks/useAlarmen';
@@ -40,6 +41,7 @@ export default function WekkerScherm() {
     naam?: string;
     oefeningen?: string;
     doelen?: string;
+    eigen?: string;
   }>();
   const { alarms, herplan } = useAlarmen();
   const { werkProfielBij } = useAuth();
@@ -83,6 +85,7 @@ export default function WekkerScherm() {
       ((params.oefeningen ? params.oefeningen.split(',') : native?.oefeningen) as
         Wekker['oefeningen'] | undefined),
     doelen: alarm?.doelen ?? (params.doelen ? doelenUitTekst(params.doelen) : native?.doelen),
+    eigen: params.eigen ? eigenUitTekst(params.eigen) : native?.eigen,
   };
 
   const voerUit = async (actie: () => Promise<void>) => {
@@ -115,6 +118,7 @@ export default function WekkerScherm() {
           niveau: wekker.niveau ?? '',
           oefeningen: wekker.oefeningen?.join(',') ?? '',
           doelen: wekker.doelen ? doelenNaarTekst(wekker.doelen) : '',
+          eigen: wekker.eigen?.length ? eigenNaarTekst(wekker.eigen) : '',
         },
       });
     });

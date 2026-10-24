@@ -3,12 +3,11 @@ import { useEffect } from 'react';
 
 import { CameraFrame } from '@/components/missie/CameraFrame';
 import { CameraIllustratie } from '@/components/missie/CameraIllustratie';
-import { OEFENING_INFO } from '@/constants/oefeningen';
 import { useTaal } from '@/i18n';
-import type { Oefening } from '@/types/app';
+import type { MissieInfo } from '@/lib/missies';
 
 export type StapDetectorProps = {
-  oefening: Oefening;
+  missie: MissieInfo;
   // Aantal herhalingen of seconden voor deze stap
   doel: number;
   onVoortgang: (gedaan: number) => void;
@@ -16,8 +15,7 @@ export type StapDetectorProps = {
   onKlaar: (methode: 'camera' | 'licht' | 'foto') => void;
 };
 
-export function StapDetector({ oefening, onFeedback }: StapDetectorProps) {
-  const info = OEFENING_INFO[oefening];
+export function StapDetector({ missie, onFeedback }: StapDetectorProps) {
   const { t } = useTaal();
 
   useEffect(() => {
@@ -29,7 +27,10 @@ export function StapDetector({ oefening, onFeedback }: StapDetectorProps) {
       label={t('missie.detector.geenCamera')}
       notitie={t('missie.camera.alleenInApp')}
       achtergrond={
-        <CameraIllustratie modus={info.methode === 'pose' ? 'pose' : 'object'} emoji={info.emoji} />
+        <CameraIllustratie
+          modus={missie.methode === 'pose' ? 'pose' : 'object'}
+          emoji={missie.emoji}
+        />
       }
     />
   );

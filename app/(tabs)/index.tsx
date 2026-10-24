@@ -7,7 +7,6 @@ import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import { gedeeld, PrimaryButton, SectionTitleRow } from '@/components/ui';
 import { dagenTekst, dagNaam, missiesTekst, niveauNaam } from '@/constants/alarm';
-import { doelTekst, OEFENING_INFO, oefeningNaam } from '@/constants/oefeningen';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmCheck } from '@/hooks/useAlarmCheck';
 import { useAlarmen } from '@/hooks/useAlarmen';
@@ -20,9 +19,10 @@ import { useNu } from '@/hooks/useNu';
 import { leesLokaal, schrijfLokaal, SLEUTELS } from '@/lib/opslag';
 import { vorigeWeek } from '@/lib/statistiek';
 import { dagIndex, dagSleutel, hervatOp, startVanDag, tijdTot, volgendAlarm } from '@/lib/tijd';
-import type { Oefening } from '@/types/app';
+import { missieInfos } from '@/lib/missies';
+import type { MissieId } from '@/types/app';
 
-const STANDAARD_MISSIE: Oefening[] = ['Squats', 'Bed opmaken', 'Gordijnen open'];
+const STANDAARD_MISSIE: MissieId[] = ['Squats', 'Bed opmaken', 'Gordijnen open'];
 
 function wanneerTekst(op: Date, t: typeof T): string {
   const vandaag = startVanDag(new Date());
@@ -35,7 +35,7 @@ function wanneerTekst(op: Date, t: typeof T): string {
 
 export default function VandaagScherm() {
   const { profiel, werkProfielBij } = useAuth();
-  const { alarms, vernieuw: vernieuwAlarmen } = useAlarmen();
+  const { alarms, vernieuw: vernieuwAlarmen, eigenMap } = useAlarmen();
   const { sessies, statistiek, vernieuw, wachtend } = useSessies();
   const { allesInOrde } = useAlarmCheck();
   const { t, locale } = useTaal();
@@ -54,7 +54,11 @@ export default function VandaagScherm() {
   const hervat = hervatOp(profiel?.pauze_tot, nu);
   // Tijdens een pauze is het eerstvolgende alarm het eerste na de pauze
   const volgend = volgendAlarm(alarms, hervat ? new Date(hervat.getTime() - 1) : nu);
-  const missie = volgend?.alarm.oefeningen ?? STANDAARD_MISSIE;
+  const missie = missieInfos(
+    volgend?.alarm.oefeningen ?? STANDAARD_MISSIE,
+    eigenMap,
+    volgend?.alarm.doelen,
+  );
   const vandaagKlaar = sessies.some(
     (s) =>
       s.status === 'voltooid' &&
@@ -253,18 +257,18 @@ export default function VandaagScherm() {
         })}
       />
       <View style={styles.missionList}>
-        {missie.map((oefening, i) => (
+        {missie.map((m, i) => (
           <View
-            key={`${oefening}-${i}`}
+            key={`${m.id}-${i}`}
             style={[styles.missionRow, i === missie.length - 1 && styles.missionRowLast]}
           >
             <Text style={styles.missionIndex}>{String(i + 1).padStart(2, '0')}</Text>
             <View style={styles.missionEmoji}>
-              <Text style={styles.missionEmojiText}>{OEFENING_INFO[oefening].emoji}</Text>
+              <Text style={styles.missionEmojiText}>{m.emoji}</Text>
             </View>
             <View>
-              <Text style={styles.missionName}>{oefeningNaam(oefening)}</Text>
-              <Text style={styles.missionDetail}>{doelTekst(oefening, volgend?.alarm.doelen)}</Text>
+              <Text style={styles.missionName}>{m.naam}</Text>
+              <Text style={styles.missionDetail}>{m.doelTekst}</Text>
             </View>
             <View style={[styles.missionCheck, vandaagKlaar && styles.missionCheckKlaar]}>
               <Icon name="check" size={13} color={vandaagKlaar ? kleuren.ink : '#C1CEC0'} />

@@ -24,6 +24,7 @@ export const SLEUTELS = {
   alarmen: 'mooove.alarmen',
   sessieWachtrij: 'mooove.sessie-wachtrij',
   sessies: 'mooove.sessies',
+  eigenMissies: 'mooove.eigen-missies',
   klaargezet: 'mooove.klaargezet',
   alarmgeluid: 'mooove.alarmgeluid',
   beoordelingGevraagd: 'mooove.beoordeling-gevraagd',
@@ -37,6 +38,7 @@ export async function wisLokaal(): Promise<void> {
     SLEUTELS.alarmen,
     SLEUTELS.sessieWachtrij,
     SLEUTELS.sessies,
+    SLEUTELS.eigenMissies,
   ];
   await Promise.all(perAccount.map((s) => schrijfLokaal(s, null)));
 }

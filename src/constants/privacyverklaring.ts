@@ -34,6 +34,7 @@ const SECTIES: readonly SectieSleutels[] = [
       'privacy.gegevens.p3',
       'privacy.gegevens.p4',
       'privacy.gegevens.p5',
+      'privacy.gegevens.p6',
     ],
   },
   { kop: 'privacy.camera.kop', alineas: ['privacy.camera.a1', 'privacy.camera.a2'] },

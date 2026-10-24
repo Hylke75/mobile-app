@@ -9,7 +9,7 @@ const nl = {
   plankmeester: { naam: 'Plankmeester', detail: '10 min plank' },
   streakMaster: { naam: 'Streak master', detail: '10 dagen op rij' },
   legend: { naam: 'Legend', detail: '30 dagen op rij' },
-  honderd: { naam: 'Honderdklapper', detail: '100 missies' },
+  honderd: { naam: 'Centurion', detail: '100 missies' },
 };
 
 export const badges: Vertalingen<typeof nl> = {

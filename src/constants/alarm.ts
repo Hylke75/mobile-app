@@ -1,5 +1,5 @@
 import { t } from '@/i18n';
-import type { Niveau, Oefening } from '@/types/app';
+import type { Niveau } from '@/types/app';
 
 // Dagen: 0 = maandag … 6 = zondag
 export const DAGEN = [0, 1, 2, 3, 4, 5, 6] as const;
@@ -15,14 +15,7 @@ export const NIVEAU_LIJST: Niveau[] = ['Vrij', 'Flexibel', 'Uitstelbaar', 'Verpl
 export const niveauNaam = (niveau: Niveau) => t(`algemeen.niveaus.${niveau}.naam`);
 export const niveauUitleg = (niveau: Niveau) => t(`algemeen.niveaus.${niveau}.uitleg`);
 
-export const OEFENINGEN: Oefening[] = [
-  'Squats',
-  'Push-ups',
-  'Jumping jacks',
-  'Plank',
-  'Bed opmaken',
-  'Gordijnen open',
-];
+export { OEFENINGEN } from '@/constants/oefeningen';
 
 export const MAX_SNOOZES = 3;
 export const SNOOZE_MINUTEN = 9;

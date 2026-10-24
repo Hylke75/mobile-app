@@ -11,7 +11,8 @@ import { doelenNaarTekst, doelenUitTekst } from '@/constants/oefeningen';
 import { leesAlarmgeluid, type Alarmgeluid } from '@/lib/alarmgeluid';
 import { huidigeTaal, t } from '@/i18n';
 import { hervatOp, volgendeKeer } from '@/lib/tijd';
-import type { Alarm, Doelen, Niveau, Oefening } from '@/types/app';
+import { eigenNaarTekst, eigenUitTekst, isEigen, type EigenMissies } from '@/lib/missies';
+import type { Alarm, Doelen, EigenMissie, MissieId, Niveau } from '@/types/app';
 
 export const alarmenBeschikbaar = true;
 
@@ -25,7 +26,8 @@ export type Wekker = {
   missieBezig: boolean;
   niveau?: Niveau;
   naam?: string;
-  oefeningen?: Oefening[];
+  oefeningen?: MissieId[];
+  eigen?: EigenMissie[];
   doelen?: Doelen;
 };
 
@@ -73,7 +75,21 @@ function basisOpties(
   };
 }
 
-function versieVan(alarm: Alarm, geluid: Alarmgeluid | null, hervat: Date | null): string {
+// De eigen missies die dit alarm gebruikt, als tekst voor de native metadata
+function eigenVan(alarm: Alarm, eigen: EigenMissies): string {
+  const gebruikt = alarm.oefeningen
+    .filter(isEigen)
+    .map((id) => eigen.get(id.slice('eigen:'.length)))
+    .filter((m): m is EigenMissie => !!m);
+  return gebruikt.length ? eigenNaarTekst(gebruikt) : '';
+}
+
+function versieVan(
+  alarm: Alarm,
+  geluid: Alarmgeluid | null,
+  hervat: Date | null,
+  eigen: EigenMissies,
+): string {
   return [
     alarm.tijd,
     alarm.dagen.join(''),
@@ -84,6 +100,7 @@ function versieVan(alarm: Alarm, geluid: Alarmgeluid | null, hervat: Date | null
     geluid?.uri ?? '',
     hervat ? `pauze:${hervat.getTime()}` : '',
     huidigeTaal(),
+    eigenVan(alarm, eigen),
   ].join('|');
 }
 
@@ -91,6 +108,7 @@ function alarmInput(
   alarm: Alarm,
   geluid: Alarmgeluid | null,
   hervat: Date | null,
+  eigen: EigenMissies,
 ): AlarmScheduleInput | null {
   const [uur, minuut] = alarm.tijd.split(':').map(Number);
   // Tijdens een pauze alleen het eerste alarm na de pauze, eenmalig; daarna wordt het
@@ -115,7 +133,8 @@ function alarmInput(
         naam: alarm.naam,
         oefeningen: alarm.oefeningen.join(','),
         doelen: doelenNaarTekst(alarm.doelen),
-        versie: versieVan(alarm, geluid, hervat),
+        eigen: eigenVan(alarm, eigen),
+        versie: versieVan(alarm, geluid, hervat, eigen),
       },
       alarm.niveau !== 'Vrij',
     ),
@@ -168,7 +187,11 @@ export function deblokkeerSynchronisatie(): void {
 }
 
 // Brengt de native alarmen in lijn met de alarmen uit de database; runs lopen na elkaar
-export function synchroniseer(alarms: Alarm[], pauzeTot?: string | null): Promise<void> {
+export function synchroniseer(
+  alarms: Alarm[],
+  pauzeTot?: string | null,
+  eigen: EigenMissies = new Map(),
+): Promise<void> {
   return inWachtrij(async () => {
     if (geblokkeerd) return;
     const rechten = await AlarmScheduler.getPermissionsAsync();
@@ -180,7 +203,7 @@ export function synchroniseer(alarms: Alarm[], pauzeTot?: string | null): Promis
     for (const native of await AlarmScheduler.getScheduledAlarmsAsync()) {
       if (native.metadata?.type !== 'alarm') continue;
       const alarm = gewenst.get(native.id);
-      if (!alarm || native.metadata?.versie !== versieVan(alarm, geluid, hervat)) {
+      if (!alarm || native.metadata?.versie !== versieVan(alarm, geluid, hervat, eigen)) {
         await AlarmScheduler.cancelAlarmAsync(native.id);
       }
     }
@@ -190,7 +213,7 @@ export function synchroniseer(alarms: Alarm[], pauzeTot?: string | null): Promis
     );
     for (const alarm of gewenst.values()) {
       if (nogGepland.has(alarm.id)) continue;
-      const input = alarmInput(alarm, geluid, hervat);
+      const input = alarmInput(alarm, geluid, hervat, eigen);
       if (input) await AlarmScheduler.scheduleAlarmAsync(input);
     }
 
@@ -268,7 +291,8 @@ function leesWekker(
     missieBezig: metadata?.missie === 'bezig',
     niveau: metadata?.niveau ? (String(metadata.niveau) as Niveau) : undefined,
     naam: metadata?.naam ? String(metadata.naam) : undefined,
-    oefeningen: oefeningen as Oefening[] | undefined,
+    oefeningen: oefeningen as MissieId[] | undefined,
+    eigen: metadata?.eigen ? eigenUitTekst(String(metadata.eigen)) : undefined,
     doelen: metadata?.doelen ? doelenUitTekst(String(metadata.doelen)) : undefined,
   };
 }

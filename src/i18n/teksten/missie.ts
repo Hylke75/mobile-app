@@ -1,6 +1,19 @@
 import type { Vertalingen } from '@/i18n/talen';
 
 const nl = {
+  timer: {
+    start: 'Start de timer',
+    bezig: 'Timer loopt. Blijf bezig tot hij klaar is!',
+    resterend: 'Nog {{tijd}}',
+    klaar: 'Tijd is om. Goed gedaan!',
+    label: 'TIMER',
+  },
+  kaart: {
+    doel: 'Doel',
+    hierna: 'Hierna: {{naam}}',
+    laatste: 'Dit is je laatste stap',
+    plaatsing: 'Zo zet je je telefoon neer',
+  },
   live: 'LIVE MISSIE',
   proefronde: 'PROEFRONDE',
   stapVan: '/ {{stap}} VAN {{totaal}}',
@@ -93,6 +106,19 @@ const nl = {
 export const missie: Vertalingen<typeof nl> = {
   nl,
   en: {
+    timer: {
+      start: 'Start the timer',
+      bezig: 'Timer running. Keep going until it’s done!',
+      resterend: '{{tijd}} left',
+      klaar: 'Time’s up. Well done!',
+      label: 'TIMER',
+    },
+    kaart: {
+      doel: 'Goal',
+      hierna: 'Up next: {{naam}}',
+      laatste: 'This is your last step',
+      plaatsing: 'How to place your phone',
+    },
     live: 'LIVE MISSION',
     proefronde: 'TRIAL RUN',
     stapVan: '/ {{stap}} OF {{totaal}}',
@@ -181,6 +207,19 @@ export const missie: Vertalingen<typeof nl> = {
     },
   },
   es: {
+    timer: {
+      start: 'Inicia el temporizador',
+      bezig: 'El temporizador está en marcha. ¡Sigue hasta que termine!',
+      resterend: 'Quedan {{tijd}}',
+      klaar: 'Se acabó el tiempo. ¡Bien hecho!',
+      label: 'TEMPORIZADOR',
+    },
+    kaart: {
+      doel: 'Objetivo',
+      hierna: 'Después: {{naam}}',
+      laatste: 'Este es tu último paso',
+      plaatsing: 'Cómo colocar el móvil',
+    },
     live: 'MISIÓN EN VIVO',
     proefronde: 'PRUEBA',
     stapVan: '/ {{stap}} DE {{totaal}}',
@@ -271,6 +310,19 @@ export const missie: Vertalingen<typeof nl> = {
     },
   },
   de: {
+    timer: {
+      start: 'Timer starten',
+      bezig: 'Der Timer läuft. Mach weiter, bis er abgelaufen ist!',
+      resterend: 'Noch {{tijd}}',
+      klaar: 'Zeit ist um. Gut gemacht!',
+      label: 'TIMER',
+    },
+    kaart: {
+      doel: 'Ziel',
+      hierna: 'Danach: {{naam}}',
+      laatste: 'Das ist dein letzter Schritt',
+      plaatsing: 'So stellst du dein Handy hin',
+    },
     live: 'LIVE-MISSION',
     proefronde: 'PROBELAUF',
     stapVan: '/ {{stap}} VON {{totaal}}',
@@ -363,6 +415,19 @@ export const missie: Vertalingen<typeof nl> = {
     },
   },
   fr: {
+    timer: {
+      start: 'Lance le minuteur',
+      bezig: 'Le minuteur tourne. Continue jusqu’à la fin !',
+      resterend: 'Encore {{tijd}}',
+      klaar: 'C’est terminé. Bien joué !',
+      label: 'MINUTEUR',
+    },
+    kaart: {
+      doel: 'Objectif',
+      hierna: 'Ensuite : {{naam}}',
+      laatste: 'C’est ta dernière étape',
+      plaatsing: 'Où poser ton téléphone',
+    },
     live: 'MISSION EN DIRECT',
     proefronde: 'ESSAI',
     stapVan: '/ {{stap}} SUR {{totaal}}',

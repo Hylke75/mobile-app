@@ -16,8 +16,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { annuleerAlarm, deblokkeerSynchronisatie, synchroniseer } from '@/lib/alarmen';
 import { leesLokaal, schrijfLokaal, SLEUTELS } from '@/lib/opslag';
 import { supabase } from '@/lib/supabase';
-import type { Alarm, Niveau, Oefening } from '@/types/app';
-import type { AlarmRij } from '@/types/database';
+import type { Alarm, EigenMissie, MissieId, Niveau } from '@/types/app';
+import type { AlarmRij, EigenMissieRij } from '@/types/database';
 
 export type AlarmInvoer = Omit<Alarm, 'id' | 'aan'>;
 
@@ -31,9 +31,26 @@ type AlarmenContextWaarde = {
   werkBij: (id: string, invoer: Partial<Alarm>) => Promise<string | null>;
   verwijder: (id: string) => Promise<string | null>;
   wisselAan: (id: string) => Promise<string | null>;
+  eigenMissies: EigenMissie[];
+  eigenMap: ReadonlyMap<string, EigenMissie>;
+  maakEigenMissie: (
+    invoer: Omit<EigenMissie, 'id'>,
+  ) => Promise<{ fout: string | null; missie?: EigenMissie }>;
+  verwijderEigenMissie: (id: string) => Promise<string | null>;
 };
 
 type Opgeslagen = { eigenaar: string; alarms: Alarm[] };
+type OpgeslagenEigen = { eigenaar: string; lijst: EigenMissie[] };
+
+function naarEigenMissie(rij: EigenMissieRij): EigenMissie {
+  return {
+    id: rij.id,
+    naam: rij.naam,
+    emoji: rij.emoji,
+    soort: rij.soort === 'foto' ? 'foto' : 'timer',
+    duurSeconden: rij.duur_seconden,
+  };
+}
 
 const AlarmenContext = createContext<AlarmenContextWaarde | undefined>(undefined);
 
@@ -44,7 +61,7 @@ function naarAlarm(rij: AlarmRij): Alarm {
     tijd: rij.tijd,
     dagen: rij.dagen,
     niveau: rij.niveau as Niveau,
-    oefeningen: rij.oefeningen as Oefening[],
+    oefeningen: rij.oefeningen as MissieId[],
     doelen: doelenUitJson(rij.doelen),
     aan: rij.aan,
   };
@@ -73,10 +90,17 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
   // een lege lijst zou anders alle alarmen op het toestel annuleren
   const lijstBekend = useRef(false);
   const serverGeladen = useRef(false);
+  const [eigenData, setEigenData] = useState<OpgeslagenEigen | null>(null);
+  const eigenMissies = useMemo(
+    () => (eigenaar && eigenData?.eigenaar === eigenaar ? eigenData.lijst : []),
+    [eigenaar, eigenData],
+  );
+  const eigenMap = useMemo(() => new Map(eigenMissies.map((m) => [m.id, m])), [eigenMissies]);
+  const eigenRef = useRef<ReadonlyMap<string, EigenMissie>>(eigenMap);
 
   const plan = useCallback((lijst: Alarm[]) => {
     if (!lijstBekend.current) return;
-    synchroniseer(lijst, pauze.current)
+    synchroniseer(lijst, pauze.current, eigenRef.current)
       .then(() => setFout(null))
       .catch(() => setFout(t('meldingen.alarmenNietGepland')));
   }, []);
@@ -159,6 +183,63 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, verwerk, plan]);
 
+  // Eigen missies: eerst de lokale kopie, dan de server
+  useEffect(() => {
+    if (!userId) return;
+    let actief = true;
+    leesLokaal<OpgeslagenEigen>(SLEUTELS.eigenMissies).then((lokaal) => {
+      if (actief && lokaal?.eigenaar === userId) {
+        setEigenData((huidigeData) => (huidigeData?.eigenaar === userId ? huidigeData : lokaal));
+      }
+    });
+    supabase
+      .from('eigen_missies')
+      .select('*')
+      .order('created_at')
+      .then(({ data: rijen, error }) => {
+        if (!actief || error || !rijen) return;
+        const nieuw = { eigenaar: userId, lijst: rijen.map(naarEigenMissie) };
+        setEigenData(nieuw);
+        schrijfLokaal(SLEUTELS.eigenMissies, nieuw);
+      });
+    return () => {
+      actief = false;
+    };
+  }, [userId]);
+
+  // Andere eigen missies (naam, duur): ook de native alarmen bijwerken
+  useEffect(() => {
+    eigenRef.current = eigenMap;
+    plan(huidig.current);
+  }, [eigenMap, plan]);
+
+  const zetEigen = useCallback((id: string, lijst: EigenMissie[]) => {
+    const nieuw = { eigenaar: id, lijst };
+    setEigenData(nieuw);
+    schrijfLokaal(SLEUTELS.eigenMissies, nieuw);
+  }, []);
+
+  const maakEigenMissie = useCallback(
+    async (invoer: Omit<EigenMissie, 'id'>) => {
+      if (!user) return { fout: t('meldingen.nietIngelogd') };
+      const { data: rij, error } = await supabase
+        .from('eigen_missies')
+        .insert({
+          naam: invoer.naam,
+          emoji: invoer.emoji,
+          soort: invoer.soort,
+          duur_seconden: invoer.duurSeconden,
+        })
+        .select()
+        .single();
+      if (error) return { fout: t('meldingen.opslaanMisluktInternet') };
+      const missie = naarEigenMissie(rij);
+      zetEigen(user.id, [...eigenMissies, missie]);
+      return { fout: null, missie };
+    },
+    [user, eigenMissies, zetEigen],
+  );
+
   const maakAan = useCallback(
     async (invoer: AlarmInvoer) => {
       if (!user) return t('meldingen.nietIngelogd');
@@ -209,6 +290,41 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
     [user, zetEnSync],
   );
 
+  // Een eigen missie verwijderen haalt hem ook uit de alarmen waarin hij zit
+  const verwijderEigenMissie = useCallback(
+    async (id: string) => {
+      if (!user) return t('meldingen.nietIngelogd');
+      const missieId: MissieId = `eigen:${id}`;
+      const betrokken = huidig.current.filter((a) => a.oefeningen.includes(missieId));
+      if (betrokken.some((a) => a.oefeningen.length === 1)) return t('missies.enigeMissie');
+      for (const alarm of betrokken) {
+        const { error } = await supabase
+          .from('alarms')
+          .update({ oefeningen: alarm.oefeningen.filter((o) => o !== missieId) })
+          .eq('id', alarm.id);
+        if (error) return t('meldingen.verwijderenMisluktInternet');
+      }
+      const { error } = await supabase.from('eigen_missies').delete().eq('id', id);
+      if (error) return t('meldingen.verwijderenMisluktInternet');
+      zetEigen(
+        user.id,
+        eigenMissies.filter((m) => m.id !== id),
+      );
+      if (betrokken.length) {
+        zetEnSync(
+          user.id,
+          huidig.current.map((a) =>
+            a.oefeningen.includes(missieId)
+              ? { ...a, oefeningen: a.oefeningen.filter((o) => o !== missieId) }
+              : a,
+          ),
+        );
+      }
+      return null;
+    },
+    [user, eigenMissies, zetEigen, zetEnSync],
+  );
+
   const wisselAan = useCallback(
     async (id: string) => {
       const alarm = huidig.current.find((a) => a.id === id);
@@ -220,7 +336,21 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
 
   return (
     <AlarmenContext.Provider
-      value={{ alarms, geladen, fout, vernieuw, herplan, maakAan, werkBij, verwijder, wisselAan }}
+      value={{
+        alarms,
+        geladen,
+        fout,
+        vernieuw,
+        herplan,
+        maakAan,
+        werkBij,
+        verwijder,
+        wisselAan,
+        eigenMissies,
+        eigenMap,
+        maakEigenMissie,
+        verwijderEigenMissie,
+      }}
     >
       {children}
     </AlarmenContext.Provider>

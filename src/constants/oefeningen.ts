@@ -5,30 +5,42 @@ export type OefeningInfo = {
   emoji: string;
   doel: number;
   eenheid: 'herhalingen' | 'seconden' | 'handeling';
-  methode: 'pose' | 'licht' | 'foto';
+  methode: 'pose' | 'licht' | 'foto' | 'timer';
   camera: 'front' | 'back';
+  groep: 'beweging' | 'routine';
 };
 
+const pose = (emoji: string, doel: number, eenheid: 'herhalingen' | 'seconden') =>
+  ({ emoji, doel, eenheid, methode: 'pose', camera: 'front', groep: 'beweging' }) as const;
+const routine = (emoji: string, methode: 'licht' | 'foto' | 'timer', doel = 1): OefeningInfo => ({
+  emoji,
+  doel,
+  eenheid: methode === 'timer' ? 'seconden' : 'handeling',
+  methode,
+  camera: 'back',
+  groep: 'routine',
+});
+
 export const OEFENING_INFO: Record<Oefening, OefeningInfo> = {
-  Squats: { emoji: '🏋️', doel: 10, eenheid: 'herhalingen', methode: 'pose', camera: 'front' },
-  'Push-ups': { emoji: '💪', doel: 10, eenheid: 'herhalingen', methode: 'pose', camera: 'front' },
-  'Jumping jacks': {
-    emoji: '⭐',
-    doel: 20,
-    eenheid: 'herhalingen',
-    methode: 'pose',
-    camera: 'front',
-  },
-  Plank: { emoji: '🧱', doel: 30, eenheid: 'seconden', methode: 'pose', camera: 'front' },
-  'Bed opmaken': { emoji: '🛏️', doel: 1, eenheid: 'handeling', methode: 'foto', camera: 'back' },
-  'Gordijnen open': {
-    emoji: '☀️',
-    doel: 1,
-    eenheid: 'handeling',
-    methode: 'licht',
-    camera: 'back',
-  },
+  Squats: pose('🏋️', 10, 'herhalingen'),
+  'Push-ups': pose('💪', 10, 'herhalingen'),
+  'Jumping jacks': pose('⭐', 20, 'herhalingen'),
+  Plank: pose('🧱', 30, 'seconden'),
+  Lunges: pose('🦵', 10, 'herhalingen'),
+  Kuitheffen: pose('🦶', 15, 'herhalingen'),
+  Bruggetje: pose('🌉', 10, 'herhalingen'),
+  Muurzit: pose('🪑', 30, 'seconden'),
+  Zijplank: pose('📐', 30, 'seconden'),
+  Boomhouding: pose('🌳', 30, 'seconden'),
+  'Bed opmaken': routine('🛏️', 'foto'),
+  'Gordijnen open': routine('☀️', 'licht'),
+  'Glas water': routine('💧', 'foto'),
+  'Tanden poetsen': routine('🪥', 'timer', 120),
+  Ademhaling: routine('🌬️', 'timer', 60),
+  Stretchen: routine('🤸', 'timer', 120),
 };
+
+export const OEFENINGEN = Object.keys(OEFENING_INFO) as Oefening[];
 
 // Teksten in de gekozen taal; de sleutel (bijv. "Bed opmaken") blijft zo in de database staan
 export function oefeningNaam(oefening: Oefening): string {
@@ -55,7 +67,7 @@ export const DOEL_BEREIK: Record<
   { min: number; max: number; stap: number }
 > = {
   herhalingen: { min: 5, max: 50, stap: 5 },
-  seconden: { min: 15, max: 120, stap: 15 },
+  seconden: { min: 15, max: 300, stap: 15 },
   handeling: { min: 1, max: 1, stap: 1 },
 };
 
@@ -71,7 +83,7 @@ export function doelTekst(oefening: Oefening, doelen?: Doelen): string {
   const info = OEFENING_INFO[oefening];
   const doel = doelVoor(oefening, doelen);
   if (info.eenheid === 'herhalingen') return t('algemeen.herhalingen', { n: doel });
-  if (info.eenheid === 'seconden') return t('algemeen.seconden', { n: doel });
+  if (info.eenheid === 'seconden') return duurTekst(doel);
   return t('algemeen.handeling');
 }
 
@@ -102,4 +114,10 @@ export function doelenUitJson(json: unknown): Doelen {
     if (o in OEFENING_INFO && typeof n === 'number') doelen[o as Oefening] = n;
   }
   return doelen;
+}
+
+// "45 seconden" of, bij hele minuten, "2 min"
+export function duurTekst(seconden: number): string {
+  if (seconden >= 60 && seconden % 60 === 0) return t('missies.minuten', { n: seconden / 60 });
+  return t('algemeen.seconden', { n: seconden });
 }

@@ -9,22 +9,30 @@ import {
   usePhotoOutput,
 } from 'react-native-vision-camera';
 import {
+  CALF_RAISE_CONFIG,
   type ExerciseConfig,
+  GLUTE_BRIDGE_CONFIG,
+  LUNGE_CONFIG,
   nitroPoseExercises,
   PLANK_CONFIG,
   PUSHUP_CONFIG,
+  SIDE_PLANK_CONFIG,
   SQUAT_CONFIG,
+  TREE_POSE_CONFIG,
+  WALL_SIT_CONFIG,
 } from 'react-native-nitro-pose-exercises';
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { CameraFrame } from '@/components/missie/CameraFrame';
-import { OEFENING_INFO, oefeningTekst } from '@/constants/oefeningen';
+import { OEFENING_INFO } from '@/constants/oefeningen';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { t, useTaal } from '@/i18n';
+import { missieInfo, type MissieInfo } from '@/lib/missies';
 import type { Oefening } from '@/types/app';
 
 export type StapDetectorProps = {
-  oefening: Oefening;
+  // Ingebouwde oefening of eigen foto-missie (timers lopen via TimerStap)
+  missie: MissieInfo;
   // Aantal herhalingen of seconden voor deze stap
   doel: number;
   onVoortgang: (gedaan: number) => void;
@@ -59,13 +67,26 @@ function poseConfig(oefening: Oefening, doel: number): ExerciseConfig {
       return PUSHUP_CONFIG;
     case 'Jumping jacks':
       return JUMPING_JACK_CONFIG;
+    case 'Lunges':
+      return LUNGE_CONFIG;
+    case 'Kuitheffen':
+      return CALF_RAISE_CONFIG;
+    case 'Bruggetje':
+      return GLUTE_BRIDGE_CONFIG;
+    // Houdingen: zo lang vasthouden als het doel in seconden
+    case 'Muurzit':
+      return { ...WALL_SIT_CONFIG, holdDurationMs: doel * 1000 };
+    case 'Zijplank':
+      return { ...SIDE_PLANK_CONFIG, holdDurationMs: doel * 1000 };
+    case 'Boomhouding':
+      return { ...TREE_POSE_CONFIG, holdDurationMs: doel * 1000 };
     default:
       return { ...PLANK_CONFIG, holdDurationMs: doel * 1000 };
   }
 }
 
 export function StapDetector(props: StapDetectorProps) {
-  const info = OEFENING_INFO[props.oefening];
+  const methode = props.missie.methode;
   const { hasPermission, requestPermission, canRequestPermission } = useCameraPermission();
   const { t } = useTaal();
 
@@ -90,8 +111,10 @@ export function StapDetector(props: StapDetectorProps) {
     );
   }
 
-  if (info.methode === 'pose') return <PoseStap {...props} />;
-  if (info.methode === 'licht') return <LichtStap {...props} />;
+  if (methode === 'pose' && props.missie.oefening) {
+    return <PoseStap {...props} oefening={props.missie.oefening} />;
+  }
+  if (methode === 'licht') return <LichtStap {...props} />;
   return <FotoStap {...props} />;
 }
 
@@ -105,7 +128,14 @@ function useLaatste<T>(waarde: T) {
   return ref;
 }
 
-function PoseStap({ oefening, doel, onVoortgang, onFeedback, onKlaar }: StapDetectorProps) {
+function PoseStap({
+  missie,
+  oefening,
+  doel,
+  onVoortgang,
+  onFeedback,
+  onKlaar,
+}: StapDetectorProps & { oefening: Oefening }) {
   const info = OEFENING_INFO[oefening];
   const runner = useAsyncRunner();
   const [gestart, setGestart] = useState(false);
@@ -133,14 +163,14 @@ function PoseStap({ oefening, doel, onVoortgang, onFeedback, onKlaar }: StapDete
       nitroPoseExercises.onPostureRegained = () =>
         feedback.current(t('missie.detector.positieTerug'));
       nitroPoseExercises.onPoseLost = () => feedback.current(t('missie.detector.nietInBeeld'));
-      feedback.current(oefeningTekst(oefening).instructie);
+      feedback.current(missie.instructie);
       // De engine verwerkt pas frames als de sessie loopt; houding wordt intern gecontroleerd
       nitroPoseExercises.startSession(stap.eenheid === 'seconden' ? 1 : doel, 3);
       interval = setInterval(() => {
         if (nitroPoseExercises.status === 'active') {
           clearInterval(interval);
           setGestart(true);
-          feedback.current(oefeningTekst(oefening).spraak[0]);
+          feedback.current(missie.spraak[0] ?? '');
         }
       }, 300);
     })();
@@ -160,6 +190,8 @@ function PoseStap({ oefening, doel, onVoortgang, onFeedback, onKlaar }: StapDete
         if (poseGeneratie === generatie) nitroPoseExercises.release();
       }, 500);
     };
+    // missie-teksten bewust niet als afhankelijkheid: een taalwissel herstart de sessie niet
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [oefening, doel, voortgang, feedback, klaar]);
 
   const frameOutput = useFrameOutput({
@@ -210,7 +242,7 @@ function LichtStap({ onFeedback, onKlaar }: StapDetectorProps) {
 
   useEffect(() => {
     start.current = Date.now();
-    feedback.current(oefeningTekst('Gordijnen open').instructie);
+    feedback.current(GORDIJNEN().instructie);
     const timer = setTimeout(() => {
       if (!afgerond.current) {
         setTerugval(true);
@@ -270,7 +302,7 @@ function LichtStap({ onFeedback, onKlaar }: StapDetectorProps) {
   if (terugval) {
     return (
       <FotoStap
-        oefening="Gordijnen open"
+        missie={GORDIJNEN()}
         doel={1}
         onVoortgang={() => {}}
         onFeedback={() => {}}
@@ -302,7 +334,10 @@ function LichtStap({ onFeedback, onKlaar }: StapDetectorProps) {
   );
 }
 
-function FotoStap({ oefening, onFeedback, onKlaar }: StapDetectorProps) {
+const GORDIJNEN = () => missieInfo('Gordijnen open', new Map())!;
+
+function FotoStap({ missie, onFeedback, onKlaar }: StapDetectorProps) {
+  const oefening = missie.oefening;
   const photoOutput = usePhotoOutput({ qualityPrioritization: 'speed' });
   const [bezig, setBezig] = useState(false);
   const [gemaakt, setGemaakt] = useState(false);
@@ -311,7 +346,8 @@ function FotoStap({ oefening, onFeedback, onKlaar }: StapDetectorProps) {
   const klaar = useLaatste(onKlaar);
 
   useEffect(() => {
-    if (oefening === 'Bed opmaken') feedback.current(oefeningTekst('Bed opmaken').instructie);
+    if (oefening !== 'Gordijnen open') feedback.current(missie.instructie);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [oefening, feedback]);
 
   const maakFoto = async () => {
@@ -345,11 +381,13 @@ function FotoStap({ oefening, onFeedback, onKlaar }: StapDetectorProps) {
         <View style={styles.fotoKnopWrap}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={vertaal(
+            accessibilityLabel={
               oefening === 'Bed opmaken'
-                ? 'missie.detector.fotoBedA11y'
-                : 'missie.detector.fotoGordijnenA11y',
-            )}
+                ? vertaal('missie.detector.fotoBedA11y')
+                : oefening === 'Gordijnen open'
+                  ? vertaal('missie.detector.fotoGordijnenA11y')
+                  : `${vertaal('missie.detector.maakFoto')}: ${missie.naam}`
+            }
             disabled={bezig}
             onPress={maakFoto}
             style={styles.fotoKnop}

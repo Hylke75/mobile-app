@@ -7,6 +7,7 @@ import { fout } from './fout';
 import { vandaag } from './vandaag';
 import { alarmen } from './alarmen';
 import { progressie } from './progressie';
+import { missies } from './missies';
 import { navigatie } from './navigatie';
 import { editor } from './editor';
 import { profiel } from './profiel';
@@ -25,6 +26,7 @@ export const teksten = {
   vandaag,
   alarmen,
   progressie,
+  missies,
   navigatie,
   editor,
   profiel,

@@ -15,11 +15,12 @@ import {
 import { Icon } from '@/components/Icon';
 import { BewegingStap, SPRONGEN_DOEL } from '@/components/missie/BewegingStap';
 import { StapDetector } from '@/components/missie/StapDetector';
+import { TimerStap } from '@/components/missie/TimerStap';
 import { Screen } from '@/components/Screen';
 import { LevelTag, PrimaryButton } from '@/components/ui';
 import { isStreng } from '@/constants/alarm';
 import { useTaal } from '@/i18n';
-import { doelenUitTekst, doelVoor, OEFENING_INFO, oefeningTekst } from '@/constants/oefeningen';
+import { doelenUitTekst, OEFENING_INFO } from '@/constants/oefeningen';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useSchermAan } from '@/hooks/useSchermAan';
@@ -33,9 +34,10 @@ import { spreek, stopSpraak } from '@/lib/spraak';
 import { badgesVoor, bereiktMijlpaal, gemiddeldeReactie, minutenNaAlarm } from '@/lib/statistiek';
 import { volgendAlarm } from '@/lib/tijd';
 import { succes, tik } from '@/lib/trilling';
-import type { Niveau, Oefening, StapResultaat } from '@/types/app';
+import { eigenUitTekst, isOefening, missieInfos } from '@/lib/missies';
+import type { MissieId, Niveau, StapResultaat } from '@/types/app';
 
-const STANDAARD_MISSIE: Oefening[] = ['Squats', 'Bed opmaken', 'Gordijnen open'];
+const STANDAARD_MISSIE: MissieId[] = ['Squats', 'Bed opmaken', 'Gordijnen open'];
 
 export default function MissieScherm() {
   const params = useLocalSearchParams<{
@@ -47,8 +49,9 @@ export default function MissieScherm() {
     oefeningen?: string;
     doelen?: string;
     oefen?: string;
+    eigen?: string;
   }>();
-  const { alarms, herplan } = useAlarmen();
+  const { alarms, herplan, eigenMap } = useAlarmen();
   const { slaOp, statistiek, sessies } = useSessies();
   const { showToast } = useToast();
   const { t, taal } = useTaal();
@@ -64,12 +67,22 @@ export default function MissieScherm() {
   }, [alarms, params.alarmId, proef]);
   // Niveau en oefeningen komen ook mee vanuit het native alarm, zodat dit offline werkt
   const niveau = (alarm?.niveau ?? (params.niveau || undefined)) as Niveau | undefined;
-  const [oefeningen] = useState<Oefening[]>(
+  const [ids] = useState<MissieId[]>(
     () =>
       alarm?.oefeningen ??
-      (params.oefeningen ? (params.oefeningen.split(',') as Oefening[]) : STANDAARD_MISSIE),
+      (params.oefeningen ? (params.oefeningen.split(',') as MissieId[]) : STANDAARD_MISSIE),
   );
   const [doelen] = useState(() => alarm?.doelen ?? doelenUitTekst(params.doelen));
+  // Eigen missies uit het account, aangevuld met die uit het native alarm (werkt ook offline)
+  const eigen = useMemo(() => {
+    const kaart = new Map(eigenMap);
+    for (const m of eigenUitTekst(params.eigen)) if (!kaart.has(m.id)) kaart.set(m.id, m);
+    return kaart;
+  }, [eigenMap, params.eigen]);
+  // Opnieuw opbouwen bij een taalwissel, zodat namen en uitleg meevertalen
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const gevonden = useMemo(() => missieInfos(ids, eigen, doelen), [ids, eigen, doelen, taal]);
+  const oefeningen = gevonden.length ? gevonden : missieInfos(STANDAARD_MISSIE, eigen, doelen);
   const streng = vanWekker ? isStreng(niveau ?? 'Verplicht') : false;
 
   // Het scherm mag niet op slot gaan terwijl de camera je oefeningen volgt
@@ -94,15 +107,15 @@ export default function MissieScherm() {
   const opgeslagen = useRef(false);
   const teller = useRef(0);
 
-  const oefening = oefeningen[stap]!;
-  const info = OEFENING_INFO[oefening];
-  // Opnieuw vertalen bij een taalwissel
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const tekst = useMemo(() => oefeningTekst(oefening), [oefening, taal]);
+  const missie = oefeningen[Math.min(stap, oefeningen.length - 1)]!;
+  const oefening = missie.id;
+  const info = missie;
+  const tekst = missie;
+  const volgendeMissie = oefeningen[stap + 1];
   // Herkent de camera je niet, dan mag je in plaats daarvan springen met je telefoon
   const [alternatief, setAlternatief] = useState(false);
   const [wisselZichtbaar, setWisselZichtbaar] = useState(false);
-  const doel = alternatief ? SPRONGEN_DOEL : doelVoor(oefening, doelen);
+  const doel = alternatief ? SPRONGEN_DOEL : missie.doel;
   const laatsteStap = stap === oefeningen.length - 1;
 
   const zegt = useCallback(
@@ -156,7 +169,7 @@ export default function MissieScherm() {
   );
 
   const onKlaar = useCallback(
-    (m: 'camera' | 'licht' | 'foto' | 'beweging') => {
+    (m: 'camera' | 'licht' | 'foto' | 'timer' | 'beweging') => {
       setMethode(m);
       setGedaan(doel);
       setStapKlaar(true);
@@ -203,7 +216,9 @@ export default function MissieScherm() {
       status,
       stappen,
       totaalHerhalingen: stappen
-        .filter((s) => OEFENING_INFO[s.oefening].eenheid === 'herhalingen')
+        .filter(
+          (s) => isOefening(s.oefening) && OEFENING_INFO[s.oefening].eenheid === 'herhalingen',
+        )
         .reduce((som, s) => som + s.gedaan, 0),
     });
     if (fout) showToast(fout);
@@ -220,6 +235,7 @@ export default function MissieScherm() {
       return;
     }
     setStap(stap + 1);
+    setFeedback('');
     setGedaan(0);
     teller.current = 0;
     setAlternatief(false);
@@ -410,16 +426,40 @@ export default function MissieScherm() {
       <Text style={styles.subtitle}>{tekst.beschrijving}</Text>
       <View style={styles.steps}>
         {oefeningen.map((o, i) => (
-          <View key={`${o}-${i}`} style={[styles.step, i <= stap && styles.stepFilled]} />
+          <View key={`${o.id}-${i}`} style={[styles.step, i <= stap && styles.stepFilled]} />
         ))}
       </View>
 
+      <View style={styles.opdracht}>
+        <Text style={styles.opdrachtEmoji}>{missie.emoji}</Text>
+        <View style={styles.flex}>
+          <Text style={styles.opdrachtNaam}>{missie.naam}</Text>
+          <Text style={styles.opdrachtDoel}>
+            {t('missie.kaart.doel')}: {alternatief ? `${SPRONGEN_DOEL} ×` : missie.doelTekst}
+          </Text>
+        </View>
+      </View>
+      {!stapKlaar && (
+        <View style={styles.plaatsing}>
+          <Icon name="info" size={15} color="#C5D6BE" />
+          <Text style={styles.plaatsingTekst}>{missie.instructie}</Text>
+        </View>
+      )}
+
       {!stapKlaar && alternatief ? (
         <BewegingStap onVoortgang={onVoortgang} onKlaar={() => onKlaar('beweging')} />
+      ) : !stapKlaar && missie.methode === 'timer' ? (
+        <TimerStap
+          key={`${stap}-${poging}`}
+          seconden={missie.doel}
+          emoji={missie.emoji}
+          onVoortgang={onVoortgang}
+          onKlaar={() => onKlaar('timer')}
+        />
       ) : !stapKlaar ? (
         <StapDetector
           key={`${stap}-${poging}`}
-          oefening={oefening}
+          missie={missie}
           doel={doel}
           onVoortgang={onVoortgang}
           onFeedback={zegt}
@@ -439,6 +479,12 @@ export default function MissieScherm() {
           <Text style={styles.wisselTekst}>{t('missie.wissel', { n: SPRONGEN_DOEL })}</Text>
         </Pressable>
       )}
+
+      <Text style={styles.hierna}>
+        {volgendeMissie
+          ? t('missie.kaart.hierna', { naam: `${volgendeMissie.emoji} ${volgendeMissie.naam}` })
+          : t('missie.kaart.laatste')}
+      </Text>
 
       <View style={styles.repsRow}>
         <View>
@@ -626,6 +672,28 @@ const styles = StyleSheet.create({
   },
   outlineBtnText: { fontFamily: fonts.body800, fontSize: 11, color: kleuren.white },
   emergency: { alignSelf: 'center', marginTop: 17, padding: 4 },
+  opdracht: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#22342A',
+    borderRadius: 18,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    marginTop: 16,
+  },
+  opdrachtEmoji: { fontSize: 30 },
+  opdrachtNaam: { fontFamily: fonts.body800, fontSize: 17, color: kleuren.white },
+  opdrachtDoel: { fontFamily: fonts.body700, fontSize: 13, color: kleuren.lime, marginTop: 2 },
+  plaatsing: { flexDirection: 'row', gap: 8, marginTop: 10, paddingHorizontal: 2 },
+  plaatsingTekst: {
+    flex: 1,
+    fontFamily: fonts.body400,
+    fontSize: 12,
+    lineHeight: 17,
+    color: '#C5D6BE',
+  },
+  hierna: { fontFamily: fonts.body600, fontSize: 12, color: '#9CB09C', marginTop: 12 },
   wissel: {
     marginTop: 12,
     borderWidth: 1,

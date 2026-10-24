@@ -4,7 +4,7 @@ import DateTimePicker, {
 } from '@react-native-community/datetimepicker';
 import { router, useLocalSearchParams, useNavigation, usePreventRemove } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
@@ -21,8 +21,8 @@ import {
 import {
   DOEL_BEREIK,
   doelenNaarTekst,
-  doelTekst,
   doelVoor,
+  duurTekst,
   OEFENING_INFO,
   oefeningNaam,
 } from '@/constants/oefeningen';
@@ -32,13 +32,18 @@ import { useTaal } from '@/i18n';
 import { useToast } from '@/hooks/useToast';
 import { haalRechtenOp, vraagRechtenAan } from '@/lib/alarmen';
 import { cameraStatus, vraagCameraAan } from '@/lib/camera';
+import { eigenNaarTekst, isOefening, missieInfos, naarEigenId } from '@/lib/missies';
 import { tijdTot, volgendeKeer } from '@/lib/tijd';
-import type { Alarm, Doelen, Niveau, Oefening } from '@/types/app';
+import type { Alarm, Doelen, EigenMissie, MissieId, Niveau, Oefening } from '@/types/app';
 
 const NIVEAU_RIJEN: (Niveau | null)[][] = [
   ['Vrij', 'Flexibel', 'Uitstelbaar'],
   ['Verplicht', 'Hardcore', null],
 ];
+
+const MAX_MISSIES = 12;
+const EMOJIS = ['⭐', '📖', '🧘', '🚿', '🍎', '☕', '🐕', '🎵', '✍️', '🌿', '🚶', '💊'];
+const DUREN = [30, 60, 120, 180, 300, 600, 900, 1200, 1800];
 
 const naarDatum = (tijd: string) => {
   const [uur, minuut] = tijd.split(':').map(Number);
@@ -52,7 +57,16 @@ const naarTijd = (d: Date) =>
 
 export default function NieuwAlarmScherm() {
   const { id, eerste } = useLocalSearchParams<{ id?: string; eerste?: string }>();
-  const { alarms, maakAan, werkBij, verwijder } = useAlarmen();
+  const {
+    alarms,
+    maakAan,
+    werkBij,
+    verwijder,
+    eigenMissies,
+    eigenMap,
+    maakEigenMissie,
+    verwijderEigenMissie,
+  } = useAlarmen();
   const { showToast } = useToast();
   const { t, locale } = useTaal();
   const bestaand = id ? alarms.find((a) => a.id === id) : undefined;
@@ -62,9 +76,15 @@ export default function NieuwAlarmScherm() {
   const [time, setTime] = useState(bestaand?.tijd ?? '07:00');
   const [days, setDays] = useState<number[]>(bestaand?.dagen ?? [0, 1, 2, 3, 4]);
   const [level, setLevel] = useState<Niveau>(bestaand?.niveau ?? 'Verplicht');
-  const [exercises, setExercises] = useState<Oefening[]>(
+  const [exercises, setExercises] = useState<MissieId[]>(
     bestaand?.oefeningen ?? ['Squats', 'Bed opmaken'],
   );
+  // Formulier voor een nieuwe eigen missie
+  const [eigenOpen, setEigenOpen] = useState(false);
+  const [eigenNaam, setEigenNaam] = useState('');
+  const [eigenEmoji, setEigenEmoji] = useState(EMOJIS[0]!);
+  const [eigenSoort, setEigenSoort] = useState<EigenMissie['soort']>('timer');
+  const [eigenDuur, setEigenDuur] = useState(300);
   const [doelen, setDoelen] = useState<Doelen>(bestaand?.doelen ?? {});
   const [bezig, setBezig] = useState(false);
   const [iosPickerOpen, setIosPickerOpen] = useState(false);
@@ -80,10 +100,58 @@ export default function NieuwAlarmScherm() {
   const wissel = <T,>(lijst: T[], waarde: T) =>
     lijst.includes(waarde) ? lijst.filter((x) => x !== waarde) : [...lijst, waarde];
 
-  const instelbaar = exercises.filter((o) => OEFENING_INFO[o].eenheid !== 'handeling');
+  const instelbaar = exercises.filter(
+    (o): o is Oefening => isOefening(o) && OEFENING_INFO[o].eenheid !== 'handeling',
+  );
+  // Verwijderde eigen missies vallen hier vanzelf weg
+  const gekozen = missieInfos(exercises, eigenMap, doelen);
+
+  const kies = (id: MissieId) => {
+    if (!exercises.includes(id) && exercises.length >= MAX_MISSIES) {
+      return showToast(t('editor.eigen.max'));
+    }
+    setExercises((e) => wissel(e, id));
+  };
+
+  const voegEigenToe = async () => {
+    if (!eigenNaam.trim()) return showToast(t('editor.eigen.naamFout'));
+    if (exercises.length >= MAX_MISSIES) return showToast(t('editor.eigen.max'));
+    setBezig(true);
+    const { fout, missie } = await maakEigenMissie({
+      naam: eigenNaam.trim(),
+      emoji: eigenEmoji,
+      soort: eigenSoort,
+      duurSeconden: eigenSoort === 'timer' ? eigenDuur : 60,
+    });
+    setBezig(false);
+    if (fout || !missie) return showToast(fout ?? t('meldingen.ietsMis'));
+    setExercises((e) => [...e, naarEigenId(missie.id)]);
+    setEigenOpen(false);
+    setEigenNaam('');
+    showToast(t('editor.eigen.toegevoegd', { naam: missie.naam }));
+  };
+
+  const verwijderEigen = (missie: EigenMissie) => {
+    const actie = async () => {
+      const fout = await verwijderEigenMissie(missie.id);
+      if (fout) return showToast(fout);
+      setExercises((e) => e.filter((o) => o !== naarEigenId(missie.id)));
+      showToast(t('editor.eigen.verwijderd'));
+    };
+    const titel = t('editor.eigen.verwijderTitel');
+    const tekst = t('editor.eigen.verwijderTekst', { naam: missie.naam });
+    if (Platform.OS === 'web') {
+      if (window.confirm(`${titel}\n\n${tekst}`)) actie();
+      return;
+    }
+    Alert.alert(titel, tekst, [
+      { text: t('algemeen.annuleren'), style: 'cancel' },
+      { text: t('algemeen.verwijderen'), style: 'destructive', onPress: actie },
+    ]);
+  };
 
   const verplaats = (index: number, richting: 1 | -1) => {
-    const nieuw = [...exercises];
+    const nieuw = gekozen.map((m) => m.id);
     const doelIndex = index + richting;
     if (doelIndex < 0 || doelIndex >= nieuw.length) return;
     [nieuw[index], nieuw[doelIndex]] = [nieuw[doelIndex]!, nieuw[index]!];
@@ -95,8 +163,9 @@ export default function NieuwAlarmScherm() {
     router.push({
       pathname: '/missie',
       params: {
-        oefeningen: exercises.join(','),
+        oefeningen: gekozen.map((m) => m.id).join(','),
         doelen: doelenNaarTekst(invoer().doelen),
+        eigen: eigenNaarTekst(gekozen.flatMap((m) => (m.eigen ? [m.eigen] : []))),
         oefen: '1',
       },
     });
@@ -130,7 +199,7 @@ export default function NieuwAlarmScherm() {
     tijd: time,
     dagen: [...days].sort((a, b) => a - b),
     niveau: level,
-    oefeningen: exercises,
+    oefeningen: gekozen.map((m) => m.id),
     // Alleen doelen bewaren voor gekozen oefeningen die afwijken van de standaard
     doelen: Object.fromEntries(
       instelbaar
@@ -188,7 +257,7 @@ export default function NieuwAlarmScherm() {
     if (!geldigeTijd) return showToast(t('editor.fouten.tijd'));
     if (!naam.trim()) return showToast(t('editor.fouten.naam'));
     if (!days.length) return showToast(t('editor.fouten.dag'));
-    if (!exercises.length) return showToast(t('editor.fouten.missie'));
+    if (!gekozen.length) return showToast(t('editor.fouten.missie'));
     const dubbel = alarms.find(
       (a) =>
         a.id !== bestaand?.id && a.aan && a.tijd === time && a.dagen.some((d) => days.includes(d)),
@@ -388,43 +457,88 @@ export default function NieuwAlarmScherm() {
         <Text style={styles.formLabelInRow}>{t('editor.kiesMissies')}</Text>
         <Text style={styles.formLabelHint}>{t('editor.meerdereMogelijk')}</Text>
       </View>
+      {(['beweging', 'routine'] as const).map((groep) => (
+        <View key={groep}>
+          <Text style={styles.groepKop}>
+            {groep === 'beweging'
+              ? t('editor.eigen.groepBeweging')
+              : t('editor.eigen.groepRoutine')}
+          </Text>
+          <View style={styles.exerciseOptions}>
+            {OEFENINGEN.filter((o) => OEFENING_INFO[o].groep === groep).map((o) => {
+              const aan = exercises.includes(o);
+              return (
+                <Pressable
+                  key={o}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: aan }}
+                  onPress={() => kies(o)}
+                  style={[styles.exercise, aan && styles.exerciseSelected]}
+                >
+                  <Text style={[styles.exerciseText, aan && styles.exerciseTextSelected]}>
+                    {aan ? '✓ ' : `${OEFENING_INFO[o].emoji} `}
+                    {oefeningNaam(o)}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+      ))}
+      <Text style={styles.groepKop}>{t('editor.eigen.groepEigen')}</Text>
       <View style={styles.exerciseOptions}>
-        {OEFENINGEN.map((o) => {
-          const gekozen = exercises.includes(o);
+        {eigenMissies.map((m) => {
+          const missieId = naarEigenId(m.id);
+          const aan = exercises.includes(missieId);
           return (
             <Pressable
-              key={o}
+              key={m.id}
               accessibilityRole="button"
-              accessibilityState={{ selected: gekozen }}
-              onPress={() => setExercises((e) => wissel(e, o))}
-              style={[styles.exercise, gekozen && styles.exerciseSelected]}
+              accessibilityState={{ selected: aan }}
+              accessibilityHint={t('editor.eigen.verwijderHint')}
+              onPress={() => kies(missieId)}
+              onLongPress={() => verwijderEigen(m)}
+              style={[styles.exercise, aan && styles.exerciseSelected]}
             >
-              <Text style={[styles.exerciseText, gekozen && styles.exerciseTextSelected]}>
-                {gekozen ? '✓ ' : ''}
-                {oefeningNaam(o)}
+              <Text style={[styles.exerciseText, aan && styles.exerciseTextSelected]}>
+                {aan ? '✓ ' : `${m.emoji} `}
+                {m.naam}
               </Text>
             </Pressable>
           );
         })}
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => setEigenOpen(true)}
+          style={[styles.exercise, styles.exerciseNieuw]}
+        >
+          <Text style={[styles.exerciseText, styles.exerciseTextSelected]}>
+            {t('editor.eigen.nieuwe')}
+          </Text>
+        </Pressable>
       </View>
+      {eigenMissies.length > 0 && (
+        <Text style={styles.formLabelHint}>{t('editor.eigen.verwijderHint')}</Text>
+      )}
 
-      {exercises.length > 0 && (
+      {gekozen.length > 0 && (
         <>
           <View style={styles.formLabelRow}>
             <Text style={styles.formLabelInRow}>{t('editor.jouwMissie')}</Text>
             <Text style={styles.formLabelHint}>{t('editor.volgordeEnAantal')}</Text>
           </View>
           <View style={styles.doelen}>
-            {exercises.map((o, i) => {
-              const info = OEFENING_INFO[o];
-              const bereik = DOEL_BEREIK[info.eenheid];
-              const doel = doelVoor(o, doelen);
+            {gekozen.map((missie, i) => {
+              const o = missie.id;
+              const bereik = DOEL_BEREIK[missie.eenheid];
+              const doel = missie.doel;
               const eenheid =
-                info.eenheid === 'seconden'
+                missie.eenheid === 'seconden'
                   ? t('editor.eenheidSeconden')
                   : t('editor.eenheidHerhalingen');
-              const naamOefening = oefeningNaam(o);
-              const instelbareOefening = info.eenheid !== 'handeling';
+              const naamOefening = missie.naam;
+              // Alleen ingebouwde oefeningen met herhalingen of seconden hebben een teller
+              const instelbareOefening = missie.oefening !== null && missie.eenheid !== 'handeling';
               return (
                 <View key={o} style={[styles.doelRij, i > 0 && styles.doelRijRand]}>
                   <View style={styles.volgorde}>
@@ -441,16 +555,16 @@ export default function NieuwAlarmScherm() {
                     <Pressable
                       accessibilityRole="button"
                       accessibilityLabel={t('editor.later', { oefening: naamOefening })}
-                      disabled={i === exercises.length - 1}
+                      disabled={i === gekozen.length - 1}
                       onPress={() => verplaats(i, 1)}
                       hitSlop={6}
-                      style={i === exercises.length - 1 && styles.stepperUit}
+                      style={i === gekozen.length - 1 && styles.stepperUit}
                     >
                       <Text style={styles.pijl}>▼</Text>
                     </Pressable>
                   </View>
                   <Text style={styles.doelNaam}>
-                    {i + 1}. {info.emoji} {naamOefening}
+                    {i + 1}. {missie.emoji} {naamOefening}
                   </Text>
                   {instelbareOefening ? (
                     <>
@@ -458,7 +572,7 @@ export default function NieuwAlarmScherm() {
                         accessibilityRole="button"
                         accessibilityLabel={t('editor.minder', { oefening: naamOefening })}
                         disabled={doel <= bereik.min}
-                        onPress={() => pasDoelAan(o, -1)}
+                        onPress={() => missie.oefening && pasDoelAan(missie.oefening, -1)}
                         style={[styles.stepper, doel <= bereik.min && styles.stepperUit]}
                       >
                         <Text style={styles.stepperTekst}>−</Text>
@@ -467,7 +581,7 @@ export default function NieuwAlarmScherm() {
                         style={styles.doelWaarde}
                         accessibilityLabel={t('editor.doelLabel', {
                           oefening: naamOefening,
-                          doel: doelTekst(o, doelen),
+                          doel: missie.doelTekst,
                         })}
                       >
                         {doel}
@@ -477,14 +591,14 @@ export default function NieuwAlarmScherm() {
                         accessibilityRole="button"
                         accessibilityLabel={t('editor.meer', { oefening: naamOefening })}
                         disabled={doel >= bereik.max}
-                        onPress={() => pasDoelAan(o, 1)}
+                        onPress={() => missie.oefening && pasDoelAan(missie.oefening, 1)}
                         style={[styles.stepper, doel >= bereik.max && styles.stepperUit]}
                       >
                         <Text style={styles.stepperTekst}>+</Text>
                       </Pressable>
                     </>
                   ) : (
-                    <Text style={styles.doelEenheid}>{t('algemeen.handeling')}</Text>
+                    <Text style={styles.doelEenheid}>{missie.doelTekst}</Text>
                   )}
                 </View>
               );
@@ -513,6 +627,100 @@ export default function NieuwAlarmScherm() {
           />
         </>
       )}
+      <Modal
+        visible={eigenOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setEigenOpen(false)}
+      >
+        <Pressable style={styles.modalAchtergrond} onPress={() => setEigenOpen(false)}>
+          <Pressable style={styles.modalKaart} onPress={() => {}}>
+            <Text style={styles.modalTitel}>{t('editor.eigen.titel')}</Text>
+            <Text style={styles.formLabel}>{t('editor.eigen.naam')}</Text>
+            <TextInput
+              value={eigenNaam}
+              onChangeText={setEigenNaam}
+              maxLength={40}
+              placeholder={t('editor.eigen.naamVoorbeeld')}
+              placeholderTextColor="#8A968B"
+              accessibilityLabel={t('editor.eigen.naam')}
+              style={styles.naamInput}
+            />
+            <Text style={styles.formLabel}>{t('editor.eigen.icoon')}</Text>
+            <View style={styles.emojis}>
+              {EMOJIS.map((e) => (
+                <Pressable
+                  key={e}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: eigenEmoji === e }}
+                  onPress={() => setEigenEmoji(e)}
+                  style={[styles.emoji, eigenEmoji === e && styles.emojiGekozen]}
+                >
+                  <Text style={styles.emojiTekst}>{e}</Text>
+                </Pressable>
+              ))}
+            </View>
+            <Text style={styles.formLabel}>{t('editor.eigen.soort')}</Text>
+            <View style={styles.soorten}>
+              {(['timer', 'foto'] as const).map((soort) => (
+                <Pressable
+                  key={soort}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: eigenSoort === soort }}
+                  onPress={() => setEigenSoort(soort)}
+                  style={[styles.soort, eigenSoort === soort && styles.soortGekozen]}
+                >
+                  <Text style={styles.soortNaam}>
+                    {soort === 'timer'
+                      ? `⏱ ${t('editor.eigen.timer')}`
+                      : `📷 ${t('editor.eigen.foto')}`}
+                  </Text>
+                  <Text style={styles.soortUitleg}>
+                    {soort === 'timer'
+                      ? t('editor.eigen.timerUitleg')
+                      : t('editor.eigen.fotoUitleg')}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+            {eigenSoort === 'timer' && (
+              <>
+                <Text style={styles.formLabel}>{t('editor.eigen.duur')}</Text>
+                <View style={styles.exerciseOptions}>
+                  {DUREN.map((d) => (
+                    <Pressable
+                      key={d}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: eigenDuur === d }}
+                      onPress={() => setEigenDuur(d)}
+                      style={[styles.exercise, eigenDuur === d && styles.exerciseSelected]}
+                    >
+                      <Text
+                        style={[
+                          styles.exerciseText,
+                          eigenDuur === d && styles.exerciseTextSelected,
+                        ]}
+                      >
+                        {duurTekst(d)}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </>
+            )}
+            <PrimaryButton
+              label={bezig ? t('algemeen.bezig') : t('editor.eigen.toevoegen')}
+              onPress={voegEigenToe}
+              style={styles.save}
+            />
+            <SecondaryButton
+              label={t('algemeen.annuleren')}
+              onPress={() => setEigenOpen(false)}
+              style={styles.delete}
+            />
+          </Pressable>
+        </Pressable>
+      </Modal>
     </Screen>
   );
 }
@@ -669,6 +877,51 @@ const styles = StyleSheet.create({
   volgorde: { gap: 2, marginRight: 2 },
   pijl: { fontSize: 10, color: kleuren.ink, paddingHorizontal: 2 },
   oefen: { marginTop: 10 },
+  groepKop: {
+    fontFamily: fonts.body800,
+    fontSize: 10,
+    letterSpacing: em(0.12, 10),
+    color: '#5F6E60',
+    textTransform: 'uppercase',
+    marginTop: 4,
+    marginBottom: 8,
+  },
+  exerciseNieuw: { borderStyle: 'dashed', borderColor: kleuren.ink },
+  modalAchtergrond: { flex: 1, backgroundColor: 'rgba(16,23,20,0.5)', justifyContent: 'flex-end' },
+  modalKaart: {
+    backgroundColor: kleuren.paper,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 22,
+    paddingBottom: 34,
+    maxHeight: '92%',
+  },
+  modalTitel: { fontFamily: fonts.head700, fontSize: 24, color: kleuren.ink },
+  emojis: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  emoji: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: kleuren.white,
+    borderWidth: 1,
+    borderColor: kleuren.line,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emojiGekozen: { borderColor: kleuren.ink, backgroundColor: '#EDF4D5' },
+  emojiTekst: { fontSize: 22 },
+  soorten: { flexDirection: 'row', gap: 8 },
+  soort: {
+    flex: 1,
+    backgroundColor: kleuren.white,
+    borderWidth: 1,
+    borderColor: kleuren.line,
+    borderRadius: 14,
+    padding: 12,
+  },
+  soortGekozen: { borderColor: kleuren.ink, backgroundColor: '#EDF4D5' },
+  soortNaam: { fontFamily: fonts.body800, fontSize: 13, color: kleuren.ink },
+  soortUitleg: { fontFamily: fonts.body400, fontSize: 11, color: '#5F6E60', marginTop: 3 },
   save: { marginTop: 22 },
   delete: { marginTop: 10 },
   naamInput: {
