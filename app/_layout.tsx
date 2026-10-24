@@ -24,6 +24,7 @@ import { AlarmenProvider } from '@/hooks/useAlarmen';
 import { SessiesProvider } from '@/hooks/useSessies';
 import { ToastProvider } from '@/hooks/useToast';
 import { TaalProvider } from '@/i18n';
+import { ThemaProvider, useThema } from '@/hooks/useThema';
 import { useHerinneringen } from '@/hooks/useHerinneringen';
 import { useWekkerRouting } from '@/hooks/useWekkerRouting';
 
@@ -51,15 +52,17 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <TaalProvider>
-        <ToastProvider>
-          <AuthProvider>
-            <AlarmenProvider>
-              <SessiesProvider>
-                <RootNavigator />
-              </SessiesProvider>
-            </AlarmenProvider>
-          </AuthProvider>
-        </ToastProvider>
+        <ThemaProvider>
+          <ToastProvider>
+            <AuthProvider>
+              <AlarmenProvider>
+                <SessiesProvider>
+                  <RootNavigator />
+                </SessiesProvider>
+              </AlarmenProvider>
+            </AuthProvider>
+          </ToastProvider>
+        </ThemaProvider>
       </TaalProvider>
     </SafeAreaProvider>
   );
@@ -70,6 +73,7 @@ function RootNavigator() {
   const ingelogd = status === 'ingelogd';
   const heeftNaam = Boolean(profiel?.voornaam);
 
+  const thema = useThema();
   useWekkerRouting(status !== 'laden');
   useHerinneringen();
 
@@ -80,11 +84,11 @@ function RootNavigator() {
   if (status === 'laden') return null;
 
   return (
-    <View style={{ flex: 1, backgroundColor: kleuren.paper }}>
+    <View style={{ flex: 1, backgroundColor: thema.kleuren.paper }}>
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: kleuren.paper },
+          contentStyle: { backgroundColor: thema.kleuren.paper },
         }}
       >
         <Stack.Protected guard={!ingelogd}>
@@ -120,7 +124,7 @@ function RootNavigator() {
         />
       </Stack>
       <Toast />
-      <StatusBar style="dark" />
+      <StatusBar style={thema.naam === 'donker' ? 'light' : 'dark'} />
     </View>
   );
 }

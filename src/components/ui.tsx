@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
+import { maakStijlen, useKleuren } from '@/hooks/useThema';
 import { Icon, type IconNaam } from '@/components/Icon';
 import { niveauNaam } from '@/constants/alarm';
-import { em, fonts, kleuren } from '@/constants/theme';
+import { em, fonts } from '@/constants/theme';
 import { useTaal } from '@/i18n';
 import type { Niveau } from '@/types/app';
 
@@ -18,6 +19,7 @@ export function ScreenHeader({
   puntKleur: string;
   rechts?: ReactNode;
 }) {
+  const styles = useStyles();
   return (
     <View style={styles.screenHeader}>
       <View style={styles.flex}>
@@ -33,6 +35,7 @@ export function ScreenHeader({
 }
 
 export function SectionTitleRow({ titel, rechts }: { titel: string; rechts?: ReactNode }) {
+  const styles = useStyles();
   return (
     <View style={styles.sectionTitleRow}>
       <Text style={styles.sectionTitle}>{titel}</Text>
@@ -52,6 +55,8 @@ export function PrimaryButton({
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
 }) {
+  const styles = useStyles();
+  const kl = useKleuren();
   return (
     <Pressable
       accessibilityRole="button"
@@ -59,7 +64,7 @@ export function PrimaryButton({
       style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed, style]}
     >
       <Text style={styles.primaryBtnText}>{label}</Text>
-      <Icon name={icon} color={kleuren.ink} />
+      <Icon name={icon} color={kl.opLime} />
     </Pressable>
   );
 }
@@ -73,6 +78,7 @@ export function SecondaryButton({
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
 }) {
+  const styles = useStyles();
   return (
     <Pressable
       accessibilityRole="button"
@@ -93,6 +99,8 @@ export function RoundPlus({
   icon?: IconNaam;
   label?: string;
 }) {
+  const styles = useStyles();
+  const kl = useKleuren();
   return (
     <Pressable
       accessibilityRole={onPress ? 'button' : undefined}
@@ -101,12 +109,13 @@ export function RoundPlus({
       onPress={onPress}
       style={styles.roundPlus}
     >
-      <Icon name={icon} size={24} color={kleuren.ink} />
+      <Icon name={icon} size={24} color={kl.opLime} />
     </Pressable>
   );
 }
 
 export function LevelTag({ level, label }: { level: Niveau | 'hard'; label?: string }) {
+  const styles = useStyles();
   // Via useTaal, zodat de niveaunaam meewisselt met de taal
   useTaal();
   const variant =
@@ -139,6 +148,7 @@ export function Toggle({
   onPress: () => void;
   label: string;
 }) {
+  const styles = useStyles();
   return (
     <Pressable
       accessibilityRole="switch"
@@ -153,122 +163,131 @@ export function Toggle({
   );
 }
 
-export const gedeeld = StyleSheet.create({
-  sectionKicker: {
-    fontFamily: fonts.body800,
-    fontSize: 10,
-    letterSpacing: em(0.16, 10),
-    color: '#5F6E60',
-  },
-  rowBetween: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  card: {
-    backgroundColor: kleuren.white,
-    borderWidth: 1,
-    borderColor: kleuren.line,
-    borderRadius: 20,
-  },
-  backLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 16,
-    alignSelf: 'flex-start',
-  },
-  backLinkText: { fontFamily: fonts.body800, fontSize: 12, color: kleuren.ink },
-});
+export const useGedeeld = maakStijlen((k) =>
+  StyleSheet.create({
+    sectionKicker: {
+      fontFamily: fonts.body800,
+      fontSize: 10,
+      letterSpacing: em(0.16, 10),
+      color: k.tint('#5F6E60'),
+    },
+    rowBetween: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 10,
+    },
+    card: {
+      backgroundColor: k.white,
+      borderWidth: 1,
+      borderColor: k.line,
+      borderRadius: 20,
+    },
+    backLink: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 16,
+      alignSelf: 'flex-start',
+    },
+    backLinkText: { fontFamily: fonts.body800, fontSize: 12, color: k.ink },
+  }),
+);
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  screenHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  screenKicker: {
-    marginBottom: 7,
-    fontFamily: fonts.body800,
-    fontSize: 10,
-    letterSpacing: em(0.14, 10),
-    color: '#5F6E60',
-  },
-  screenTitle: {
-    fontFamily: fonts.head700,
-    fontSize: 34,
-    letterSpacing: em(-0.065, 34),
-    color: kleuren.ink,
-  },
-  sectionTitleRow: {
-    marginTop: 25,
-    marginBottom: 12,
-    marginHorizontal: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'baseline',
-  },
-  sectionTitle: {
-    fontFamily: fonts.head700,
-    fontSize: 18,
-    letterSpacing: em(-0.045, 18),
-    color: kleuren.ink,
-  },
-  sectionKicker: gedeeld.sectionKicker,
-  primaryBtn: {
-    width: '100%',
-    borderRadius: 15,
-    minHeight: 51,
-    backgroundColor: kleuren.lime,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 18,
-  },
-  primaryBtnText: { fontFamily: fonts.body800, fontSize: 13, color: kleuren.ink },
-  secondaryBtn: {
-    width: '100%',
-    borderWidth: 1,
-    borderColor: '#D7DCD3',
-    borderRadius: 15,
-    minHeight: 48,
-    backgroundColor: kleuren.white,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  secondaryBtnText: { fontFamily: fonts.body800, fontSize: 12, color: kleuren.ink },
-  pressed: { opacity: 0.92 },
-  roundPlus: {
-    width: 43,
-    height: 43,
-    borderRadius: 22,
-    backgroundColor: kleuren.lime,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  levelTag: {
-    backgroundColor: '#EDF1E7',
-    borderRadius: 20,
-    paddingVertical: 6,
-    paddingHorizontal: 9,
-  },
-  levelTagText: { fontFamily: fonts.body800, fontSize: 9, color: '#62775B' },
-  levelHard: { backgroundColor: '#E6F5A4' },
-  levelHardText: { color: '#344B21' },
-  levelFlex: { backgroundColor: '#D8EFF0' },
-  levelFlexText: { color: '#38727A' },
-  switch: {
-    width: 42,
-    height: 25,
-    borderRadius: 30,
-    padding: 3,
-    backgroundColor: '#D5DDD5',
-    justifyContent: 'center',
-  },
-  switchOn: { backgroundColor: '#2D4B32' },
-  switchKnob: { width: 19, height: 19, borderRadius: 10, backgroundColor: kleuren.white },
-  switchKnobOn: { transform: [{ translateX: 17 }] },
-});
+const useStyles = maakStijlen((k) =>
+  StyleSheet.create({
+    flex: { flex: 1 },
+    screenHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    screenKicker: {
+      marginBottom: 7,
+      fontFamily: fonts.body800,
+      fontSize: 10,
+      letterSpacing: em(0.14, 10),
+      color: k.tint('#5F6E60'),
+    },
+    screenTitle: {
+      fontFamily: fonts.head700,
+      fontSize: 34,
+      letterSpacing: em(-0.065, 34),
+      color: k.ink,
+    },
+    sectionTitleRow: {
+      marginTop: 25,
+      marginBottom: 12,
+      marginHorizontal: 1,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'baseline',
+    },
+    sectionTitle: {
+      fontFamily: fonts.head700,
+      fontSize: 18,
+      letterSpacing: em(-0.045, 18),
+      color: k.ink,
+    },
+    sectionKicker: {
+      fontFamily: fonts.body800,
+      fontSize: 10,
+      letterSpacing: em(0.16, 10),
+      color: k.tint('#5F6E60'),
+    },
+    primaryBtn: {
+      width: '100%',
+      borderRadius: 15,
+      minHeight: 51,
+      backgroundColor: k.lime,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 18,
+    },
+    primaryBtnText: { fontFamily: fonts.body800, fontSize: 13, color: k.opLime },
+    secondaryBtn: {
+      width: '100%',
+      borderWidth: 1,
+      borderColor: k.rand('#D7DCD3'),
+      borderRadius: 15,
+      minHeight: 48,
+      backgroundColor: k.white,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    secondaryBtnText: { fontFamily: fonts.body800, fontSize: 12, color: k.ink },
+    pressed: { opacity: 0.92 },
+    roundPlus: {
+      width: 43,
+      height: 43,
+      borderRadius: 22,
+      backgroundColor: k.lime,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    levelTag: {
+      backgroundColor: k.vlak('#EDF1E7'),
+      borderRadius: 20,
+      paddingVertical: 6,
+      paddingHorizontal: 9,
+    },
+    levelTagText: { fontFamily: fonts.body800, fontSize: 9, color: k.tint('#62775B') },
+    levelHard: { backgroundColor: k.vlak('#E6F5A4') },
+    levelHardText: { color: k.tint('#344B21') },
+    levelFlex: { backgroundColor: k.vlak('#D8EFF0') },
+    levelFlexText: { color: k.tint('#38727A') },
+    switch: {
+      width: 42,
+      height: 25,
+      borderRadius: 30,
+      padding: 3,
+      backgroundColor: k.vlak('#D5DDD5'),
+      justifyContent: 'center',
+    },
+    switchOn: { backgroundColor: k.vlak('#2D4B32') },
+    switchKnob: { width: 19, height: 19, borderRadius: 10, backgroundColor: k.white },
+    switchKnobOn: { transform: [{ translateX: 17 }] },
+  }),
+);

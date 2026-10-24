@@ -15,6 +15,7 @@ import {
   View,
 } from 'react-native';
 
+import { maakStijlen, useKleuren, useThema } from '@/hooks/useThema';
 import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import {
@@ -24,7 +25,7 @@ import {
   SectionTitleRow,
   Toggle,
 } from '@/components/ui';
-import { em, fonts, kleuren } from '@/constants/theme';
+import { em, fonts } from '@/constants/theme';
 import { useAlarmCheck } from '@/hooks/useAlarmCheck';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useAuth } from '@/hooks/useAuth';
@@ -72,6 +73,8 @@ function doelTekst(weekdoel: number, t: ReturnType<typeof useTaal>['t']): string
 const TAALKEUZES: TaalKeuze[] = ['auto', ...TALEN];
 
 export default function ProfielScherm() {
+  const styles = useStyles();
+  const kl = useKleuren();
   const { showToast } = useToast();
   const { t, locale, keuze, kiesTaal } = useTaal();
   const { profiel, user, uitloggen, verwijderAccount, werkProfielBij } = useAuth();
@@ -81,6 +84,8 @@ export default function ProfielScherm() {
   const [resterend, setResterend] = useState(TEST_SECONDEN);
   const [doelOpen, setDoelOpen] = useState(false);
   const [taalOpen, setTaalOpen] = useState(false);
+  const [weergaveOpen, setWeergaveOpen] = useState(false);
+  const thema = useThema();
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [feedbackSoort, setFeedbackSoort] = useState<'probleem' | 'idee' | 'anders'>('idee');
   const [feedbackTekst, setFeedbackTekst] = useState('');
@@ -424,18 +429,18 @@ export default function ProfielScherm() {
         onPress={() => setDoelOpen(true)}
         style={styles.setting}
       >
-        <Icon name="target" color={kleuren.ink} />
+        <Icon name="target" color={kl.ink} />
         <Text style={styles.settingLabel}>{t('profiel.mijnDoelen')}</Text>
         <Text style={styles.settingValue}>{doelTekst(profiel?.weekdoel ?? 7, t)}</Text>
       </Pressable>
       <Pressable accessibilityRole="button" onPress={pauzeOpties} style={styles.setting}>
-        <Icon name="calendar" color={kleuren.ink} />
+        <Icon name="calendar" color={kl.ink} />
         <Text style={styles.settingLabel}>{t('profiel.pauze.label')}</Text>
         <Text style={styles.settingValue}>{pauzeTekst}</Text>
       </Pressable>
       {alarmenBeschikbaar && (
         <Pressable accessibilityRole="button" onPress={geluidOpties} style={styles.setting}>
-          <Icon name="sound" color={kleuren.ink} />
+          <Icon name="sound" color={kl.ink} />
           <Text style={styles.settingLabel}>{t('profiel.geluid.label')}</Text>
           <Text style={styles.settingValue} numberOfLines={1}>
             {geluid?.naam ?? t('profiel.geluid.standaard')}
@@ -444,10 +449,21 @@ export default function ProfielScherm() {
       )}
       <Pressable
         accessibilityRole="button"
+        onPress={() => setWeergaveOpen(true)}
+        style={styles.setting}
+      >
+        <Icon name="moon" color={kl.ink} />
+        <Text style={styles.settingLabel}>{t('profiel.weergave.label')}</Text>
+        <Text style={styles.settingValue} numberOfLines={1}>
+          {t(`profiel.weergave.${thema.keuze}`)}
+        </Text>
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
         onPress={() => setTaalOpen(true)}
         style={styles.setting}
       >
-        <Icon name="globe" color={kleuren.ink} />
+        <Icon name="globe" color={kl.ink} />
         <Text style={styles.settingLabel}>{t('profiel.taal.label')}</Text>
         <Text style={styles.settingValue} numberOfLines={1}>
           {keuze === 'auto' ? t('profiel.taal.automatisch') : TAALNAMEN[keuze]}
@@ -460,7 +476,7 @@ export default function ProfielScherm() {
         }
         style={styles.setting}
       >
-        <Icon name="bell" color={kleuren.ink} />
+        <Icon name="bell" color={kl.ink} />
         <Text style={styles.settingLabel}>{t('profiel.meldingen')}</Text>
         <Text style={styles.settingValue}>
           {meldingenAan ? t('profiel.ingeschakeld') : t('profiel.uitgeschakeld')}
@@ -471,7 +487,7 @@ export default function ProfielScherm() {
         onPress={() => router.push('/privacy')}
         style={styles.setting}
       >
-        <Icon name="shield" color={kleuren.ink} />
+        <Icon name="shield" color={kl.ink} />
         <Text style={styles.settingLabel}>{t('profiel.privacy')}</Text>
         <Text style={styles.settingValue}>{t('profiel.leesVerklaring')}</Text>
       </Pressable>
@@ -484,7 +500,7 @@ export default function ProfielScherm() {
         }
         style={styles.setting}
       >
-        <Icon name="info" color={kleuren.ink} />
+        <Icon name="info" color={kl.ink} />
         <Text style={styles.settingLabel}>{t('profiel.hulp')}</Text>
         <Text style={styles.settingValue}>{t('profiel.mailOns')}</Text>
       </Pressable>
@@ -494,7 +510,7 @@ export default function ProfielScherm() {
         onPress={() => setFeedbackOpen(true)}
         style={styles.setting}
       >
-        <Icon name="info" color={kleuren.ink} />
+        <Icon name="info" color={kl.ink} />
         <Text style={styles.settingLabel}>{t('profiel.feedback.label')}</Text>
         <Text style={styles.settingValue}>{t('profiel.feedback.waarde')}</Text>
       </Pressable>
@@ -516,22 +532,22 @@ export default function ProfielScherm() {
 
       <Text style={styles.sectionHeading}>{t('profiel.account')}</Text>
       <View style={styles.setting}>
-        <Icon name="user" color={kleuren.ink} />
+        <Icon name="user" color={kl.ink} />
         <Text style={styles.settingLabel}>{t('profiel.email')}</Text>
         <Text style={styles.settingValue}>{user?.email}</Text>
       </View>
       <Pressable accessibilityRole="button" onPress={downloadGegevens} style={styles.setting}>
-        <Icon name="shield" color={kleuren.ink} />
+        <Icon name="shield" color={kl.ink} />
         <Text style={styles.settingLabel}>{t('profiel.download')}</Text>
         <Text style={styles.settingValue}>JSON →</Text>
       </Pressable>
       <Pressable accessibilityRole="button" onPress={onUitloggen} style={styles.setting}>
-        <Icon name="arrow" color={kleuren.ink} />
+        <Icon name="arrow" color={kl.ink} />
         <Text style={styles.settingLabel}>{t('profiel.uitloggen.label')}</Text>
         <Text style={styles.settingValue}>→</Text>
       </Pressable>
       <Pressable accessibilityRole="button" onPress={onVerwijderen} style={styles.setting}>
-        <Icon name="close" color="#C2462F" />
+        <Icon name="close" color={kl.tint('#C2462F')} />
         <Text style={[styles.settingLabel, styles.gevaar]}>{t('profiel.verwijderen.label')}</Text>
         <Text style={styles.settingValue}>{t('profiel.verwijderen.waarde')}</Text>
       </Pressable>
@@ -597,7 +613,9 @@ export default function ProfielScherm() {
                 onPress={() => kiesDoel(d)}
                 style={[styles.doelOptie, profiel?.weekdoel === d && styles.doelOptieActief]}
               >
-                <Text style={styles.settingLabel}>{doelTekst(d, t)}</Text>
+                <Text style={[styles.settingLabel, profiel?.weekdoel === d && styles.opLimeTekst]}>
+                  {doelTekst(d, t)}
+                </Text>
               </Pressable>
             ))}
           </View>
@@ -625,7 +643,11 @@ export default function ProfielScherm() {
                   onPress={() => setFeedbackSoort(soort)}
                   style={[styles.feedbackSoort, feedbackSoort === soort && styles.doelOptieActief]}
                 >
-                  <Text style={styles.settingLabel}>{t(`profiel.feedback.${soort}`)}</Text>
+                  <Text
+                    style={[styles.settingLabel, feedbackSoort === soort && styles.opLimeTekst]}
+                  >
+                    {t(`profiel.feedback.${soort}`)}
+                  </Text>
                 </Pressable>
               ))}
             </View>
@@ -633,7 +655,7 @@ export default function ProfielScherm() {
               value={feedbackTekst}
               onChangeText={setFeedbackTekst}
               placeholder={t('profiel.feedback.plaats')}
-              placeholderTextColor="#8A968C"
+              placeholderTextColor={kl.tint('#8A968C')}
               multiline
               maxLength={2000}
               accessibilityLabel={t('profiel.feedback.titel')}
@@ -649,6 +671,35 @@ export default function ProfielScherm() {
             />
           </View>
         </KeyboardAvoidingView>
+      </Modal>
+
+      <Modal
+        visible={weergaveOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setWeergaveOpen(false)}
+      >
+        <Pressable style={styles.doelOverlay} onPress={() => setWeergaveOpen(false)}>
+          <View style={styles.doelKaart}>
+            <Text style={styles.setupTitle}>{t('profiel.weergave.label')}</Text>
+            {(['auto', 'licht', 'donker'] as const).map((k) => (
+              <Pressable
+                key={k}
+                accessibilityRole="button"
+                accessibilityState={{ selected: thema.keuze === k }}
+                onPress={() => {
+                  thema.kiesThema(k);
+                  setWeergaveOpen(false);
+                }}
+                style={[styles.doelOptie, thema.keuze === k && styles.doelOptieActief]}
+              >
+                <Text style={[styles.settingLabel, thema.keuze === k && styles.opLimeTekst]}>
+                  {t(k === 'auto' ? 'profiel.weergave.autoLang' : `profiel.weergave.${k}`)}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </Pressable>
       </Modal>
 
       <Modal
@@ -668,7 +719,7 @@ export default function ProfielScherm() {
                 onPress={() => kiesTaalKeuze(k)}
                 style={[styles.doelOptie, keuze === k && styles.doelOptieActief]}
               >
-                <Text style={styles.settingLabel}>
+                <Text style={[styles.settingLabel, keuze === k && styles.opLimeTekst]}>
                   {k === 'auto' ? t('profiel.taal.automatischLang') : TAALNAMEN[k]}
                 </Text>
               </Pressable>
@@ -680,175 +731,193 @@ export default function ProfielScherm() {
   );
 }
 
-const styles = StyleSheet.create({
-  profileCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 13,
-    backgroundColor: kleuren.ink,
-    padding: 18,
-    borderRadius: 19,
-  },
-  avatar: {
-    width: 53,
-    height: 53,
-    borderRadius: 27,
-    backgroundColor: kleuren.lime,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: { fontFamily: fonts.head700, fontSize: 22, color: kleuren.ink },
-  profileName: { fontFamily: fonts.head700, fontSize: 18, color: kleuren.white },
-  profileSub: { fontFamily: fonts.body400, fontSize: 10, color: '#A5B4A6', marginVertical: 5 },
-  setupCard: {
-    borderRadius: 20,
-    backgroundColor: kleuren.white,
-    borderWidth: 1,
-    borderColor: kleuren.line,
-    padding: 17,
-  },
-  setupTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  setupTitle: { fontFamily: fonts.head700, fontSize: 16, color: kleuren.ink },
-  secureTag: {
-    backgroundColor: '#E6F4D8',
-    borderRadius: 30,
-    paddingVertical: 6,
-    paddingHorizontal: 8,
-  },
-  secureTagOpen: { backgroundColor: '#FBE4DE' },
-  secureTagText: { fontFamily: fonts.body800, fontSize: 9, color: '#578149' },
-  secureTagTextOpen: { color: '#C2462F' },
-  setupLine: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#EDF0E9',
-  },
-  noBorder: { borderBottomWidth: 0 },
-  setupCheck: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#DDF2CD',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  setupCheckOpen: { backgroundColor: '#FBE4DE' },
-  setupLabel: { fontFamily: fonts.body700, fontSize: 11, color: kleuren.ink },
-  setupValue: { marginLeft: 'auto', fontFamily: fonts.body700, fontSize: 10, color: '#5F6E60' },
-  testBtn: { marginTop: 12 },
-  sectionHeading: {
-    fontFamily: fonts.body800,
-    fontSize: 11,
-    marginTop: 23,
-    marginBottom: 9,
-    color: kleuren.ink,
-  },
-  setting: {
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5EAE0',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  settingLabel: { fontFamily: fonts.body800, fontSize: 12, color: kleuren.ink },
-  herinneringTekst: { flex: 1, paddingRight: 14 },
-  herinneringUitleg: {
-    fontFamily: fonts.body400,
-    fontSize: 11,
-    lineHeight: 15,
-    color: '#5F6E60',
-    marginTop: 3,
-  },
-  versie: {
-    fontFamily: fonts.body600,
-    fontSize: 11,
-    color: '#5F6E60',
-    textAlign: 'center',
-    marginTop: 18,
-  },
-  gevaar: { color: '#C2462F' },
-  settingValue: { fontFamily: fonts.body800, fontSize: 10, color: '#5F6E60', maxWidth: 150 },
-  doelUitleg: {
-    fontFamily: fonts.body400,
-    fontSize: 12,
-    lineHeight: 17,
-    color: '#4F5D51',
-    marginBottom: 6,
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(16,23,20,0.92)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 25,
-  },
-  testLabel: {
-    fontFamily: fonts.body800,
-    fontSize: 10,
-    letterSpacing: em(0.18, 10),
-    color: kleuren.lime,
-  },
-  testClock: {
-    fontFamily: fonts.head700,
-    fontSize: 90,
-    letterSpacing: em(-0.08, 90),
-    color: kleuren.lime,
-    marginTop: 24,
-    marginBottom: 7,
-  },
-  testTitle: {
-    fontFamily: fonts.head700,
-    fontSize: 27,
-    letterSpacing: em(-0.04, 27),
-    color: kleuren.white,
-    marginVertical: 18,
-  },
-  testText: {
-    fontFamily: fonts.body400,
-    fontSize: 12,
-    lineHeight: 19,
-    color: '#B3BFB5',
-    textAlign: 'center',
-  },
-  testCta: { marginTop: 30 },
-  testSecundair: { marginTop: 10 },
-  doelOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(16,23,20,0.5)',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  doelKaart: { backgroundColor: kleuren.white, borderRadius: 20, padding: 18, gap: 8 },
-  doelOptie: {
-    borderWidth: 1,
-    borderColor: kleuren.line,
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-  },
-  doelOptieActief: { backgroundColor: kleuren.lime, borderColor: kleuren.lime },
-  feedbackSoorten: { flexDirection: 'row', gap: 6 },
-  feedbackSoort: {
-    flex: 1,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: kleuren.line,
-    borderRadius: 12,
-    paddingVertical: 10,
-  },
-  feedbackInvoer: {
-    minHeight: 120,
-    borderWidth: 1,
-    borderColor: kleuren.line,
-    borderRadius: 12,
-    padding: 12,
-    fontFamily: fonts.body400,
-    fontSize: 14,
-    color: kleuren.ink,
-    textAlignVertical: 'top',
-  },
-});
+const useStyles = maakStijlen((k) =>
+  StyleSheet.create({
+    profileCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 13,
+      backgroundColor: k.donkerVlak,
+      padding: 18,
+      borderRadius: 19,
+    },
+    avatar: {
+      width: 53,
+      height: 53,
+      borderRadius: 27,
+      backgroundColor: k.lime,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    avatarText: { fontFamily: fonts.head700, fontSize: 22, color: k.opLime },
+    profileName: { fontFamily: fonts.head700, fontSize: 18, color: k.opDonker },
+    profileSub: {
+      fontFamily: fonts.body400,
+      fontSize: 10,
+      color: k.tint('#A5B4A6'),
+      marginVertical: 5,
+    },
+    setupCard: {
+      borderRadius: 20,
+      backgroundColor: k.white,
+      borderWidth: 1,
+      borderColor: k.line,
+      padding: 17,
+    },
+    setupTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    setupTitle: { fontFamily: fonts.head700, fontSize: 16, color: k.ink },
+    secureTag: {
+      backgroundColor: k.vlak('#E6F4D8'),
+      borderRadius: 30,
+      paddingVertical: 6,
+      paddingHorizontal: 8,
+    },
+    secureTagOpen: { backgroundColor: k.vlak('#FBE4DE') },
+    secureTagText: { fontFamily: fonts.body800, fontSize: 9, color: k.tint('#578149') },
+    secureTagTextOpen: { color: k.tint('#C2462F') },
+    setupLine: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: k.rand('#EDF0E9'),
+    },
+    noBorder: { borderBottomWidth: 0 },
+    setupCheck: {
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+      backgroundColor: k.vlak('#DDF2CD'),
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    setupCheckOpen: { backgroundColor: k.vlak('#FBE4DE') },
+    setupLabel: { fontFamily: fonts.body700, fontSize: 11, color: k.ink },
+    setupValue: {
+      marginLeft: 'auto',
+      fontFamily: fonts.body700,
+      fontSize: 10,
+      color: k.tint('#5F6E60'),
+    },
+    testBtn: { marginTop: 12 },
+    sectionHeading: {
+      fontFamily: fonts.body800,
+      fontSize: 11,
+      marginTop: 23,
+      marginBottom: 9,
+      color: k.ink,
+    },
+    setting: {
+      paddingVertical: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: k.rand('#E5EAE0'),
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    settingLabel: { fontFamily: fonts.body800, fontSize: 12, color: k.ink },
+    herinneringTekst: { flex: 1, paddingRight: 14 },
+    herinneringUitleg: {
+      fontFamily: fonts.body400,
+      fontSize: 11,
+      lineHeight: 15,
+      color: k.tint('#5F6E60'),
+      marginTop: 3,
+    },
+    versie: {
+      fontFamily: fonts.body600,
+      fontSize: 11,
+      color: k.tint('#5F6E60'),
+      textAlign: 'center',
+      marginTop: 18,
+    },
+    gevaar: { color: k.tint('#C2462F') },
+    settingValue: {
+      fontFamily: fonts.body800,
+      fontSize: 10,
+      color: k.tint('#5F6E60'),
+      maxWidth: 150,
+    },
+    doelUitleg: {
+      fontFamily: fonts.body400,
+      fontSize: 12,
+      lineHeight: 17,
+      color: k.tint('#4F5D51'),
+      marginBottom: 6,
+    },
+    overlay: {
+      flex: 1,
+      backgroundColor: 'rgba(16,23,20,0.92)',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 25,
+    },
+    testLabel: {
+      fontFamily: fonts.body800,
+      fontSize: 10,
+      letterSpacing: em(0.18, 10),
+      color: k.lime,
+    },
+    testClock: {
+      fontFamily: fonts.head700,
+      fontSize: 90,
+      letterSpacing: em(-0.08, 90),
+      color: k.lime,
+      marginTop: 24,
+      marginBottom: 7,
+    },
+    testTitle: {
+      fontFamily: fonts.head700,
+      fontSize: 27,
+      letterSpacing: em(-0.04, 27),
+      color: k.opDonker,
+      marginVertical: 18,
+    },
+    testText: {
+      fontFamily: fonts.body400,
+      fontSize: 12,
+      lineHeight: 19,
+      color: k.tint('#B3BFB5'),
+      textAlign: 'center',
+    },
+    testCta: { marginTop: 30 },
+    testSecundair: { marginTop: 10 },
+    doelOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(16,23,20,0.5)',
+      justifyContent: 'center',
+      padding: 24,
+    },
+    doelKaart: { backgroundColor: k.white, borderRadius: 20, padding: 18, gap: 8 },
+    doelOptie: {
+      borderWidth: 1,
+      borderColor: k.line,
+      borderRadius: 12,
+      paddingVertical: 12,
+      paddingHorizontal: 14,
+    },
+    doelOptieActief: { backgroundColor: k.lime, borderColor: k.lime },
+    opLimeTekst: { color: k.opLime },
+    feedbackSoorten: { flexDirection: 'row', gap: 6 },
+    feedbackSoort: {
+      flex: 1,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: k.line,
+      borderRadius: 12,
+      paddingVertical: 10,
+    },
+    feedbackInvoer: {
+      minHeight: 120,
+      borderWidth: 1,
+      borderColor: k.line,
+      borderRadius: 12,
+      padding: 12,
+      fontFamily: fonts.body400,
+      fontSize: 14,
+      color: k.ink,
+      textAlignVertical: 'top',
+    },
+  }),
+);

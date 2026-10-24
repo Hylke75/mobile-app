@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { kleuren } from '@/constants/theme';
+import { maakStijlen, useKleuren } from '@/hooks/useThema';
 
 type Props = {
   children: ReactNode;
@@ -12,6 +12,8 @@ type Props = {
 };
 
 export function Screen({ children, dark = false, onRefresh }: Props) {
+  const styles = useStyles();
+  const kl = useKleuren();
   const insets = useSafeAreaInsets();
   const [verversen, setVerversen] = useState(false);
   const ververs = () => {
@@ -21,7 +23,7 @@ export function Screen({ children, dark = false, onRefresh }: Props) {
       .catch(() => {})
       .finally(() => setVerversen(false));
   };
-  const achtergrond = dark ? kleuren.ink : kleuren.paper;
+  const achtergrond = dark ? kl.ink : kl.paper;
 
   return (
     <View style={[styles.root, { backgroundColor: achtergrond, paddingTop: insets.top }]}>
@@ -34,7 +36,7 @@ export function Screen({ children, dark = false, onRefresh }: Props) {
             <RefreshControl
               refreshing={verversen}
               onRefresh={ververs}
-              tintColor={dark ? kleuren.lime : kleuren.ink}
+              tintColor={dark ? kl.lime : kl.ink}
             />
           ) : undefined
         }
@@ -45,9 +47,11 @@ export function Screen({ children, dark = false, onRefresh }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1 },
-  scroll: { flex: 1 },
-  content: { paddingTop: 22, paddingHorizontal: 24, paddingBottom: 32 },
-  contentDark: { paddingTop: 14, paddingHorizontal: 21, paddingBottom: 30 },
-});
+const useStyles = maakStijlen((k) =>
+  StyleSheet.create({
+    root: { flex: 1 },
+    scroll: { flex: 1 },
+    content: { paddingTop: 22, paddingHorizontal: 24, paddingBottom: 32 },
+    contentDark: { paddingTop: 14, paddingHorizontal: 21, paddingBottom: 30 },
+  }),
+);

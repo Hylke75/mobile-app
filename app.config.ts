@@ -10,7 +10,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   orientation: 'portrait',
   // Conceptlogo uit docs/ontwerp; het merk is nog niet definitief vastgelegd
   icon: './assets/icon.png',
-  userInterfaceStyle: 'light',
+  // Licht of donker volgt het toestel, met een keuze in Profiel
+  userInterfaceStyle: 'automatic',
   // Teksten voor iOS-toestemmingen per taal (de rest van de app vertaalt src/i18n)
   locales: {
     nl: './locales/nl.json',

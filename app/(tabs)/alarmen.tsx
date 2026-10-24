@@ -1,10 +1,11 @@
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { maakStijlen, useKleuren } from '@/hooks/useThema';
 import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import { LevelTag, RoundPlus, ScreenHeader, Toggle } from '@/components/ui';
-import { em, fonts, kleuren } from '@/constants/theme';
+import { em, fonts } from '@/constants/theme';
 import { dagenTekst, missiesTekst } from '@/constants/alarm';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useNu } from '@/hooks/useNu';
@@ -13,6 +14,8 @@ import { useToast } from '@/hooks/useToast';
 import { useTaal } from '@/i18n';
 
 export default function AlarmenScherm() {
+  const styles = useStyles();
+  const kl = useKleuren();
   const { alarms, geladen, fout, wisselAan, slaOver, vernieuw } = useAlarmen();
   const { showToast } = useToast();
   const nu = useNu();
@@ -130,81 +133,88 @@ export default function AlarmenScherm() {
           onPress={nieuwAlarm}
           style={styles.bannerBtn}
         >
-          <Icon name="plus" color={kleuren.ink} />
+          <Icon name="plus" color={kl.opLime} />
         </Pressable>
       </View>
     </Screen>
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  description: {
-    fontFamily: fonts.body400,
-    fontSize: 12,
-    color: '#5F6E60',
-    lineHeight: 18,
-    marginTop: -7,
-    marginBottom: 20,
-  },
-  card: {
-    borderRadius: 20,
-    backgroundColor: kleuren.white,
-    borderWidth: 1,
-    borderColor: kleuren.line,
-    padding: 16,
-    marginBottom: 11,
-  },
-  cardDisabled: { opacity: 0.58 },
-  fout: { fontFamily: fonts.body600, fontSize: 12, color: '#C2462F', marginBottom: 12 },
-  leeg: { fontFamily: fonts.body400, fontSize: 12, color: '#5F6E60', marginBottom: 12 },
-  cardHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  time: {
-    fontFamily: fonts.head700,
-    fontSize: 43,
-    lineHeight: 43,
-    letterSpacing: em(-0.075, 43),
-    color: kleuren.ink,
-  },
-  name: { fontFamily: fonts.body800, fontSize: 13, marginTop: 7, color: kleuren.ink },
-  days: { fontFamily: fonts.body400, fontSize: 10, color: '#5F6E60', marginTop: 3 },
-  footer: { flexDirection: 'row', gap: 8, alignItems: 'center', marginTop: 15 },
-  overslaanRij: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 10,
-    marginTop: 12,
-    paddingTop: 11,
-    borderTopWidth: 1,
-    borderTopColor: kleuren.line,
-  },
-  overgeslagen: { flex: 1, fontFamily: fonts.body600, fontSize: 11, color: '#8A5A14' },
-  overslaanKnop: { fontFamily: fonts.body800, fontSize: 11, color: '#3F6B2A' },
-  count: { fontFamily: fonts.body400, fontSize: 10, color: '#5F6E60', marginLeft: 'auto' },
-  banner: {
-    backgroundColor: kleuren.ink,
-    borderRadius: 20,
-    padding: 18,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  bannerTitle: { fontFamily: fonts.head700, fontSize: 16, color: kleuren.white },
-  bannerText: {
-    fontFamily: fonts.body400,
-    fontSize: 11,
-    color: '#B4C0B4',
-    marginTop: 5,
-    maxWidth: 210,
-  },
-  bannerBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 13,
-    backgroundColor: kleuren.lime,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+const useStyles = maakStijlen((k) =>
+  StyleSheet.create({
+    flex: { flex: 1 },
+    description: {
+      fontFamily: fonts.body400,
+      fontSize: 12,
+      color: k.tint('#5F6E60'),
+      lineHeight: 18,
+      marginTop: -7,
+      marginBottom: 20,
+    },
+    card: {
+      borderRadius: 20,
+      backgroundColor: k.white,
+      borderWidth: 1,
+      borderColor: k.line,
+      padding: 16,
+      marginBottom: 11,
+    },
+    cardDisabled: { opacity: 0.58 },
+    fout: { fontFamily: fonts.body600, fontSize: 12, color: k.tint('#C2462F'), marginBottom: 12 },
+    leeg: { fontFamily: fonts.body400, fontSize: 12, color: k.tint('#5F6E60'), marginBottom: 12 },
+    cardHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    time: {
+      fontFamily: fonts.head700,
+      fontSize: 43,
+      lineHeight: 43,
+      letterSpacing: em(-0.075, 43),
+      color: k.ink,
+    },
+    name: { fontFamily: fonts.body800, fontSize: 13, marginTop: 7, color: k.ink },
+    days: { fontFamily: fonts.body400, fontSize: 10, color: k.tint('#5F6E60'), marginTop: 3 },
+    footer: { flexDirection: 'row', gap: 8, alignItems: 'center', marginTop: 15 },
+    overslaanRij: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 10,
+      marginTop: 12,
+      paddingTop: 11,
+      borderTopWidth: 1,
+      borderTopColor: k.line,
+    },
+    overgeslagen: { flex: 1, fontFamily: fonts.body600, fontSize: 11, color: k.tint('#8A5A14') },
+    overslaanKnop: { fontFamily: fonts.body800, fontSize: 11, color: k.tint('#3F6B2A') },
+    count: {
+      fontFamily: fonts.body400,
+      fontSize: 10,
+      color: k.tint('#5F6E60'),
+      marginLeft: 'auto',
+    },
+    banner: {
+      backgroundColor: k.donkerVlak,
+      borderRadius: 20,
+      padding: 18,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginTop: 20,
+    },
+    bannerTitle: { fontFamily: fonts.head700, fontSize: 16, color: k.opDonker },
+    bannerText: {
+      fontFamily: fonts.body400,
+      fontSize: 11,
+      color: k.tint('#B4C0B4'),
+      marginTop: 5,
+      maxWidth: 210,
+    },
+    bannerBtn: {
+      width: 38,
+      height: 38,
+      borderRadius: 13,
+      backgroundColor: k.lime,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  }),
+);

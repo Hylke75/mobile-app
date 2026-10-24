@@ -6,9 +6,10 @@ import { router, useLocalSearchParams, useNavigation, usePreventRemove } from 'e
 import { useEffect, useState } from 'react';
 import { Alert, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { maakStijlen, useKleuren, useThema } from '@/hooks/useThema';
 import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
-import { gedeeld, PrimaryButton, SecondaryButton, Toggle } from '@/components/ui';
+import { useGedeeld, PrimaryButton, SecondaryButton, Toggle } from '@/components/ui';
 import {
   DAGEN,
   dagenTekst,
@@ -26,7 +27,7 @@ import {
   OEFENING_INFO,
   oefeningNaam,
 } from '@/constants/oefeningen';
-import { em, fonts, kleuren } from '@/constants/theme';
+import { em, fonts } from '@/constants/theme';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useTaal } from '@/i18n';
 import { useToast } from '@/hooks/useToast';
@@ -58,6 +59,9 @@ const naarTijd = (d: Date) =>
   `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 
 export default function NieuwAlarmScherm() {
+  const styles = useStyles();
+  const gedeeld = useGedeeld();
+  const kl = useKleuren();
   const { id, eerste } = useLocalSearchParams<{ id?: string; eerste?: string }>();
   const {
     alarms,
@@ -71,6 +75,7 @@ export default function NieuwAlarmScherm() {
   } = useAlarmen();
   const { showToast } = useToast();
   const { t, locale } = useTaal();
+  const thema = useThema().naam;
   const bestaand = id ? alarms.find((a) => a.id === id) : undefined;
   // Standaardnaam één keer vastleggen, zodat 'gewijzigd' klopt ook als de taal wisselt
   const [standaardNaam] = useState(() => t('editor.standaardNaam'));
@@ -373,7 +378,7 @@ export default function NieuwAlarmScherm() {
   return (
     <Screen>
       <Pressable accessibilityRole="button" onPress={() => router.back()} style={gedeeld.backLink}>
-        <Icon name="chevron" color={kleuren.ink} />
+        <Icon name="chevron" color={kl.ink} />
         <Text style={gedeeld.backLinkText}>{t('editor.terugNaarAlarmen')}</Text>
       </Pressable>
       {eerste === '1' && !bestaand && (
@@ -419,7 +424,7 @@ export default function NieuwAlarmScherm() {
             display="spinner"
             is24Hour
             locale={locale}
-            themeVariant="light"
+            themeVariant={thema === 'donker' ? 'dark' : 'light'}
             onChange={onTijdGekozen}
           />
         )}
@@ -484,7 +489,7 @@ export default function NieuwAlarmScherm() {
         ))}
       </View>
       <View style={styles.levelExplain}>
-        <Icon name={level === 'Verplicht' ? 'lock' : 'info'} color="#657265" />
+        <Icon name={level === 'Verplicht' ? 'lock' : 'info'} color={kl.tint('#657265')} />
         <Text style={styles.levelExplainText}>{niveauUitleg(level)}</Text>
       </View>
 
@@ -737,7 +742,7 @@ export default function NieuwAlarmScherm() {
               onChangeText={setEigenNaam}
               maxLength={40}
               placeholder={t('editor.eigen.naamVoorbeeld')}
-              placeholderTextColor="#8A968B"
+              placeholderTextColor={kl.tint('#8A968B')}
               accessibilityLabel={t('editor.eigen.naam')}
               style={styles.naamInput}
             />
@@ -820,238 +825,254 @@ export default function NieuwAlarmScherm() {
   );
 }
 
-const styles = StyleSheet.create({
-  title: {
-    fontFamily: fonts.head700,
-    fontSize: 31,
-    letterSpacing: em(-0.06, 31),
-    marginBottom: 14,
-    color: kleuren.ink,
-  },
-  timeEditor: {
-    backgroundColor: kleuren.white,
-    borderRadius: 19,
-    paddingVertical: 20,
-    paddingHorizontal: 15,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: kleuren.line,
-  },
-  timeLabel: {
-    fontFamily: fonts.body800,
-    fontSize: 10,
-    letterSpacing: em(0.14, 10),
-    color: '#5F6E60',
-    marginBottom: 8,
-  },
-  eerste: {
-    backgroundColor: '#EDF4D5',
-    borderRadius: 15,
-    padding: 14,
-    marginBottom: 14,
-  },
-  eersteKop: { fontFamily: fonts.body800, fontSize: 13, color: kleuren.ink },
-  eersteTekst: {
-    fontFamily: fonts.body400,
-    fontSize: 12,
-    lineHeight: 17,
-    color: '#3D4A3F',
-    marginTop: 4,
-  },
-  timeHint: { fontFamily: fonts.body600, fontSize: 11, color: '#5F6E60', marginTop: 6 },
-  timeValue: {
-    fontFamily: fonts.head700,
-    fontSize: 55,
-    letterSpacing: em(-0.09, 55),
-    color: kleuren.ink,
-    textAlign: 'center',
-    minWidth: 215,
-  },
-  formLabelRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  formLabel: {
-    fontFamily: fonts.body800,
-    fontSize: 11,
-    color: kleuren.ink,
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  formLabelInRow: { fontFamily: fonts.body800, fontSize: 11, color: kleuren.ink },
-  formLabelHint: { fontFamily: fonts.body600, fontSize: 10, color: '#5F6E60' },
-  days: { flexDirection: 'row', justifyContent: 'space-between', gap: 5 },
-  dayChip: {
-    width: 37,
-    height: 37,
-    borderRadius: 12,
-    backgroundColor: '#E8ECE4',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dayChipActive: { backgroundColor: kleuren.ink },
-  dayChipText: { fontFamily: fonts.body800, fontSize: 11, color: '#5F6E60' },
-  dayChipTextActive: { color: kleuren.lime },
-  levelGrid: { gap: 6 },
-  levelRow: { flexDirection: 'row', gap: 6 },
-  levelChoice: {
-    flex: 1,
-    flexBasis: 0,
-    backgroundColor: kleuren.white,
-    borderWidth: 1,
-    borderColor: kleuren.line,
-    borderRadius: 12,
-    paddingVertical: 11,
-    paddingHorizontal: 5,
-    alignItems: 'center',
-  },
-  levelChoiceSelected: { backgroundColor: kleuren.lime, borderColor: kleuren.lime },
-  levelChoiceText: { fontFamily: fonts.body800, fontSize: 10, color: '#5F6E60' },
-  levelChoiceTextSelected: { color: kleuren.ink },
-  levelPlaceholder: { flex: 1, flexBasis: 0 },
-  levelExplain: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#E9EEE5',
-    borderRadius: 12,
-    paddingVertical: 11,
-    paddingHorizontal: 13,
-    marginTop: 8,
-  },
-  levelExplainText: {
-    flex: 1,
-    fontFamily: fonts.body400,
-    fontSize: 10,
-    lineHeight: 14,
-    color: '#657265',
-  },
-  exerciseOptions: { flexDirection: 'row', flexWrap: 'wrap', gap: 7 },
-  exercise: {
-    borderWidth: 1,
-    borderColor: '#DCE1D8',
-    borderRadius: 100,
-    backgroundColor: kleuren.white,
-    paddingVertical: 9,
-    paddingHorizontal: 12,
-  },
-  exerciseSelected: { borderColor: kleuren.ink, backgroundColor: '#EDF4D5' },
-  exerciseText: { fontFamily: fonts.body800, fontSize: 11, color: '#5F6E60' },
-  exerciseTextSelected: { color: kleuren.ink },
-  doelen: {
-    backgroundColor: kleuren.white,
-    borderWidth: 1,
-    borderColor: kleuren.line,
-    borderRadius: 15,
-    paddingHorizontal: 14,
-  },
-  doelRij: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10 },
-  doelRijRand: { borderTopWidth: 1, borderTopColor: kleuren.line },
-  doelNaam: { flex: 1, fontFamily: fonts.body800, fontSize: 12, color: kleuren.ink },
-  stepper: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
-    backgroundColor: '#E8ECE4',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stepperUit: { opacity: 0.4 },
-  stepperTekst: { fontFamily: fonts.body800, fontSize: 16, color: kleuren.ink },
-  doelWaarde: {
-    minWidth: 58,
-    textAlign: 'center',
-    fontFamily: fonts.head700,
-    fontSize: 18,
-    color: kleuren.ink,
-  },
-  doelEenheid: { fontFamily: fonts.body700, fontSize: 10, color: '#5F6E60' },
-  volgorde: { gap: 2, marginRight: 2 },
-  pijl: { fontSize: 10, color: kleuren.ink, paddingHorizontal: 2 },
-  oefen: { marginTop: 10 },
-  groepKop: {
-    fontFamily: fonts.body800,
-    fontSize: 10,
-    letterSpacing: em(0.12, 10),
-    color: '#5F6E60',
-    textTransform: 'uppercase',
-    marginTop: 4,
-    marginBottom: 8,
-  },
-  exerciseNieuw: { borderStyle: 'dashed', borderColor: kleuren.ink },
-  modalAchtergrond: { flex: 1, backgroundColor: 'rgba(16,23,20,0.5)', justifyContent: 'flex-end' },
-  modalKaart: {
-    backgroundColor: kleuren.paper,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: 22,
-    paddingBottom: 34,
-    maxHeight: '92%',
-  },
-  modalTitel: { fontFamily: fonts.head700, fontSize: 24, color: kleuren.ink },
-  emojis: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  emoji: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: kleuren.white,
-    borderWidth: 1,
-    borderColor: kleuren.line,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emojiGekozen: { borderColor: kleuren.ink, backgroundColor: '#EDF4D5' },
-  emojiTekst: { fontSize: 22 },
-  soorten: { flexDirection: 'row', gap: 8 },
-  soort: {
-    flex: 1,
-    backgroundColor: kleuren.white,
-    borderWidth: 1,
-    borderColor: kleuren.line,
-    borderRadius: 14,
-    padding: 12,
-  },
-  soortGekozen: { borderColor: kleuren.ink, backgroundColor: '#EDF4D5' },
-  soortNaam: { fontFamily: fonts.body800, fontSize: 13, color: kleuren.ink },
-  soortUitleg: { fontFamily: fonts.body400, fontSize: 11, color: '#5F6E60', marginTop: 3 },
-  extra: {
-    backgroundColor: kleuren.white,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: kleuren.line,
-    paddingHorizontal: 14,
-  },
-  extraRij: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
-  extraKolom: { flexDirection: 'column', alignItems: 'stretch', gap: 8 },
-  extraRand: { borderTopWidth: 1, borderTopColor: kleuren.line },
-  extraTekst: { flex: 1 },
-  extraLabel: { fontFamily: fonts.body800, fontSize: 12, color: kleuren.ink },
-  extraUitleg: { fontFamily: fonts.body400, fontSize: 11, color: '#5F6E60', marginTop: 2 },
-  geluiden: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
-  geluidKeuze: {
-    borderWidth: 1,
-    borderColor: kleuren.line,
-    borderRadius: 11,
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-  },
-  geluidGekozen: { backgroundColor: kleuren.lime, borderColor: kleuren.lime },
-  geluidTekst: { fontFamily: fonts.body800, fontSize: 11, color: '#5F6E60' },
-  geluidTekstGekozen: { color: kleuren.ink },
-  save: { marginTop: 22 },
-  delete: { marginTop: 10 },
-  naamInput: {
-    backgroundColor: kleuren.white,
-    borderWidth: 1,
-    borderColor: kleuren.line,
-    borderRadius: 15,
-    minHeight: 48,
-    paddingHorizontal: 16,
-    fontFamily: fonts.body700,
-    fontSize: 14,
-    color: kleuren.ink,
-  },
-});
+const useStyles = maakStijlen((k) =>
+  StyleSheet.create({
+    title: {
+      fontFamily: fonts.head700,
+      fontSize: 31,
+      letterSpacing: em(-0.06, 31),
+      marginBottom: 14,
+      color: k.ink,
+    },
+    timeEditor: {
+      backgroundColor: k.white,
+      borderRadius: 19,
+      paddingVertical: 20,
+      paddingHorizontal: 15,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: k.line,
+    },
+    timeLabel: {
+      fontFamily: fonts.body800,
+      fontSize: 10,
+      letterSpacing: em(0.14, 10),
+      color: k.tint('#5F6E60'),
+      marginBottom: 8,
+    },
+    eerste: {
+      backgroundColor: k.vlak('#EDF4D5'),
+      borderRadius: 15,
+      padding: 14,
+      marginBottom: 14,
+    },
+    eersteKop: { fontFamily: fonts.body800, fontSize: 13, color: k.ink },
+    eersteTekst: {
+      fontFamily: fonts.body400,
+      fontSize: 12,
+      lineHeight: 17,
+      color: k.tint('#3D4A3F'),
+      marginTop: 4,
+    },
+    timeHint: { fontFamily: fonts.body600, fontSize: 11, color: k.tint('#5F6E60'), marginTop: 6 },
+    timeValue: {
+      fontFamily: fonts.head700,
+      fontSize: 55,
+      letterSpacing: em(-0.09, 55),
+      color: k.ink,
+      textAlign: 'center',
+      minWidth: 215,
+    },
+    formLabelRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginTop: 20,
+      marginBottom: 10,
+    },
+    formLabel: {
+      fontFamily: fonts.body800,
+      fontSize: 11,
+      color: k.ink,
+      marginTop: 20,
+      marginBottom: 10,
+    },
+    formLabelInRow: { fontFamily: fonts.body800, fontSize: 11, color: k.ink },
+    formLabelHint: { fontFamily: fonts.body600, fontSize: 10, color: k.tint('#5F6E60') },
+    days: { flexDirection: 'row', justifyContent: 'space-between', gap: 5 },
+    dayChip: {
+      width: 37,
+      height: 37,
+      borderRadius: 12,
+      backgroundColor: k.vlak('#E8ECE4'),
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    dayChipActive: { backgroundColor: k.donkerVlak },
+    dayChipText: { fontFamily: fonts.body800, fontSize: 11, color: k.tint('#5F6E60') },
+    dayChipTextActive: { color: k.lime },
+    levelGrid: { gap: 6 },
+    levelRow: { flexDirection: 'row', gap: 6 },
+    levelChoice: {
+      flex: 1,
+      flexBasis: 0,
+      backgroundColor: k.white,
+      borderWidth: 1,
+      borderColor: k.line,
+      borderRadius: 12,
+      paddingVertical: 11,
+      paddingHorizontal: 5,
+      alignItems: 'center',
+    },
+    levelChoiceSelected: { backgroundColor: k.lime, borderColor: k.lime },
+    levelChoiceText: { fontFamily: fonts.body800, fontSize: 10, color: k.tint('#5F6E60') },
+    levelChoiceTextSelected: { color: k.opLime },
+    levelPlaceholder: { flex: 1, flexBasis: 0 },
+    levelExplain: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      backgroundColor: k.vlak('#E9EEE5'),
+      borderRadius: 12,
+      paddingVertical: 11,
+      paddingHorizontal: 13,
+      marginTop: 8,
+    },
+    levelExplainText: {
+      flex: 1,
+      fontFamily: fonts.body400,
+      fontSize: 10,
+      lineHeight: 14,
+      color: k.tint('#657265'),
+    },
+    exerciseOptions: { flexDirection: 'row', flexWrap: 'wrap', gap: 7 },
+    exercise: {
+      borderWidth: 1,
+      borderColor: k.rand('#DCE1D8'),
+      borderRadius: 100,
+      backgroundColor: k.white,
+      paddingVertical: 9,
+      paddingHorizontal: 12,
+    },
+    exerciseSelected: { borderColor: k.ink, backgroundColor: k.vlak('#EDF4D5') },
+    exerciseText: { fontFamily: fonts.body800, fontSize: 11, color: k.tint('#5F6E60') },
+    exerciseTextSelected: { color: k.ink },
+    doelen: {
+      backgroundColor: k.white,
+      borderWidth: 1,
+      borderColor: k.line,
+      borderRadius: 15,
+      paddingHorizontal: 14,
+    },
+    doelRij: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10 },
+    doelRijRand: { borderTopWidth: 1, borderTopColor: k.line },
+    doelNaam: { flex: 1, fontFamily: fonts.body800, fontSize: 12, color: k.ink },
+    stepper: {
+      width: 32,
+      height: 32,
+      borderRadius: 10,
+      backgroundColor: k.vlak('#E8ECE4'),
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    stepperUit: { opacity: 0.4 },
+    stepperTekst: { fontFamily: fonts.body800, fontSize: 16, color: k.ink },
+    doelWaarde: {
+      minWidth: 58,
+      textAlign: 'center',
+      fontFamily: fonts.head700,
+      fontSize: 18,
+      color: k.ink,
+    },
+    doelEenheid: { fontFamily: fonts.body700, fontSize: 10, color: k.tint('#5F6E60') },
+    volgorde: { gap: 2, marginRight: 2 },
+    pijl: { fontSize: 10, color: k.ink, paddingHorizontal: 2 },
+    oefen: { marginTop: 10 },
+    groepKop: {
+      fontFamily: fonts.body800,
+      fontSize: 10,
+      letterSpacing: em(0.12, 10),
+      color: k.tint('#5F6E60'),
+      textTransform: 'uppercase',
+      marginTop: 4,
+      marginBottom: 8,
+    },
+    exerciseNieuw: { borderStyle: 'dashed', borderColor: k.ink },
+    modalAchtergrond: {
+      flex: 1,
+      backgroundColor: 'rgba(16,23,20,0.5)',
+      justifyContent: 'flex-end',
+    },
+    modalKaart: {
+      backgroundColor: k.paper,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      padding: 22,
+      paddingBottom: 34,
+      maxHeight: '92%',
+    },
+    modalTitel: { fontFamily: fonts.head700, fontSize: 24, color: k.ink },
+    emojis: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+    emoji: {
+      width: 44,
+      height: 44,
+      borderRadius: 12,
+      backgroundColor: k.white,
+      borderWidth: 1,
+      borderColor: k.line,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    emojiGekozen: { borderColor: k.ink, backgroundColor: k.vlak('#EDF4D5') },
+    emojiTekst: { fontSize: 22 },
+    soorten: { flexDirection: 'row', gap: 8 },
+    soort: {
+      flex: 1,
+      backgroundColor: k.white,
+      borderWidth: 1,
+      borderColor: k.line,
+      borderRadius: 14,
+      padding: 12,
+    },
+    soortGekozen: { borderColor: k.ink, backgroundColor: k.vlak('#EDF4D5') },
+    soortNaam: { fontFamily: fonts.body800, fontSize: 13, color: k.ink },
+    soortUitleg: {
+      fontFamily: fonts.body400,
+      fontSize: 11,
+      color: k.tint('#5F6E60'),
+      marginTop: 3,
+    },
+    extra: {
+      backgroundColor: k.white,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: k.line,
+      paddingHorizontal: 14,
+    },
+    extraRij: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
+    extraKolom: { flexDirection: 'column', alignItems: 'stretch', gap: 8 },
+    extraRand: { borderTopWidth: 1, borderTopColor: k.line },
+    extraTekst: { flex: 1 },
+    extraLabel: { fontFamily: fonts.body800, fontSize: 12, color: k.ink },
+    extraUitleg: {
+      fontFamily: fonts.body400,
+      fontSize: 11,
+      color: k.tint('#5F6E60'),
+      marginTop: 2,
+    },
+    geluiden: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
+    geluidKeuze: {
+      borderWidth: 1,
+      borderColor: k.line,
+      borderRadius: 11,
+      paddingHorizontal: 10,
+      paddingVertical: 7,
+    },
+    geluidGekozen: { backgroundColor: k.lime, borderColor: k.lime },
+    geluidTekst: { fontFamily: fonts.body800, fontSize: 11, color: k.tint('#5F6E60') },
+    geluidTekstGekozen: { color: k.opLime },
+    save: { marginTop: 22 },
+    delete: { marginTop: 10 },
+    naamInput: {
+      backgroundColor: k.white,
+      borderWidth: 1,
+      borderColor: k.line,
+      borderRadius: 15,
+      minHeight: 48,
+      paddingHorizontal: 16,
+      fontFamily: fonts.body700,
+      fontSize: 14,
+      color: k.ink,
+    },
+  }),
+);

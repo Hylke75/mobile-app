@@ -10,6 +10,7 @@ const ICONS = {
     </>
   ),
   chart: <Path d="M4 20V10M10 20V4M16 20v-7M22 20v-12" />,
+  moon: <Path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />,
   user: (
     <>
       <Circle cx="12" cy="8" r="4" />

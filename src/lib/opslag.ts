@@ -33,6 +33,7 @@ export const SLEUTELS = {
   herinneringen: 'mooove.herinneringen',
   geluidPerAlarm: 'mooove.geluid-per-alarm',
   gevoelWachtrij: 'mooove.gevoel-wachtrij',
+  thema: 'mooove.thema',
 } as const;
 
 export async function wisLokaal(): Promise<void> {

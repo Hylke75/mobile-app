@@ -45,7 +45,7 @@ Native code: de app draait **niet in Expo Go**; gebruik een development build (`
 
 Talen: `src/i18n` (`useTaal()` in componenten, `t()` daarbuiten; groepen in `src/i18n/teksten/`). De taal volgt het toestel, met een keuze in Profiel (opgeslagen in AsyncStorage). iOS-toestemmingsteksten per taal in `locales/*.json`. Database-sleutels voor oefeningen en niveaus blijven Nederlands; tonen via `oefeningNaam`/`niveauNaam`. Store-teksten per taal: `docs/store/vertalingen.md`.
 
-Supabase: migraties in `supabase/migrations/`, Edge Functions in `supabase/functions/`, types in `src/types/database.ts` (bijwerken na elke migratie). Design tokens: `src/constants/theme.ts`; iconen: `src/components/Icon.tsx`; oefeningen: `src/constants/oefeningen.ts`.
+Supabase: migraties in `supabase/migrations/`, Edge Functions in `supabase/functions/`, types in `src/types/database.ts` (bijwerken na elke migratie). Design tokens: `src/constants/theme.ts` (`LICHT` is het ontwerp, `DONKER` wordt afgeleid via `vlak`/`tint`/`rand`; tekst op limegroen altijd `opLime`). Schermen met lichte achtergrond gebruiken `maakStijlen((k) => StyleSheet.create(…))` en `useKleuren()` uit `src/hooks/useThema.tsx`; de keuze Automatisch/Licht/Donker staat in Profiel. Wekker-, missie- en inlogschermen zijn altijd donker; iconen: `src/components/Icon.tsx`; oefeningen: `src/constants/oefeningen.ts`.
 
 ## Commando's
 
