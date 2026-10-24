@@ -9,7 +9,7 @@ const nl = {
   voorrang: '',
   over: {
     kop: 'Over deze verklaring',
-    a1: 'Mooove is een wekker-app die je helpt om \'s ochtends in beweging te komen. Mooove wordt aangeboden door Link & Lead ("wij"). Hier lees je welke gegevens we verwerken, waarom, en welke rechten je hebt.',
+    a1: 'Mooove is een wekker-app die je helpt om \'s ochtends in beweging te komen. Mooove wordt aangeboden door Hylke Thiry ("wij"). Hier lees je welke gegevens we verwerken, waarom, en welke rechten je hebt.',
   },
   gegevens: {
     kop: 'Welke gegevens verwerken we?',
@@ -58,7 +58,7 @@ const nl = {
   },
   contact: {
     kop: 'Contact',
-    a1: 'Link & Lead — hylke@linkandlead.nl',
+    a1: 'Hylke Thiry — hylke@linkandlead.nl',
   },
 };
 
@@ -72,7 +72,7 @@ export const privacy: Vertalingen<typeof nl> = {
       'This is a translation of the Dutch privacy policy. In case of any differences, the Dutch version prevails.',
     over: {
       kop: 'About this policy',
-      a1: 'Mooove is an alarm clock app that helps you get moving in the morning. Mooove is offered by Link & Lead ("we"). Here you can read which data we process, why, and what rights you have.',
+      a1: 'Mooove is an alarm clock app that helps you get moving in the morning. Mooove is offered by Hylke Thiry ("we"). Here you can read which data we process, why, and what rights you have.',
     },
     gegevens: {
       kop: 'What data do we process?',
@@ -121,7 +121,7 @@ export const privacy: Vertalingen<typeof nl> = {
     },
     contact: {
       kop: 'Contact',
-      a1: 'Link & Lead — hylke@linkandlead.nl',
+      a1: 'Hylke Thiry — hylke@linkandlead.nl',
     },
   },
   es: {
@@ -132,7 +132,7 @@ export const privacy: Vertalingen<typeof nl> = {
       'Esta es una traducción de la política de privacidad en neerlandés. En caso de diferencias, prevalece la versión neerlandesa.',
     over: {
       kop: 'Sobre esta política',
-      a1: 'Mooove es una app de alarma que te ayuda a ponerte en movimiento por la mañana. Mooove la ofrece Link & Lead ("nosotros"). Aquí puedes leer qué datos tratamos, por qué y qué derechos tienes.',
+      a1: 'Mooove es una app de alarma que te ayuda a ponerte en movimiento por la mañana. Mooove la ofrece Hylke Thiry ("nosotros"). Aquí puedes leer qué datos tratamos, por qué y qué derechos tienes.',
     },
     gegevens: {
       kop: '¿Qué datos tratamos?',
@@ -181,7 +181,7 @@ export const privacy: Vertalingen<typeof nl> = {
     },
     contact: {
       kop: 'Contacto',
-      a1: 'Link & Lead — hylke@linkandlead.nl',
+      a1: 'Hylke Thiry — hylke@linkandlead.nl',
     },
   },
   de: {
@@ -192,7 +192,7 @@ export const privacy: Vertalingen<typeof nl> = {
       'Dies ist eine Übersetzung der niederländischen Datenschutzerklärung. Bei Abweichungen gilt die niederländische Fassung.',
     over: {
       kop: 'Über diese Erklärung',
-      a1: 'Mooove ist eine Wecker-App, die dir hilft, morgens in Bewegung zu kommen. Mooove wird von Link & Lead („wir“) angeboten. Hier erfährst du, welche Daten wir verarbeiten, warum und welche Rechte du hast.',
+      a1: 'Mooove ist eine Wecker-App, die dir hilft, morgens in Bewegung zu kommen. Mooove wird von Hylke Thiry („wir“) angeboten. Hier erfährst du, welche Daten wir verarbeiten, warum und welche Rechte du hast.',
     },
     gegevens: {
       kop: 'Welche Daten verarbeiten wir?',
@@ -241,7 +241,7 @@ export const privacy: Vertalingen<typeof nl> = {
     },
     contact: {
       kop: 'Kontakt',
-      a1: 'Link & Lead — hylke@linkandlead.nl',
+      a1: 'Hylke Thiry — hylke@linkandlead.nl',
     },
   },
   fr: {
@@ -252,7 +252,7 @@ export const privacy: Vertalingen<typeof nl> = {
       'Ceci est une traduction de la politique de confidentialité néerlandaise. En cas de divergence, la version néerlandaise prévaut.',
     over: {
       kop: 'À propos de cette politique',
-      a1: 'Mooove est une app de réveil qui t’aide à te mettre en mouvement le matin. Mooove est proposée par Link & Lead (« nous »). Tu trouveras ici quelles données nous traitons, pourquoi, et quels sont tes droits.',
+      a1: 'Mooove est une app de réveil qui t’aide à te mettre en mouvement le matin. Mooove est proposée par Hylke Thiry (« nous »). Tu trouveras ici quelles données nous traitons, pourquoi, et quels sont tes droits.',
     },
     gegevens: {
       kop: 'Quelles données traitons-nous ?',
@@ -301,7 +301,7 @@ export const privacy: Vertalingen<typeof nl> = {
     },
     contact: {
       kop: 'Contact',
-      a1: 'Link & Lead — hylke@linkandlead.nl',
+      a1: 'Hylke Thiry — hylke@linkandlead.nl',
     },
   },
 };

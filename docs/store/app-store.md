@@ -3,6 +3,8 @@
 ## App-informatie
 
 - **Naam:** Mooove
+- **Verkoper / ontwikkelaar:** Hylke Thiry (Apple Developer Program als particulier)
+- **Copyright:** © 2026 Hylke Thiry
 - **Subtitel (max. 30):** Wekker die je laat bewegen
 - **Categorie:** Gezondheid en fitness (secundair: Lifestyle)
 - **Leeftijdsclassificatie:** 4+ (vragenlijst: overal "Geen"; geen onbeperkte webtoegang, geen gebruikerscontent, geen medische behandelinformatie, geen gokken, geen contests)

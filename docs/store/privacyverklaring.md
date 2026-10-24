@@ -2,7 +2,7 @@
 
 _Laatst bijgewerkt: 24 oktober 2026_
 
-Mooove is een wekker-app die je helpt om 's ochtends in beweging te komen. Mooove wordt aangeboden door Link & Lead ("wij"). In deze verklaring lees je welke gegevens we verwerken, waarom, en welke rechten je hebt.
+Mooove is een wekker-app die je helpt om 's ochtends in beweging te komen. Mooove wordt aangeboden door Hylke Thiry ("wij"). In deze verklaring lees je welke gegevens we verwerken, waarom, en welke rechten je hebt.
 
 ## Welke gegevens verwerken we?
 
@@ -52,4 +52,4 @@ Gegevens worden versleuteld verzonden (HTTPS). Je sessie wordt versleuteld op je
 
 ## Contact
 
-Link & Lead — hylke@linkandlead.nl
+Hylke Thiry — hylke@linkandlead.nl
