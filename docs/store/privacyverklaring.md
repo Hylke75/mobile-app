@@ -1,6 +1,6 @@
 # Privacyverklaring Mooove
 
-_Laatst bijgewerkt: 23 oktober 2026_
+_Laatst bijgewerkt: 24 oktober 2026_
 
 Mooove is een wekker-app die je helpt om 's ochtends in beweging te komen. Mooove wordt aangeboden door Link & Lead ("wij"). In deze verklaring lees je welke gegevens we verwerken, waarom, en welke rechten je hebt.
 
@@ -10,13 +10,17 @@ Mooove is een wekker-app die je helpt om 's ochtends in beweging te komen. Mooov
 | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ------------------------- |
 | E-mailadres                                                                                   | Inloggen met een eenmalige code en je account beheren                       | Zolang je account bestaat |
 | Voornaam                                                                                      | Je in de app begroeten                                                      | Zolang je account bestaat |
-| Alarmen (tijd, dagen, niveau, gekozen oefeningen, naam)                                       | Je alarmen op je toestel inplannen en op al je toestellen beschikbaar maken | Zolang je account bestaat |
+| Alarmen (tijd, dagen, niveau, gekozen oefeningen en aantallen, naam)                          | Je alarmen op je toestel inplannen en op al je toestellen beschikbaar maken | Zolang je account bestaat |
 | Missieresultaten (start- en eindtijd, oefeningen, aantal herhalingen, voltooid of afgebroken) | Je streak, voortgang en badges tonen                                        | Zolang je account bestaat |
 | Weekdoel en datum van je laatste geslaagde alarmtest                                          | Je instellingen en alarm-check tonen                                        | Zolang je account bestaat |
 
 ## Camera
 
 Mooove gebruikt de camera tijdens een missie om oefeningen te herkennen (bijvoorbeeld het tellen van squats), om te meten of het lichter wordt als je de gordijnen opent, en voor een foto als bevestiging dat je bed is opgemaakt. **Deze beelden worden uitsluitend op je eigen toestel verwerkt. Ze worden nooit opgeslagen, nooit naar onze servers gestuurd en nooit met anderen gedeeld.** De bevestigingsfoto wordt direct na het maken weer verwijderd.
+
+## Alleen op je toestel
+
+Een eigen alarmgeluid dat je kiest, blijft op je toestel en wordt niet naar ons verstuurd. Hetzelfde geldt voor de lokale kopie van je alarmen en voortgang, die Mooove bewaart zodat de app ook zonder internet werkt.
 
 ## Wat we niet doen
 

@@ -17,7 +17,7 @@ Appconfiguratie staat in `app.config.ts` (naam, slug `mobile-app`, bundle ID / p
 
 ## Huidige status van de app
 
-De app is volledig functioneel (Mooove Coach blijft een aangekondigd V2-concept):
+De app is volledig functioneel. Mooove Coach (V2-concept) is voor de eerste release uit de app gehaald (App Store-richtlijn 2.1: geen placeholder-functies); het ontwerp staat nog in `docs/ontwerp/`.
 
 - **Account** — inloggen met e-mailcode (Supabase OTP), voornaam en weekdoel in `profiles`, uitloggen en account verwijderen (Edge Function `delete-account`, alle data via `on delete cascade`).
 - **Alarmen** — tabel `alarms` (incl. eigen aantal per oefening in `doelen`); eigen alarmgeluid per toestel (Profiel); aanmaken, bewerken, aan/uit en verwijderen in `src/hooks/useAlarmen.tsx`. Native planning via `react-native-alarm-scheduler` (iOS AlarmKit vanaf iOS 26, Android exact alarm met volledig scherm) in `src/lib/alarmen.ts`; synchronisatie op basis van `metadata.versie`.
@@ -26,7 +26,8 @@ De app is volledig functioneel (Mooove Coach blijft een aangekondigd V2-concept)
 - **Offline** — profiel en alarmen worden lokaal gecachet (`src/lib/opslag.ts`, AsyncStorage); missies die niet direct opgeslagen kunnen worden, gaan in een wachtrij en worden later verstuurd. Native alarmen worden opnieuw gesynchroniseerd bij elke terugkeer naar de voorgrond en na elk afgerond alarm.
 - **Missie** — `app/missie.tsx` met `src/components/missie/StapDetector.tsx`: pose-herkenning op het toestel (`react-native-nitro-pose-exercises`, Apple Vision / ML Kit, VisionCamera v5) voor squats, push-ups, jumping jacks en plank; lichtmeting op het Y-vlak voor gordijnen; foto-bevestiging (niet opgeslagen) voor bed opmaken. Handmatig afvinken alleen bij Vrij/Flexibel/Uitstelbaar of zonder alarmmodule. Gesproken coaching via `expo-speech`.
 - **Voortgang** — tabel `missie_sessies`; streak (met rustdagen volgens het weekdoel), percentages, reps, weekgrafiek, weekdoel en badges in `src/lib/statistiek.ts`.
-- **Reviewers** — na 2 seconden lang drukken op het logo van het inlogscherm kan een testaccount met wachtwoord inloggen (`appreview@linkandlead.nl`; wachtwoord staat niet in de repo). Store-teksten, privacyverklaring en screenshots staan in `docs/store/`.
+- **Reviewers** — via "Inloggen met wachtwoord" op het inlogscherm kan een testaccount inloggen (`appreview@linkandlead.nl`; wachtwoord staat niet in de repo). Store-teksten, reviewnotities, privacyverklaring en screenshots staan in `docs/store/`. De privacyverklaring staat ook in de app (`app/privacy.tsx`, bereikbaar vanaf inloggen en Profiel; tekst in `src/constants/privacyverklaring.ts`, gelijk houden met `docs/store/privacyverklaring.md` en `site/privacy.html`).
+- **App Store-eisen** — privacymanifest (`ios.privacyManifests`), microfoon-tekst (de camerabibliotheek bevat microfooncode), `ITSAppUsesNonExemptEncryption: false` en gezondheidsnotities (welkom, missie) staan in de app.
 - **Alarm-check** — echte rechtenstatus (meldingen, alarmen, camera, batterijbesparing op Android), klaarzet-scherm na de eerste login (`app/klaarzetten.tsx`) en een echt testalarm van 30 seconden (`src/hooks/useAlarmCheck.ts`).
 
 Native code: de app draait **niet in Expo Go**; gebruik een development build (`eas build --profile development`). Op web werken alarmen en camera niet (`*.web.ts(x)`-varianten); handig voor UI-tests.
@@ -62,11 +63,13 @@ Draai `lint`, `typecheck` en `test` voordat een taak af is.
 - [ ] Privacyverklaring online zetten (kant-en-klare statische site in `site/`: `/`, `/privacy`, `/account-verwijderen`) en de URL invullen in App Store Connect en Google Play Console
 - [x] Account verwijderen kan in de app zelf (Profiel → Account verwijderen)
 - [ ] Web-URL voor verwijderverzoeken (verplicht voor Google Play): `/account-verwijderen` van de site in `site/`
-- [ ] App Store privacylabels (App Privacy) ingevuld
+- [ ] App Store privacylabels (App Privacy) ingevuld volgens `docs/store/app-store.md`
+- [ ] Supabase: e-mailtemplate "Magic Link" bevat `{{ .Token }}` en eigen SMTP ingesteld
+- [ ] iOS development build getest op een iPhone met iOS 26 (alarm, snooze, missie, noodstop)
 - [ ] Google Play Data safety-formulier ingevuld
 - [x] Screenshots iPhone 6,9" en 6,5" en Android, plus feature graphic (`docs/store/screenshots/`); iPad is uitgeschakeld
 - [x] Testaccount voor de reviewers van Apple en Google (`appreview@linkandlead.nl`, met voorbeelddata)
 - [ ] Google Play: declaratie voor `SCHEDULE_EXACT_ALARM`, `USE_FULL_SCREEN_INTENT` en de foreground service (type `specialUse`, reden: "de service speelt het alarm af tot de gebruiker zijn wekmissie heeft afgerond")
-- [ ] App Store: uitleg aan de reviewer dat camerabeelden alleen op het toestel worden verwerkt
+- [x] App Store: reviewnotities (camera, alarmniveaus, noodstop, account) staan in `docs/store/app-store.md`
 - [ ] Definitief icoon en splash (nu het conceptlogo `m.` uit `docs/ontwerp/`)
 - [ ] `version` in `app.config.ts` opgehoogd per release (build-nummers beheert EAS automatisch)

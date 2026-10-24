@@ -102,6 +102,7 @@ function RootNavigator() {
           name="missie"
           options={{ contentStyle: { backgroundColor: kleuren.ink }, gestureEnabled: false }}
         />
+        <Stack.Screen name="privacy" />
         <Stack.Screen
           name="wekker"
           options={{ contentStyle: { backgroundColor: kleuren.ink }, gestureEnabled: false }}

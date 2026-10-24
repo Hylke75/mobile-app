@@ -15,12 +15,11 @@ const TABS: { route: string; icon: IconNaam; label: string }[] = [
 export function TabBar({ state, navigateToTab }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const huidig = state.routes[state.index]?.name;
-  const actief = huidig === 'coach' ? 'profiel' : huidig;
 
   return (
     <View style={[styles.nav, { paddingBottom: Math.max(insets.bottom, 18) }]}>
       {TABS.map((tab) => {
-        const isActief = actief === tab.route;
+        const isActief = huidig === tab.route;
         return (
           <Pressable
             key={tab.route}

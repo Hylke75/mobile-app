@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { Text, TextInput } from 'react-native';
+import { StyleSheet, Text, TextInput } from 'react-native';
 
 import { AuthScreen } from '@/components/AuthScreen';
 import { authStyles as s } from '@/components/authStyles';
@@ -51,6 +51,14 @@ export default function WelkomScherm() {
         onPress={bezig ? () => {} : opslaan}
         style={s.knop}
       />
+      <Text style={[s.tekst, styles.gezondheid]}>
+        Mooove is geen medisch hulpmiddel. Beweeg binnen je eigen grenzen en overleg met je arts als
+        je twijfelt of je een oefening kunt doen.
+      </Text>
     </AuthScreen>
   );
 }
+
+const styles = StyleSheet.create({
+  gezondheid: { fontSize: 12, lineHeight: 17, marginTop: 20, marginBottom: 0 },
+});

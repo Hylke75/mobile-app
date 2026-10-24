@@ -37,19 +37,15 @@ export default function InloggenScherm() {
   };
 
   return (
-    <AuthScreen
-      onLogoLangIngedrukt={() => {
-        setMetWachtwoord(true);
-        setFout(null);
-      }}
-    >
+    <AuthScreen>
       <StatusBar style="light" />
       <Text style={s.kicker}>STOP SNOOZING. START MOVING.</Text>
       <Text style={s.titel}>
         Wake up{'\n'}& <Text style={s.accent}>move.</Text>
       </Text>
       <Text style={s.tekst}>
-        Log in met je e-mailadres. Je krijgt een eenmalige code per e-mail.
+        Log in met je e-mailadres. Je krijgt een eenmalige code per e-mail. Met een account bewaren
+        we je alarmen, streak en voortgang, ook als je een nieuwe telefoon neemt.
       </Text>
       <Text style={s.label}>E-MAILADRES</Text>
       <TextInput
@@ -89,18 +85,21 @@ export default function InloggenScherm() {
         onPress={bezig ? () => {} : verstuur}
         style={s.knop}
       />
-      {metWachtwoord && (
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => {
-            setMetWachtwoord(false);
-            setFout(null);
-          }}
-          style={s.link}
-        >
-          <Text style={s.linkTekst}>Inloggen met een code</Text>
-        </Pressable>
-      )}
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => {
+          setMetWachtwoord(!metWachtwoord);
+          setFout(null);
+        }}
+        style={s.link}
+      >
+        <Text style={s.linkTekst}>
+          {metWachtwoord ? 'Inloggen met een code' : 'Inloggen met wachtwoord'}
+        </Text>
+      </Pressable>
+      <Pressable accessibilityRole="link" onPress={() => router.push('/privacy')} style={s.link}>
+        <Text style={s.linkTekst}>Privacyverklaring</Text>
+      </Pressable>
     </AuthScreen>
   );
 }

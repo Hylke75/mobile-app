@@ -9,5 +9,5 @@ appId: nl.linkandlead.mobileapp
 - assertVisible: 'SHOW UP. LEVEL UP.'
 - tapOn: 'Profiel'
 - assertVisible: 'Alarm-check'
-- tapOn: 'Fysio & trainer'
-- assertVisible: 'Mooove Coach.*'
+- tapOn: 'Privacy'
+- assertVisible: 'Welke gegevens verwerken we?'

@@ -355,6 +355,9 @@ export default function MissieScherm() {
       <Pressable accessibilityRole="button" onPress={noodstop} style={styles.emergency}>
         <Text style={styles.emergencyText}>Noodstop</Text>
       </Pressable>
+      <Text style={styles.gezondheid}>
+        Beweeg binnen je eigen grenzen. Pijn of duizelig? Stop en gebruik de noodstop.
+      </Text>
     </Screen>
   );
 }
@@ -480,6 +483,14 @@ const styles = StyleSheet.create({
   },
   outlineBtnText: { fontFamily: fonts.body800, fontSize: 11, color: kleuren.white },
   emergency: { alignSelf: 'center', marginTop: 17, padding: 4 },
+  gezondheid: {
+    fontFamily: fonts.body400,
+    fontSize: 11,
+    lineHeight: 16,
+    color: '#9CB09C',
+    textAlign: 'center',
+    marginTop: 8,
+  },
   emergencyText: {
     fontFamily: fonts.body400,
     fontSize: 10,

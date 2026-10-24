@@ -29,6 +29,7 @@ import {
 } from '@/lib/alarmen';
 
 const TEST_SECONDEN = 30;
+const CONTACT_EMAIL = 'hylke@linkandlead.nl';
 
 function doelTekst(weekdoel: number): string {
   return weekdoel === 7 ? 'Iedere dag bewegen' : `${weekdoel} dagen per week`;
@@ -249,15 +250,6 @@ export default function ProfielScherm() {
       <Text style={styles.sectionHeading}>MEER MOOOVE</Text>
       <Pressable
         accessibilityRole="button"
-        onPress={() => router.navigate('/coach')}
-        style={styles.setting}
-      >
-        <Icon name="heart" color={kleuren.ink} />
-        <Text style={styles.settingLabel}>Fysio & trainer</Text>
-        <Text style={styles.settingValue}>Bekijk concept →</Text>
-      </Pressable>
-      <Pressable
-        accessibilityRole="button"
         onPress={() => setDoelOpen(true)}
         style={styles.setting}
       >
@@ -285,17 +277,25 @@ export default function ProfielScherm() {
       </Pressable>
       <Pressable
         accessibilityRole="button"
-        onPress={() =>
-          Alert.alert(
-            'Privacy',
-            'Camerabeelden worden alleen op je toestel verwerkt en nooit opgeslagen of verstuurd. We bewaren alleen je naam, e-mailadres, alarmen en de uitkomst van je missies.',
-          )
-        }
+        onPress={() => router.push('/privacy')}
         style={styles.setting}
       >
         <Icon name="shield" color={kleuren.ink} />
         <Text style={styles.settingLabel}>Privacy</Text>
-        <Text style={styles.settingValue}>Op je toestel</Text>
+        <Text style={styles.settingValue}>Lees de verklaring →</Text>
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        onPress={() =>
+          Linking.openURL(`mailto:${CONTACT_EMAIL}?subject=Vraag over Mooove`).catch(() =>
+            showToast(`Mail ons op ${CONTACT_EMAIL}`),
+          )
+        }
+        style={styles.setting}
+      >
+        <Icon name="info" color={kleuren.ink} />
+        <Text style={styles.settingLabel}>Hulp & contact</Text>
+        <Text style={styles.settingValue}>Mail ons →</Text>
       </Pressable>
 
       <Text style={styles.sectionHeading}>ACCOUNT</Text>

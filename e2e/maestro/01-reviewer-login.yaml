@@ -5,9 +5,7 @@ appId: nl.linkandlead.mobileapp
 - launchApp:
     clearState: true
 - assertVisible: 'Stuur mij een code'
-# Lang drukken op het logo toont het wachtwoordveld
-- longPressOn:
-    point: '12%,8%'
+- tapOn: 'Inloggen met wachtwoord'
 - assertVisible: 'WACHTWOORD'
 - tapOn: 'E-mailadres'
 - inputText: 'appreview@linkandlead.nl'

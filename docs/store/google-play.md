@@ -20,7 +20,8 @@
 | Persoonlijke info → Naam                                                                | Verzameld, verplicht, voor app-functionaliteit                      |
 | App-activiteit → Andere door gebruiker gegenereerde content (alarmen, missieresultaten) | Verzameld, verplicht, voor app-functionaliteit                      |
 | Foto's en video's                                                                       | **Niet verzameld** (alleen verwerkt op het toestel, niet verzonden) |
-| Locatie, gezondheid, financiële info, contacten                                         | Niet verzameld                                                      |
+| Gezondheid en fitness → Fitnessinfo (herhalingen, voltooide oefeningen)                 | Verzameld, verplicht, voor app-functionaliteit                      |
+| Locatie, gezondheidsinfo (medisch), financiële info, contacten, audio                   | Niet verzameld                                                      |
 
 **URL voor verwijderverzoeken:** _URL van de gepubliceerde `account-verwijderen.md`_
 
@@ -45,7 +46,7 @@
 ## App-toegang (voor reviewers)
 
 - **Inloggegevens:** appreview@linkandlead.nl, wachtwoord: _niet in de repo_
-- **Instructies:** "Houd op het inlogscherm het logo 'm.' linksboven 2 seconden ingedrukt; dan verschijnt het wachtwoordveld. Profiel → 'Test je alarm' laat na 30 seconden een alarm afgaan."
+- **Instructies:** "Tik op het inlogscherm op 'Inloggen met wachtwoord'. Profiel → 'Test je alarm' laat na 30 seconden een alarm afgaan."
 
 ## Inhoudsclassificatie
 
