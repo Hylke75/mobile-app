@@ -18,7 +18,7 @@ cp .env.example .env   # vul EXPO_PUBLIC_SUPABASE_URL en EXPO_PUBLIC_SUPABASE_AN
 npx expo start
 ```
 
-Controleren: `npm run lint` en `npm run typecheck`.
+Controleren: `npm run lint`, `npm run typecheck` en `npm test` (Jest). GitHub Actions draait deze controles bij elke push (`.github/workflows/controle.yml`). End-to-end-flows voor Maestro staan in `e2e/maestro/`.
 
 ## Supabase instellen (eenmalig)
 
@@ -59,6 +59,18 @@ Eenmalig: `npx eas-cli@latest login`.
 Voor interne iOS-builds moet je testtoestel geregistreerd zijn: `npx eas-cli@latest device:create`.
 
 De omgevingsvariabelen uit `.env` worden niet automatisch meegenomen naar EAS. Zet ze in het Expo-dashboard (Project → Environment variables) of via `npx eas-cli@latest env:create`.
+
+Build-nummers worden door EAS beheerd (`appVersionSource: remote`) en bij elke productie-build automatisch opgehoogd. Verhoog alleen `version` in `app.config.ts` bij een nieuwe release.
+
+## Updates zonder nieuwe build
+
+JavaScript-wijzigingen kunnen zonder store-review naar bestaande builds met dezelfde `version`:
+
+```bash
+npx eas-cli@latest update --channel production --message "Korte omschrijving"
+```
+
+Wijzigingen aan native modules of `app.config.ts` vragen altijd een nieuwe build.
 
 ## Indienen via EAS Submit
 
