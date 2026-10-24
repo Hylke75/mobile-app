@@ -122,6 +122,11 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
     // Eerst de lokale kopie, zodat alarmen ook offline direct zichtbaar zijn
     leesLokaal<Opgeslagen>(SLEUTELS.alarmen).then((lokaal) => {
       if (actief && lokaal?.eigenaar === userId && !serverGeladen.current) {
+        // Oudere caches kennen nog geen doelen per oefening
+        lokaal = {
+          ...lokaal,
+          alarms: lokaal.alarms.map((a) => ({ ...a, doelen: a.doelen ?? {} })),
+        };
         huidig.current = lokaal.alarms;
         lijstBekend.current = true;
         deblokkeerSynchronisatie();

@@ -115,8 +115,9 @@ export function doelTekst(oefening: Oefening, doelen?: Doelen): string {
 }
 
 // Compacte vorm voor native metadata en routeparameters, bijv. "Squats:15,Plank:45"
-export function doelenNaarTekst(doelen: Doelen): string {
-  return Object.entries(doelen)
+export function doelenNaarTekst(doelen: Doelen | undefined): string {
+  // Alarmen uit een oudere cache hebben nog geen doelen
+  return Object.entries(doelen ?? {})
     .map(([o, n]) => `${o}:${n}`)
     .join(',');
 }

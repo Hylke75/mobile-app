@@ -33,6 +33,7 @@ describe('doelen per oefening', () => {
     expect(doelenUitTekst(doelenNaarTekst(doelen))).toEqual(doelen);
     expect(doelenUitTekst('Onbekend:3,Squats:x')).toEqual({});
     expect(doelenUitTekst(undefined)).toEqual({});
+    expect(doelenNaarTekst(undefined)).toBe('');
   });
 
   it('leest alleen geldige doelen uit de database', () => {
