@@ -200,7 +200,7 @@ function telefoon(taal, scherm, alt, klasse = '', laden = 'lazy') {
 
 export function landing(
   taal,
-  { talen, taalnamen, url, hreflang, privacyLabel, verwijderLabel, mail },
+  { talen, taalnamen, url, hreflang, privacyLabel, verwijderLabel, mail, domein },
 ) {
   const x = LANDING[taal];
   const b = x.schermen.bijschriften;
@@ -215,7 +215,7 @@ export function landing(
 
   return `<!doctype html><html lang="${taal}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(x.titel)}</title><meta name="description" content="${esc(x.beschrijving)}">
-<meta property="og:title" content="${esc(x.titel)}"><meta property="og:description" content="${esc(x.beschrijving)}"><meta property="og:type" content="website">
+<meta property="og:title" content="${esc(x.titel)}"><meta property="og:description" content="${esc(x.beschrijving)}"><meta property="og:type" content="website"><meta property="og:url" content="${domein}${url(taal, 'index')}"><meta property="og:image" content="${domein}/beelden/${taal}/01-vandaag.webp"><meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#101714"><link rel="icon" href="${FAVICON}">${hreflang('index')}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">

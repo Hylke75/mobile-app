@@ -106,10 +106,10 @@ Disponible en français, anglais, néerlandais, espagnol et allemand. Mooove né
 
 Na het online zetten van `site/` (zie de checklist in `CLAUDE.md`) per taal invullen in App Store Connect en Google Play Console:
 
-| Taal       | Privacyverklaring | Account verwijderen       |
-| ---------- | ----------------- | ------------------------- |
-| Nederlands | `/privacy`        | `/account-verwijderen`    |
-| Engels     | `/en/privacy`     | `/en/account-verwijderen` |
-| Spaans     | `/es/privacy`     | `/es/account-verwijderen` |
-| Duits      | `/de/privacy`     | `/de/account-verwijderen` |
-| Frans      | `/fr/privacy`     | `/fr/account-verwijderen` |
+| Taal       | Privacyverklaring                  | Account verwijderen                            |
+| ---------- | ---------------------------------- | ---------------------------------------------- |
+| Nederlands | `https://mooov-app.com/privacy`    | `https://mooov-app.com/account-verwijderen`    |
+| Engels     | `https://mooov-app.com/en/privacy` | `https://mooov-app.com/en/account-verwijderen` |
+| Spaans     | `https://mooov-app.com/es/privacy` | `https://mooov-app.com/es/account-verwijderen` |
+| Duits      | `https://mooov-app.com/de/privacy` | `https://mooov-app.com/de/account-verwijderen` |
+| Frans      | `https://mooov-app.com/fr/privacy` | `https://mooov-app.com/fr/account-verwijderen` |

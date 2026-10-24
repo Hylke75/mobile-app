@@ -12,6 +12,7 @@ const HIER = path.dirname(fileURLToPath(import.meta.url));
 const SITE = path.join(HIER, '..', 'site');
 const BIJGEWERKT = new Date(2026, 9, 24);
 const MAIL = 'hylke@linkandlead.nl';
+export const DOMEIN = 'https://mooov-app.com';
 const TALEN = ['nl', 'en', 'es', 'de', 'fr'];
 const TAALNAMEN = { nl: 'Nederlands', en: 'English', es: 'Español', de: 'Deutsch', fr: 'Français' };
 const LOCALES = { en: 'en-GB', es: 'es-ES', de: 'de-DE', fr: 'fr-FR' };
@@ -135,15 +136,20 @@ function talenlijst(huidig, pagina) {
   ).join(' · ');
 }
 
-function hreflang(pagina) {
-  return TALEN.map(
-    (taal) => `<link rel="alternate" hreflang="${taal}" href="${url(taal, pagina)}">`,
-  ).join('');
+// Absolute links voor zoekmachines: canonical per pagina en hreflang voor alle talen
+function hreflang(pagina, huidig) {
+  return [
+    huidig ? `<link rel="canonical" href="${DOMEIN}${url(huidig, pagina)}">` : '',
+    ...TALEN.map(
+      (taal) => `<link rel="alternate" hreflang="${taal}" href="${DOMEIN}${url(taal, pagina)}">`,
+    ),
+    `<link rel="alternate" hreflang="x-default" href="${DOMEIN}${url('nl', pagina)}">`,
+  ].join('');
 }
 
 function pagina(taal, soort, titel, inhoud) {
   const x = TEKST[taal];
-  return `<!doctype html><html lang="${taal}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${titel}</title><meta name="description" content="${esc(x.beschrijving)}">${hreflang(soort)}${stijl}</head><body>
+  return `<!doctype html><html lang="${taal}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${titel}</title><meta name="description" content="${esc(x.beschrijving)}">${hreflang(soort, taal)}${stijl}</head><body>
 <header><a href="${url(taal, 'index')}"><span class="glyph"><b>m<i>.</i></b></span><span class="word">mooove<span>.</span></span></a></header>
 <main>${inhoud}</main><footer>© 2026 Hylke Thiry · <a href="${url(taal, 'privacy')}">${x.privacy}</a> · <a href="${url(taal, 'verwijderen')}">${x.verwijderen}</a><br>${x.taal}: ${talenlijst(taal, soort)}</footer></body></html>
 `;
@@ -213,13 +219,34 @@ for (const taal of TALEN) {
       talen: TALEN,
       taalnamen: TAALNAMEN,
       url,
-      hreflang,
+      hreflang: (soort) => hreflang(soort, taal),
+      domein: DOMEIN,
       privacyLabel: LABELS[taal].privacy,
       verwijderLabel: LABELS[taal].verwijderen,
       mail: MAIL,
     }),
   );
 }
+
+// Zoekmachines: sitemap met alle openbare pagina's, beheer uitgesloten
+const PAGINAS = ['index', 'privacy', 'verwijderen'];
+fs.writeFileSync(
+  path.join(SITE, 'sitemap.xml'),
+  `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${PAGINAS.flatMap((soort) =>
+  TALEN.map(
+    (taal) =>
+      `  <url><loc>${DOMEIN}${url(taal, soort)}</loc>${TALEN.map((t) => `<xhtml:link rel="alternate" hreflang="${t}" href="${DOMEIN}${url(t, soort)}"/>`).join('')}</url>`,
+  ),
+).join('\n')}
+</urlset>
+`,
+);
+fs.writeFileSync(
+  path.join(SITE, 'robots.txt'),
+  `User-agent: *\nDisallow: /admin\n\nSitemap: ${DOMEIN}/sitemap.xml\n`,
+);
 
 // Beheeromgeving: alleen publieke sleutels (zelfde als de app), de toegang regelt de Edge Function
 const sbUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;

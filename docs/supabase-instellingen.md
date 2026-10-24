@@ -39,3 +39,7 @@ select u.email from public.admins a join auth.users u on u.id = a.user_id;
 ```
 
 Inloggen op `/admin` gaat met een e-mailcode (vereist het e-mailtemplate met `{{ .Token }}`) of met een wachtwoord op het account.
+
+## Domein
+
+De site staat op `https://mooov-app.com`. Zet in Supabase onder **Authentication → URL Configuration** de **Site URL** op `https://mooov-app.com` en voeg `https://mooov-app.com/admin` toe aan de **Redirect URLs**. Inloggen gaat met een code, dus links in e-mails zijn niet nodig, maar zo verwijst Supabase nooit naar een verkeerd adres.

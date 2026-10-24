@@ -8,8 +8,9 @@
 - **Subtitel (max. 30):** Wekker die je laat bewegen
 - **Categorie:** Gezondheid en fitness (secundair: Lifestyle)
 - **Leeftijdsclassificatie:** 4+ (vragenlijst: overal "Geen"; geen onbeperkte webtoegang, geen gebruikerscontent, geen medische behandelinformatie, geen gokken, geen contests)
-- **Privacybeleid-URL:** `https://<jouw-domein>/privacy` (statische site in `site/`; moet online staan vóór het indienen)
-- **Support-URL:** `https://<jouw-domein>/` (bevat contactgegevens)
+- **Privacybeleid-URL:** `https://mooov-app.com/privacy` (statische site in `site/`; moet online staan vóór het indienen; per taal zie `vertalingen.md`)
+- **Support-URL:** `https://mooov-app.com/` (bevat contactgegevens)
+- **Marketing-URL:** `https://mooov-app.com/`
 - **Exportcompliance:** al beantwoord in de build (`ITSAppUsesNonExemptEncryption = false`, alleen standaard HTTPS)
 - **Inhoudsrechten:** geen inhoud van derden
 

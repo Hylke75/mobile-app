@@ -7,7 +7,8 @@
 - **Volledige beschrijving:** gebruik de beschrijving uit `app-store.md` en vervang de regel over iOS 26 door: "Werkt op Android 8.0 en nieuwer."
 - **Categorie:** Gezondheid en fitness
 - **Contact-e-mail:** hylke@linkandlead.nl
-- **Privacybeleid-URL:** _URL van de gepubliceerde `privacyverklaring.md`_
+- **Privacybeleid-URL:** `https://mooov-app.com/privacy`
+- **Website:** `https://mooov-app.com/`
 
 ## Gegevensveiligheid (Data safety)
 
@@ -24,7 +25,7 @@
 | Gezondheid en fitness → Fitnessinfo (herhalingen, voltooide oefeningen)                 | Verzameld, verplicht, voor app-functionaliteit                      |
 | Locatie, gezondheidsinfo (medisch), financiële info, contacten, audio                   | Niet verzameld                                                      |
 
-**URL voor verwijderverzoeken:** _URL van de gepubliceerde `account-verwijderen.md`_
+**URL voor verwijderverzoeken:** `https://mooov-app.com/account-verwijderen`
 
 ## Declaraties voor rechten
 
