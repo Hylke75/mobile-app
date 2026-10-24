@@ -1,0 +1,24 @@
+# Maakt een alarm aan met een eigen aantal squats en verwijdert het weer.
+# Vereist een ingelogde sessie (draai eerst 01-reviewer-login.yaml).
+appId: nl.linkandlead.mobileapp
+---
+- launchApp
+- tapOn: 'Alarmen'
+- tapOn: 'Maak een alarm'
+- assertVisible: 'Nieuw alarm.*'
+- tapOn: 'Naam van het alarm'
+- eraseText
+- inputText: 'Maestro-test'
+- tapOn: 'Meer Squats'
+- assertVisible: '15 herhalingen Squats'
+- scrollUntilVisible:
+    element: 'Alarm opslaan'
+- tapOn: 'Alarm opslaan'
+- assertVisible: 'Maestro-test'
+- tapOn: 'Maestro-test om .* bewerken'
+- assertVisible: 'Alarm bewerken.*'
+- scrollUntilVisible:
+    element: 'Alarm verwijderen'
+- tapOn: 'Alarm verwijderen'
+- tapOn: 'Verwijderen'
+- assertNotVisible: 'Maestro-test'

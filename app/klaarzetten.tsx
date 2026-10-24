@@ -68,7 +68,10 @@ export default function KlaarzettenScherm() {
 
   const klaar = async (naarTest: boolean) => {
     await schrijfLokaal(SLEUTELS.klaargezet, true);
-    router.replace(naarTest ? '/profiel' : '/');
+    // Terug naar de tabs die er al onder liggen, zonder een tweede kopie te openen
+    if (router.canGoBack()) router.back();
+    else router.replace('/');
+    if (naarTest) router.navigate('/profiel');
   };
 
   return (

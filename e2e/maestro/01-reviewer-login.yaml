@@ -1,0 +1,22 @@
+# Logt in met het reviewer-account. Start met:
+# maestro test -e WACHTWOORD=... e2e/maestro/01-reviewer-login.yaml
+appId: nl.linkandlead.mobileapp
+---
+- launchApp:
+    clearState: true
+- assertVisible: 'Stuur mij een code'
+# Lang drukken op het logo toont het wachtwoordveld
+- longPressOn:
+    point: '12%,8%'
+- assertVisible: 'WACHTWOORD'
+- tapOn: 'E-mailadres'
+- inputText: 'appreview@linkandlead.nl'
+- tapOn: 'Wachtwoord'
+- inputText: ${WACHTWOORD}
+- tapOn: 'Inloggen'
+- runFlow:
+    when:
+      visible: 'Later'
+    commands:
+      - tapOn: 'Later'
+- assertVisible: 'Jouw ochtendmissie'

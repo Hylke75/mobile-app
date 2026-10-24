@@ -1,0 +1,13 @@
+# Loopt alle tabs langs. Vereist een ingelogde sessie.
+appId: nl.linkandlead.mobileapp
+---
+- launchApp
+- assertVisible: 'Jouw ochtendmissie'
+- tapOn: 'Alarmen'
+- assertVisible: 'Mijn alarmen.*'
+- tapOn: 'Progressie'
+- assertVisible: 'SHOW UP. LEVEL UP.'
+- tapOn: 'Profiel'
+- assertVisible: 'Alarm-check'
+- tapOn: 'Fysio & trainer'
+- assertVisible: 'Mooove Coach.*'
