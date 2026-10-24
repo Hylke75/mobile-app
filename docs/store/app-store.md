@@ -82,4 +82,4 @@ wekker,alarm,ochtend,bewegen,squats,fitness,routine,streak,opstaan,snooze,missie
 
 ## Screenshots
 
-Bestanden in `docs/store/screenshots/ios-6.9/` (1320 × 2868) en `ios-6.5/` (1284 × 2778).
+Gebruik bij voorkeur de versies met koptekst: `docs/store/screenshots-tekst/<taal>/ios-6.9/` (1320 × 2868) en `ios-6.5/` (1284 × 2778), per taal (`nl`, `en`, `es`, `de`, `fr`). De kale schermen staan in `docs/store/screenshots/`.

@@ -180,6 +180,24 @@ export type Database = {
           },
         ];
       };
+      misbruikrem: {
+        Row: {
+          created_at: string;
+          id: number;
+          sleutel: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: never;
+          sleutel: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: never;
+          sleutel?: string;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
           alarmtest_geslaagd_op: string | null;
@@ -207,6 +225,27 @@ export type Database = {
           updated_at?: string;
           voornaam?: string | null;
           weekdoel?: number;
+        };
+        Relationships: [];
+      };
+      wachtlijst: {
+        Row: {
+          created_at: string;
+          email: string;
+          id: string;
+          taal: string;
+        };
+        Insert: {
+          created_at?: string;
+          email: string;
+          id?: string;
+          taal?: string;
+        };
+        Update: {
+          created_at?: string;
+          email?: string;
+          id?: string;
+          taal?: string;
         };
         Relationships: [];
       };

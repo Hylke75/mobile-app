@@ -221,6 +221,7 @@ for (const taal of TALEN) {
       url,
       hreflang: (soort) => hreflang(soort, taal),
       domein: DOMEIN,
+      wachtlijstUrl: `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/wachtlijst`,
       privacyLabel: LABELS[taal].privacy,
       verwijderLabel: LABELS[taal].verwijderen,
       mail: MAIL,

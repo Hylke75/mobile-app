@@ -210,6 +210,19 @@ export const LANDING = {
       titel: 'Morgen begint het.',
       tekst: 'Zet je eerste Mooove-alarm en word wakker met een overwinning.',
     },
+    wachtlijst: {
+      titel: 'Zet je op de wachtlijst',
+      tekst:
+        'Mooove komt binnenkort naar de App Store en Google Play. Laat je e-mailadres achter, dan laten we het je één keer weten.',
+      plaats: 'jouw@email.nl',
+      knop: 'Hou me op de hoogte',
+      bezig: 'Even geduld…',
+      gelukt: 'Top! Je hoort het als eerste zodra Mooove er is.',
+      fout: 'Dat lukte niet. Probeer het later nog eens.',
+      ongeldig: 'Vul een geldig e-mailadres in.',
+      teVaak: 'Te veel pogingen. Probeer het over een uur opnieuw.',
+      klein: 'Eén e-mail bij de lancering, daarna wissen we je adres. Zie de privacyverklaring.',
+    },
     gezondheid: 'Mooove is geen medisch hulpmiddel. Beweeg binnen je eigen grenzen.',
   },
 
@@ -420,6 +433,19 @@ export const LANDING = {
     cta: {
       titel: 'It starts tomorrow.',
       tekst: 'Set your first Mooove alarm and wake up with a win.',
+    },
+    wachtlijst: {
+      titel: 'Join the waiting list',
+      tekst:
+        'Mooove is coming soon to the App Store and Google Play. Leave your email address and we’ll let you know once.',
+      plaats: 'you@email.com',
+      knop: 'Keep me posted',
+      bezig: 'One moment…',
+      gelukt: 'Great! You’ll be the first to know when Mooove is here.',
+      fout: 'That didn’t work. Please try again later.',
+      ongeldig: 'Please enter a valid email address.',
+      teVaak: 'Too many attempts. Please try again in an hour.',
+      klein: 'One email at launch, then we delete your address. See the privacy policy.',
     },
     gezondheid: 'Mooove is not a medical device. Move within your own limits.',
   },
@@ -637,6 +663,20 @@ export const LANDING = {
     cta: {
       titel: 'Mañana empieza.',
       tekst: 'Pon tu primera alarma de Mooove y despiértate con una victoria.',
+    },
+    wachtlijst: {
+      titel: 'Apúntate a la lista de espera',
+      tekst:
+        'Mooove llegará pronto a la App Store y Google Play. Déjanos tu correo y te avisaremos una vez.',
+      plaats: 'tu@correo.es',
+      knop: 'Avísame',
+      bezig: 'Un momento…',
+      gelukt: '¡Genial! Serás de los primeros en saber cuándo llega Mooove.',
+      fout: 'No ha funcionado. Inténtalo más tarde.',
+      ongeldig: 'Introduce un correo válido.',
+      teVaak: 'Demasiados intentos. Vuelve a intentarlo en una hora.',
+      klein:
+        'Un correo en el lanzamiento y después borramos tu dirección. Consulta la política de privacidad.',
     },
     gezondheid: 'Mooove no es un dispositivo médico. Muévete dentro de tus límites.',
   },
@@ -858,6 +898,19 @@ export const LANDING = {
       titel: 'Morgen geht’s los.',
       tekst: 'Stell deinen ersten Mooove-Wecker und wach mit einem Erfolg auf.',
     },
+    wachtlijst: {
+      titel: 'Trag dich in die Warteliste ein',
+      tekst:
+        'Mooove kommt bald in den App Store und zu Google Play. Hinterlasse deine E-Mail-Adresse, dann sagen wir dir einmal Bescheid.',
+      plaats: 'du@email.de',
+      knop: 'Auf dem Laufenden halten',
+      bezig: 'Einen Moment…',
+      gelukt: 'Super! Du erfährst als Erstes, wenn Mooove da ist.',
+      fout: 'Das hat nicht geklappt. Versuch es später noch einmal.',
+      ongeldig: 'Bitte gib eine gültige E-Mail-Adresse ein.',
+      teVaak: 'Zu viele Versuche. Versuch es in einer Stunde erneut.',
+      klein: 'Eine E-Mail zum Start, danach löschen wir deine Adresse. Siehe Datenschutzerklärung.',
+    },
     gezondheid: 'Mooove ist kein Medizinprodukt. Beweg dich innerhalb deiner Grenzen.',
   },
 
@@ -1074,6 +1127,20 @@ export const LANDING = {
     cta: {
       titel: 'Demain, ça commence.',
       tekst: 'Règle ta première alarme Mooove et réveille-toi avec une victoire.',
+    },
+    wachtlijst: {
+      titel: 'Inscris-toi sur la liste d’attente',
+      tekst:
+        'Mooove arrive bientôt sur l’App Store et Google Play. Laisse ton adresse e-mail et nous te préviendrons une fois.',
+      plaats: 'toi@email.fr',
+      knop: 'Tiens-moi au courant',
+      bezig: 'Un instant…',
+      gelukt: 'Super ! Tu seras parmi les premiers à savoir quand Mooove arrive.',
+      fout: 'Ça n’a pas marché. Réessaie plus tard.',
+      ongeldig: 'Saisis une adresse e-mail valide.',
+      teVaak: 'Trop de tentatives. Réessaie dans une heure.',
+      klein:
+        'Un e-mail au lancement, puis nous supprimons ton adresse. Voir la politique de confidentialité.',
     },
     gezondheid: 'Mooove n’est pas un dispositif médical. Bouge dans tes propres limites.',
   },

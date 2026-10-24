@@ -48,6 +48,7 @@ const SECTIES: readonly SectieSleutels[] = [
   },
   { kop: 'privacy.verwerkers.kop', alineas: ['privacy.verwerkers.a1'] },
   { kop: 'privacy.beheer.kop', alineas: ['privacy.beheer.a1'] },
+  { kop: 'privacy.wachtlijst.kop', alineas: ['privacy.wachtlijst.a1'] },
   { kop: 'privacy.grondslag.kop', alineas: ['privacy.grondslag.a1'] },
   { kop: 'privacy.rechten.kop', alineas: ['privacy.rechten.a1', 'privacy.rechten.a2'] },
   { kop: 'privacy.beveiliging.kop', alineas: ['privacy.beveiliging.a1'] },

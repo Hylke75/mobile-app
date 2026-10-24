@@ -77,6 +77,12 @@ section{padding:88px 0}
 .hero-tel{position:relative;height:640px}
 .hero-tel .tel{position:absolute;width:290px}
 .hero-tel .t1{left:50%;transform:translateX(-50%);top:10px;z-index:3}
+.wissel{display:grid}
+.wissel img{grid-area:1/1;animation:wissel 16s infinite;opacity:0}
+.wissel img:nth-child(1){animation-delay:0s}.wissel img:nth-child(2){animation-delay:4s}
+.wissel img:nth-child(3){animation-delay:8s}.wissel img:nth-child(4){animation-delay:12s}
+@keyframes wissel{0%{opacity:0}4%,25%{opacity:1}29%,100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.wissel img{animation:none}.wissel img:first-child{opacity:1}}
 .hero-tel .t2{left:0;top:110px;transform:rotate(-8deg) scale(.86);opacity:.9;z-index:2}
 .hero-tel .t3{right:0;top:110px;transform:rotate(8deg) scale(.86);opacity:.9;z-index:2}
 @media (max-width:980px){.hero .wrap{grid-template-columns:1fr}.hero-tel{height:560px;margin:0 auto;width:100%;max-width:560px}.hero-tel .tel{width:250px}}
@@ -173,6 +179,17 @@ section{padding:88px 0}
 .slotcta .kop{color:#fff}.slotcta .kop span{color:var(--lime)}
 .slotcta p{color:#C7D1C7;margin:16px auto 28px;max-width:520px}
 .slotcta .stores{justify-content:center}
+.wachtlijst{margin:44px auto 0;max-width:560px;text-align:left;background:#1B2520;border:1px solid #2B3730;border-radius:24px;padding:28px}
+.wachtlijst h3{font:700 22px 'Space Grotesk',Arial;letter-spacing:-.03em;margin:0;color:#fff}
+.wachtlijst p{margin:8px 0 18px;color:#B4C0B4;font-size:15px;max-width:none}
+.wachtlijst .veld{display:flex;gap:10px;flex-wrap:wrap}
+.wachtlijst input{flex:1 1 220px;font:inherit;font-size:16px;padding:14px 16px;border-radius:14px;border:1px solid #33413A;background:#101714;color:#fff}
+.wachtlijst input:focus{outline:2px solid var(--lime);outline-offset:1px}
+.wachtlijst button{font:inherit;font-weight:800;border:0;border-radius:14px;padding:14px 20px;background:var(--lime);color:var(--ink);cursor:pointer}
+.wachtlijst button:disabled{opacity:.6;cursor:default}
+.wachtlijst .wl-melding{min-height:22px;margin:12px 0 4px;color:var(--lime);font-weight:700}
+.wachtlijst small{color:#8A968C;font-size:12.5px}.wachtlijst small a{color:#C7D1C7}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 footer{padding:44px 0 56px;color:var(--muted);font-size:14px}
 footer .wrap{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center}
 footer a{color:var(--muted)}
@@ -200,7 +217,7 @@ function telefoon(taal, scherm, alt, klasse = '', laden = 'lazy') {
 
 export function landing(
   taal,
-  { talen, taalnamen, url, hreflang, privacyLabel, verwijderLabel, mail, domein },
+  { talen, taalnamen, url, hreflang, privacyLabel, verwijderLabel, mail, domein, wachtlijstUrl },
 ) {
   const x = LANDING[taal];
   const b = x.schermen.bijschriften;
@@ -215,7 +232,7 @@ export function landing(
 
   return `<!doctype html><html lang="${taal}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(x.titel)}</title><meta name="description" content="${esc(x.beschrijving)}">
-<meta property="og:title" content="${esc(x.titel)}"><meta property="og:description" content="${esc(x.beschrijving)}"><meta property="og:type" content="website"><meta property="og:url" content="${domein}${url(taal, 'index')}"><meta property="og:image" content="${domein}/beelden/${taal}/01-vandaag.webp"><meta name="twitter:card" content="summary_large_image">
+<meta property="og:title" content="${esc(x.titel)}"><meta property="og:description" content="${esc(x.beschrijving)}"><meta property="og:type" content="website"><meta property="og:url" content="${domein}${url(taal, 'index')}"><meta property="og:image" content="${domein}/beelden/${taal}/deel.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="${esc(x.titel)}"><meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#101714"><link rel="icon" href="${FAVICON}">${hreflang('index')}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
@@ -240,7 +257,12 @@ export function landing(
   <div class="hero-tel" aria-hidden="false">
     ${telefoon(taal, '02-alarmen', b[1], 't2', 'eager')}
     ${telefoon(taal, '04-progressie', b[3], 't3', 'eager')}
-    ${telefoon(taal, '01-vandaag', b[0], 't1', 'eager')}
+    <div class="tel t1 wissel">${['01-vandaag', '03-alarm-instellen', '05-klaar', '04-progressie']
+      .map(
+        (scherm, i) =>
+          `<img src="/beelden/${taal}/${scherm}.webp" width="640" height="1391" alt="${i === 0 ? esc(b[0]) : ''}" ${i ? 'aria-hidden="true" loading="lazy"' : 'loading="eager"'} decoding="async">`,
+      )
+      .join('')}</div>
   </div>
 </div></header>
 
@@ -310,7 +332,38 @@ export function landing(
   <h2 class="kop">${esc(x.hero.titel)}<span> ${esc(x.cta.titel)}</span></h2>
   <p>${esc(x.cta.tekst)}</p>
   ${stores}
+  <form class="wachtlijst" id="wachtlijst" novalidate>
+    <h3>${esc(x.wachtlijst.titel)}</h3>
+    <p>${esc(x.wachtlijst.tekst)}</p>
+    <div class="veld">
+      <label class="sr" for="wl-email">E-mail</label>
+      <input id="wl-email" type="email" name="email" autocomplete="email" required placeholder="${esc(x.wachtlijst.plaats)}">
+      <button type="submit">${esc(x.wachtlijst.knop)}</button>
+    </div>
+    <p class="wl-melding" role="status" aria-live="polite"></p>
+    <small>${esc(x.wachtlijst.klein)} <a href="${url(taal, 'privacy')}">→</a></small>
+  </form>
 </div></div></section>
+<script>
+(() => {
+  const form = document.getElementById('wachtlijst');
+  const melding = form.querySelector('.wl-melding');
+  const knop = form.querySelector('button');
+  const teksten = ${JSON.stringify({ bezig: x.wachtlijst.bezig, gelukt: x.wachtlijst.gelukt, fout: x.wachtlijst.fout, ongeldig: x.wachtlijst.ongeldig, teVaak: x.wachtlijst.teVaak, knop: x.wachtlijst.knop })};
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = form.email.value.trim();
+    if (!/^[^ @]+@[^ @]+[.][^ @]{2,}$/.test(email)) { melding.textContent = teksten.ongeldig; return; }
+    knop.disabled = true; knop.textContent = teksten.bezig; melding.textContent = '';
+    try {
+      const antwoord = await fetch('${wachtlijstUrl}', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, taal: '${taal}' }) });
+      if (antwoord.ok) { form.classList.add('klaar'); melding.textContent = teksten.gelukt; form.email.value = ''; }
+      else melding.textContent = antwoord.status === 429 ? teksten.teVaak : antwoord.status === 400 ? teksten.ongeldig : teksten.fout;
+    } catch { melding.textContent = teksten.fout; }
+    knop.disabled = false; knop.textContent = teksten.knop;
+  });
+})();
+</script>
 </main>
 
 <footer><div class="wrap">

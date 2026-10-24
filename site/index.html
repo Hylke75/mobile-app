@@ -1,6 +1,6 @@
 <!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Mooove — de wekker die pas stopt als jij beweegt</title><meta name="description" content="Mooove is de wekker die pas stopt als je echt in beweging bent. Squats, push-ups, je bed opmaken of de gordijnen open: je telefoon telt mee. Geen snooze-spiraal meer.">
-<meta property="og:title" content="Mooove — de wekker die pas stopt als jij beweegt"><meta property="og:description" content="Mooove is de wekker die pas stopt als je echt in beweging bent. Squats, push-ups, je bed opmaken of de gordijnen open: je telefoon telt mee. Geen snooze-spiraal meer."><meta property="og:type" content="website"><meta property="og:url" content="https://mooove-app.com/"><meta property="og:image" content="https://mooove-app.com/beelden/nl/01-vandaag.webp"><meta name="twitter:card" content="summary_large_image">
+<meta property="og:title" content="Mooove — de wekker die pas stopt als jij beweegt"><meta property="og:description" content="Mooove is de wekker die pas stopt als je echt in beweging bent. Squats, push-ups, je bed opmaken of de gordijnen open: je telefoon telt mee. Geen snooze-spiraal meer."><meta property="og:type" content="website"><meta property="og:url" content="https://mooove-app.com/"><meta property="og:image" content="https://mooove-app.com/beelden/nl/deel.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Mooove — de wekker die pas stopt als jij beweegt"><meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#101714"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23D8FB59'/%3E%3Ctext x='29' y='46' font-family='Arial' font-weight='700' font-size='42' text-anchor='middle' fill='%23101714'%3Em%3C/text%3E%3Ccircle cx='50' cy='42' r='5' fill='%23569126'/%3E%3C/svg%3E"><link rel="canonical" href="https://mooove-app.com/"><link rel="alternate" hreflang="nl" href="https://mooove-app.com/"><link rel="alternate" hreflang="en" href="https://mooove-app.com/en/"><link rel="alternate" hreflang="es" href="https://mooove-app.com/es/"><link rel="alternate" hreflang="de" href="https://mooove-app.com/de/"><link rel="alternate" hreflang="fr" href="https://mooove-app.com/fr/"><link rel="alternate" hreflang="x-default" href="https://mooove-app.com/">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
@@ -64,6 +64,12 @@ section{padding:88px 0}
 .hero-tel{position:relative;height:640px}
 .hero-tel .tel{position:absolute;width:290px}
 .hero-tel .t1{left:50%;transform:translateX(-50%);top:10px;z-index:3}
+.wissel{display:grid}
+.wissel img{grid-area:1/1;animation:wissel 16s infinite;opacity:0}
+.wissel img:nth-child(1){animation-delay:0s}.wissel img:nth-child(2){animation-delay:4s}
+.wissel img:nth-child(3){animation-delay:8s}.wissel img:nth-child(4){animation-delay:12s}
+@keyframes wissel{0%{opacity:0}4%,25%{opacity:1}29%,100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.wissel img{animation:none}.wissel img:first-child{opacity:1}}
 .hero-tel .t2{left:0;top:110px;transform:rotate(-8deg) scale(.86);opacity:.9;z-index:2}
 .hero-tel .t3{right:0;top:110px;transform:rotate(8deg) scale(.86);opacity:.9;z-index:2}
 @media (max-width:980px){.hero .wrap{grid-template-columns:1fr}.hero-tel{height:560px;margin:0 auto;width:100%;max-width:560px}.hero-tel .tel{width:250px}}
@@ -160,6 +166,17 @@ section{padding:88px 0}
 .slotcta .kop{color:#fff}.slotcta .kop span{color:var(--lime)}
 .slotcta p{color:#C7D1C7;margin:16px auto 28px;max-width:520px}
 .slotcta .stores{justify-content:center}
+.wachtlijst{margin:44px auto 0;max-width:560px;text-align:left;background:#1B2520;border:1px solid #2B3730;border-radius:24px;padding:28px}
+.wachtlijst h3{font:700 22px 'Space Grotesk',Arial;letter-spacing:-.03em;margin:0;color:#fff}
+.wachtlijst p{margin:8px 0 18px;color:#B4C0B4;font-size:15px;max-width:none}
+.wachtlijst .veld{display:flex;gap:10px;flex-wrap:wrap}
+.wachtlijst input{flex:1 1 220px;font:inherit;font-size:16px;padding:14px 16px;border-radius:14px;border:1px solid #33413A;background:#101714;color:#fff}
+.wachtlijst input:focus{outline:2px solid var(--lime);outline-offset:1px}
+.wachtlijst button{font:inherit;font-weight:800;border:0;border-radius:14px;padding:14px 20px;background:var(--lime);color:var(--ink);cursor:pointer}
+.wachtlijst button:disabled{opacity:.6;cursor:default}
+.wachtlijst .wl-melding{min-height:22px;margin:12px 0 4px;color:var(--lime);font-weight:700}
+.wachtlijst small{color:#8A968C;font-size:12.5px}.wachtlijst small a{color:#C7D1C7}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 footer{padding:44px 0 56px;color:var(--muted);font-size:14px}
 footer .wrap{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center}
 footer a{color:var(--muted)}
@@ -186,7 +203,7 @@ footer .gezond{flex-basis:100%;font-size:13px}
   <div class="hero-tel" aria-hidden="false">
     <div class="tel t2"><img src="/beelden/nl/02-alarmen.webp" width="640" height="1391" alt="Al je alarmen" loading="eager" decoding="async"></div>
     <div class="tel t3"><img src="/beelden/nl/04-progressie.webp" width="640" height="1391" alt="Je voortgang" loading="eager" decoding="async"></div>
-    <div class="tel t1"><img src="/beelden/nl/01-vandaag.webp" width="640" height="1391" alt="Je dag in één oogopslag" loading="eager" decoding="async"></div>
+    <div class="tel t1 wissel"><img src="/beelden/nl/01-vandaag.webp" width="640" height="1391" alt="Je dag in één oogopslag" loading="eager" decoding="async"><img src="/beelden/nl/03-alarm-instellen.webp" width="640" height="1391" alt="" aria-hidden="true" loading="lazy" decoding="async"><img src="/beelden/nl/05-klaar.webp" width="640" height="1391" alt="" aria-hidden="true" loading="lazy" decoding="async"><img src="/beelden/nl/04-progressie.webp" width="640" height="1391" alt="" aria-hidden="true" loading="lazy" decoding="async"></div>
   </div>
 </div></header>
 
@@ -246,7 +263,38 @@ footer .gezond{flex-basis:100%;font-size:13px}
   <h2 class="kop">Stop snoozing.<span> Morgen begint het.</span></h2>
   <p>Zet je eerste Mooove-alarm en word wakker met een overwinning.</p>
   <div class="stores"><span class="store" aria-disabled="true"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.4 12.6c0-2.5 2-3.6 2.1-3.7-1.2-1.7-3-1.9-3.6-2-1.5-.2-3 .9-3.7.9-.8 0-2-.9-3.2-.9-1.7 0-3.2 1-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.1-1.2 2.9-2.4.9-1.3 1.3-2.7 1.3-2.8 0 0-2.4-.9-2.3-3.7zM14 5.3c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1 .1 2.1-.6 2.8-1.4z"/></svg><span><small>Binnenkort</small><b>App Store</b></span></span><span class="store" aria-disabled="true"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 2.8v18.4c0 .5.5.8 1 .6l15.9-9.2c.5-.3.5-.9 0-1.2L5 2.2c-.5-.2-1 .1-1 .6zm2 2.6 8.3 6.6L6 18.6z"/></svg><span><small>Binnenkort</small><b>Google Play</b></span></span></div>
+  <form class="wachtlijst" id="wachtlijst" novalidate>
+    <h3>Zet je op de wachtlijst</h3>
+    <p>Mooove komt binnenkort naar de App Store en Google Play. Laat je e-mailadres achter, dan laten we het je één keer weten.</p>
+    <div class="veld">
+      <label class="sr" for="wl-email">E-mail</label>
+      <input id="wl-email" type="email" name="email" autocomplete="email" required placeholder="jouw@email.nl">
+      <button type="submit">Hou me op de hoogte</button>
+    </div>
+    <p class="wl-melding" role="status" aria-live="polite"></p>
+    <small>Eén e-mail bij de lancering, daarna wissen we je adres. Zie de privacyverklaring. <a href="/privacy">→</a></small>
+  </form>
 </div></div></section>
+<script>
+(() => {
+  const form = document.getElementById('wachtlijst');
+  const melding = form.querySelector('.wl-melding');
+  const knop = form.querySelector('button');
+  const teksten = {"bezig":"Even geduld…","gelukt":"Top! Je hoort het als eerste zodra Mooove er is.","fout":"Dat lukte niet. Probeer het later nog eens.","ongeldig":"Vul een geldig e-mailadres in.","teVaak":"Te veel pogingen. Probeer het over een uur opnieuw.","knop":"Hou me op de hoogte"};
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = form.email.value.trim();
+    if (!/^[^ @]+@[^ @]+[.][^ @]{2,}$/.test(email)) { melding.textContent = teksten.ongeldig; return; }
+    knop.disabled = true; knop.textContent = teksten.bezig; melding.textContent = '';
+    try {
+      const antwoord = await fetch('https://akxnqxuztrtkquzbrsvx.supabase.co/functions/v1/wachtlijst', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, taal: 'nl' }) });
+      if (antwoord.ok) { form.classList.add('klaar'); melding.textContent = teksten.gelukt; form.email.value = ''; }
+      else melding.textContent = antwoord.status === 429 ? teksten.teVaak : antwoord.status === 400 ? teksten.ongeldig : teksten.fout;
+    } catch { melding.textContent = teksten.fout; }
+    knop.disabled = false; knop.textContent = teksten.knop;
+  });
+})();
+</script>
 </main>
 
 <footer><div class="wrap">

@@ -43,6 +43,10 @@ Je gegevens worden opgeslagen bij Supabase (database en inloggen), in een datace
 
 Alleen de aanbieder van Mooove kan in een beveiligde beheeromgeving zien welke accounts er zijn: e-mailadres, voornaam, wanneer je je hebt aangemeld en voor het laatst actief was, en hoeveel alarmen en missies je hebt. Dit gebruiken we alleen voor ondersteuning en om de app te verbeteren. Camerabeelden en de inhoud van je eigen missies zijn daar nooit zichtbaar.
 
+## Wachtlijst op de website
+
+Meld je je op mooove-app.com aan voor de wachtlijst, dan bewaren we je e-mailadres en taal om je één keer te laten weten dat Mooove beschikbaar is. Daarna, of eerder als je dat vraagt via hylke@linkandlead.nl, verwijderen we je adres. Om misbruik te voorkomen bewaren we maximaal twee dagen een onleesbaar gemaakte code (hash) van je IP-adres, nooit het adres zelf.
+
 ## Grondslag
 
 We verwerken je gegevens omdat dit nodig is om de app aan je te leveren (uitvoering van de overeenkomst, artikel 6 lid 1 sub b AVG).

@@ -50,6 +50,10 @@ const nl = {
     kop: 'Beheer',
     a1: 'Alleen de aanbieder van Mooove kan in een beveiligde beheeromgeving zien welke accounts er zijn: e-mailadres, voornaam, wanneer je je hebt aangemeld en voor het laatst actief was, en hoeveel alarmen en missies je hebt. Dit gebruiken we alleen voor ondersteuning en om de app te verbeteren. Camerabeelden en de inhoud van je eigen missies zijn daar nooit zichtbaar.',
   },
+  wachtlijst: {
+    kop: 'Wachtlijst op de website',
+    a1: 'Meld je je op mooove-app.com aan voor de wachtlijst, dan bewaren we je e-mailadres en taal om je één keer te laten weten dat Mooove beschikbaar is. Daarna, of eerder als je dat vraagt via hylke@linkandlead.nl, verwijderen we je adres. Om misbruik te voorkomen bewaren we maximaal twee dagen een onleesbaar gemaakte code (hash) van je IP-adres, nooit het adres zelf.',
+  },
   grondslag: {
     kop: 'Grondslag',
     a1: 'We verwerken je gegevens omdat dit nodig is om de app aan je te leveren (uitvoering van de overeenkomst, artikel 6 lid 1 sub b AVG).',
@@ -120,6 +124,10 @@ export const privacy: Vertalingen<typeof nl> = {
       kop: 'Administration',
       a1: 'Only the provider of Mooove can see, in a secured admin area, which accounts exist: email address, first name, when you signed up and were last active, and how many alarms and missions you have. We use this only for support and to improve the app. Camera images and the content of your own missions are never visible there.',
     },
+    wachtlijst: {
+      kop: 'Waiting list on the website',
+      a1: 'If you join the waiting list on mooove-app.com, we keep your email address and language to let you know once that Mooove is available. After that, or earlier if you ask via hylke@linkandlead.nl, we delete your address. To prevent abuse, we keep an unreadable code (hash) of your IP address for at most two days, never the address itself.',
+    },
     grondslag: {
       kop: 'Legal basis',
       a1: 'We process your data because this is necessary to provide the app to you (performance of a contract, Article 6(1)(b) GDPR).',
@@ -186,6 +194,10 @@ export const privacy: Vertalingen<typeof nl> = {
     beheer: {
       kop: 'Administración',
       a1: 'Solo el proveedor de Mooove puede ver, en un área de administración protegida, qué cuentas existen: correo electrónico, nombre, cuándo te registraste y tu última actividad, y cuántas alarmas y misiones tienes. Solo lo usamos para dar soporte y mejorar la app. Las imágenes de la cámara y el contenido de tus misiones propias nunca son visibles allí.',
+    },
+    wachtlijst: {
+      kop: 'Lista de espera en la web',
+      a1: 'Si te apuntas a la lista de espera en mooove-app.com, guardamos tu correo y tu idioma para avisarte una vez de que Mooove está disponible. Después, o antes si lo pides en hylke@linkandlead.nl, borramos tu dirección. Para evitar abusos guardamos como máximo dos días un código ilegible (hash) de tu dirección IP, nunca la dirección en sí.',
     },
     grondslag: {
       kop: 'Base jurídica',
@@ -254,6 +266,10 @@ export const privacy: Vertalingen<typeof nl> = {
       kop: 'Verwaltung',
       a1: 'Nur der Anbieter von Mooove kann in einem geschützten Verwaltungsbereich sehen, welche Konten es gibt: E-Mail-Adresse, Vorname, wann du dich registriert hast und zuletzt aktiv warst und wie viele Wecker und Missionen du hast. Wir nutzen das nur für den Support und um die App zu verbessern. Kamerabilder und der Inhalt deiner eigenen Missionen sind dort nie sichtbar.',
     },
+    wachtlijst: {
+      kop: 'Warteliste auf der Website',
+      a1: 'Wenn du dich auf mooove-app.com für die Warteliste einträgst, speichern wir deine E-Mail-Adresse und Sprache, um dir einmal mitzuteilen, dass Mooove verfügbar ist. Danach, oder früher auf Wunsch über hylke@linkandlead.nl, löschen wir deine Adresse. Zum Schutz vor Missbrauch speichern wir höchstens zwei Tage einen unlesbaren Code (Hash) deiner IP-Adresse, nie die Adresse selbst.',
+    },
     grondslag: {
       kop: 'Rechtsgrundlage',
       a1: 'Wir verarbeiten deine Daten, weil dies nötig ist, um dir die App bereitzustellen (Vertragserfüllung, Art. 6 Abs. 1 lit. b DSGVO).',
@@ -320,6 +336,10 @@ export const privacy: Vertalingen<typeof nl> = {
     beheer: {
       kop: 'Administration',
       a1: 'Seul le fournisseur de Mooove peut voir, dans un espace d’administration sécurisé, quels comptes existent : adresse e-mail, prénom, date d’inscription et dernière activité, et nombre d’alarmes et de missions. Nous l’utilisons uniquement pour l’assistance et pour améliorer l’app. Les images de la caméra et le contenu de tes missions personnalisées n’y sont jamais visibles.',
+    },
+    wachtlijst: {
+      kop: 'Liste d’attente sur le site',
+      a1: 'Si tu t’inscris sur la liste d’attente de mooove-app.com, nous gardons ton adresse e-mail et ta langue pour te prévenir une fois que Mooove est disponible. Ensuite, ou plus tôt si tu le demandes via hylke@linkandlead.nl, nous supprimons ton adresse. Pour éviter les abus, nous gardons au maximum deux jours un code illisible (hash) de ton adresse IP, jamais l’adresse elle-même.',
     },
     grondslag: {
       kop: 'Base légale',
