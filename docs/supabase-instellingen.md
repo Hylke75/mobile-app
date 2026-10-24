@@ -20,3 +20,22 @@ Deze instellingen staan in het Supabase-dashboard (project `akxnqxuztrtkquzbrsvx
 - RLS staat aan op alle tabellen (`profiles`, `alarms`, `missie_sessies`) met beleid per gebruiker.
 - Indexen op `user_id` (en `afgerond_op`) zijn aanwezig; de prestatie-advisor meldt geen ontbrekende indexen.
 - Account verwijderen loopt via de Edge Function `delete-account`; alle data verdwijnt via `on delete cascade`.
+
+## Beheerders (beheeromgeving `/admin` op de site)
+
+Alleen accounts in de tabel `public.admins` krijgen gegevens van de Edge Function `admin-overzicht`. Via de API kan niemand zichzelf toevoegen (alleen lezen van de eigen rij). Een beheerder toevoegen of verwijderen doe je in de SQL-editor van het Supabase-dashboard:
+
+```sql
+-- Toevoegen (het account moet al bestaan: eerst één keer inloggen in de app)
+insert into public.admins (user_id)
+select id from auth.users where email = 'naam@voorbeeld.nl';
+
+-- Verwijderen
+delete from public.admins
+where user_id = (select id from auth.users where email = 'naam@voorbeeld.nl');
+
+-- Controleren wie beheerder is
+select u.email from public.admins a join auth.users u on u.id = a.user_id;
+```
+
+Inloggen op `/admin` gaat met een e-mailcode (vereist het e-mailtemplate met `{{ .Token }}`) of met een wachtwoord op het account.

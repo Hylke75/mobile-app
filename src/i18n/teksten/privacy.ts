@@ -44,6 +44,10 @@ const nl = {
     kop: 'Verwerkers',
     a1: 'Je gegevens worden opgeslagen bij Supabase (database en inloggen), in een datacenter in de Europese Unie (Frankfurt, Duitsland). Foutrapporten gaan naar Sentry, eveneens in de EU. Beide verwerken de gegevens uitsluitend in onze opdracht.',
   },
+  beheer: {
+    kop: 'Beheer',
+    a1: 'Alleen de aanbieder van Mooove kan in een beveiligde beheeromgeving zien welke accounts er zijn: e-mailadres, voornaam, wanneer je je hebt aangemeld en voor het laatst actief was, en hoeveel alarmen en missies je hebt. Dit gebruiken we alleen voor ondersteuning en om de app te verbeteren. Camerabeelden en de inhoud van je eigen missies zijn daar nooit zichtbaar.',
+  },
   grondslag: {
     kop: 'Grondslag',
     a1: 'We verwerken je gegevens omdat dit nodig is om de app aan je te leveren (uitvoering van de overeenkomst, artikel 6 lid 1 sub b AVG).',
@@ -108,6 +112,10 @@ export const privacy: Vertalingen<typeof nl> = {
       kop: 'Processors',
       a1: 'Your data is stored with Supabase (database and login), in a data center in the European Union (Frankfurt, Germany). Error reports go to Sentry, also in the EU. Both process the data solely on our behalf.',
     },
+    beheer: {
+      kop: 'Administration',
+      a1: 'Only the provider of Mooove can see, in a secured admin area, which accounts exist: email address, first name, when you signed up and were last active, and how many alarms and missions you have. We use this only for support and to improve the app. Camera images and the content of your own missions are never visible there.',
+    },
     grondslag: {
       kop: 'Legal basis',
       a1: 'We process your data because this is necessary to provide the app to you (performance of a contract, Article 6(1)(b) GDPR).',
@@ -168,6 +176,10 @@ export const privacy: Vertalingen<typeof nl> = {
     verwerkers: {
       kop: 'Encargados del tratamiento',
       a1: 'Tus datos se guardan en Supabase (base de datos e inicio de sesión), en un centro de datos de la Unión Europea (Fráncfort, Alemania). Los informes de errores van a Sentry, también en la UE. Ambos tratan los datos exclusivamente por encargo nuestro.',
+    },
+    beheer: {
+      kop: 'Administración',
+      a1: 'Solo el proveedor de Mooove puede ver, en un área de administración protegida, qué cuentas existen: correo electrónico, nombre, cuándo te registraste y tu última actividad, y cuántas alarmas y misiones tienes. Solo lo usamos para dar soporte y mejorar la app. Las imágenes de la cámara y el contenido de tus misiones propias nunca son visibles allí.',
     },
     grondslag: {
       kop: 'Base jurídica',
@@ -230,6 +242,10 @@ export const privacy: Vertalingen<typeof nl> = {
       kop: 'Auftragsverarbeiter',
       a1: 'Deine Daten werden bei Supabase (Datenbank und Anmeldung) in einem Rechenzentrum in der Europäischen Union (Frankfurt, Deutschland) gespeichert. Fehlerberichte gehen an Sentry, ebenfalls in der EU. Beide verarbeiten die Daten ausschließlich in unserem Auftrag.',
     },
+    beheer: {
+      kop: 'Verwaltung',
+      a1: 'Nur der Anbieter von Mooove kann in einem geschützten Verwaltungsbereich sehen, welche Konten es gibt: E-Mail-Adresse, Vorname, wann du dich registriert hast und zuletzt aktiv warst und wie viele Wecker und Missionen du hast. Wir nutzen das nur für den Support und um die App zu verbessern. Kamerabilder und der Inhalt deiner eigenen Missionen sind dort nie sichtbar.',
+    },
     grondslag: {
       kop: 'Rechtsgrundlage',
       a1: 'Wir verarbeiten deine Daten, weil dies nötig ist, um dir die App bereitzustellen (Vertragserfüllung, Art. 6 Abs. 1 lit. b DSGVO).',
@@ -290,6 +306,10 @@ export const privacy: Vertalingen<typeof nl> = {
     verwerkers: {
       kop: 'Sous-traitants',
       a1: 'Tes données sont stockées chez Supabase (base de données et connexion), dans un centre de données de l’Union européenne (Francfort, Allemagne). Les rapports d’erreur vont à Sentry, également dans l’UE. Tous deux traitent les données uniquement pour notre compte.',
+    },
+    beheer: {
+      kop: 'Administration',
+      a1: 'Seul le fournisseur de Mooove peut voir, dans un espace d’administration sécurisé, quels comptes existent : adresse e-mail, prénom, date d’inscription et dernière activité, et nombre d’alarmes et de missions. Nous l’utilisons uniquement pour l’assistance et pour améliorer l’app. Les images de la caméra et le contenu de tes missions personnalisées n’y sont jamais visibles.',
     },
     grondslag: {
       kop: 'Base légale',
