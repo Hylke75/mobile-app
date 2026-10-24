@@ -1,0 +1,49 @@
+name: Maestro (Android-emulator)
+
+# Handmatig: draait de Maestro-flows uit e2e/maestro op een Android-emulator met een
+# preview-APK (downloadlink van een EAS-build). Vereist het secret REVIEWER_WACHTWOORD.
+on:
+  workflow_dispatch:
+    inputs:
+      apk:
+        description: 'Downloadlink van de APK (EAS → build → Install → .apk)'
+        required: true
+
+jobs:
+  maestro:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - name: KVM aanzetten voor de emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: APK en Maestro ophalen
+        run: |
+          curl -fsSL -o app.apk "${{ inputs.apk }}"
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+      - uses: reactivecircus/android-emulator-runner@v2
+        env:
+          WACHTWOORD: ${{ secrets.REVIEWER_WACHTWOORD }}
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          # De flows zoeken op Nederlandse teksten: toestel op nl-NL zetten
+          script: |
+            adb root && sleep 3
+            adb shell "setprop persist.sys.locale nl-NL; setprop ctl.restart zygote" && sleep 25
+            adb wait-for-device && adb install -r app.apk
+            maestro test -e WACHTWOORD="$WACHTWOORD" --format junit --output maestro-rapport.xml e2e/maestro/01-reviewer-login.yaml e2e/maestro/02-alarm-aanmaken.yaml e2e/maestro/03-tabs.yaml
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-rapport
+          path: |
+            maestro-rapport.xml
+            ~/.maestro/tests/
+          if-no-files-found: ignore

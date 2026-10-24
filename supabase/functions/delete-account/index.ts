@@ -31,6 +31,21 @@ Deno.serve(async (req) => {
     });
   }
 
+  // Misbruikrem: maximaal 5 pogingen per uur per account
+  const sleutel = `delete-account:${data.user.id}`;
+  const { count } = await admin
+    .from('misbruikrem')
+    .select('id', { count: 'exact', head: true })
+    .eq('sleutel', sleutel)
+    .gte('created_at', new Date(Date.now() - 3600_000).toISOString());
+  if ((count ?? 0) >= 5) {
+    return new Response(JSON.stringify({ error: 'Te veel pogingen' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+  await admin.from('misbruikrem').insert({ sleutel });
+
   const { error: deleteError } = await admin.auth.admin.deleteUser(data.user.id);
   if (deleteError) {
     return new Response(JSON.stringify({ error: 'Verwijderen mislukt' }), {

@@ -3,6 +3,7 @@ import { Tabs } from 'expo-router/js-tabs';
 import { useEffect } from 'react';
 
 import { TabBar } from '@/components/TabBar';
+import { UpdateMelding } from '@/components/UpdateMelding';
 import { useTaal } from '@/i18n';
 import { leesLokaal, SLEUTELS } from '@/lib/opslag';
 
@@ -16,7 +17,15 @@ export default function TabsLayout() {
   }, []);
 
   return (
-    <Tabs tabBar={(props) => <TabBar {...props} />} screenOptions={{ headerShown: false }}>
+    <Tabs
+      tabBar={(props) => (
+        <>
+          <UpdateMelding />
+          <TabBar {...props} />
+        </>
+      )}
+      screenOptions={{ headerShown: false }}
+    >
       <Tabs.Screen name="index" options={{ title: t('navigatie.tabs.vandaag') }} />
       <Tabs.Screen name="alarmen" options={{ title: t('navigatie.tabs.alarmen') }} />
       <Tabs.Screen name="progressie" options={{ title: t('navigatie.tabs.progressie') }} />

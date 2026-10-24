@@ -43,6 +43,16 @@ Deno.serve(async (req) => {
     .maybeSingle();
   if (!beheerder) return json({ error: 'Geen toegang' }, 403);
 
+  // Misbruikrem: maximaal 120 keer per uur per beheerder
+  const sleutel = `admin-overzicht:${auth.user.id}`;
+  const { count } = await db
+    .from('misbruikrem')
+    .select('id', { count: 'exact', head: true })
+    .eq('sleutel', sleutel)
+    .gte('created_at', new Date(Date.now() - 3600_000).toISOString());
+  if ((count ?? 0) >= 120) return json({ error: 'Te vaak vernieuwd, probeer het later' }, 429);
+  await db.from('misbruikrem').insert({ sleutel });
+
   // Alle accounts, in pagina's
   const accounts = [];
   for (let pagina = 1; ; pagina++) {
