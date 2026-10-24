@@ -8,6 +8,8 @@ import type { Oefening } from '@/types/app';
 
 export type StapDetectorProps = {
   oefening: Oefening;
+  // Aantal herhalingen of seconden voor deze stap
+  doel: number;
   onVoortgang: (gedaan: number) => void;
   onFeedback: (tekst: string) => void;
   onKlaar: (methode: 'camera' | 'licht' | 'foto') => void;

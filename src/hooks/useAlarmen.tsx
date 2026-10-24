@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { AppState } from 'react-native';
 
+import { doelenUitJson } from '@/constants/oefeningen';
 import { useAuth } from '@/hooks/useAuth';
 import { annuleerAlarm, deblokkeerSynchronisatie, synchroniseer } from '@/lib/alarmen';
 import { leesLokaal, schrijfLokaal, SLEUTELS } from '@/lib/opslag';
@@ -43,6 +44,7 @@ function naarAlarm(rij: AlarmRij): Alarm {
     dagen: rij.dagen,
     niveau: rij.niveau as Niveau,
     oefeningen: rij.oefeningen as Oefening[],
+    doelen: doelenUitJson(rij.doelen),
     aan: rij.aan,
   };
 }

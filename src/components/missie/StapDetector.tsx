@@ -24,6 +24,8 @@ import type { Oefening } from '@/types/app';
 
 export type StapDetectorProps = {
   oefening: Oefening;
+  // Aantal herhalingen of seconden voor deze stap
+  doel: number;
   onVoortgang: (gedaan: number) => void;
   onFeedback: (tekst: string) => void;
   onKlaar: (methode: 'camera' | 'licht' | 'foto') => void;
@@ -48,7 +50,7 @@ const JUMPING_JACK_CONFIG: ExerciseConfig = {
   holdDurationMs: 0,
 };
 
-function poseConfig(oefening: Oefening): ExerciseConfig {
+function poseConfig(oefening: Oefening, doel: number): ExerciseConfig {
   switch (oefening) {
     case 'Squats':
       return SQUAT_CONFIG;
@@ -57,7 +59,7 @@ function poseConfig(oefening: Oefening): ExerciseConfig {
     case 'Jumping jacks':
       return JUMPING_JACK_CONFIG;
     default:
-      return { ...PLANK_CONFIG, holdDurationMs: OEFENING_INFO.Plank.doel * 1000 };
+      return { ...PLANK_CONFIG, holdDurationMs: doel * 1000 };
   }
 }
 
@@ -101,7 +103,7 @@ function useLaatste<T>(waarde: T) {
   return ref;
 }
 
-function PoseStap({ oefening, onVoortgang, onFeedback, onKlaar }: StapDetectorProps) {
+function PoseStap({ oefening, doel, onVoortgang, onFeedback, onKlaar }: StapDetectorProps) {
   const info = OEFENING_INFO[oefening];
   const runner = useAsyncRunner();
   const [gestart, setGestart] = useState(false);
@@ -120,7 +122,7 @@ function PoseStap({ oefening, onVoortgang, onFeedback, onKlaar }: StapDetectorPr
     (async () => {
       await nitroPoseExercises.initialize('');
       if (!actief) return;
-      nitroPoseExercises.loadExercise(poseConfig(oefening));
+      nitroPoseExercises.loadExercise(poseConfig(oefening, doel));
       nitroPoseExercises.onRepComplete = (data) => voortgang.current(data.repNumber);
       nitroPoseExercises.onHoldProgress = (p) => voortgang.current(Math.floor(p.elapsedMs / 1000));
       nitroPoseExercises.onSessionComplete = () => klaar.current('camera');
@@ -130,7 +132,7 @@ function PoseStap({ oefening, onVoortgang, onFeedback, onKlaar }: StapDetectorPr
         feedback.current('Ik zie je niet goed. Zorg dat je helemaal in beeld bent.');
       feedback.current(stap.instructie);
       // De engine verwerkt pas frames als de sessie loopt; houding wordt intern gecontroleerd
-      nitroPoseExercises.startSession(stap.eenheid === 'seconden' ? 1 : stap.doel, 3);
+      nitroPoseExercises.startSession(stap.eenheid === 'seconden' ? 1 : doel, 3);
       interval = setInterval(() => {
         if (nitroPoseExercises.status === 'active') {
           clearInterval(interval);
@@ -155,7 +157,7 @@ function PoseStap({ oefening, onVoortgang, onFeedback, onKlaar }: StapDetectorPr
         if (poseGeneratie === generatie) nitroPoseExercises.release();
       }, 500);
     };
-  }, [oefening, voortgang, feedback, klaar]);
+  }, [oefening, doel, voortgang, feedback, klaar]);
 
   const frameOutput = useFrameOutput({
     pixelFormat: 'rgb',
@@ -265,6 +267,7 @@ function LichtStap({ onFeedback, onKlaar }: StapDetectorProps) {
     return (
       <FotoStap
         oefening="Gordijnen open"
+        doel={1}
         onVoortgang={() => {}}
         onFeedback={() => {}}
         onKlaar={() => {

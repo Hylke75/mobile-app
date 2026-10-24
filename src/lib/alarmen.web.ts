@@ -1,7 +1,7 @@
 // Op web bestaan geen native alarmen; alle functies zijn hier no-ops.
 import type { AlarmPermissionResponse } from 'react-native-alarm-scheduler';
 
-import type { Alarm, Niveau, Oefening } from '@/types/app';
+import type { Alarm, Doelen, Niveau, Oefening } from '@/types/app';
 
 export const alarmenBeschikbaar = false;
 
@@ -16,6 +16,7 @@ export type Wekker = {
   niveau?: Niveau;
   naam?: string;
   oefeningen?: Oefening[];
+  doelen?: Doelen;
 };
 
 const geenRechten: AlarmPermissionResponse = {

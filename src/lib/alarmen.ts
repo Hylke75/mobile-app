@@ -7,7 +7,9 @@ import AlarmScheduler, {
 } from 'react-native-alarm-scheduler';
 
 import { MISSIE_TIMEOUT_MINUTEN, WAKKERCHECK_MINUTEN } from '@/constants/alarm';
-import type { Alarm, Niveau, Oefening } from '@/types/app';
+import { doelenNaarTekst, doelenUitTekst } from '@/constants/oefeningen';
+import { leesAlarmgeluid, type Alarmgeluid } from '@/lib/alarmgeluid';
+import type { Alarm, Doelen, Niveau, Oefening } from '@/types/app';
 
 export const alarmenBeschikbaar = true;
 
@@ -22,6 +24,7 @@ export type Wekker = {
   niveau?: Niveau;
   naam?: string;
   oefeningen?: Oefening[];
+  doelen?: Doelen;
 };
 
 // Opent alleen de app; useWekkerRouting leest daarna de native context en navigeert zelf
@@ -68,17 +71,19 @@ function basisOpties(
   };
 }
 
-function versieVan(alarm: Alarm): string {
+function versieVan(alarm: Alarm, geluid: Alarmgeluid | null): string {
   return [
     alarm.tijd,
     alarm.dagen.join(''),
     alarm.niveau,
     alarm.naam,
     alarm.oefeningen.join(','),
+    doelenNaarTekst(alarm.doelen),
+    geluid?.uri ?? '',
   ].join('|');
 }
 
-function alarmInput(alarm: Alarm): AlarmScheduleInput {
+function alarmInput(alarm: Alarm, geluid: Alarmgeluid | null): AlarmScheduleInput {
   const [uur, minuut] = alarm.tijd.split(':').map(Number);
   // Alleen "Vrij" heeft een stopknop; alle andere niveaus openen de app voor snooze of missie
   return {
@@ -87,6 +92,7 @@ function alarmInput(alarm: Alarm): AlarmScheduleInput {
     minute: minuut ?? 0,
     title: alarm.naam,
     weekdays: alarm.dagen.map((d) => (d + 1) as AlarmWeekday),
+    soundUri: geluid?.uri,
     ...basisOpties(
       alarm.naam,
       {
@@ -94,7 +100,8 @@ function alarmInput(alarm: Alarm): AlarmScheduleInput {
         niveau: alarm.niveau,
         naam: alarm.naam,
         oefeningen: alarm.oefeningen.join(','),
-        versie: versieVan(alarm),
+        doelen: doelenNaarTekst(alarm.doelen),
+        versie: versieVan(alarm, geluid),
       },
       alarm.niveau !== 'Vrij',
     ),
@@ -139,11 +146,12 @@ export function synchroniseer(alarms: Alarm[]): Promise<void> {
     const rechten = await AlarmScheduler.getPermissionsAsync();
     if (!rechten.canScheduleExactAlarms) return;
 
+    const geluid = await leesAlarmgeluid();
     const gewenst = new Map(alarms.filter((a) => a.aan).map((a) => [a.id, a]));
     for (const native of await AlarmScheduler.getScheduledAlarmsAsync()) {
       if (native.metadata?.type !== 'alarm') continue;
       const alarm = gewenst.get(native.id);
-      if (!alarm || native.metadata?.versie !== versieVan(alarm)) {
+      if (!alarm || native.metadata?.versie !== versieVan(alarm, geluid)) {
         await AlarmScheduler.cancelAlarmAsync(native.id);
       }
     }
@@ -152,7 +160,8 @@ export function synchroniseer(alarms: Alarm[]): Promise<void> {
       (await AlarmScheduler.getScheduledAlarmsAsync()).map((native) => native.id),
     );
     for (const alarm of gewenst.values()) {
-      if (!nogGepland.has(alarm.id)) await AlarmScheduler.scheduleAlarmAsync(alarmInput(alarm));
+      if (!nogGepland.has(alarm.id))
+        await AlarmScheduler.scheduleAlarmAsync(alarmInput(alarm, geluid));
     }
   });
 }
@@ -186,6 +195,7 @@ export async function planTestAlarm(seconden: number): Promise<string> {
     minute: op.getMinutes(),
     timestamp: op.getTime(),
     title: 'Mooove testalarm',
+    soundUri: (await leesAlarmgeluid())?.uri,
     ...basisOpties('Mooove testalarm', { type: 'test' }, false),
   });
   return id;
@@ -218,6 +228,7 @@ function leesWekker(
     niveau: metadata?.niveau ? (String(metadata.niveau) as Niveau) : undefined,
     naam: metadata?.naam ? String(metadata.naam) : undefined,
     oefeningen: oefeningen as Oefening[] | undefined,
+    doelen: metadata?.doelen ? doelenUitTekst(String(metadata.doelen)) : undefined,
   };
 }
 

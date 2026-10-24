@@ -8,7 +8,7 @@ import { StapDetector } from '@/components/missie/StapDetector';
 import { Screen } from '@/components/Screen';
 import { LevelTag, PrimaryButton } from '@/components/ui';
 import { isStreng } from '@/constants/alarm';
-import { OEFENING_INFO } from '@/constants/oefeningen';
+import { doelenUitTekst, doelVoor, OEFENING_INFO } from '@/constants/oefeningen';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useSessies } from '@/hooks/useSessies';
@@ -30,6 +30,7 @@ export default function MissieScherm() {
     vanWekker?: string;
     niveau?: string;
     oefeningen?: string;
+    doelen?: string;
   }>();
   const { alarms, herplan } = useAlarmen();
   const { slaOp, statistiek } = useSessies();
@@ -48,6 +49,7 @@ export default function MissieScherm() {
       alarm?.oefeningen ??
       (params.oefeningen ? (params.oefeningen.split(',') as Oefening[]) : STANDAARD_MISSIE),
   );
+  const [doelen] = useState(() => alarm?.doelen ?? doelenUitTekst(params.doelen));
   const streng = vanWekker ? isStreng(niveau ?? 'Verplicht') : false;
 
   const [gestartOp] = useState(() => new Date());
@@ -64,6 +66,7 @@ export default function MissieScherm() {
 
   const oefening = oefeningen[stap]!;
   const info = OEFENING_INFO[oefening];
+  const doel = doelVoor(oefening, doelen);
   const laatsteStap = stap === oefeningen.length - 1;
 
   const zegt = useCallback(
@@ -84,30 +87,30 @@ export default function MissieScherm() {
 
   const onVoortgang = useCallback(
     (waarde: number) => {
-      const begrensd = Math.min(waarde, info.doel);
+      const begrensd = Math.min(waarde, doel);
       setGedaan(begrensd);
       if (info.eenheid === 'herhalingen') {
         const zin =
-          info.spraak[Math.min(Math.floor((begrensd / info.doel) * 3), info.spraak.length - 1)];
-        if (zin && begrensd > 0 && begrensd % 5 === 0 && begrensd < info.doel) zegt(zin);
+          info.spraak[Math.min(Math.floor((begrensd / doel) * 3), info.spraak.length - 1)];
+        if (zin && begrensd > 0 && begrensd % 5 === 0 && begrensd < doel) zegt(zin);
       }
     },
-    [info, zegt],
+    [info, doel, zegt],
   );
 
   const onKlaar = useCallback(
     (m: 'camera' | 'licht' | 'foto') => {
       setMethode(m);
-      setGedaan(info.doel);
+      setGedaan(doel);
       setStapKlaar(true);
       zegt('Yes! Volgende stap.');
     },
-    [info.doel, zegt],
+    [doel, zegt],
   );
 
   const handmatigAfvinken = () => {
     setMethode('handmatig');
-    setGedaan(info.doel);
+    setGedaan(doel);
     setStapKlaar(true);
   };
 
@@ -145,7 +148,7 @@ export default function MissieScherm() {
   };
 
   const volgende = async () => {
-    const nieuw = [...resultaten, { oefening, doel: info.doel, gedaan: info.doel, methode }];
+    const nieuw = [...resultaten, { oefening, doel, gedaan: doel, methode }];
     setResultaten(nieuw);
     if (laatsteStap) {
       setKlaar(true);
@@ -284,6 +287,7 @@ export default function MissieScherm() {
         <StapDetector
           key={`${stap}-${poging}`}
           oefening={oefening}
+          doel={doel}
           onVoortgang={onVoortgang}
           onFeedback={zegt}
           onKlaar={onKlaar}
@@ -300,7 +304,7 @@ export default function MissieScherm() {
           <Text style={styles.repsLabel}>{label}</Text>
           <Text style={styles.repsCount}>
             {gedaan}
-            <Text style={styles.repsTotal}> / {info.doel}</Text>
+            <Text style={styles.repsTotal}> / {doel}</Text>
           </Text>
         </View>
         <LevelTag level="hard" label={stapKlaar ? 'KLAAR ✓' : 'BEZIG'} />

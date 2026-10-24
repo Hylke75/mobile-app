@@ -12,6 +12,7 @@ export type Database = {
           aan: boolean;
           created_at: string;
           dagen: number[];
+          doelen: Json;
           id: string;
           naam: string;
           niveau: string;
@@ -24,6 +25,7 @@ export type Database = {
           aan?: boolean;
           created_at?: string;
           dagen: number[];
+          doelen?: Json;
           id?: string;
           naam?: string;
           niveau: string;
@@ -36,6 +38,7 @@ export type Database = {
           aan?: boolean;
           created_at?: string;
           dagen?: number[];
+          doelen?: Json;
           id?: string;
           naam?: string;
           niveau?: string;

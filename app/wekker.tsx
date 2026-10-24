@@ -6,6 +6,7 @@ import { BackHandler, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { LevelTag, PrimaryButton, SecondaryButton } from '@/components/ui';
 import { dagenTekst, MAX_SNOOZES, missiesTekst, SNOOZE_MINUTEN } from '@/constants/alarm';
+import { doelenNaarTekst, doelenUitTekst } from '@/constants/oefeningen';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useAuth } from '@/hooks/useAuth';
@@ -37,6 +38,7 @@ export default function WekkerScherm() {
     niveau?: string;
     naam?: string;
     oefeningen?: string;
+    doelen?: string;
   }>();
   const { alarms, herplan } = useAlarmen();
   const { werkProfielBij } = useAuth();
@@ -78,6 +80,7 @@ export default function WekkerScherm() {
       alarm?.oefeningen ??
       ((params.oefeningen ? params.oefeningen.split(',') : native?.oefeningen) as
         Wekker['oefeningen'] | undefined),
+    doelen: alarm?.doelen ?? (params.doelen ? doelenUitTekst(params.doelen) : native?.doelen),
   };
 
   const voerUit = async (actie: () => Promise<void>) => {
@@ -109,6 +112,7 @@ export default function WekkerScherm() {
           vanWekker: '1',
           niveau: wekker.niveau ?? '',
           oefeningen: wekker.oefeningen?.join(',') ?? '',
+          doelen: wekker.doelen ? doelenNaarTekst(wekker.doelen) : '',
         },
       });
     });

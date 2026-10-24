@@ -8,7 +8,14 @@ import { Screen } from '@/components/Screen';
 import { PrimaryButton, ScreenHeader, SecondaryButton, SectionTitleRow } from '@/components/ui';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmCheck } from '@/hooks/useAlarmCheck';
+import { useAlarmen } from '@/hooks/useAlarmen';
 import { useAuth } from '@/hooks/useAuth';
+import {
+  kiesAlarmgeluid,
+  leesAlarmgeluid,
+  wisAlarmgeluid,
+  type Alarmgeluid,
+} from '@/lib/alarmgeluid';
 import { openBatterijInstellingen } from '@/lib/batterij';
 import { useSessies } from '@/hooks/useSessies';
 import { useToast } from '@/hooks/useToast';
@@ -36,6 +43,41 @@ export default function ProfielScherm() {
   const [resterend, setResterend] = useState(TEST_SECONDEN);
   const [doelOpen, setDoelOpen] = useState(false);
   const testId = useRef<string | null>(null);
+  const { herplan } = useAlarmen();
+  const [geluid, setGeluid] = useState<Alarmgeluid | null>(null);
+
+  useEffect(() => {
+    leesAlarmgeluid().then(setGeluid);
+  }, []);
+
+  const kiesGeluid = async () => {
+    try {
+      const nieuw = await kiesAlarmgeluid();
+      if (!nieuw) return;
+      setGeluid(nieuw);
+      herplan();
+      showToast('Je alarmen gebruiken nu dit geluid.');
+    } catch {
+      showToast('Dit geluid kon niet worden gebruikt.');
+    }
+  };
+
+  const geluidOpties = () => {
+    if (!geluid) return kiesGeluid();
+    Alert.alert('Alarmgeluid', `Nu: ${geluid.naam}`, [
+      { text: 'Annuleren', style: 'cancel' },
+      {
+        text: 'Standaardgeluid',
+        onPress: async () => {
+          await wisAlarmgeluid();
+          setGeluid(null);
+          herplan();
+          showToast('Je alarmen gebruiken weer het standaardgeluid.');
+        },
+      },
+      { text: 'Ander geluid kiezen', onPress: kiesGeluid },
+    ]);
+  };
 
   // Opent de wekker-routing het testalarm, dan neemt dat scherm het over
   useFocusEffect(
@@ -223,6 +265,15 @@ export default function ProfielScherm() {
         <Text style={styles.settingLabel}>Mijn doelen</Text>
         <Text style={styles.settingValue}>{doelTekst(profiel?.weekdoel ?? 7)}</Text>
       </Pressable>
+      {alarmenBeschikbaar && (
+        <Pressable accessibilityRole="button" onPress={geluidOpties} style={styles.setting}>
+          <Icon name="sound" color={kleuren.ink} />
+          <Text style={styles.settingLabel}>Alarmgeluid</Text>
+          <Text style={styles.settingValue} numberOfLines={1}>
+            {geluid?.naam ?? 'Standaard'}
+          </Text>
+        </Pressable>
+      )}
       <Pressable
         accessibilityRole="button"
         onPress={() => (alarmenBeschikbaar ? Linking.openSettings() : undefined)}
@@ -405,7 +456,7 @@ const styles = StyleSheet.create({
   },
   settingLabel: { fontFamily: fonts.body800, fontSize: 12, color: kleuren.ink },
   gevaar: { color: '#C2462F' },
-  settingValue: { fontFamily: fonts.body800, fontSize: 10, color: '#8B9A8A' },
+  settingValue: { fontFamily: fonts.body800, fontSize: 10, color: '#8B9A8A', maxWidth: 150 },
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(16,23,20,0.92)',

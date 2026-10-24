@@ -1,4 +1,4 @@
-import type { Oefening } from '@/types/app';
+import type { Doelen, Oefening } from '@/types/app';
 
 export type OefeningInfo = {
   titel: [string, string];
@@ -88,9 +88,56 @@ export const OEFENING_INFO: Record<Oefening, OefeningInfo> = {
   },
 };
 
-export function doelTekst(oefening: Oefening): string {
+// Grenzen en stapgrootte voor een eigen doel in de alarm-editor
+export const DOEL_BEREIK: Record<
+  OefeningInfo['eenheid'],
+  { min: number; max: number; stap: number }
+> = {
+  herhalingen: { min: 5, max: 50, stap: 5 },
+  seconden: { min: 15, max: 120, stap: 15 },
+  handeling: { min: 1, max: 1, stap: 1 },
+};
+
+export function doelVoor(oefening: Oefening, doelen?: Doelen): number {
   const info = OEFENING_INFO[oefening];
-  if (info.eenheid === 'herhalingen') return `${info.doel} herhalingen`;
-  if (info.eenheid === 'seconden') return `${info.doel} seconden`;
+  const bereik = DOEL_BEREIK[info.eenheid];
+  const eigen = doelen?.[oefening];
+  if (typeof eigen !== 'number' || !Number.isFinite(eigen)) return info.doel;
+  return Math.min(bereik.max, Math.max(bereik.min, Math.round(eigen)));
+}
+
+export function doelTekst(oefening: Oefening, doelen?: Doelen): string {
+  const info = OEFENING_INFO[oefening];
+  const doel = doelVoor(oefening, doelen);
+  if (info.eenheid === 'herhalingen') return `${doel} herhalingen`;
+  if (info.eenheid === 'seconden') return `${doel} seconden`;
   return '1 handeling';
+}
+
+// Compacte vorm voor native metadata en routeparameters, bijv. "Squats:15,Plank:45"
+export function doelenNaarTekst(doelen: Doelen): string {
+  return Object.entries(doelen)
+    .map(([o, n]) => `${o}:${n}`)
+    .join(',');
+}
+
+export function doelenUitTekst(tekst: string | undefined): Doelen {
+  const doelen: Doelen = {};
+  if (!tekst) return doelen;
+  for (const deel of tekst.split(',')) {
+    const [o, n] = deel.split(':');
+    if (o && o in OEFENING_INFO && Number.isFinite(Number(n))) {
+      doelen[o as Oefening] = Number(n);
+    }
+  }
+  return doelen;
+}
+
+export function doelenUitJson(json: unknown): Doelen {
+  const doelen: Doelen = {};
+  if (!json || typeof json !== 'object' || Array.isArray(json)) return doelen;
+  for (const [o, n] of Object.entries(json)) {
+    if (o in OEFENING_INFO && typeof n === 'number') doelen[o as Oefening] = n;
+  }
+  return doelen;
 }

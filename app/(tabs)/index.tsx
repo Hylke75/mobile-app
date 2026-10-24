@@ -181,7 +181,7 @@ export default function VandaagScherm() {
             </View>
             <View>
               <Text style={styles.missionName}>{oefening}</Text>
-              <Text style={styles.missionDetail}>{doelTekst(oefening)}</Text>
+              <Text style={styles.missionDetail}>{doelTekst(oefening, volgend?.alarm.doelen)}</Text>
             </View>
             <View style={[styles.missionCheck, vandaagKlaar && styles.missionCheckKlaar]}>
               <Icon name="check" size={13} color={vandaagKlaar ? kleuren.ink : '#C1CEC0'} />

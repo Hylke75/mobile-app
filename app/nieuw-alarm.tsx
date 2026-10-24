@@ -10,12 +10,13 @@ import { Icon } from '@/components/Icon';
 import { Screen } from '@/components/Screen';
 import { gedeeld, PrimaryButton, SecondaryButton } from '@/components/ui';
 import { DAG_LETTERS, DAG_NAMEN, NIVEAUS, OEFENINGEN } from '@/constants/alarm';
+import { DOEL_BEREIK, doelVoor, OEFENING_INFO } from '@/constants/oefeningen';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useToast } from '@/hooks/useToast';
 import { haalRechtenOp, vraagRechtenAan } from '@/lib/alarmen';
 import { cameraStatus, vraagCameraAan } from '@/lib/camera';
-import type { Niveau, Oefening } from '@/types/app';
+import type { Doelen, Niveau, Oefening } from '@/types/app';
 
 const NIVEAU_RIJEN: (Niveau | null)[][] = [
   ['Vrij', 'Flexibel', 'Uitstelbaar'],
@@ -44,11 +45,20 @@ export default function NieuwAlarmScherm() {
   const [exercises, setExercises] = useState<Oefening[]>(
     bestaand?.oefeningen ?? ['Squats', 'Bed opmaken'],
   );
+  const [doelen, setDoelen] = useState<Doelen>(bestaand?.doelen ?? {});
   const [bezig, setBezig] = useState(false);
   const [iosPickerOpen, setIosPickerOpen] = useState(false);
 
   const wissel = <T,>(lijst: T[], waarde: T) =>
     lijst.includes(waarde) ? lijst.filter((x) => x !== waarde) : [...lijst, waarde];
+
+  const instelbaar = exercises.filter((o) => OEFENING_INFO[o].eenheid !== 'handeling');
+
+  const pasDoelAan = (oefening: Oefening, richting: 1 | -1) => {
+    const bereik = DOEL_BEREIK[OEFENING_INFO[oefening].eenheid];
+    const nieuw = doelVoor(oefening, doelen) + richting * bereik.stap;
+    setDoelen({ ...doelen, [oefening]: Math.min(bereik.max, Math.max(bereik.min, nieuw)) });
+  };
 
   const onTijdGekozen = (event: DateTimePickerEvent, datum?: Date) => {
     if (event.type === 'set' && datum) setTime(naarTijd(datum));
@@ -87,6 +97,12 @@ export default function NieuwAlarmScherm() {
       dagen: [...days].sort((a, b) => a - b),
       niveau: level,
       oefeningen: exercises,
+      // Alleen doelen bewaren voor gekozen oefeningen die afwijken van de standaard
+      doelen: Object.fromEntries(
+        instelbaar
+          .map((o) => [o, doelVoor(o, doelen)] as const)
+          .filter(([o, n]) => n !== OEFENING_INFO[o].doel),
+      ) as Doelen,
     };
     const fout = bestaand ? await werkBij(bestaand.id, invoer) : await maakAan(invoer);
     setBezig(false);
@@ -246,6 +262,52 @@ export default function NieuwAlarmScherm() {
         })}
       </View>
 
+      {instelbaar.length > 0 && (
+        <>
+          <Text style={styles.formLabel}>Hoeveel per oefening</Text>
+          <View style={styles.doelen}>
+            {instelbaar.map((o, i) => {
+              const info = OEFENING_INFO[o];
+              const bereik = DOEL_BEREIK[info.eenheid];
+              const doel = doelVoor(o, doelen);
+              const eenheid = info.eenheid === 'seconden' ? 'sec' : 'x';
+              return (
+                <View key={o} style={[styles.doelRij, i > 0 && styles.doelRijRand]}>
+                  <Text style={styles.doelNaam}>
+                    {info.emoji} {o}
+                  </Text>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`Minder ${o}`}
+                    disabled={doel <= bereik.min}
+                    onPress={() => pasDoelAan(o, -1)}
+                    style={[styles.stepper, doel <= bereik.min && styles.stepperUit]}
+                  >
+                    <Text style={styles.stepperTekst}>−</Text>
+                  </Pressable>
+                  <Text
+                    style={styles.doelWaarde}
+                    accessibilityLabel={`${doel} ${info.eenheid} ${o}`}
+                  >
+                    {doel}
+                    <Text style={styles.doelEenheid}> {eenheid}</Text>
+                  </Text>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`Meer ${o}`}
+                    disabled={doel >= bereik.max}
+                    onPress={() => pasDoelAan(o, 1)}
+                    style={[styles.stepper, doel >= bereik.max && styles.stepperUit]}
+                  >
+                    <Text style={styles.stepperTekst}>+</Text>
+                  </Pressable>
+                </View>
+              );
+            })}
+          </View>
+        </>
+      )}
+
       <PrimaryButton
         label={bezig ? 'Bezig…' : 'Alarm opslaan'}
         onPress={opslaan}
@@ -364,6 +426,34 @@ const styles = StyleSheet.create({
   exerciseSelected: { borderColor: kleuren.ink, backgroundColor: '#EDF4D5' },
   exerciseText: { fontFamily: fonts.body800, fontSize: 11, color: '#7E8E7F' },
   exerciseTextSelected: { color: kleuren.ink },
+  doelen: {
+    backgroundColor: kleuren.white,
+    borderWidth: 1,
+    borderColor: kleuren.line,
+    borderRadius: 15,
+    paddingHorizontal: 14,
+  },
+  doelRij: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10 },
+  doelRijRand: { borderTopWidth: 1, borderTopColor: kleuren.line },
+  doelNaam: { flex: 1, fontFamily: fonts.body800, fontSize: 12, color: kleuren.ink },
+  stepper: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: '#E8ECE4',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepperUit: { opacity: 0.4 },
+  stepperTekst: { fontFamily: fonts.body800, fontSize: 16, color: kleuren.ink },
+  doelWaarde: {
+    minWidth: 58,
+    textAlign: 'center',
+    fontFamily: fonts.head700,
+    fontSize: 18,
+    color: kleuren.ink,
+  },
+  doelEenheid: { fontFamily: fonts.body700, fontSize: 10, color: '#5F6E60' },
   save: { marginTop: 22 },
   delete: { marginTop: 10 },
   naamInput: {

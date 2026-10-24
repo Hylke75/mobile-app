@@ -3,6 +3,9 @@ export type Niveau = 'Vrij' | 'Flexibel' | 'Uitstelbaar' | 'Verplicht' | 'Hardco
 export type Oefening =
   'Squats' | 'Push-ups' | 'Jumping jacks' | 'Plank' | 'Bed opmaken' | 'Gordijnen open';
 
+// Eigen aantal herhalingen of seconden per oefening; ontbrekend = standaarddoel
+export type Doelen = Partial<Record<Oefening, number>>;
+
 export type Alarm = {
   id: string;
   naam: string;
@@ -11,6 +14,7 @@ export type Alarm = {
   dagen: number[];
   niveau: Niveau;
   oefeningen: Oefening[];
+  doelen: Doelen;
   aan: boolean;
 };
 
