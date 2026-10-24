@@ -36,6 +36,12 @@ export const PRIVACYVERKLARING: PrivacySectie[] = [
     ],
   },
   {
+    kop: 'Foutrapporten',
+    alineas: [
+      "Crasht de app, dan kan Mooove een technisch foutrapport sturen naar Sentry (servers in de EU). Zo'n rapport bevat het type toestel, de versie van de app en waar het misging, maar geen naam, e-mailadres, IP-adres of camerabeelden, en is niet aan je account gekoppeld. Rapporten worden na maximaal 90 dagen verwijderd.",
+    ],
+  },
+  {
     kop: 'Wat we niet doen',
     punten: [
       'We tonen geen advertenties en gebruiken geen advertentie- of trackingdiensten.',
@@ -46,7 +52,7 @@ export const PRIVACYVERKLARING: PrivacySectie[] = [
   {
     kop: 'Verwerkers',
     alineas: [
-      'Je gegevens worden opgeslagen bij Supabase (database en inloggen), in een datacenter in de Europese Unie (Frankfurt, Duitsland). Supabase verwerkt de gegevens uitsluitend in onze opdracht.',
+      'Je gegevens worden opgeslagen bij Supabase (database en inloggen), in een datacenter in de Europese Unie (Frankfurt, Duitsland). Foutrapporten gaan naar Sentry, eveneens in de EU. Beide verwerken de gegevens uitsluitend in onze opdracht.',
     ],
   },
   {

@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 
 import { Icon } from '@/components/Icon';
+import { BewegingStap, SPRONGEN_DOEL } from '@/components/missie/BewegingStap';
 import { StapDetector } from '@/components/missie/StapDetector';
 import { Screen } from '@/components/Screen';
 import { LevelTag, PrimaryButton } from '@/components/ui';
@@ -93,7 +94,10 @@ export default function MissieScherm() {
 
   const oefening = oefeningen[stap]!;
   const info = OEFENING_INFO[oefening];
-  const doel = doelVoor(oefening, doelen);
+  // Herkent de camera je niet, dan mag je in plaats daarvan springen met je telefoon
+  const [alternatief, setAlternatief] = useState(false);
+  const [wisselZichtbaar, setWisselZichtbaar] = useState(false);
+  const doel = alternatief ? SPRONGEN_DOEL : doelVoor(oefening, doelen);
   const laatsteStap = stap === oefeningen.length - 1;
 
   const zegt = useCallback(
@@ -105,6 +109,20 @@ export default function MissieScherm() {
   );
 
   useEffect(() => () => stopSpraak(), []);
+
+  useEffect(() => {
+    if (info.methode !== 'pose' || stapKlaar || alternatief || gedaan > 0) return;
+    const t = setTimeout(() => setWisselZichtbaar(true), 90000);
+    return () => clearTimeout(t);
+  }, [info.methode, stapKlaar, alternatief, gedaan, stap, poging]);
+
+  const kiesAlternatief = () => {
+    setAlternatief(true);
+    setWisselZichtbaar(false);
+    setGedaan(0);
+    teller.current = 0;
+    zegt(`Pak je telefoon en spring ${SPRONGEN_DOEL} keer.`);
+  };
 
   useEffect(() => {
     if (!vanWekker || !params.alarmId) return;
@@ -133,7 +151,7 @@ export default function MissieScherm() {
   );
 
   const onKlaar = useCallback(
-    (m: 'camera' | 'licht' | 'foto') => {
+    (m: 'camera' | 'licht' | 'foto' | 'beweging') => {
       setMethode(m);
       setGedaan(doel);
       setStapKlaar(true);
@@ -152,6 +170,8 @@ export default function MissieScherm() {
   const opnieuw = () => {
     setGedaan(0);
     teller.current = 0;
+    setAlternatief(false);
+    setWisselZichtbaar(false);
     setStapKlaar(false);
     setPoging((p) => p + 1);
   };
@@ -197,6 +217,8 @@ export default function MissieScherm() {
     setStap(stap + 1);
     setGedaan(0);
     teller.current = 0;
+    setAlternatief(false);
+    setWisselZichtbaar(false);
     setStapKlaar(false);
   };
 
@@ -389,7 +411,9 @@ export default function MissieScherm() {
         ))}
       </View>
 
-      {!stapKlaar ? (
+      {!stapKlaar && alternatief ? (
+        <BewegingStap onVoortgang={onVoortgang} onKlaar={() => onKlaar('beweging')} />
+      ) : !stapKlaar ? (
         <StapDetector
           key={`${stap}-${poging}`}
           oefening={oefening}
@@ -405,6 +429,14 @@ export default function MissieScherm() {
           </Text>
           <Text style={styles.stapKlaarTekst}>Stap afgerond</Text>
         </View>
+      )}
+
+      {wisselZichtbaar && !stapKlaar && !alternatief && (
+        <Pressable accessibilityRole="button" onPress={kiesAlternatief} style={styles.wissel}>
+          <Text style={styles.wisselTekst}>
+            Ziet de camera je niet? Spring {SPRONGEN_DOEL} keer met je telefoon in je hand →
+          </Text>
+        </Pressable>
       )}
 
       <View style={styles.repsRow}>
@@ -595,6 +627,20 @@ const styles = StyleSheet.create({
   },
   outlineBtnText: { fontFamily: fonts.body800, fontSize: 11, color: kleuren.white },
   emergency: { alignSelf: 'center', marginTop: 17, padding: 4 },
+  wissel: {
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: '#D8FB59',
+    borderRadius: 14,
+    paddingVertical: 11,
+    paddingHorizontal: 14,
+  },
+  wisselTekst: {
+    fontFamily: fonts.body800,
+    fontSize: 12,
+    color: kleuren.lime,
+    textAlign: 'center',
+  },
   gezondheid: {
     fontFamily: fonts.body400,
     fontSize: 11,

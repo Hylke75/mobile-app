@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { useRef, type ComponentRef } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Screen } from '@/components/Screen';
 import { gedeeld, RoundPlus, ScreenHeader, SectionTitleRow } from '@/components/ui';
@@ -6,6 +7,8 @@ import { DAG_LETTERS, DAG_NAMEN } from '@/constants/alarm';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
 import { useSessies } from '@/hooks/useSessies';
+import { useToast } from '@/hooks/useToast';
+import { deelAlsAfbeelding } from '@/lib/delen';
 import { badgesVoor } from '@/lib/statistiek';
 import { dagIndex } from '@/lib/tijd';
 
@@ -40,6 +43,8 @@ function verschilTekst(waarde: number | null, eenheid = ''): string | null {
 
 export default function ProgressieScherm() {
   const { statistiek, vernieuw } = useSessies();
+  const { showToast } = useToast();
+  const kaart = useRef<ComponentRef<typeof View>>(null);
   const { profiel } = useAuth();
   const s = statistiek;
   const weekdoel = profiel?.weekdoel ?? 7;
@@ -59,7 +64,7 @@ export default function ProgressieScherm() {
         rechts={<RoundPlus icon="chart" />}
       />
 
-      <View style={styles.hero}>
+      <View ref={kaart} collapsable={false} style={styles.hero}>
         <Text style={styles.heroEyebrow}>JOUW MOMENTUM ↗</Text>
         <Text maxFontSizeMultiplier={1.2} style={styles.heroTitle}>
           {s.streak} {s.streak === 1 ? 'DAG' : 'DAGEN'}
@@ -74,7 +79,22 @@ export default function ProgressieScherm() {
         <Text maxFontSizeMultiplier={1.2} style={styles.starburst}>
           ✳
         </Text>
+        <Text style={styles.heroMerk}>mooove.</Text>
       </View>
+      {s.streak > 0 && (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() =>
+            deelAlsAfbeelding(
+              kaart,
+              `${s.streak} ${s.streak === 1 ? 'dag' : 'dagen'} op rij in beweging met Mooove 🔥`,
+            ).catch(() => showToast('Delen is niet gelukt.'))
+          }
+          style={styles.deel}
+        >
+          <Text style={styles.deelTekst}>Deel je streak ↗</Text>
+        </Pressable>
+      )}
 
       <View style={styles.metricRow}>
         <View style={styles.metric}>
@@ -223,6 +243,15 @@ const styles = StyleSheet.create({
   },
   barActive: { backgroundColor: kleuren.ink },
   barLabel: { fontFamily: fonts.body800, fontSize: 9, color: '#5F6E60' },
+  heroMerk: {
+    fontFamily: fonts.head700,
+    fontSize: 15,
+    color: kleuren.ink,
+    marginTop: 12,
+    opacity: 0.7,
+  },
+  deel: { alignSelf: 'flex-end', marginTop: 8, padding: 6 },
+  deelTekst: { fontFamily: fonts.body800, fontSize: 12, color: kleuren.ink },
   badgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   badge: {
     flexBasis: '30%',

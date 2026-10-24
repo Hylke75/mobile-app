@@ -22,6 +22,7 @@ import { useAlarmen } from '@/hooks/useAlarmen';
 import { useAuth } from '@/hooks/useAuth';
 import {
   kiesAlarmgeluid,
+  kiesZachtGeluid,
   leesAlarmgeluid,
   wisAlarmgeluid,
   type Alarmgeluid,
@@ -116,20 +117,34 @@ export default function ProfielScherm() {
     }
   };
 
+  const zetGeluid = async (actie: () => Promise<Alarmgeluid | null>, melding: string) => {
+    try {
+      const nieuw = await actie();
+      setGeluid(nieuw);
+      herplan();
+      showToast(melding);
+    } catch {
+      showToast('Dit geluid kon niet worden gebruikt.');
+    }
+  };
+
   const geluidOpties = () => {
-    if (!geluid) return kiesGeluid();
-    Alert.alert('Alarmgeluid', `Nu: ${geluid.naam}`, [
-      { text: 'Annuleren', style: 'cancel' },
+    Alert.alert('Alarmgeluid', `Nu: ${geluid?.naam ?? 'Standaard'}`, [
       {
         text: 'Standaardgeluid',
-        onPress: async () => {
-          await wisAlarmgeluid();
-          setGeluid(null);
-          herplan();
-          showToast('Je alarmen gebruiken weer het standaardgeluid.');
-        },
+        onPress: () =>
+          zetGeluid(async () => {
+            await wisAlarmgeluid();
+            return null;
+          }, 'Je alarmen gebruiken weer het standaardgeluid.'),
       },
-      { text: 'Ander geluid kiezen', onPress: kiesGeluid },
+      {
+        text: 'Zacht opbouwend',
+        onPress: () =>
+          zetGeluid(kiesZachtGeluid, 'Je alarm begint zacht en wordt langzaam luider.'),
+      },
+      { text: 'Eigen geluid kiezen', onPress: kiesGeluid },
+      { text: 'Annuleren', style: 'cancel' },
     ]);
   };
 

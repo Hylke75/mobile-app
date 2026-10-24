@@ -1,0 +1,31 @@
+# Wekelijkse controle op updates. Grote Expo/React Native-sprongen doen we bewust zelf
+# (met `npx expo install --fix`), daarom alleen kleine updates voor die pakketten.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      expo:
+        patterns:
+          ['expo', 'expo-*', '@expo/*', 'react-native', 'react-native-*', 'react', 'react-dom']
+        update-types: ['patch']
+      overig:
+        patterns: ['*']
+        exclude-patterns:
+          ['expo', 'expo-*', '@expo/*', 'react-native', 'react-native-*', 'react', 'react-dom']
+        update-types: ['minor', 'patch']
+    ignore:
+      - dependency-name: 'expo*'
+        update-types: ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: 'react-native*'
+        update-types: ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: 'react'
+        update-types: ['version-update:semver-major', 'version-update:semver-minor']
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

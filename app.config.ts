@@ -74,6 +74,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           NSPrivacyCollectedDataTypePurposes: ['NSPrivacyCollectedDataTypePurposeAppFunctionality'],
         },
         {
+          // Alleen als Sentry aan staat: crashrapporten zonder koppeling aan het account
+          NSPrivacyCollectedDataType: 'NSPrivacyCollectedDataTypeCrashData',
+          NSPrivacyCollectedDataTypeLinked: false,
+          NSPrivacyCollectedDataTypeTracking: false,
+          NSPrivacyCollectedDataTypePurposes: ['NSPrivacyCollectedDataTypePurposeAppFunctionality'],
+        },
+        {
           NSPrivacyCollectedDataType: 'NSPrivacyCollectedDataTypeProductInteraction',
           NSPrivacyCollectedDataTypeLinked: true,
           NSPrivacyCollectedDataTypeTracking: false,
@@ -95,6 +102,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     blockedPermissions: [
       'android.permission.READ_EXTERNAL_STORAGE',
       'android.permission.WRITE_EXTERNAL_STORAGE',
+      // Komt standaard mee van Expo; Mooove tekent niet over andere apps heen
+      'android.permission.SYSTEM_ALERT_WINDOW',
     ],
   },
   web: {
@@ -113,6 +122,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       {
         alarmKitUsageDescription:
           'Mooove zet je alarmen zodat ze ook afgaan als je telefoon op stil staat.',
+      },
+    ],
+    [
+      'expo-sensors',
+      {
+        motionPermission:
+          'Mooove gebruikt de bewegingssensor om je sprongen te tellen als de camera je niet herkent.',
       },
     ],
     [

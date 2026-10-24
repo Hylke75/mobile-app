@@ -9,4 +9,8 @@ export async function kiesAlarmgeluid(): Promise<Alarmgeluid | null> {
   return null;
 }
 
+export async function kiesZachtGeluid(): Promise<Alarmgeluid> {
+  throw new Error('Niet beschikbaar op web');
+}
+
 export async function wisAlarmgeluid(): Promise<void> {}

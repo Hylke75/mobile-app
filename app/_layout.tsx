@@ -18,6 +18,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Foutscherm } from '@/components/Foutscherm';
 import { Toast } from '@/components/Toast';
 import { kleuren } from '@/constants/theme';
+import { startFoutrapportage } from '@/lib/fouten';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { AlarmenProvider } from '@/hooks/useAlarmen';
 import { SessiesProvider } from '@/hooks/useSessies';
@@ -25,6 +26,8 @@ import { ToastProvider } from '@/hooks/useToast';
 import { useWekkerRouting } from '@/hooks/useWekkerRouting';
 
 SplashScreen.preventAutoHideAsync();
+
+startFoutrapportage();
 
 export const ErrorBoundary = Foutscherm;
 

@@ -47,7 +47,11 @@ wekker,alarm,ochtend,bewegen,squats,fitness,routine,streak,opstaan,snooze,missie
 - Identificatoren → Gebruikers-ID (account-ID) — App-functionaliteit
 - Gebruiksdata → Productinteractie (alarmen, missieresultaten) — App-functionaliteit
 
-**Niet verzameld:** locatie, gezondheid (medisch), foto's of video's (camerabeelden blijven op het toestel), audio, contacten, aankopen, apparaat-ID's, diagnostiek, advertentiedata.
+**Data die niet aan je identiteit is gekoppeld** (alleen als Sentry aan staat)
+
+- Diagnostiek → Crashgegevens — App-functionaliteit
+
+**Niet verzameld:** locatie, gezondheid (medisch), foto's of video's (camerabeelden blijven op het toestel), audio, contacten, aankopen, apparaat-ID's, advertentiedata.
 **Gebruikt voor tracking:** nee. Deze antwoorden komen overeen met het privacymanifest in de build (`ios.privacyManifests` in `app.config.ts`).
 **Tracking:** nee.
 

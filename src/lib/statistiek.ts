@@ -48,7 +48,11 @@ function streaks(voltooid: Sessie[], weekdoel: number, vandaag: Date) {
 function totalen(voltooid: Sessie[]): Partial<Record<Oefening, number>> {
   const som: Partial<Record<Oefening, number>> = {};
   for (const sessie of voltooid) {
-    for (const stap of sessie.stappen) som[stap.oefening] = (som[stap.oefening] ?? 0) + stap.gedaan;
+    for (const stap of sessie.stappen) {
+      // Sprongen als alternatief tellen niet als herhalingen van de oorspronkelijke oefening
+      if (stap.methode === 'beweging') continue;
+      som[stap.oefening] = (som[stap.oefening] ?? 0) + stap.gedaan;
+    }
   }
   return som;
 }
@@ -181,4 +185,27 @@ export function gemiddeldeReactie(
     .filter((m): m is number => m !== null);
   if (!waarden.length) return null;
   return Math.round(waarden.reduce((a, b) => a + b, 0) / waarden.length);
+}
+
+export type Weekoverzicht = {
+  weekStart: Date;
+  actieveDagen: number;
+  missies: number;
+  reps: number;
+};
+
+// Overzicht van de vorige kalenderweek (maandag t/m zondag)
+export function vorigeWeek(sessies: Sessie[], nu = new Date()): Weekoverzicht {
+  const dezeWeek = startVanWeek(nu);
+  const weekStart = new Date(dezeWeek);
+  weekStart.setDate(weekStart.getDate() - 7);
+  const inWeek = sessies.filter(
+    (s) => s.status === 'voltooid' && s.afgerondOp >= weekStart && s.afgerondOp < dezeWeek,
+  );
+  return {
+    weekStart,
+    actieveDagen: new Set(inWeek.map((s) => dagSleutel(s.afgerondOp))).size,
+    missies: inWeek.length,
+    reps: inWeek.reduce((som, s) => som + s.totaalHerhalingen, 0),
+  };
 }

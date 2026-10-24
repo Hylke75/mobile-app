@@ -4,13 +4,15 @@ import { useEffect } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { kleuren } from '@/constants/theme';
+import { meldFout } from '@/lib/fouten';
 
 // Vangt onverwachte fouten op, zodat de gebruiker nooit een leeg scherm ziet.
 // Gebruikt systeemlettertypes: de eigen lettertypes zijn op dit punt mogelijk niet geladen.
 export function Foutscherm({ error, retry }: ErrorBoundaryProps) {
   useEffect(() => {
     SplashScreen.hideAsync().catch(() => {});
-  }, []);
+    meldFout(error);
+  }, [error]);
 
   const meld = () =>
     Linking.openURL(

@@ -9,6 +9,7 @@ import { Icon } from '@/components/Icon';
 import { PrimaryButton, SecondaryButton } from '@/components/ui';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmCheck } from '@/hooks/useAlarmCheck';
+import { useAlarmen } from '@/hooks/useAlarmen';
 import { alarmenBeschikbaar, vraagRechtenAan } from '@/lib/alarmen';
 import { openBatterijInstellingen } from '@/lib/batterij';
 import { vraagCameraAan } from '@/lib/camera';
@@ -18,6 +19,7 @@ type Stap = { titel: string; uitleg: string; ok: boolean; actie: () => void; kno
 
 export default function KlaarzettenScherm() {
   const { rechten, regels, batterijAan, vernieuw } = useAlarmCheck();
+  const { alarms, geladen } = useAlarmen();
   const [bezig, setBezig] = useState(false);
   const camera = regels.find((r) => r.label === 'Camera')?.ok ?? false;
 
@@ -68,6 +70,11 @@ export default function KlaarzettenScherm() {
 
   const klaar = async (naarTest: boolean) => {
     await schrijfLokaal(SLEUTELS.klaargezet, true);
+    // Nieuwe gebruiker: direct door naar het eerste alarm, zodat Vandaag nooit leeg begint
+    if (!naarTest && geladen && alarms.length === 0) {
+      router.replace({ pathname: '/nieuw-alarm', params: { eerste: '1' } });
+      return;
+    }
     // Terug naar de tabs die er al onder liggen, zonder een tweede kopie te openen
     if (router.canGoBack()) router.back();
     else router.replace('/');

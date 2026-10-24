@@ -19,6 +19,7 @@
 | Persoonlijke info → E-mailadres                                                         | Verzameld, verplicht, voor app-functionaliteit en accountbeheer     |
 | Persoonlijke info → Naam                                                                | Verzameld, verplicht, voor app-functionaliteit                      |
 | App-activiteit → Andere door gebruiker gegenereerde content (alarmen, missieresultaten) | Verzameld, verplicht, voor app-functionaliteit                      |
+| App-info en prestaties → Crashlogs (alleen met Sentry)                                  | Verzameld, verplicht, voor analyse; niet gekoppeld aan het account  |
 | Foto's en video's                                                                       | **Niet verzameld** (alleen verwerkt op het toestel, niet verzonden) |
 | Gezondheid en fitness → Fitnessinfo (herhalingen, voltooide oefeningen)                 | Verzameld, verplicht, voor app-functionaliteit                      |
 | Locatie, gezondheidsinfo (medisch), financiële info, contacten, audio                   | Niet verzameld                                                      |

@@ -1,0 +1,33 @@
+name: OTA-update
+
+# Handmatig starten (Actions → OTA-update → Run workflow) voor een snelle JavaScript-fix
+# zonder nieuwe build of store-review. Vereist het repository-secret EXPO_TOKEN.
+on:
+  workflow_dispatch:
+    inputs:
+      kanaal:
+        description: 'Kanaal (preview of production)'
+        required: true
+        default: preview
+        type: choice
+        options: [preview, production]
+      bericht:
+        description: 'Korte omschrijving van de update'
+        required: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint && npm run typecheck && npm test -- --ci
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - run: eas update --channel "${{ inputs.kanaal }}" --message "${{ inputs.bericht }}" --environment "${{ inputs.kanaal }}" --non-interactive

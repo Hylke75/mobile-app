@@ -22,7 +22,7 @@ export type StapResultaat = {
   oefening: Oefening;
   doel: number;
   gedaan: number;
-  methode: 'camera' | 'licht' | 'foto' | 'handmatig';
+  methode: 'camera' | 'licht' | 'foto' | 'beweging' | 'handmatig';
 };
 
 export type Sessie = {

@@ -35,7 +35,7 @@ const naarTijd = (d: Date) =>
   `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 
 export default function NieuwAlarmScherm() {
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { id, eerste } = useLocalSearchParams<{ id?: string; eerste?: string }>();
   const { alarms, maakAan, werkBij, verwijder } = useAlarmen();
   const { showToast } = useToast();
   const bestaand = id ? alarms.find((a) => a.id === id) : undefined;
@@ -249,6 +249,15 @@ export default function NieuwAlarmScherm() {
         <Icon name="chevron" color={kleuren.ink} />
         <Text style={gedeeld.backLinkText}>Terug naar alarmen</Text>
       </Pressable>
+      {eerste === '1' && !bestaand && (
+        <View style={styles.eerste}>
+          <Text style={styles.eersteKop}>Je eerste Mooove-alarm</Text>
+          <Text style={styles.eersteTekst}>
+            Kies je tijd, je dagen en je missie. Twijfel je over het niveau? Begin met Flexibel; je
+            kunt alles later aanpassen.
+          </Text>
+        </View>
+      )}
       <Text style={styles.title}>
         {bestaand ? 'Alarm bewerken' : 'Nieuw alarm'}
         <Text style={{ color: '#91B755' }}>.</Text>
@@ -499,6 +508,20 @@ const styles = StyleSheet.create({
     letterSpacing: em(0.14, 10),
     color: '#5F6E60',
     marginBottom: 8,
+  },
+  eerste: {
+    backgroundColor: '#EDF4D5',
+    borderRadius: 15,
+    padding: 14,
+    marginBottom: 14,
+  },
+  eersteKop: { fontFamily: fonts.body800, fontSize: 13, color: kleuren.ink },
+  eersteTekst: {
+    fontFamily: fonts.body400,
+    fontSize: 12,
+    lineHeight: 17,
+    color: '#3D4A3F',
+    marginTop: 4,
   },
   timeHint: { fontFamily: fonts.body600, fontSize: 11, color: '#5F6E60', marginTop: 6 },
   timeValue: {

@@ -1,3 +1,4 @@
+import { Asset } from 'expo-asset';
 import * as DocumentPicker from 'expo-document-picker';
 import { File, Paths } from 'expo-file-system';
 
@@ -33,6 +34,20 @@ export async function kiesAlarmgeluid(): Promise<Alarmgeluid | null> {
   await new File(asset.uri).copy(doel);
   const vorig = await leesAlarmgeluid();
   const geluid = { uri: doel.uri, naam: asset.name.replace(/\.[^.]+$/, '') };
+  await schrijfLokaal(SLEUTELS.alarmgeluid, geluid);
+  ruimOp(vorig?.uri);
+  return geluid;
+}
+
+// Meegeleverd geluid dat in 24 seconden van zacht naar luid gaat
+export async function kiesZachtGeluid(): Promise<Alarmgeluid> {
+  const asset = Asset.fromModule(require('../../assets/sounds/zacht-wakker.wav'));
+  await asset.downloadAsync();
+  if (!asset.localUri) throw new Error('Geluid niet beschikbaar');
+  const doel = new File(Paths.document, `alarmgeluid-zacht-${Date.now()}.wav`);
+  await new File(asset.localUri).copy(doel);
+  const vorig = await leesAlarmgeluid();
+  const geluid = { uri: doel.uri, naam: 'Zacht opbouwend' };
   await schrijfLokaal(SLEUTELS.alarmgeluid, geluid);
   ruimOp(vorig?.uri);
   return geluid;

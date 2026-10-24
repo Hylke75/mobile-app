@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
@@ -15,7 +16,9 @@ import { useSessies } from '@/hooks/useSessies';
 import { alarmenBeschikbaar } from '@/lib/alarmen';
 import { datumKicker } from '@/lib/datum';
 import { useNu } from '@/hooks/useNu';
-import { dagSleutel, hervatOp, startVanDag, tijdTot, volgendAlarm } from '@/lib/tijd';
+import { leesLokaal, schrijfLokaal, SLEUTELS } from '@/lib/opslag';
+import { vorigeWeek } from '@/lib/statistiek';
+import { dagIndex, dagSleutel, hervatOp, startVanDag, tijdTot, volgendAlarm } from '@/lib/tijd';
 import type { Oefening } from '@/types/app';
 
 const STANDAARD_MISSIE: Oefening[] = ['Squats', 'Bed opmaken', 'Gordijnen open'];
@@ -39,6 +42,15 @@ export default function VandaagScherm() {
   const voornaam = profiel?.voornaam ?? '';
 
   const nu = useNu();
+  const overzicht = vorigeWeek(sessies, nu);
+  const weekSleutel = dagSleutel(overzicht.weekStart);
+  // Weekoverzicht op maandag en dinsdag, tot je het wegtikt
+  const [gezien, setGezien] = useState<string | null | undefined>(undefined);
+  useEffect(() => {
+    leesLokaal<string>(SLEUTELS.weekoverzichtGezien).then(setGezien);
+  }, []);
+  const toonOverzicht =
+    gezien !== undefined && gezien !== weekSleutel && dagIndex(nu) <= 1 && overzicht.missies > 0;
   const hervat = hervatOp(profiel?.pauze_tot, nu);
   // Tijdens een pauze is het eerstvolgende alarm het eerste na de pauze
   const volgend = volgendAlarm(alarms, hervat ? new Date(hervat.getTime() - 1) : nu);
@@ -123,6 +135,35 @@ export default function VandaagScherm() {
           ✳
         </Text>
       </View>
+
+      {toonOverzicht && (
+        <View style={styles.week} accessibilityRole="summary">
+          <View style={styles.flex}>
+            <Text style={styles.weekKicker}>JOUW VORIGE WEEK</Text>
+            <Text style={styles.weekTekst}>
+              {overzicht.actieveDagen} {overzicht.actieveDagen === 1 ? 'dag' : 'dagen'} bewogen ·{' '}
+              {overzicht.missies} {overzicht.missies === 1 ? 'missie' : 'missies'} ·{' '}
+              {overzicht.reps} reps
+            </Text>
+            <Text style={styles.weekSub}>
+              {overzicht.actieveDagen >= (profiel?.weekdoel ?? 7)
+                ? 'Weekdoel gehaald. Zo ga je door! 🎉'
+                : 'Nieuwe week, nieuwe kans. Jij kunt dit.'}
+            </Text>
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Weekoverzicht sluiten"
+            hitSlop={10}
+            onPress={() => {
+              setGezien(weekSleutel);
+              schrijfLokaal(SLEUTELS.weekoverzichtGezien, weekSleutel);
+            }}
+          >
+            <Icon name="close" size={16} color={kleuren.paper} />
+          </Pressable>
+        </View>
+      )}
 
       <SectionTitleRow
         titel="Volgende alarm"
@@ -271,6 +312,18 @@ export default function VandaagScherm() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
+  week: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    backgroundColor: kleuren.ink,
+    borderRadius: 19,
+    padding: 16,
+    marginBottom: 14,
+  },
+  weekKicker: { fontFamily: fonts.body800, fontSize: 10, letterSpacing: 1.4, color: kleuren.lime },
+  weekTekst: { fontFamily: fonts.body800, fontSize: 15, color: kleuren.paper, marginTop: 6 },
+  weekSub: { fontFamily: fonts.body400, fontSize: 12, color: '#B2C2B0', marginTop: 4 },
   pauze: {
     flexDirection: 'row',
     alignItems: 'center',

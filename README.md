@@ -64,13 +64,17 @@ Build-nummers worden door EAS beheerd (`appVersionSource: remote`) en bij elke p
 
 ## Updates zonder nieuwe build
 
-JavaScript-wijzigingen kunnen zonder store-review naar bestaande builds met dezelfde `version`:
+JavaScript-wijzigingen kunnen zonder store-review naar bestaande builds met dezelfde `version` (of via GitHub: Actions → OTA-update, met het repository-secret `EXPO_TOKEN`):
 
 ```bash
 npx eas-cli@latest update --channel production --message "Korte omschrijving"
 ```
 
 Wijzigingen aan native modules of `app.config.ts` vragen altijd een nieuwe build.
+
+## Crashrapporten
+
+Maak een (gratis) project aan op sentry.io in de EU-regio en zet de DSN als `EXPO_PUBLIC_SENTRY_DSN` in `.env` en in de EAS-omgevingen (`npx eas-cli@latest env:create`). Zonder DSN staat foutrapportage uit.
 
 ## Indienen via EAS Submit
 
