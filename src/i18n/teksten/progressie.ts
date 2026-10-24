@@ -106,11 +106,11 @@ export const progressie: Vertalingen<typeof nl> = {
     dag: 'TAG',
     dagen: 'TAGE',
     heroBezig: 'Jede Bewegung zählt. Du baust eine Routine auf, die bleibt.',
-    heroStart: 'Schließ eine Mission ab, um deine Streak zu starten.',
+    heroStart: 'Schließ eine Mission ab, um deine Serie zu starten.',
     deelTekstDag: '1 Tag in Folge in Bewegung mit Mooove 🔥',
     deelTekstDagen: '{{n}} Tage in Folge in Bewegung mit Mooove 🔥',
     delenMislukt: 'Teilen hat nicht geklappt.',
-    deelKnop: 'Teile deine Streak ↗',
+    deelKnop: 'Teile deine Serie ↗',
     jokerTitel: '🃏 Serien-Joker',
     jokerBeschikbaar:
       'Du hast diesen Monat noch einen Joker. Verpasst du einen Tag, bleibt deine Serie bestehen.',

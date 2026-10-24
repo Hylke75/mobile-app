@@ -192,7 +192,7 @@ export const auth: Vertalingen<typeof nl> = {
   de: {
     inloggen: {
       tekst:
-        'Melde dich mit deiner E-Mail-Adresse an. Du bekommst einen einmaligen Code per E-Mail. Mit einem Konto speichern wir deine Alarme, deine Streak und deinen Fortschritt, auch wenn du ein neues Handy hast.',
+        'Melde dich mit deiner E-Mail-Adresse an. Du bekommst einen einmaligen Code per E-Mail. Mit einem Konto speichern wir deine Wecker, deine Serie und deinen Fortschritt, auch wenn du ein neues Handy hast.',
       emailLabel: 'E-MAIL-ADRESSE',
       emailA11y: 'E-Mail-Adresse',
       emailVoorbeeld: 'du@beispiel.de',

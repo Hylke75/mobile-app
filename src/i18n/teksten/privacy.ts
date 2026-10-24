@@ -215,7 +215,7 @@ export const privacy: Vertalingen<typeof nl> = {
       p1: 'E-Mail-Adresse: um dich mit einem einmaligen Code anzumelden und dein Konto zu verwalten.',
       p2: 'Vorname: um dich in der App zu begrüßen.',
       p3: 'Alarme (Uhrzeit, Tage, Stufe, gewählte Übungen und Anzahl, Name): um deine Alarme zu planen und auf all deinen Geräten verfügbar zu machen.',
-      p4: 'Missionsergebnisse (Start- und Endzeit, Übungen, Anzahl der Wiederholungen, abgeschlossen oder abgebrochen): um deine Streak, deinen Fortschritt und deine Abzeichen anzuzeigen.',
+      p4: 'Missionsergebnisse (Start- und Endzeit, Übungen, Anzahl der Wiederholungen, abgeschlossen oder abgebrochen): um deine Serie, deinen Fortschritt und deine Abzeichen anzuzeigen.',
       p5: 'Wochenziel und Datum deines letzten erfolgreichen Alarmtests: um deine Einstellungen und den Alarm-Check anzuzeigen.',
       p6: 'Eigene Missionen (Name, Symbol, Timer oder Foto und Dauer): um sie in deinen Weckern zu verwenden.',
     },

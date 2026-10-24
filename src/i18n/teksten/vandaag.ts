@@ -127,7 +127,7 @@ export const vandaag: Vertalingen<typeof nl> = {
     dag: 'TAG',
     dagen: 'TAGE',
     streakBezig: 'Du bist nicht zu stoppen. Keep going!',
-    streakStart: 'Schließ heute deine erste Mission ab und starte deine Streak.',
+    streakStart: 'Schließ heute deine erste Mission ab und starte deine Serie.',
     vorigeWeek: 'DEINE LETZTE WOCHE',
     weekDag: '1 Tag bewegt',
     weekDagen: '{{n}} Tage bewegt',

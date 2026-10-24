@@ -366,7 +366,7 @@ export const missie: Vertalingen<typeof nl> = {
       titel: 'BEREIT FÜR',
       accent: 'MORGEN.',
       tekst: 'Dein Probelauf ist geschafft. Leg dein Handy morgen an dieselbe Stelle.',
-      telt: 'Ein Probelauf zählt nicht für deine Streak.',
+      telt: 'Ein Probelauf zählt nicht für deine Serie.',
       terug: 'Zurück zu deinem Alarm',
     },
     klaar: {
@@ -375,7 +375,7 @@ export const missie: Vertalingen<typeof nl> = {
       reactieSnel: 'Du warst innerhalb einer Minute nach dem Alarm in Bewegung{{gemiddeld}}.',
       reactie: 'Du warst {{n}} Min. nach dem Alarm in Bewegung{{gemiddeld}}.',
       gemiddeld: ' · Durchschnitt diese Woche {{n}} Min.',
-      dagenStreak: 'TAGE STREAK',
+      dagenStreak: 'TAGE SERIE',
       missiesKlaar: 'MISSIONEN ERLEDIGT',
       mijlpaal: '🎉 Meilenstein: {{n}} Tage am Stück!',
       badge: '{{emoji}} Neues Abzeichen: {{naam}}',
