@@ -41,7 +41,10 @@ Deno.serve(async (req) => {
   const taal = typeof invoer.taal === 'string' && TALEN.includes(invoer.taal) ? invoer.taal : 'nl';
   if (email.length > 254 || !EMAIL.test(email)) return json({ error: 'Ongeldig e-mailadres' }, 400);
 
-  const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+  const db = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+  );
 
   const ip =
     req.headers.get('cf-connecting-ip') ??
@@ -57,7 +60,10 @@ Deno.serve(async (req) => {
         .eq('sleutel', s)
         .gte('created_at', uurGeleden)
     ).count ?? 0;
-  if ((await tel(sleutel)) >= MAX_PER_UUR || (await tel('wachtlijst:totaal')) >= MAX_TOTAAL_PER_UUR) {
+  if (
+    (await tel(sleutel)) >= MAX_PER_UUR ||
+    (await tel('wachtlijst:totaal')) >= MAX_TOTAAL_PER_UUR
+  ) {
     return json({ error: 'Te veel aanmeldingen, probeer het later' }, 429);
   }
   await db.from('misbruikrem').insert([{ sleutel }, { sleutel: 'wachtlijst:totaal' }]);
