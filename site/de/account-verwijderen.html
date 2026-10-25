@@ -71,6 +71,8 @@ h1 {
     Arial;
   letter-spacing: -0.05em;
   margin: 0 0 20px;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 h2 {
   font:
@@ -98,6 +100,17 @@ td {
   padding: 10px 12px;
   border-bottom: 1px solid var(--line);
   vertical-align: top;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+@media (max-width: 420px) {
+  table {
+    font-size: 13px;
+  }
+  th,
+  td {
+    padding: 8px;
+  }
 }
 th {
   background: #e4ecd9;

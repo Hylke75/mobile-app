@@ -635,6 +635,14 @@
       .berichten .mini {
         margin-left: auto;
       }
+      /* Acties blijven zichtbaar als de gebruikerstabel horizontaal scrolt */
+      .gebruikers-wrap th:last-child,
+      .gebruikers-wrap td:last-child {
+        position: sticky;
+        right: 0;
+        background: var(--card);
+        box-shadow: -1px 0 0 var(--line);
+      }
     </style>
   </head>
   <body>
@@ -784,7 +792,7 @@
               <button type="button" class="zacht" id="csv">Exporteer CSV</button>
             </div>
           </div>
-          <div class="tabel-wrap">
+          <div class="tabel-wrap gebruikers-wrap">
             <table>
               <thead>
                 <tr id="kolommen"></tr>
