@@ -58,4 +58,42 @@ export const badges: Vertalingen<typeof nl> = {
     legend: { naam: 'Légende', detail: '30 jours d’affilée' },
     honderd: { naam: 'Centurion', detail: '100 missions' },
   },
+  zh: {
+    eersteStap: {
+      naam: '第一步',
+      detail: '第一个任务',
+    },
+    earlyMover: {
+      naam: '早起达人',
+      detail: '5 次早起',
+    },
+    weekendWarrior: {
+      naam: '周末战士',
+      detail: '周六和周日都运动',
+    },
+    squatSquad: {
+      naam: '深蹲小队',
+      detail: '100 个深蹲',
+    },
+    pushupPro: {
+      naam: '俯卧撑高手',
+      detail: '100 个俯卧撑',
+    },
+    plankmeester: {
+      naam: '平板支撑大师',
+      detail: '平板支撑 10 分钟',
+    },
+    streakMaster: {
+      naam: '连续大师',
+      detail: '连续 10 天',
+    },
+    legend: {
+      naam: '传奇',
+      detail: '连续 30 天',
+    },
+    honderd: {
+      naam: '百炼成钢',
+      detail: '100 个任务',
+    },
+  },
 };

@@ -100,4 +100,23 @@ export const herinneringen: Vertalingen<typeof nl> = {
     alleenOpTelefoon: 'Les rappels ne fonctionnent que dans l’app sur ton téléphone.',
     kanaal: 'Rappels',
   },
+  zh: {
+    kop: '提醒',
+    avond: {
+      label: '前一天晚上',
+      uitleg: '晚上 9 点告诉你明天早上设了哪个闹钟和哪些任务。',
+      titel: '明天 {{tijd}}：{{naam}}',
+      tekst: '为{{missies}}准备好你的手机。',
+    },
+    streak: {
+      label: '连续纪录有危险',
+      uitleg: '如果你今天还没做任务，晚上 7 点提醒你一下。',
+      titel: '你连续 {{n}} 天的纪录岌岌可危 🔥',
+      tekst: '今天做一个任务，保持下去。',
+      tekstJoker: '今天做一个任务，否则会用掉本月的补签卡。',
+    },
+    geenToestemming: '请在手机设置中为 Mooove 开启通知。',
+    alleenOpTelefoon: '提醒只能在手机上的应用中使用。',
+    kanaal: '提醒',
+  },
 };

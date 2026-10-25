@@ -33,4 +33,16 @@ export const navigatie: Vertalingen<typeof nl> = {
     },
     update: { klaar: 'Nouvelle version prête', herstart: 'Redémarrer' },
   },
+  zh: {
+    tabs: {
+      vandaag: '今天',
+      alarmen: '闹钟',
+      progressie: '进度',
+      profiel: '我的',
+    },
+    update: {
+      klaar: '新版本已就绪',
+      herstart: '重启',
+    },
+  },
 };

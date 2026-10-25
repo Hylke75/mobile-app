@@ -149,7 +149,7 @@ export const LANDING = {
           titel: 'Alarm-check',
           tekst: 'Controleert of alle rechten goed staan en laat je een echt testalarm proberen.',
         },
-        { titel: 'Vijf talen', tekst: 'Nederlands, Engels, Spaans, Duits en Frans.' },
+        { titel: 'Zes talen', tekst: 'Nederlands, Engels, Spaans, Duits, Frans en Chinees.' },
       ],
     },
     niveaus: {
@@ -373,7 +373,7 @@ export const LANDING = {
           titel: 'Alarm check',
           tekst: 'Checks that all permissions are set and lets you try a real test alarm.',
         },
-        { titel: 'Five languages', tekst: 'Dutch, English, Spanish, German and French.' },
+        { titel: 'Six languages', tekst: 'Dutch, English, Spanish, German, French and Chinese.' },
       ],
     },
     niveaus: {
@@ -599,7 +599,7 @@ export const LANDING = {
           tekst:
             'Comprueba que todos los permisos están bien y te deja probar una alarma de prueba real.',
         },
-        { titel: 'Cinco idiomas', tekst: 'Neerlandés, inglés, español, alemán y francés.' },
+        { titel: 'Seis idiomas', tekst: 'Neerlandés, inglés, español, alemán, francés y chino.' },
       ],
     },
     niveaus: {
@@ -831,8 +831,8 @@ export const LANDING = {
             'Prüft, ob alle Berechtigungen stimmen, und lässt dich einen echten Testwecker ausprobieren.',
         },
         {
-          titel: 'Fünf Sprachen',
-          tekst: 'Niederländisch, Englisch, Spanisch, Deutsch und Französisch.',
+          titel: 'Sechs Sprachen',
+          tekst: 'Niederländisch, Englisch, Spanisch, Deutsch, Französisch und Chinesisch.',
         },
       ],
     },
@@ -1063,7 +1063,10 @@ export const LANDING = {
           tekst:
             'Vérifie que toutes les autorisations sont en place et te laisse essayer une vraie alarme de test.',
         },
-        { titel: 'Cinq langues', tekst: 'Néerlandais, anglais, espagnol, allemand et français.' },
+        {
+          titel: 'Six langues',
+          tekst: 'Néerlandais, anglais, espagnol, allemand, français et chinois.',
+        },
       ],
     },
     niveaus: {
@@ -1143,5 +1146,174 @@ export const LANDING = {
         'Un e-mail au lancement, puis nous supprimons ton adresse. Voir la politique de confidentialité.',
     },
     gezondheid: 'Mooove n’est pas un dispositif médical. Bouge dans tes propres limites.',
+  },
+  zh: {
+    titel: 'Mooove — 只有动起来才会停的闹钟',
+    beschrijving:
+      'Mooove 是一款只有你真正动起来才会停的闹钟。深蹲、俯卧撑、整理床铺或拉开窗帘：手机会帮你计数。告别无休止的“再睡五分钟”。',
+    nav: { hoe: '使用方法', voordelen: '好处', functies: '功能', niveaus: '等级', faq: '常见问题' },
+    binnenkort: '即将上线',
+    appStore: 'App Store',
+    playStore: 'Google Play',
+    download: '下载',
+    hero: {
+      kicker: '只有动起来才会停的闹钟',
+      titel: '别再赖床。',
+      accent: '动起来。',
+      tekst:
+        'Mooove 把起床变成你一天中的第一个胜利。只有完成晨间任务，闹钟才会停止：做几个深蹲、整理床铺或拉开窗帘。手机会看着你并帮你计数。',
+      punten: ['相机在你自己的手机上计数', '静音时也会响', '无广告，无追踪'],
+    },
+    probleem: {
+      kicker: '问题',
+      titel: '赖床很舒服，直到你醒来。',
+      tekst:
+        '再睡五分钟，又是五分钟。你匆忙、昏沉地开始新的一天，感觉已经落后了。普通闹钟太容易放过你。',
+      oplossingKicker: '解决方案',
+      oplossingTitel: 'Mooove 只有在你起床后才放过你。',
+      oplossingTekst:
+        '你选择一个简短的任务，完成后闹钟才会停止。动上两分钟你就清醒了，也不会再想念“稍后提醒”按钮。',
+    },
+    hoe: {
+      kicker: '使用方法',
+      titel: '三步开启更有活力的早晨。',
+      stappen: [
+        {
+          titel: '选择你的任务',
+          tekst:
+            '设定起床时间，选择要做的事：深蹲、俯卧撑、平板支撑、整理床铺、拉开窗帘、喝一杯水或你自己的任务。次数由你决定。',
+        },
+        {
+          titel: '动起来关闭闹钟',
+          tekst: '放好手机，开始吧。相机会识别你的动作并计数，还有语音鼓励。完成后，闹钟就会停止。',
+        },
+        {
+          titel: '积累连续纪录',
+          tekst:
+            '每个早晨都算数。看着连续纪录增长，赢取徽章，追踪每周目标。漏掉一天？每月的补签卡帮你兜底。',
+        },
+      ],
+    },
+    voordelen: {
+      kicker: '为什么选择 MOOOVE',
+      titel: '你能收获什么。',
+      lijst: [
+        {
+          emoji: '⚡',
+          titel: '更快真正清醒',
+          tekst: '稍微动一动、晒晒日光，比翻个身再睡有效得多。你起来了，而且不会再躺回去。',
+        },
+        {
+          emoji: '🏆',
+          titel: '你的第一个胜利',
+          tekst: '早餐前你就已经完成了一件值得骄傲的事，并把这份感觉带进一整天。',
+        },
+        {
+          emoji: '🔁',
+          titel: '能坚持的习惯',
+          tekst: '连续纪录、徽章和带休息日的每周目标，让好的打算真正坚持下去。',
+        },
+        {
+          emoji: '🎚️',
+          titel: '严格程度由你定',
+          tekst:
+            '从可以稍后提醒的友好闹钟，到五分钟后还有清醒检查的硬核模式。每个闹钟都可以单独选择。',
+        },
+        {
+          emoji: '🔒',
+          titel: '你的画面属于你',
+          tekst: '相机只在你自己的手机上工作。画面绝不会被保存或发送。',
+        },
+        {
+          emoji: '🧘',
+          titel: '对身体友好',
+          tekst: '简短、简单的任务，按你自己的节奏来。实在不行时，还有紧急停止。',
+        },
+      ],
+    },
+    schermen: {
+      kicker: '实际效果',
+      titel: '睡眼惺忪也能轻松使用。',
+      bijschriften: ['一眼看清你的一天', '你的所有闹钟', '选择任务', '你的进度', '任务完成'],
+    },
+    functies: {
+      kicker: '功能',
+      titel: '让早晨更美好的一切。',
+      lijst: [
+        {
+          titel: '相机帮你计数',
+          tekst:
+            '在手机上识别深蹲、俯卧撑、开合跳和平板支撑。相机看不到你时，运动传感器会计算你的跳跃。',
+        },
+        {
+          titel: '16 个任务 + 自定义任务',
+          tekst: '运动和晨间习惯：从弓步蹲到刷牙。你还可以创建带计时或照片的自定义任务。',
+        },
+        { titel: '五个等级', tekst: '自由、灵活、可推迟、必做或硬核。每个闹钟单独设置。' },
+        { titel: '带补签卡的连续纪录', tekst: '连续纪录会考虑休息日。每月漏掉一天也不会中断。' },
+        { titel: '提醒', tekst: '前一天晚上就能看到安排了哪个任务。连续纪录有危险时还会提醒你。' },
+        { titel: '离线可用', tekst: '你的闹钟保存在手机上。没有网络时，任务会稍后再保存。' },
+        { titel: '闹钟检查', tekst: '检查所有权限是否设置好，并让你试一次真正的测试闹钟。' },
+        { titel: '六种语言', tekst: '荷兰语、英语、西班牙语、德语、法语和中文。' },
+      ],
+    },
+    niveaus: {
+      kicker: '等级',
+      titel: 'Mooove 有多严格，由你决定。',
+      lijst: [
+        { naam: '自由', tekst: '带停止按钮和稍后提醒的普通闹钟。适合轻松开始。' },
+        { naam: '灵活', tekst: '需要多一点时间时，把闹钟推迟 15、30 或 60 分钟。' },
+        { naam: '可推迟', tekst: '最多推迟三次，然后就该做任务了。' },
+        { naam: '必做', tekst: '不能推迟。完成任务后闹钟才会停止。' },
+        { naam: '硬核', tekst: '必须完成任务，五分钟后还有清醒检查。别想回床上。' },
+      ],
+    },
+    privacy: {
+      kicker: '隐私',
+      titel: '你的相机，你的手机。',
+      tekst:
+        'Mooove 在你自己的设备上识别你的动作。相机画面绝不会被保存、发送或分享。无广告，无追踪。你的数据保存在欧盟，一键即可删除账户。',
+      link: '阅读隐私政策',
+    },
+    faq: {
+      kicker: '常见问题',
+      titel: '常见问题。',
+      lijst: [
+        {
+          v: '手机静音时闹钟会响吗？',
+          a: '会。Mooove 使用手机的闹钟系统（iPhone 上的 AlarmKit，Android 上的精确闹钟）。应用中的闹钟检查会确保一切设置妥当。',
+        },
+        {
+          v: '如果我不能运动或受伤了怎么办？',
+          a: '选择适合你的任务，比如喝一杯水或拉开窗帘，或者把等级设为“自由”。在任何等级下，紧急停止都能关闭闹钟。Mooove 不是医疗器械：请在自身能力范围内运动。',
+        },
+        {
+          v: '我的相机画面会被保存吗？',
+          a: '不会。识别在你自己的手机上进行。画面绝不会被保存或发送。就连确认床铺已整理好的照片也会立即删除。',
+        },
+        {
+          v: 'Mooove 支持哪些手机？',
+          a: '运行 iOS 26 或更高版本的 iPhone，以及运行 Android 8 或更高版本的 Android 手机。',
+        },
+        {
+          v: '我可以删除我的账户吗？',
+          a: '可以，在应用中通过“我的 → 删除账户”。你的所有数据会立即永久删除。你也可以先下载全部数据。',
+        },
+      ],
+    },
+    cta: { titel: '明天就开始。', tekst: '设置你的第一个 Mooove 闹钟，带着胜利醒来。' },
+    wachtlijst: {
+      titel: '加入等候名单',
+      tekst: 'Mooove 即将登陆 App Store 和 Google Play。留下你的邮箱地址，我们会通知你一次。',
+      plaats: 'you@email.com',
+      knop: '通知我',
+      bezig: '请稍候…',
+      gelukt: '太好了！Mooove 上线时你会第一个知道。',
+      fout: '提交失败，请稍后重试。',
+      ongeldig: '请输入有效的邮箱地址。',
+      teVaak: '尝试次数过多，请一小时后再试。',
+      klein: '上线时发一封邮件，之后我们会删除你的地址。详见隐私政策。',
+    },
+    gezondheid: 'Mooove 不是医疗器械。请在自身能力范围内运动。',
   },
 };

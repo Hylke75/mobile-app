@@ -51,13 +51,20 @@ const KOPPEN = {
     ['Construis une série', 'qui dure'],
     ['Ne s’arrête que', 'quand tu bouges'],
   ],
+  zh: [
+    ['每天都以', '一次胜利开始'],
+    ['严格程度', '由你决定'],
+    ['16 个任务，', '或自己创建'],
+    ['打造一个', '能坚持的连续纪录'],
+    ['只有你动起来', '才会停'],
+  ],
 };
 
 function html(beeld, [regel1, regel2], [b, h]) {
   return `<!doctype html><html><head><meta charset="utf-8">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box}body{margin:0;width:${b}px;height:${h}px;background:#101714;overflow:hidden;position:relative;font-family:'Space Grotesk',Arial}
+*{box-sizing:border-box}body{margin:0;width:${b}px;height:${h}px;background:#101714;overflow:hidden;position:relative;font-family:'Space Grotesk','PingFang SC','Noto Sans SC','WenQuanYi Zen Hei',Arial}
 body::before{content:"";position:absolute;left:-30%;right:-30%;bottom:-25%;height:65%;background:radial-gradient(closest-side,rgba(216,251,89,.3),transparent)}
 h1{position:relative;margin:${h * 0.075}px ${b * 0.08}px 0;font-size:${b * 0.095}px;line-height:1.02;letter-spacing:-.045em;color:#fff;text-align:center}
 h1 span{display:block;color:#D8FB59}
@@ -70,7 +77,9 @@ h1 span{display:block;color:#D8FB59}
 }
 
 const browser = await chromium.launch();
-for (const [taal, koppen] of Object.entries(KOPPEN)) {
+for (const [taal, koppen] of Object.entries(KOPPEN).filter(
+  ([t]) => !process.env.TALEN || process.env.TALEN.split(',').includes(t),
+)) {
   for (const [formaat, maat] of Object.entries(FORMATEN)) {
     const map = path.join(DOEL, taal, formaat);
     fs.mkdirSync(map, { recursive: true });

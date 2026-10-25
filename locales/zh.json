@@ -1,0 +1,9 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "Mooove",
+    "NSCameraUsageDescription": "Mooove 使用相机检查你的任务，例如计算深蹲次数。画面只保留在你的设备上。",
+    "NSMicrophoneUsageDescription": "Mooove 不会录音。相机画面在你的设备上处理，不含声音。",
+    "NSMotionUsageDescription": "当相机看不到你时，Mooove 使用运动传感器计算你的跳跃次数。",
+    "NSAlarmKitUsageDescription": "Mooove 会设置你的闹钟，即使手机静音也会响。"
+  }
+}

@@ -1,24 +1,76 @@
-// Bouwt de vertaalde pagina's van de site (site/en, site/es, site/de, site/fr) uit de appteksten.
-// De Nederlandse pagina's in site/ zijn leidend en worden met de hand bijgehouden.
+// Bouwt de hele site in zes talen (Nederlands op /, de rest onder /en, /es, /de, /fr, /zh):
+// presentatiepagina, privacyverklaring (uit src/i18n/teksten/privacy.ts) en account verwijderen.
 // Gebruik: npm run site
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { privacy } from '../src/i18n/teksten/privacy.ts';
-import { landing } from './site-landing.mjs';
+import { CSS, FAVICON, HREFLANG, landing, navigatie, voettekst } from './site-landing.mjs';
 
 const HIER = path.dirname(fileURLToPath(import.meta.url));
 const SITE = path.join(HIER, '..', 'site');
 const BIJGEWERKT = new Date(2026, 9, 24);
 const MAIL = 'hylke@linkandlead.nl';
 export const DOMEIN = 'https://mooove-app.com';
-const TALEN = ['nl', 'en', 'es', 'de', 'fr'];
-const TAALNAMEN = { nl: 'Nederlands', en: 'English', es: 'Español', de: 'Deutsch', fr: 'Français' };
-const LOCALES = { en: 'en-GB', es: 'es-ES', de: 'de-DE', fr: 'fr-FR' };
+const TALEN = ['nl', 'en', 'es', 'de', 'fr', 'zh'];
+const TAALNAMEN = {
+  nl: 'Nederlands',
+  en: 'English',
+  es: 'Español',
+  de: 'Deutsch',
+  fr: 'Français',
+  zh: '中文',
+};
+const LOCALES = { nl: 'nl-NL', en: 'en-GB', es: 'es-ES', de: 'de-DE', fr: 'fr-FR', zh: 'zh-CN' };
 
 const TEKST = {
+  nl: {
+    beschrijving: 'Mooove — de wekker die pas stopt als je in beweging bent.',
+    privacy: 'Privacyverklaring',
+    verwijderen: 'Account verwijderen',
+    kickerAccount: 'ACCOUNT',
+    kolomGegeven: 'Gegeven',
+    kolomWaarvoor: 'Waarvoor',
+    verwijderTitel: 'Je Mooove-account verwijderen',
+    verwijderIntro:
+      'Je kunt je account en alle bijbehorende gegevens op twee manieren verwijderen.',
+    inApp: 'In de app (direct)',
+    stappen: [
+      'Open Mooove en ga naar <strong>Profiel</strong>.',
+      'Tik onder <strong>Account</strong> op <strong>Account verwijderen</strong>.',
+      'Bevestig. Je account, alarmen en voortgang worden direct en definitief verwijderd.',
+    ],
+    zonderApp: 'Zonder de app',
+    zonderAppTekst: `Heb je de app niet meer? Stuur een e-mail naar <strong>${MAIL}</strong> met als onderwerp &quot;Account verwijderen&quot; vanaf het e-mailadres waarmee je bent ingelogd. We verwijderen je account en alle gegevens binnen 30 dagen en bevestigen dit per e-mail.`,
+    watTitel: 'Wat wordt verwijderd?',
+    watTekst:
+      'Alles: je e-mailadres, voornaam, alarmen, eigen missies, missieresultaten en instellingen. We bewaren geen kopie.',
+  },
+  zh: {
+    beschrijving: 'Mooove — 只有动起来才会停的闹钟。',
+    privacy: '隐私政策',
+    verwijderen: '删除账户',
+    kickerAccount: '账户',
+    kolomGegeven: '数据',
+    kolomWaarvoor: '用途',
+    verwijderTitel: '删除你的 Mooove 账户',
+    verwijderIntro: '你可以通过两种方式删除账户及所有相关数据。',
+    inApp: '在应用中（立即生效）',
+    stappen: [
+      '打开 Mooove，进入<strong>我的</strong>。',
+      '点按<strong>删除账户</strong>。',
+      '确认。你的账户、闹钟和进度会立即永久删除。',
+    ],
+    zonderApp: '不使用应用',
+    zonderAppTekst: `已经没有这个应用了？请用你登录时使用的邮箱地址发送邮件至 <strong>${MAIL}</strong>，主题为&quot;删除账户&quot;。我们会在 30 天内删除你的账户和所有数据，并通过邮件确认。`,
+    watTitel: '会删除哪些内容？',
+    watTekst: '全部：你的邮箱地址、名字、闹钟、自定义任务、任务结果和设置。我们不会保留任何副本。',
+  },
   en: {
+    kickerAccount: 'ACCOUNT',
+    kolomGegeven: 'Data',
+    kolomWaarvoor: 'What for',
     beschrijving: 'Mooove — the alarm clock that only stops once you are moving.',
     privacy: 'Privacy policy',
     verwijderen: 'Delete account',
@@ -42,6 +94,9 @@ const TEKST = {
       'Everything: your email address, first name, alarms, custom missions, mission results and settings. We do not keep a copy.',
   },
   es: {
+    kickerAccount: 'CUENTA',
+    kolomGegeven: 'Dato',
+    kolomWaarvoor: 'Para qué',
     beschrijving: 'Mooove: el despertador que solo se detiene cuando te pones en marcha.',
     privacy: 'Política de privacidad',
     verwijderen: 'Eliminar cuenta',
@@ -66,6 +121,9 @@ const TEKST = {
       'Todo: tu correo electrónico, nombre, alarmas, misiones propias, resultados de misiones y ajustes. No guardamos ninguna copia.',
   },
   de: {
+    kickerAccount: 'KONTO',
+    kolomGegeven: 'Daten',
+    kolomWaarvoor: 'Wofür',
     beschrijving: 'Mooove – der Wecker, der erst aufhört, wenn du in Bewegung bist.',
     privacy: 'Datenschutzerklärung',
     verwijderen: 'Konto löschen',
@@ -90,6 +148,9 @@ const TEKST = {
       'Alles: deine E-Mail-Adresse, dein Vorname, deine Wecker, eigene Missionen, Missionsergebnisse und Einstellungen. Wir behalten keine Kopie.',
   },
   fr: {
+    kickerAccount: 'COMPTE',
+    kolomGegeven: 'Donnée',
+    kolomWaarvoor: 'Pour quoi',
     beschrijving: 'Mooove — le réveil qui ne s’arrête que quand tu bouges.',
     privacy: 'Politique de confidentialité',
     verwijderen: 'Supprimer le compte',
@@ -124,79 +185,116 @@ const url = (taal, pagina) =>
 const esc = (s) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const metMail = (s) => esc(s).replace(MAIL, `<a href="mailto:${MAIL}">${MAIL}</a>`);
+const taalCode = (taal) => HREFLANG[taal] ?? taal;
 
-// Gedeelde stijl van de tekstpagina's (privacy, account verwijderen)
-const stijl = `<style>\n${fs.readFileSync(path.join(HIER, 'site-pagina.css'), 'utf8')}</style>`;
-
-function talenlijst(huidig, pagina) {
-  return TALEN.map((taal) =>
-    taal === huidig
-      ? `<strong>${TAALNAMEN[taal]}</strong>`
-      : `<a href="${url(taal, pagina)}" hreflang="${taal}" lang="${taal}">${TAALNAMEN[taal]}</a>`,
-  ).join(' · ');
-}
+// Stijl van de presentatiepagina plus de opmaak van de tekstpagina's
+const stijl = `<style>${CSS}\n${fs.readFileSync(path.join(HIER, 'site-pagina.css'), 'utf8')}</style>`;
 
 // Absolute links voor zoekmachines: canonical per pagina en hreflang voor alle talen
 function hreflang(pagina, huidig) {
   return [
     huidig ? `<link rel="canonical" href="${DOMEIN}${url(huidig, pagina)}">` : '',
     ...TALEN.map(
-      (taal) => `<link rel="alternate" hreflang="${taal}" href="${DOMEIN}${url(taal, pagina)}">`,
+      (taal) =>
+        `<link rel="alternate" hreflang="${taalCode(taal)}" href="${DOMEIN}${url(taal, pagina)}">`,
     ),
     `<link rel="alternate" hreflang="x-default" href="${DOMEIN}${url('nl', pagina)}">`,
   ].join('');
 }
 
-function pagina(taal, soort, titel, inhoud) {
+const LABELS = Object.fromEntries(
+  Object.entries(TEKST).map(([t, x]) => [t, { privacy: x.privacy, verwijderen: x.verwijderen }]),
+);
+
+// Tekstpagina in dezelfde huisstijl als de presentatiepagina: menubalk, donkere kop, kaart, voettekst
+function pagina(taal, soort, { titel, kicker, kop, datum }, inhoud) {
   const x = TEKST[taal];
-  return `<!doctype html><html lang="${taal}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${titel}</title><meta name="description" content="${esc(x.beschrijving)}">${hreflang(soort, taal)}${stijl}</head><body>
-<header><a href="${url(taal, 'index')}"><span class="glyph"><b>m<i>.</i></b></span><span class="word">mooove<span>.</span></span></a></header>
-<main>${inhoud}</main><footer>© 2026 Hylke Thiry · <a href="${url(taal, 'privacy')}">${x.privacy}</a> · <a href="${url(taal, 'verwijderen')}">${x.verwijderen}</a><br>${x.taal}: ${talenlijst(taal, soort)}</footer></body></html>
+  const opties = { talen: TALEN, taalnamen: TAALNAMEN, url, pagina: soort };
+  return `<!doctype html><html lang="${taalCode(taal)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(titel)}</title><meta name="description" content="${esc(x.beschrijving)}"><meta name="theme-color" content="#101714"><link rel="icon" href="${FAVICON}">${hreflang(soort, taal)}
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+${stijl}</head><body>
+${navigatie(taal, opties, url(taal, 'index'))}
+<header class="pagina-kop"><div class="wrap"><p class="kicker">${esc(kicker)}</p><h1 class="kop">${esc(kop)}</h1>${datum ? `<p class="datum">${esc(datum)}</p>` : ''}</div></header>
+<main class="tekst"><article>
+${inhoud}
+</article></main>
+${voettekst(taal, { url, privacyLabel: LABELS[taal].privacy, verwijderLabel: LABELS[taal].verwijderen, mail: MAIL })}
+</body></html>
 `;
+}
+
+// "Gegeven: waarvoor" → twee kolommen (ook met de Chinese dubbele punt)
+function gegevensTabel(taal, punten) {
+  const rijen = punten.map((p) => {
+    const m = p.match(/^(.+?)\s*[:：]\s*(.+)$/);
+    const [gegeven, waarvoor] = m ? [m[1], m[2]] : [p, ''];
+    return `<tr><td>${esc(gegeven)}</td><td>${metMail(waarvoor.charAt(0).toUpperCase() + waarvoor.slice(1))}</td></tr>`;
+  });
+  return `<div class="tabel"><table><thead><tr><th>${esc(TEKST[taal].kolomGegeven)}</th><th>${esc(TEKST[taal].kolomWaarvoor)}</th></tr></thead><tbody>${rijen.join('')}</tbody></table></div>`;
 }
 
 function privacyInhoud(taal) {
   const p = privacy[taal];
-  const datum = BIJGEWERKT.toLocaleDateString(LOCALES[taal], {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-  const delen = [
-    `<h1>${esc(TEKST[taal].privacy)} Mooove</h1>`,
-    `<p><em>${esc(p.bijgewerkt.replace('{{datum}}', datum))}</em></p>`,
-    `<p><em>${esc(p.voorrang)} (<a href="/privacy" hreflang="nl" lang="nl">Nederlands</a>)</em></p>`,
-  ];
+  const delen = [];
+  if (p.voorrang.trim())
+    delen.push(
+      `<p class="voorrang">${esc(p.voorrang)} (<a href="/privacy" hreflang="nl" lang="nl">Nederlands</a>)</p>`,
+    );
   for (const [sleutel, sectie] of Object.entries(p)) {
     if (typeof sectie !== 'object') continue;
     if (sleutel !== 'over') delen.push(`<h2>${esc(sectie.kop)}</h2>`);
     const alineas = Object.keys(sectie).filter((k) => /^a\d+$/.test(k));
     const punten = Object.keys(sectie).filter((k) => /^p\d+$/.test(k));
     for (const k of alineas) delen.push(`<p>${metMail(sectie[k])}</p>`);
-    if (punten.length)
-      delen.push(`<ul>${punten.map((k) => `<li>${metMail(sectie[k])}</li>`).join('')}</ul>`);
+    if (!punten.length) continue;
+    delen.push(
+      sleutel === 'gegevens'
+        ? gegevensTabel(
+            taal,
+            punten.map((k) => sectie[k]),
+          )
+        : `<ul>${punten.map((k) => `<li>${metMail(sectie[k])}</li>`).join('')}</ul>`,
+    );
   }
   return delen.join('\n');
 }
 
-for (const taal of TALEN.filter((t) => t !== 'nl')) {
+for (const taal of TALEN) {
   const x = TEKST[taal];
-  const map = path.join(SITE, taal);
+  const map = taal === 'nl' ? SITE : path.join(SITE, taal);
   fs.mkdirSync(map, { recursive: true });
+  const datum = privacy[taal].bijgewerkt.replace(
+    '{{datum}}',
+    BIJGEWERKT.toLocaleDateString(LOCALES[taal], {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    }),
+  );
   fs.writeFileSync(
     path.join(map, 'privacy.html'),
-    pagina(taal, 'privacy', `${x.privacy} · Mooove`, privacyInhoud(taal)),
+    pagina(
+      taal,
+      'privacy',
+      {
+        titel: `${x.privacy} · Mooove`,
+        kicker: privacy[taal].kicker,
+        kop: `${x.privacy} Mooove`,
+        datum,
+      },
+      privacyInhoud(taal),
+    ),
   );
   fs.writeFileSync(
     path.join(map, 'account-verwijderen.html'),
     pagina(
       taal,
       'verwijderen',
-      `${x.verwijderen} · Mooove`,
-      `<h1>${x.verwijderTitel}</h1>
-<p>${x.verwijderIntro}</p>
+      { titel: `${x.verwijderen} · Mooove`, kicker: x.kickerAccount, kop: x.verwijderTitel },
+      `<p>${x.verwijderIntro}</p>
 <h2>${x.inApp}</h2>
-<ol>${x.stappen.map((s) => `<li>${s}</li>`).join('')}</ol>
+<ol class="stappenlijst">${x.stappen.map((s) => `<li><span>${s}</span></li>`).join('')}</ol>
 <h2>${x.zonderApp}</h2>
 <p>${x.zonderAppTekst}</p>
 <h2>${x.watTitel}</h2>
@@ -204,13 +302,8 @@ for (const taal of TALEN.filter((t) => t !== 'nl')) {
     ),
   );
 }
-// Presentatiepagina in alle vijf talen (Nederlands op /)
-const LABELS = {
-  nl: { privacy: 'Privacyverklaring', verwijderen: 'Account verwijderen' },
-  ...Object.fromEntries(
-    Object.entries(TEKST).map(([t, x]) => [t, { privacy: x.privacy, verwijderen: x.verwijderen }]),
-  ),
-};
+
+// Presentatiepagina in alle talen (Nederlands op /)
 for (const taal of TALEN) {
   const map = taal === 'nl' ? SITE : path.join(SITE, taal);
   fs.writeFileSync(
@@ -238,7 +331,7 @@ fs.writeFileSync(
 ${PAGINAS.flatMap((soort) =>
   TALEN.map(
     (taal) =>
-      `  <url><loc>${DOMEIN}${url(taal, soort)}</loc>${TALEN.map((t) => `<xhtml:link rel="alternate" hreflang="${t}" href="${DOMEIN}${url(t, soort)}"/>`).join('')}</url>`,
+      `  <url><loc>${DOMEIN}${url(taal, soort)}</loc>${TALEN.map((t) => `<xhtml:link rel="alternate" hreflang="${taalCode(t)}" href="${DOMEIN}${url(t, soort)}"/>`).join('')}</url>`,
   ),
 ).join('\n')}
 </urlset>
@@ -261,4 +354,4 @@ fs.writeFileSync(
     .replace('__SUPABASE_URL__', sbUrl)
     .replace('__SUPABASE_KEY__', sbKey),
 );
-console.log("Site gebouwd: presentatie in vijf talen, tekstpagina's en beheer");
+console.log("Site gebouwd: presentatie in zes talen, tekstpagina's en beheer");

@@ -68,4 +68,16 @@ export const missies: Vertalingen<typeof nl> = {
     enigeMissie:
       'C’est la seule mission d’une de tes alarmes. Ajoutes-y d’abord une autre mission.',
   },
+  zh: {
+    minuten: '{{n}} 分钟',
+    foto: '1 张照片',
+    eigenTitel1: '你的',
+    eigenTitel2: '任务。',
+    instructieTimer: '开始计时，完成你的任务直到结束。请保持应用打开。',
+    instructieFoto: '完成你的任务，然后拍一张照片作为确认。',
+    spraak1: '开始吧！',
+    spraak2: '做得好，继续！',
+    spraak3: '快完成了！',
+    enigeMissie: '这是你某个闹钟里唯一的任务。请先在那里添加另一个任务。',
+  },
 };

@@ -15,7 +15,7 @@ const beeld = (taal, naam) =>
 
 function html(taal) {
   const x = LANDING[taal];
-  return `<!doctype html><html><head><meta charset="utf-8">
+  return `<!doctype html><html lang="${taal}"><head><meta charset="utf-8">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}body{margin:0;width:1200px;height:630px;background:#101714;color:#fff;font-family:'DM Sans',Arial;overflow:hidden;position:relative}
@@ -26,7 +26,7 @@ body::after{content:"";position:absolute;right:-120px;bottom:-260px;width:820px;
 .glyph i{font-style:normal;color:#569126}
 .woord{font:700 42px 'Space Grotesk';letter-spacing:-3px}.woord span{color:#D8FB59}
 .kicker{font-weight:800;font-size:17px;letter-spacing:.14em;color:#D8FB59;margin:0 0 18px}
-h1{font:700 82px/0.98 'Space Grotesk';letter-spacing:-.05em;margin:0}h1 span{display:block;color:#D8FB59}
+h1{font:700 82px/0.98 'Space Grotesk','PingFang SC','Noto Sans CJK SC','Noto Sans SC','WenQuanYi Zen Hei',sans-serif;letter-spacing:-.05em;margin:0}:lang(zh) h1,:lang(zh) .kicker{letter-spacing:0}h1 span{display:block;color:#D8FB59}
 .tel{position:absolute;width:250px;border-radius:40px;padding:9px;background:#0B100D;box-shadow:0 30px 70px -20px rgba(0,0,0,.7);z-index:2}
 .tel img{width:100%;border-radius:32px;display:block}
 .t1{right:250px;top:60px;transform:rotate(-5deg)}.t2{right:40px;top:110px;transform:rotate(6deg)}

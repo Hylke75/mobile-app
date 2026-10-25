@@ -1,5 +1,6 @@
 // Presentatiepagina van Mooove, per taal. Wordt aangeroepen vanuit scripts/bouw-site.mjs.
 import { LANDING } from './site-teksten.mjs';
+import { vlag } from './site-vlaggen.mjs';
 
 // Vul de store-links in zodra de app live staat; tot dan tonen de knoppen "Binnenkort"
 const APP_STORE_URL = null;
@@ -8,17 +9,17 @@ const PLAY_STORE_URL = null;
 const SCHERMEN = ['01-vandaag', '02-alarmen', '03-alarm-instellen', '04-progressie', '05-klaar'];
 const NIVEAU_KLEUREN = ['#E7F6C2', '#D8FB59', '#B9E35A', '#7FB04A', '#101714'];
 
-const esc = (s) =>
+export const esc = (s) =>
   String(s)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 
-const FAVICON =
+export const FAVICON =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23D8FB59'/%3E%3Ctext x='29' y='46' font-family='Arial' font-weight='700' font-size='42' text-anchor='middle' fill='%23101714'%3Em%3C/text%3E%3Ccircle cx='50' cy='42' r='5' fill='%23569126'/%3E%3C/svg%3E";
 
-const CSS = `
+export const CSS = `
 :root{--ink:#101714;--ink2:#1B2520;--lime:#D8FB59;--lime2:#C4EC3C;--paper:#F3F3ED;--card:#fff;--muted:#5F6B63;--line:#E2E6DA;--groen:#3F6B2A;--accent:#569126}
 *{box-sizing:border-box}html{scroll-behavior:smooth}
 body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.6 'DM Sans',Arial,sans-serif;-webkit-font-smoothing:antialiased}
@@ -42,13 +43,14 @@ section{padding:88px 0}
 .links{display:flex;gap:20px;margin-left:18px}
 .links a{color:#C7D1C7;text-decoration:none;font-size:14px;font-weight:600}
 .links a:hover{color:#fff}
-.talen{margin-left:auto;display:flex;gap:2px;font-size:12px;font-weight:800}
-.talen a,.talen strong{padding:5px 7px;border-radius:8px;color:#9AA79D;text-decoration:none}
-.talen strong{color:var(--ink);background:var(--lime)}
-.talen a:hover{color:#fff}
+.talen{margin-left:auto;display:flex;gap:4px;align-items:center}
+.talen a,.talen span{display:grid;place-items:center;padding:5px;border-radius:9px;line-height:0;opacity:.72;transition:opacity .15s,background .15s}
+.talen .vlag{border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.18)}
+.talen span[aria-current]{opacity:1;background:var(--lime)}
+.talen a:hover{opacity:1;background:rgba(255,255,255,.08)}
 .nav .knop{padding:10px 16px;font-size:14px}
 @media (max-width:980px){.links{display:none}}
-@media (max-width:560px){.nav .knop{display:none}.talen{gap:0}.talen a,.talen strong{padding:5px 5px}}
+@media (max-width:560px){.nav .knop{display:none}.talen{gap:0}.talen a,.talen span{padding:4px}.talen .vlag{width:21px;height:14px}}
 
 .knop{display:inline-flex;align-items:center;gap:10px;background:var(--lime);color:var(--ink);font-weight:800;text-decoration:none;border-radius:16px;padding:15px 22px;border:0}
 .knop:hover{background:var(--lime2)}
@@ -114,12 +116,12 @@ section{padding:88px 0}
 .voordelen{background:var(--card);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .raster{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px}
 .voordeel{border-radius:24px;padding:28px;background:var(--paper);border:1px solid var(--line)}
-.voordeel .emoji{font-size:30px;line-height:1;width:58px;height:58px;border-radius:18px;background:var(--card);display:grid;place-items:center;border:1px solid var(--line)}
+.voordeel .icoon{width:58px;height:58px;border-radius:18px;background:#E7F6C2;color:var(--ink);display:grid;place-items:center}
 .voordeel h3{font:700 21px/1.15 'Space Grotesk',Arial;letter-spacing:-.03em;margin:18px 0 8px}
 .voordeel p{margin:0;color:var(--muted);font-size:15px}
 .voordeel:first-child{background:var(--ink);color:#F3F3ED;border-color:var(--ink)}
 .voordeel:first-child p{color:#B4C0B4}
-.voordeel:first-child .emoji{background:var(--lime);border-color:var(--lime)}
+.voordeel:first-child .icoon{background:var(--lime)}
 @media (max-width:900px){.raster{grid-template-columns:1fr 1fr}}
 @media (max-width:600px){.raster{grid-template-columns:1fr}}
 
@@ -195,8 +197,22 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center}
 footer a{color:var(--muted)}
 footer .gezond{flex-basis:100%;font-size:13px}
 :focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:6px}
+html[lang^=zh] body{font-family:'DM Sans','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans SC',sans-serif}
+html[lang^=zh] :is(h1,h2,h3,.kop,.kop2,.kicker,.lead){letter-spacing:0}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 `;
+
+// Lijn-iconen voor "Wat het je oplevert", in de stijl van de app-iconen (24×24, lijn 1,8)
+const ICONEN = {
+  '⚡': '<path d="M13 2 4.5 13.5H12L11 22l8.5-11.5H12L13 2Z"/>',
+  '🏆': '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>',
+  '🔁': '<path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/>',
+  '🎚️': '<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>',
+  '🔒': '<rect x="4.5" y="10.5" width="15" height="10.5" rx="3"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><path d="M12 15v2"/>',
+  '🧘': '<path d="M20.8 8.6a5 5 0 0 0-8.8-3.2 5 5 0 0 0-8.8 3.2c0 5.4 8.8 11.4 8.8 11.4s8.8-6 8.8-11.4Z"/><path d="M3.5 12h4l2-3 3 6 2-3h6"/>',
+};
+const icoon = (emoji) =>
+  `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONEN[emoji] ?? ''}</svg>`;
 
 const APPLE = `<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.4 12.6c0-2.5 2-3.6 2.1-3.7-1.2-1.7-3-1.9-3.6-2-1.5-.2-3 .9-3.7.9-.8 0-2-.9-3.2-.9-1.7 0-3.2 1-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.1-1.2 2.9-2.4.9-1.3 1.3-2.7 1.3-2.8 0 0-2.4-.9-2.3-3.7zM14 5.3c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1 .1 2.1-.6 2.8-1.4z"/></svg>`;
 const PLAY = `<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 2.8v18.4c0 .5.5.8 1 .6l15.9-9.2c.5-.3.5-.9 0-1.2L5 2.2c-.5-.2-1 .1-1 .6zm2 2.6 8.3 6.6L6 18.6z"/></svg>`;
@@ -215,6 +231,39 @@ function telefoon(taal, scherm, alt, klasse = '', laden = 'lazy') {
   return `<div class="tel ${klasse}"><img src="/beelden/${taal}/${scherm}.webp" width="640" height="1391" alt="${esc(alt)}" loading="${laden}" decoding="async"></div>`;
 }
 
+// Menubalk met merk, ankers naar de presentatiepagina, vlaggen voor de taal en de downloadknop.
+// `basis` is '' op de presentatiepagina zelf en de URL van de presentatiepagina op tekstpagina's.
+export function navigatie(taal, { talen, taalnamen, url, pagina = 'index' }, basis) {
+  const x = LANDING[taal];
+  const vlaggen = talen
+    .map((t) =>
+      t === taal
+        ? `<span aria-current="true" title="${taalnamen[t]}">${vlag(t)}<span class="sr">${taalnamen[t]}</span></span>`
+        : `<a href="${url(t, pagina)}" hreflang="${HREFLANG[t] ?? t}" lang="${HREFLANG[t] ?? t}" title="${taalnamen[t]}" aria-label="${taalnamen[t]}">${vlag(t)}</a>`,
+    )
+    .join('');
+  const anker = (id) => `${basis}#${id}`;
+  return `<nav class="nav" aria-label="Mooove"><div class="wrap">
+  <a class="merk" href="${url(taal, 'index')}" aria-label="Mooove"><span class="glyph"><b>m<i>.</i></b></span><span class="woord">mooove<span>.</span></span></a>
+  <div class="links"><a href="${anker('hoe')}">${esc(x.nav.hoe)}</a><a href="${anker('voordelen')}">${esc(x.nav.voordelen)}</a><a href="${anker('functies')}">${esc(x.nav.functies)}</a><a href="${anker('niveaus')}">${esc(x.nav.niveaus)}</a><a href="${anker('faq')}">${esc(x.nav.faq)}</a></div>
+  <div class="talen">${vlaggen}</div>
+  <a class="knop" href="${anker('download')}">${esc(x.download)}</a>
+</div></nav>`;
+}
+
+export function voettekst(taal, { url, privacyLabel, verwijderLabel, mail }) {
+  return `<footer><div class="wrap">
+  <span>© 2026 Hylke Thiry</span>
+  <a href="${url(taal, 'privacy')}">${esc(privacyLabel)}</a>
+  <a href="${url(taal, 'verwijderen')}">${esc(verwijderLabel)}</a>
+  <a href="mailto:${mail}">${mail}</a>
+  <span class="gezond">${esc(LANDING[taal].gezondheid)}</span>
+</div></footer>`;
+}
+
+// Taalcode voor lang/hreflang (Chinees: vereenvoudigd schrift)
+export const HREFLANG = { zh: 'zh-Hans' };
+
 export function landing(
   taal,
   { talen, taalnamen, url, hreflang, privacyLabel, verwijderLabel, mail, domein, wachtlijstUrl },
@@ -222,15 +271,8 @@ export function landing(
   const x = LANDING[taal];
   const b = x.schermen.bijschriften;
   const stores = `<div class="stores">${storeKnop(x, 'apple')}${storeKnop(x, 'play')}</div>`;
-  const taalLinks = talen
-    .map((t) =>
-      t === taal
-        ? `<strong aria-current="true">${t.toUpperCase()}</strong>`
-        : `<a href="${url(t, 'index')}" hreflang="${t}" lang="${t}" title="${taalnamen[t]}">${t.toUpperCase()}</a>`,
-    )
-    .join('');
 
-  return `<!doctype html><html lang="${taal}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  return `<!doctype html><html lang="${HREFLANG[taal] ?? taal}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(x.titel)}</title><meta name="description" content="${esc(x.beschrijving)}">
 <meta property="og:title" content="${esc(x.titel)}"><meta property="og:description" content="${esc(x.beschrijving)}"><meta property="og:type" content="website"><meta property="og:url" content="${domein}${url(taal, 'index')}"><meta property="og:image" content="${domein}/beelden/${taal}/deel.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="${esc(x.titel)}"><meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#101714"><link rel="icon" href="${FAVICON}">${hreflang('index')}
@@ -239,12 +281,7 @@ export function landing(
 <link rel="preload" as="image" href="/beelden/${taal}/01-vandaag.webp">
 <style>${CSS}</style></head><body>
 
-<nav class="nav" aria-label="Mooove"><div class="wrap">
-  <a class="merk" href="${url(taal, 'index')}" aria-label="Mooove"><span class="glyph"><b>m<i>.</i></b></span><span class="woord">mooove<span>.</span></span></a>
-  <div class="links"><a href="#hoe">${esc(x.nav.hoe)}</a><a href="#voordelen">${esc(x.nav.voordelen)}</a><a href="#functies">${esc(x.nav.functies)}</a><a href="#niveaus">${esc(x.nav.niveaus)}</a><a href="#faq">${esc(x.nav.faq)}</a></div>
-  <div class="talen">${taalLinks}</div>
-  <a class="knop" href="#download">${esc(x.download)}</a>
-</div></nav>
+${navigatie(taal, { talen, taalnamen, url }, '')}
 
 <header class="hero"><div class="wrap">
   <div>
@@ -288,7 +325,7 @@ export function landing(
 <section id="voordelen" class="voordelen"><div class="wrap">
   <p class="kicker">${esc(x.voordelen.kicker)}</p><h2 class="kop2">${esc(x.voordelen.titel)}</h2>
   <div class="raster">
-    ${x.voordelen.lijst.map((v) => `<article class="voordeel"><div class="emoji" aria-hidden="true">${v.emoji}</div><h3>${esc(v.titel)}</h3><p>${esc(v.tekst)}</p></article>`).join('')}
+    ${x.voordelen.lijst.map((v) => `<article class="voordeel"><div class="icoon" aria-hidden="true">${icoon(v.emoji)}</div><h3>${esc(v.titel)}</h3><p>${esc(v.tekst)}</p></article>`).join('')}
   </div>
 </div></section>
 
@@ -366,13 +403,7 @@ export function landing(
 </script>
 </main>
 
-<footer><div class="wrap">
-  <span>© 2026 Hylke Thiry</span>
-  <a href="${url(taal, 'privacy')}">${esc(privacyLabel)}</a>
-  <a href="${url(taal, 'verwijderen')}">${esc(verwijderLabel)}</a>
-  <a href="mailto:${mail}">${mail}</a>
-  <span class="gezond">${esc(x.gezondheid)}</span>
-</div></footer>
+${voettekst(taal, { url, privacyLabel, verwijderLabel, mail })}
 </body></html>
 `;
 }

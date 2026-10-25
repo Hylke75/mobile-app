@@ -22,6 +22,7 @@ test.describe('zonder inloggen', () => {
     ['es', 'Envíame un código'],
     ['de', 'Schick mir einen Code'],
     ['fr', 'Envoie-moi un code'],
+    ['zh', '给我发验证码'],
   ] as const) {
     test(`inlogscherm in het ${taal}`, async ({ page }) => {
       await page.addInitScript((t) => localStorage.setItem('mooove.taal', JSON.stringify(t)), taal);

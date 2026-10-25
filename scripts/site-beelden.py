@@ -9,7 +9,7 @@ BRON = ROOT / 'docs' / 'store' / 'screenshots'
 DOEL = ROOT / 'site' / 'beelden'
 BREEDTE = 640
 
-for taal in ['nl', 'en', 'es', 'de', 'fr']:
+for taal in ['nl', 'en', 'es', 'de', 'fr', 'zh']:
     map_ = BRON / 'ios-6.9' if taal == 'nl' else BRON / taal / 'ios-6.9'
     uit = DOEL / taal
     uit.mkdir(parents=True, exist_ok=True)

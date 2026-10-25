@@ -79,4 +79,18 @@ export const meldingen: Vertalingen<typeof nl> = {
     alarmenNietGepland: 'Tes alarmes n’ont pas pu être programmées sur ton téléphone.',
     alarmenNietGeladen: 'Tes alarmes n’ont pas pu être chargées.',
   },
+  zh: {
+    nietIngelogd: '你尚未登录。',
+    verkeerdWachtwoord: '邮箱地址或密码不正确。',
+    opslaanMislukt: '保存失败，请重试。',
+    opslaanMisluktInternet: '保存失败。请检查网络连接后重试。',
+    verwijderenMislukt: '删除失败，请稍后重试。',
+    verwijderenMisluktInternet: '删除失败。请检查网络连接后重试。',
+    codeOngeldig: '验证码不正确或已过期。',
+    wachtMetCode: '请稍等片刻再申请新的验证码。',
+    controleerEmail: '请检查你的邮箱地址。',
+    ietsMis: '出了点问题，请重试。',
+    alarmenNietGepland: '无法在你的手机上设置闹钟。',
+    alarmenNietGeladen: '无法加载你的闹钟。',
+  },
 };

@@ -16,7 +16,7 @@ const json = (body: unknown, status = 200) =>
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
 
-const TALEN = ['nl', 'en', 'es', 'de', 'fr'];
+const TALEN = ['nl', 'en', 'es', 'de', 'fr', 'zh'];
 const MAX_PER_UUR = 5;
 const MAX_TOTAAL_PER_UUR = 300;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;

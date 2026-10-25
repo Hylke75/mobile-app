@@ -19,6 +19,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     es: './locales/es.json',
     de: './locales/de.json',
     fr: './locales/fr.json',
+    'zh-Hans': './locales/zh.json',
   },
   ios: {
     bundleIdentifier: 'nl.linkandlead.mobileapp',
@@ -132,8 +133,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'expo-localization',
       {
         supportedLocales: {
-          ios: ['nl', 'en', 'es', 'de', 'fr'],
-          android: ['nl', 'en', 'es', 'de', 'fr'],
+          ios: ['nl', 'en', 'es', 'de', 'fr', 'zh-Hans'],
+          android: ['nl', 'en', 'es', 'de', 'fr', 'zh'],
         },
       },
     ],

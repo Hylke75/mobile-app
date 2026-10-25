@@ -1,0 +1,380 @@
+<!doctype html><html lang="zh-Hans"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>隐私政策 · Mooove</title><meta name="description" content="Mooove — 只有动起来才会停的闹钟。"><meta name="theme-color" content="#101714"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23D8FB59'/%3E%3Ctext x='29' y='46' font-family='Arial' font-weight='700' font-size='42' text-anchor='middle' fill='%23101714'%3Em%3C/text%3E%3Ccircle cx='50' cy='42' r='5' fill='%23569126'/%3E%3C/svg%3E"><link rel="canonical" href="https://mooove-app.com/zh/privacy"><link rel="alternate" hreflang="nl" href="https://mooove-app.com/privacy"><link rel="alternate" hreflang="en" href="https://mooove-app.com/en/privacy"><link rel="alternate" hreflang="es" href="https://mooove-app.com/es/privacy"><link rel="alternate" hreflang="de" href="https://mooove-app.com/de/privacy"><link rel="alternate" hreflang="fr" href="https://mooove-app.com/fr/privacy"><link rel="alternate" hreflang="zh-Hans" href="https://mooove-app.com/zh/privacy"><link rel="alternate" hreflang="x-default" href="https://mooove-app.com/privacy">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#101714;--ink2:#1B2520;--lime:#D8FB59;--lime2:#C4EC3C;--paper:#F3F3ED;--card:#fff;--muted:#5F6B63;--line:#E2E6DA;--groen:#3F6B2A;--accent:#569126}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.6 'DM Sans',Arial,sans-serif;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+.kop{font:700 clamp(34px,5.2vw,60px)/1.02 'Space Grotesk',Arial;letter-spacing:-.045em;margin:0}
+.kop2{font:700 clamp(28px,3.8vw,44px)/1.05 'Space Grotesk',Arial;letter-spacing:-.04em;margin:0 0 14px}
+.kicker{font-weight:800;font-size:12px;letter-spacing:.14em;color:var(--groen);margin:0 0 14px}
+.lead{font-size:clamp(17px,1.6vw,19px);color:#36423A;max-width:560px}
+section{padding:88px 0}
+@media (max-width:700px){section{padding:64px 0}}
+
+/* Navigatie */
+.nav{position:sticky;top:0;z-index:20;background:rgba(16,23,20,.92);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px)}
+.nav .wrap{display:flex;align-items:center;gap:22px;height:68px}
+.merk{display:flex;align-items:center;gap:9px;text-decoration:none;color:#F3F3ED}
+.glyph{width:36px;height:36px;border-radius:12px;background:var(--lime);color:var(--ink);display:grid;place-items:center;font:700 27px/1 'Space Grotesk',Arial;letter-spacing:-3px;padding-right:5px}
+.glyph i{font-style:normal;color:var(--accent)}
+.woord{font:700 28px 'Space Grotesk',Arial;letter-spacing:-2px}.woord span{color:var(--lime)}
+.links{display:flex;gap:20px;margin-left:18px}
+.links a{color:#C7D1C7;text-decoration:none;font-size:14px;font-weight:600}
+.links a:hover{color:#fff}
+.talen{margin-left:auto;display:flex;gap:4px;align-items:center}
+.talen a,.talen span{display:grid;place-items:center;padding:5px;border-radius:9px;line-height:0;opacity:.72;transition:opacity .15s,background .15s}
+.talen .vlag{border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.18)}
+.talen span[aria-current]{opacity:1;background:var(--lime)}
+.talen a:hover{opacity:1;background:rgba(255,255,255,.08)}
+.nav .knop{padding:10px 16px;font-size:14px}
+@media (max-width:980px){.links{display:none}}
+@media (max-width:560px){.nav .knop{display:none}.talen{gap:0}.talen a,.talen span{padding:4px}.talen .vlag{width:21px;height:14px}}
+
+.knop{display:inline-flex;align-items:center;gap:10px;background:var(--lime);color:var(--ink);font-weight:800;text-decoration:none;border-radius:16px;padding:15px 22px;border:0}
+.knop:hover{background:var(--lime2)}
+.store{display:inline-flex;align-items:center;gap:12px;background:var(--ink);color:#F3F3ED;border-radius:16px;padding:11px 18px;text-decoration:none;border:1px solid #2B3730;min-width:186px}
+.store svg{flex:none}
+.store small{display:block;font-size:11px;color:#9AA79D;font-weight:600;letter-spacing:.02em}
+.store b{display:block;font-size:17px;line-height:1.15}
+.store[aria-disabled="true"]{cursor:default}
+.stores{display:flex;gap:12px;flex-wrap:wrap}
+
+/* Telefoon */
+.tel{position:relative;border-radius:46px;padding:10px;background:#0B100D;box-shadow:0 1px 0 #2a352e inset,0 40px 80px -30px rgba(16,23,20,.55),0 18px 40px -20px rgba(16,23,20,.35)}
+.tel img{border-radius:37px;width:100%;height:auto;background:#F3F3ED}
+.tel::before{content:"";position:absolute;top:20px;left:50%;transform:translateX(-50%);width:30%;height:22px;border-radius:12px;background:#0B100D;z-index:1}
+
+/* Hero */
+.hero{background:var(--ink);color:#F3F3ED;padding:72px 0 0;overflow:hidden;position:relative}
+.hero::after{content:"";position:absolute;inset:auto -20% -40% -20%;height:70%;background:radial-gradient(closest-side,rgba(216,251,89,.22),transparent);pointer-events:none}
+.hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;position:relative;z-index:1}
+.hero .kicker{color:var(--lime)}
+.hero .kop{color:#fff}.hero .kop span{color:var(--lime);display:block}
+.hero .lead{color:#C7D1C7;margin:22px 0 26px}
+.punten{list-style:none;padding:0;margin:0 0 30px;display:grid;gap:10px}
+.punten li{display:flex;gap:10px;align-items:flex-start;color:#E4EBE2;font-weight:600;font-size:15px}
+.punten li::before{content:"✓";flex:none;width:22px;height:22px;border-radius:8px;background:var(--lime);color:var(--ink);display:grid;place-items:center;font-size:13px;font-weight:800;margin-top:1px}
+.hero-tel{position:relative;height:640px}
+.hero-tel .tel{position:absolute;width:290px}
+.hero-tel .t1{left:50%;transform:translateX(-50%);top:10px;z-index:3}
+.wissel{display:grid}
+.wissel img{grid-area:1/1;animation:wissel 16s infinite;opacity:0}
+.wissel img:nth-child(1){animation-delay:0s}.wissel img:nth-child(2){animation-delay:4s}
+.wissel img:nth-child(3){animation-delay:8s}.wissel img:nth-child(4){animation-delay:12s}
+@keyframes wissel{0%{opacity:0}4%,25%{opacity:1}29%,100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.wissel img{animation:none}.wissel img:first-child{opacity:1}}
+.hero-tel .t2{left:0;top:110px;transform:rotate(-8deg) scale(.86);opacity:.9;z-index:2}
+.hero-tel .t3{right:0;top:110px;transform:rotate(8deg) scale(.86);opacity:.9;z-index:2}
+@media (max-width:980px){.hero .wrap{grid-template-columns:1fr}.hero-tel{height:560px;margin:0 auto;width:100%;max-width:560px}.hero-tel .tel{width:250px}}
+@media (max-width:560px){.hero{padding-top:48px}.hero-tel{height:470px}.hero-tel .tel{width:215px}.hero-tel .t2{left:-30px}.hero-tel .t3{right:-30px}}
+
+/* Probleem / oplossing */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.duo>div{border-radius:28px;padding:38px}
+.duo .los{background:var(--card);border:1px solid var(--line)}
+.duo .ja{background:var(--lime)}
+.duo .ja .kicker{color:var(--ink)}
+.duo p{margin:0;color:#36423A}
+.duo h3{font:700 clamp(24px,2.6vw,32px)/1.1 'Space Grotesk',Arial;letter-spacing:-.035em;margin:0 0 14px}
+.snooze{display:flex;gap:8px;margin-top:24px;flex-wrap:wrap}
+.snooze span{font-size:13px;font-weight:800;border-radius:999px;padding:6px 12px;background:#EEF0E8;color:#8A948C;text-decoration:line-through}
+@media (max-width:820px){.duo{grid-template-columns:1fr}.duo>div{padding:28px}}
+
+/* Stappen */
+.stappen{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:44px}
+.stap{background:var(--card);border:1px solid var(--line);border-radius:28px;padding:26px 26px 0;overflow:hidden;display:flex;flex-direction:column;max-height:640px}
+.stap .nr{width:38px;height:38px;border-radius:13px;background:var(--ink);color:var(--lime);display:grid;place-items:center;font:700 18px 'Space Grotesk',Arial}
+.stap h3{font:700 22px/1.15 'Space Grotesk',Arial;letter-spacing:-.03em;margin:16px 0 8px}
+.stap p{margin:0 0 24px;color:var(--muted);font-size:15px}
+.stap .tel{width:64%;margin:auto auto -150px;border-radius:40px 40px 0 0;padding-bottom:0}
+.stap .tel img{border-radius:31px 31px 0 0}
+@media (max-width:900px){.stappen{grid-template-columns:1fr}.stap .tel{width:62%;max-width:280px}}
+
+/* Voordelen */
+.voordelen{background:var(--card);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.raster{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px}
+.voordeel{border-radius:24px;padding:28px;background:var(--paper);border:1px solid var(--line)}
+.voordeel .icoon{width:58px;height:58px;border-radius:18px;background:#E7F6C2;color:var(--ink);display:grid;place-items:center}
+.voordeel h3{font:700 21px/1.15 'Space Grotesk',Arial;letter-spacing:-.03em;margin:18px 0 8px}
+.voordeel p{margin:0;color:var(--muted);font-size:15px}
+.voordeel:first-child{background:var(--ink);color:#F3F3ED;border-color:var(--ink)}
+.voordeel:first-child p{color:#B4C0B4}
+.voordeel:first-child .icoon{background:var(--lime)}
+@media (max-width:900px){.raster{grid-template-columns:1fr 1fr}}
+@media (max-width:600px){.raster{grid-template-columns:1fr}}
+
+/* Schermen */
+.schermen{overflow:hidden}
+.strook{display:flex;gap:26px;overflow-x:auto;scroll-snap-type:x mandatory;padding:36px 24px 30px;margin:0 -24px;scrollbar-width:thin}
+.strook figure{margin:0;flex:0 0 250px;scroll-snap-align:center}
+.strook figcaption{text-align:center;font-weight:700;font-size:14px;margin-top:16px}
+@media (min-width:1100px){.strook{justify-content:center;overflow:visible}.strook figure{flex-basis:196px}}
+
+/* Functies */
+.functies{background:var(--ink);color:#F3F3ED}
+.functies .kicker{color:var(--lime)}
+.functies .kop2{color:#fff}
+.flijst{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#26322B;border:1px solid #26322B;border-radius:26px;overflow:hidden;margin-top:40px}
+.functie{background:var(--ink);padding:28px}
+.functie h3{font:700 18px/1.2 'Space Grotesk',Arial;letter-spacing:-.02em;margin:0 0 8px;display:flex;gap:10px;align-items:center}
+.functie h3::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--lime);flex:none}
+.functie p{margin:0;color:#A9B5AB;font-size:14.5px}
+@media (max-width:980px){.flijst{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.flijst{grid-template-columns:1fr}}
+
+/* Niveaus */
+.nlijst{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:40px}
+.niveau{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:10px}
+.niveau .meter{display:flex;gap:4px}
+.niveau .meter i{flex:1;height:6px;border-radius:3px;background:#E6EADF}
+.niveau h3{font:700 20px 'Space Grotesk',Arial;letter-spacing:-.03em;margin:4px 0 0}
+.niveau p{margin:0;color:var(--muted);font-size:14.5px}
+.niveau:last-child{background:var(--ink);border-color:var(--ink);color:#fff}
+.niveau:last-child p{color:#B4C0B4}
+.niveau:last-child .meter i{background:#2A362F}
+@media (max-width:1000px){.nlijst{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.nlijst{grid-template-columns:1fr}}
+
+/* Privacy */
+.prive .kaart{background:var(--lime);border-radius:32px;padding:56px;display:grid;grid-template-columns:auto 1fr;gap:40px;align-items:center}
+.prive .slot{width:120px;height:120px;border-radius:36px;background:var(--ink);display:grid;place-items:center}
+.prive .kicker{color:var(--ink)}
+.prive p{margin:0 0 18px;max-width:640px;color:#26302A}
+.prive a{font-weight:800}
+@media (max-width:720px){.prive .kaart{grid-template-columns:1fr;padding:32px}.prive .slot{width:84px;height:84px;border-radius:26px}}
+
+/* FAQ */
+.faq details{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 22px;margin-bottom:10px}
+.faq summary{cursor:pointer;list-style:none;font-weight:800;padding:16px 30px 16px 0;position:relative}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";position:absolute;right:0;top:12px;font-size:24px;font-weight:600;color:var(--groen)}
+.faq details[open] summary::after{content:"–"}
+.faq details p{margin:0 0 18px;color:var(--muted)}
+.faq .wrap{max-width:820px}
+
+/* Slot */
+.slotcta{background:var(--ink);color:#fff;border-radius:36px;padding:64px 40px;text-align:center;position:relative;overflow:hidden}
+.slotcta::before{content:"";position:absolute;inset:-40% 20% auto 20%;height:120%;background:radial-gradient(closest-side,rgba(216,251,89,.25),transparent)}
+.slotcta>*{position:relative}
+.slotcta .kop{color:#fff}.slotcta .kop span{color:var(--lime)}
+.slotcta p{color:#C7D1C7;margin:16px auto 28px;max-width:520px}
+.slotcta .stores{justify-content:center}
+.wachtlijst{margin:44px auto 0;max-width:560px;text-align:left;background:#1B2520;border:1px solid #2B3730;border-radius:24px;padding:28px}
+.wachtlijst h3{font:700 22px 'Space Grotesk',Arial;letter-spacing:-.03em;margin:0;color:#fff}
+.wachtlijst p{margin:8px 0 18px;color:#B4C0B4;font-size:15px;max-width:none}
+.wachtlijst .veld{display:flex;gap:10px;flex-wrap:wrap}
+.wachtlijst input{flex:1 1 220px;font:inherit;font-size:16px;padding:14px 16px;border-radius:14px;border:1px solid #33413A;background:#101714;color:#fff}
+.wachtlijst input:focus{outline:2px solid var(--lime);outline-offset:1px}
+.wachtlijst button{font:inherit;font-weight:800;border:0;border-radius:14px;padding:14px 20px;background:var(--lime);color:var(--ink);cursor:pointer}
+.wachtlijst button:disabled{opacity:.6;cursor:default}
+.wachtlijst .wl-melding{min-height:22px;margin:12px 0 4px;color:var(--lime);font-weight:700}
+.wachtlijst small{color:#8A968C;font-size:12.5px}.wachtlijst small a{color:#C7D1C7}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+footer{padding:44px 0 56px;color:var(--muted);font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center}
+footer a{color:var(--muted)}
+footer .gezond{flex-basis:100%;font-size:13px}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:6px}
+html[lang^=zh] body{font-family:'DM Sans','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Noto Sans SC',sans-serif}
+html[lang^=zh] :is(h1,h2,h3,.kop,.kop2,.kicker,.lead){letter-spacing:0}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Tekstpagina's (privacy, account verwijderen), bovenop de stijl van de presentatiepagina */
+.pagina-kop {
+  background: var(--ink);
+  color: #f3f3ed;
+  padding: 64px 0 72px;
+  position: relative;
+  overflow: hidden;
+}
+.pagina-kop::after {
+  content: '';
+  position: absolute;
+  right: -120px;
+  top: -160px;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(216, 251, 89, 0.22), transparent);
+}
+.pagina-kop .kicker {
+  color: var(--lime);
+}
+.pagina-kop .kop {
+  max-width: 820px;
+  overflow-wrap: break-word;
+}
+.pagina-kop .datum {
+  margin: 18px 0 0;
+  color: #9aa79d;
+  font-size: 15px;
+}
+.tekst {
+  max-width: 820px;
+  margin: -36px auto 0;
+  padding: 0 24px 72px;
+  position: relative;
+  z-index: 1;
+}
+.tekst article {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: clamp(24px, 5vw, 48px);
+  box-shadow: 0 30px 60px -40px rgba(16, 23, 20, 0.35);
+}
+.tekst h2 {
+  font:
+    700 clamp(21px, 2.4vw, 26px) / 1.2 'Space Grotesk',
+    Arial;
+  letter-spacing: -0.03em;
+  margin: 40px 0 10px;
+}
+.tekst h2:first-child {
+  margin-top: 0;
+}
+.tekst p,
+.tekst li {
+  color: #36423a;
+}
+.tekst ul,
+.tekst ol {
+  padding-left: 22px;
+}
+.tekst li {
+  margin: 6px 0;
+}
+.tekst a {
+  color: var(--groen);
+}
+.tekst .voorrang {
+  font-size: 14px;
+  color: var(--muted);
+  background: var(--paper);
+  border-radius: 14px;
+  padding: 12px 16px;
+  margin: 0 0 28px;
+}
+.tabel {
+  overflow-x: auto;
+  margin: 16px 0;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.tabel table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+.tabel th,
+.tabel td {
+  text-align: left;
+  vertical-align: top;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.tabel tr:last-child td {
+  border-bottom: 0;
+}
+.tabel th {
+  background: #e4ecd9;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.tabel td:first-child {
+  font-weight: 700;
+  width: 36%;
+}
+.stappenlijst {
+  counter-reset: stap;
+  list-style: none;
+  padding: 0 !important;
+}
+.stappenlijst li {
+  counter-increment: stap;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin: 12px 0;
+}
+.stappenlijst li::before {
+  content: counter(stap);
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: var(--lime);
+  color: var(--ink);
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+}
+@media (max-width: 560px) {
+  .pagina-kop {
+    padding: 44px 0 64px;
+  }
+  .tekst {
+    padding: 0 12px 56px;
+  }
+  .tabel table {
+    font-size: 14px;
+  }
+  .tabel th,
+  .tabel td {
+    padding: 10px 12px;
+  }
+  .tabel td:first-child {
+    width: auto;
+  }
+}
+</style></head><body>
+<nav class="nav" aria-label="Mooove"><div class="wrap">
+  <a class="merk" href="/zh/" aria-label="Mooove"><span class="glyph"><b>m<i>.</i></b></span><span class="woord">mooove<span>.</span></span></a>
+  <div class="links"><a href="/zh/#hoe">使用方法</a><a href="/zh/#voordelen">好处</a><a href="/zh/#functies">功能</a><a href="/zh/#niveaus">等级</a><a href="/zh/#faq">常见问题</a></div>
+  <div class="talen"><a href="/privacy" hreflang="nl" lang="nl" title="Nederlands" aria-label="Nederlands"><svg class="vlag" width="24" height="16" viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" fill="#21468B"/><rect width="30" height="13.33" fill="#fff"/><rect width="30" height="6.67" fill="#AE1C28"/></svg></a><a href="/en/privacy" hreflang="en" lang="en" title="English" aria-label="English"><svg class="vlag" width="24" height="16" viewBox="0 0 30 20" aria-hidden="true"><clipPath id="vl-uk"><rect width="30" height="20"/></clipPath><g clip-path="url(#vl-uk)"><rect width="30" height="20" fill="#012169"/><path d="M0,0 30,20M30,0 0,20" stroke="#fff" stroke-width="4"/><path d="M0,0 30,20M30,0 0,20" stroke="#C8102E" stroke-width="1.6"/><path d="M15,0V20M0,10H30" stroke="#fff" stroke-width="6"/><path d="M15,0V20M0,10H30" stroke="#C8102E" stroke-width="3.4"/></g></svg></a><a href="/es/privacy" hreflang="es" lang="es" title="Español" aria-label="Español"><svg class="vlag" width="24" height="16" viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" fill="#AA151B"/><rect y="5" width="30" height="10" fill="#F1BF00"/></svg></a><a href="/de/privacy" hreflang="de" lang="de" title="Deutsch" aria-label="Deutsch"><svg class="vlag" width="24" height="16" viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" fill="#FFCE00"/><rect width="30" height="13.33" fill="#DD0000"/><rect width="30" height="6.67" fill="#000"/></svg></a><a href="/fr/privacy" hreflang="fr" lang="fr" title="Français" aria-label="Français"><svg class="vlag" width="24" height="16" viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" fill="#EF4135"/><rect width="20" height="20" fill="#fff"/><rect width="10" height="20" fill="#0055A4"/></svg></a><span aria-current="true" title="中文"><svg class="vlag" width="24" height="16" viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" fill="#EE1C25"/><polygon points="5.00,2.00 5.67,4.07 7.85,4.07 6.09,5.35 6.76,7.43 5.00,6.15 3.24,7.43 3.91,5.35 2.15,4.07 4.33,4.07" fill="#FFDE00"/><polygon points="10.39,1.08 10.33,1.80 11.00,2.09 10.29,2.25 10.22,2.97 9.85,2.35 9.14,2.52 9.62,1.97 9.25,1.34 9.91,1.63" fill="#FFDE00"/><polygon points="12.71,3.29 12.38,3.94 12.89,4.45 12.17,4.34 11.84,4.99 11.73,4.27 11.01,4.16 11.66,3.83 11.55,3.11 12.06,3.62" fill="#FFDE00"/><polygon points="12.94,6.66 12.37,7.11 12.62,7.79 12.01,7.38 11.44,7.83 11.64,7.13 11.04,6.72 11.76,6.70 11.97,6.00 12.21,6.68" fill="#FFDE00"/><polygon points="10.34,8.06 10.32,8.79 11.00,9.03 10.30,9.24 10.28,9.96 9.87,9.36 9.17,9.56 9.62,8.99 9.21,8.38 9.89,8.63" fill="#FFDE00"/></svg><span class="sr">中文</span></span></div>
+  <a class="knop" href="/zh/#download">下载</a>
+</div></nav>
+<header class="pagina-kop"><div class="wrap"><p class="kicker">你的数据</p><h1 class="kop">隐私政策 Mooove</h1><p class="datum">最后更新：2026年10月24日</p></div></header>
+<main class="tekst"><article>
+<p class="voorrang">本文是荷兰语隐私政策的翻译。如有任何差异，以荷兰语版本为准。 (<a href="/privacy" hreflang="nl" lang="nl">Nederlands</a>)</p>
+<p>Mooove 是一款帮助你早晨动起来的闹钟应用，由 Hylke Thiry（“我们”）提供。在这里你可以了解我们处理哪些数据、为什么处理，以及你拥有哪些权利。</p>
+<h2>我们处理哪些数据？</h2>
+<p>只要你的账户存在，我们就会保留以下数据：</p>
+<div class="tabel"><table><thead><tr><th>数据</th><th>用途</th></tr></thead><tbody><tr><td>邮箱地址</td><td>用于通过一次性验证码登录和管理你的账户。</td></tr><tr><td>名字</td><td>用于在应用中向你问好。</td></tr><tr><td>闹钟（时间、日期、等级、所选运动及数量、名称）</td><td>用于安排你的闹钟，并让它们在你的所有设备上可用。</td></tr><tr><td>任务结果（开始和结束时间、运动、次数、已完成或已中止）</td><td>用于显示你的连续纪录、进度和徽章。</td></tr><tr><td>每周目标及最近一次成功测试闹钟的日期</td><td>用于显示你的设置和闹钟检查。</td></tr><tr><td>你的自定义任务（名称、图标、计时或照片及时长）</td><td>用于在你的闹钟中使用。</td></tr><tr><td>任务后的早晨状态（累、还行或很棒；仅在你填写时）</td><td>用于在“进度”中显示你的趋势。</td></tr><tr><td>你在应用中发送的反馈（类型、消息、应用版本和设备类型）</td><td>用于回答你的问题并改进应用。</td></tr></tbody></table></div>
+<h2>相机</h2>
+<p>在任务过程中，Mooove 使用相机识别运动（例如计算深蹲次数）、检测拉开窗帘后光线是否变亮，以及拍摄一张确认床铺已整理好的照片。</p>
+<p>这些画面只在你自己的设备上处理。它们绝不会被保存、绝不会发送到我们的服务器，也绝不会与任何人分享。确认照片拍摄后会立即删除。Mooove 不会录制任何声音。</p>
+<h2>只保存在你的设备上</h2>
+<p>你选择的自定义闹钟铃声保留在你的设备上，不会发送给我们。你的闹钟和进度的本地副本也是如此，Mooove 保留它是为了让应用在没有网络时也能使用。</p>
+<h2>错误报告</h2>
+<p>如果应用崩溃，Mooove 可能会向 Sentry（服务器位于欧盟）发送一份技术错误报告。报告包含设备类型、应用版本和出错位置，但不包含姓名、邮箱地址、IP 地址或相机画面，也不会与你的账户关联。报告最多保留 90 天后删除。</p>
+<h2>我们不做的事</h2>
+<ul><li>我们不展示广告，也不使用任何广告或追踪服务。</li><li>我们不会出售你的数据，也不会为营销目的与第三方分享。</li><li>我们不处理任何健康或医疗数据。</li></ul>
+<h2>数据处理方</h2>
+<p>你的数据存储在 Supabase（数据库和登录），位于欧盟的数据中心（德国法兰克福）。错误报告发送至同样位于欧盟的 Sentry。两者仅代表我们处理数据。</p>
+<h2>后台管理</h2>
+<p>只有 Mooove 的提供者能在受保护的管理后台中看到存在哪些账户：邮箱地址、名字、注册时间和最近活跃时间，以及你有多少个闹钟和任务。我们仅将其用于提供支持和改进应用。相机画面和自定义任务的内容在那里永远不可见。</p>
+<h2>网站上的等候名单</h2>
+<p>如果你在 mooove-app.com 上加入等候名单，我们会保存你的邮箱地址和语言，以便在 Mooove 上线时通知你一次。之后，或在你通过 <a href="mailto:hylke@linkandlead.nl">hylke@linkandlead.nl</a> 提出要求时更早，我们会删除你的地址。为防止滥用，我们会保存你 IP 地址的不可读代码（哈希值）最多两天，绝不保存地址本身。</p>
+<h2>法律依据</h2>
+<p>我们处理你的数据，是因为这是向你提供应用所必需的（履行合同，《通用数据保护条例》（GDPR）第 6 条第 1 款 (b) 项）。</p>
+<h2>你的权利</h2>
+<p>你有权查阅、更正和删除你的数据。通过“我的 → 下载我的数据”，你可以立即获得全部数据的副本。你可以随时通过“我的 → 删除账户”自行删除账户及所有数据，所有数据将立即永久清除。</p>
+<p>对我们处理你数据的方式有投诉？你也可以向荷兰数据保护局（Autoriteit Persoonsgegevens）投诉。</p>
+<h2>安全</h2>
+<p>数据以加密方式传输（HTTPS）。你的会话以加密方式存储在你的设备上。在数据库中，每位用户只能访问自己的数据。</p>
+<h2>联系方式</h2>
+<p>Hylke Thiry — <a href="mailto:hylke@linkandlead.nl">hylke@linkandlead.nl</a></p>
+</article></main>
+<footer><div class="wrap">
+  <span>© 2026 Hylke Thiry</span>
+  <a href="/zh/privacy">隐私政策</a>
+  <a href="/zh/account-verwijderen">删除账户</a>
+  <a href="mailto:hylke@linkandlead.nl">hylke@linkandlead.nl</a>
+  <span class="gezond">Mooove 不是医疗器械。请在自身能力范围内运动。</span>
+</div></footer>
+</body></html>

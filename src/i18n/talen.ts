@@ -1,4 +1,4 @@
-export const TALEN = ['nl', 'en', 'es', 'de', 'fr'] as const;
+export const TALEN = ['nl', 'en', 'es', 'de', 'fr', 'zh'] as const;
 export type Taal = (typeof TALEN)[number];
 
 // Naam van elke taal in die taal zelf, voor de taalkeuze
@@ -8,6 +8,7 @@ export const TAALNAMEN: Record<Taal, string> = {
   es: 'Español',
   de: 'Deutsch',
   fr: 'Français',
+  zh: '中文',
 };
 
 // Voor datums, getallen en de stem van de coach
@@ -17,6 +18,7 @@ export const LOCALES: Record<Taal, string> = {
   es: 'es-ES',
   de: 'de-DE',
   fr: 'fr-FR',
+  zh: 'zh-CN',
 };
 
 export function isTaal(waarde: unknown): waarde is Taal {

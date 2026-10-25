@@ -43,4 +43,11 @@ export const fout: Vertalingen<typeof nl> = {
     melden: 'Signaler cette erreur',
     onderwerp: 'Erreur dans Mooove',
   },
+  zh: {
+    titel: '哎呀，出错了。',
+    tekst: '你的闹钟仍然有效。请重试；如果还不行，请完全关闭应用后重新打开。',
+    opnieuw: '重试',
+    melden: '报告此错误',
+    onderwerp: 'Mooove 出错',
+  },
 };

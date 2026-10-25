@@ -26,7 +26,7 @@ Camera images are processed only on your own phone and are never stored or sent.
 **Reliable**
 Mooove uses real system alarms that go off even when your phone is on silent or Do Not Disturb. Check it in 30 seconds with the built-in alarm test.
 
-Available in English, Dutch, Spanish, German and French. Mooove requires iOS 26 or later for system alarms. _(Play: "Works on Android 8.0 and later.")_
+Available in English, Dutch, Spanish, German, French and Chinese. Mooove requires iOS 26 or later for system alarms. _(Play: "Works on Android 8.0 and later.")_
 
 ## Español (es-ES)
 
@@ -52,7 +52,7 @@ Las imágenes de la cámara se procesan solo en tu propio móvil y nunca se guar
 **Fiable**
 Mooove usa alarmas reales del sistema que suenan incluso con el móvil en silencio o en No molestar. Compruébalo en 30 segundos con la prueba de alarma integrada.
 
-Disponible en español, inglés, neerlandés, alemán y francés. Mooove requiere iOS 26 o posterior para las alarmas del sistema. _(Play: «Funciona en Android 8.0 y posterior».)_
+Disponible en español, inglés, neerlandés, alemán, francés y chino. Mooove requiere iOS 26 o posterior para las alarmas del sistema. _(Play: «Funciona en Android 8.0 y posterior».)_
 
 ## Deutsch (de-DE)
 
@@ -78,7 +78,7 @@ Kamerabilder werden nur auf deinem eigenen Handy verarbeitet und nie gespeichert
 **Zuverlässig**
 Mooove nutzt echte System-Wecker, die auch klingeln, wenn dein Handy stumm oder auf „Nicht stören" steht. Mit dem eingebauten Wecktest prüfst du das in 30 Sekunden.
 
-Verfügbar auf Deutsch, Englisch, Niederländisch, Spanisch und Französisch. Für System-Wecker ist iOS 26 oder neuer erforderlich. _(Play: „Funktioniert ab Android 8.0.")_
+Verfügbar auf Deutsch, Englisch, Niederländisch, Spanisch, Französisch und Chinesisch. Für System-Wecker ist iOS 26 oder neuer erforderlich. _(Play: „Funktioniert ab Android 8.0.")_
 
 ## Français (fr-FR)
 
@@ -104,7 +104,33 @@ Les images de la caméra sont traitées uniquement sur ton téléphone et ne son
 **Fiable**
 Mooove utilise de vraies alarmes système qui sonnent même en mode silencieux ou Ne pas déranger. Vérifie-le en 30 secondes avec le test d'alarme intégré.
 
-Disponible en français, anglais, néerlandais, espagnol et allemand. Mooove nécessite iOS 26 ou une version ultérieure pour les alarmes système. _(Play : « Fonctionne sur Android 8.0 et versions ultérieures. »)_
+Disponible en français, anglais, néerlandais, espagnol, allemand et chinois. Mooove nécessite iOS 26 ou une version ultérieure pour les alarmes système. _(Play : « Fonctionne sur Android 8.0 et versions ultérieures. »)_
+
+## 简体中文 (zh-Hans)
+
+- **副标题（最多 30）：** 让你动起来的闹钟
+- **Play 简短说明（最多 80）：** 只有动起来才会停的闹钟。告别无休止的“稍后提醒”。
+- **推广文本（最多 170）：** 别再赖床，动起来。只有当你真正动起来，Mooove 才会关闭闹钟。
+- **关键词（最多 100）：** 闹钟,起床,早晨,深蹲,健身,习惯,连续打卡,稍后提醒,任务,运动
+
+**说明**
+
+Mooove 是让你一天有个好开始的闹钟。告别无休止的“稍后提醒”：只有完成晨间任务，闹钟才会停止。
+
+**使用方法**
+• 选择时间、日期和任务，16 个晨间任务任你挑：深蹲、俯卧撑、平板支撑、整理床铺或拉开窗帘。也可以创建带计时或照片的自定义任务。
+• 选择 Mooove 有多严格：从“自由”（可以稍后提醒）到“硬核”（不能推迟，还有清醒检查）。
+• 闹钟响起时，任务就开始了。相机会计算你的次数，确认你真的在做。
+• 积累连续纪录，赢取徽章，每周追踪进度。漏掉一天？每月的补签卡帮你兜底。
+• 可以跳过一次闹钟，假期时暂停所有闹钟，还可以在前一天晚上收到提醒。
+
+**隐私优先**
+相机画面只在你的手机上处理，绝不会被保存或发送。
+
+**可靠**
+Mooove 使用真正的系统闹钟，即使在静音或勿扰模式下也会响。用内置的测试闹钟，30 秒就能确认。
+
+支持中文、荷兰语、英语、西班牙语、德语和法语。系统闹钟需要 iOS 26 或更高版本。_（Play：“适用于 Android 8.0 及更高版本。”）_
 
 ## Privacy- en verwijder-URL per taal
 
@@ -117,3 +143,4 @@ Na het online zetten van `site/` (zie de checklist in `CLAUDE.md`) per taal invu
 | Spaans     | `https://mooove-app.com/es/privacy` | `https://mooove-app.com/es/account-verwijderen` |
 | Duits      | `https://mooove-app.com/de/privacy` | `https://mooove-app.com/de/account-verwijderen` |
 | Frans      | `https://mooove-app.com/fr/privacy` | `https://mooove-app.com/fr/account-verwijderen` |
+| Chinees    | `https://mooove-app.com/zh/privacy` | `https://mooove-app.com/zh/account-verwijderen` |
