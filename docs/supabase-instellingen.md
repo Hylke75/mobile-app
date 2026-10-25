@@ -5,7 +5,16 @@ Deze instellingen staan in het Supabase-dashboard (project `akxnqxuztrtkquzbrsvx
 ## Verplicht
 
 - [ ] **E-mailtemplate** — Authentication → Email Templates → _Magic Link_: de tekst moet `{{ .Token }}` bevatten (de app vraagt om een code, niet om een link). Voorbeeld: `Je Mooove-code is {{ .Token }}. Hij is 1 uur geldig.`
-- [ ] **Eigen SMTP** — Authentication → SMTP Settings. De ingebouwde mailserver verstuurt maar een paar mails per uur; gebruik bijvoorbeeld Resend, Postmark of je eigen domein (`noreply@linkandlead.nl`).
+- [ ] **Eigen SMTP (Resend)** — het domein `mooove-app.com` staat in Resend (regio eu-west-1, zonder open- en kliktracking, TLS verplicht). Stappen:
+  1. DNS-records bij de domeinregistrar zetten (staan in Resend → Domains → mooove-app.com):
+     - TXT `resend._domainkey` (DKIM, waarde uit Resend)
+     - MX `send` → `feedback-smtp.eu-west-1.amazonses.com` (prioriteit 10)
+     - TXT `send` → `v=spf1 include:amazonses.com ~all`
+     - CNAME `rsend` → `send.forge.rmta.net`
+     - aanbevolen: TXT `_dmarc` → `v=DMARC1; p=none;`
+  2. In Resend op _Verify_ klikken en wachten tot de status _verified_ is.
+  3. Resend → API Keys → _Create_: naam `mooove-supabase-smtp`, rechten _Sending access_, alleen domein `mooove-app.com`. De sleutel niet in de repo zetten.
+  4. Supabase → Authentication → SMTP Settings → _Enable custom SMTP_: afzender `noreply@mooove-app.com`, naam `Mooove`, host `smtp.resend.com`, poort `465`, gebruikersnaam `resend`, wachtwoord = de API-sleutel.
 - [ ] **Rate limit e-mail** — Authentication → Rate Limits: na het instellen van SMTP verhogen naar bijvoorbeeld 30 per uur.
 
 ## Aanbevolen
