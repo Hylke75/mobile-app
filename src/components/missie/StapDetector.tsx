@@ -51,12 +51,35 @@ const JUMPING_JACK_CONFIG: ExerciseConfig = {
     { name: 'rightShoulderAbduction', landmarkA: 24, landmarkB: 12, landmarkC: 16 },
   ],
   phases: [
-    { phase: 'down', angleName: 'leftShoulderAbduction', minAngle: 0, maxAngle: 45 },
-    { phase: 'up', angleName: 'leftShoulderAbduction', minAngle: 130, maxAngle: 180 },
+    // Ruime grenzen: bij een vlot tempo komen de armen niet helemaal tot langs het lichaam
+    { phase: 'down', angleName: 'leftShoulderAbduction', minAngle: 0, maxAngle: 60 },
+    { phase: 'up', angleName: 'leftShoulderAbduction', minAngle: 120, maxAngle: 180 },
   ],
   repSequence: ['down', 'up', 'down'],
   formRules: [],
   holdDurationMs: 0,
+};
+
+// Aanpassingen op de standaardinstellingen van de bibliotheek, getoetst met een simulatie van de
+// telregels (vanaf de plaatsing die de app per oefening voorschrijft):
+// - lunges: de bibliotheek eist een liggende houding, zijwaarts staand telt dan niets
+// - kuitheffen: van opzij is de enkelhoek in rust ±105° en op de tenen ±115–130°
+// - bruggetje: met de heupen op de grond is de heuphoek ±130–150°, niet 80–120°
+const LUNGE: ExerciseConfig = { ...LUNGE_CONFIG, postureFamily: 'none' };
+const KUITHEFFEN: ExerciseConfig = {
+  ...CALF_RAISE_CONFIG,
+  cameraAngle: 'side',
+  phases: [
+    { phase: 'down', angleName: 'leftAnkle', minAngle: 85, maxAngle: 108 },
+    { phase: 'up', angleName: 'leftAnkle', minAngle: 113, maxAngle: 160 },
+  ],
+};
+const BRUGGETJE: ExerciseConfig = {
+  ...GLUTE_BRIDGE_CONFIG,
+  phases: [
+    { phase: 'down', angleName: 'hipExtension', minAngle: 95, maxAngle: 150 },
+    { phase: 'up', angleName: 'hipExtension', minAngle: 160, maxAngle: 180 },
+  ],
 };
 
 function poseConfig(oefening: Oefening, doel: number): ExerciseConfig {
@@ -68,11 +91,11 @@ function poseConfig(oefening: Oefening, doel: number): ExerciseConfig {
     case 'Jumping jacks':
       return JUMPING_JACK_CONFIG;
     case 'Lunges':
-      return LUNGE_CONFIG;
+      return LUNGE;
     case 'Kuitheffen':
-      return CALF_RAISE_CONFIG;
+      return KUITHEFFEN;
     case 'Bruggetje':
-      return GLUTE_BRIDGE_CONFIG;
+      return BRUGGETJE;
     // Houdingen: zo lang vasthouden als het doel in seconden
     case 'Muurzit':
       return { ...WALL_SIT_CONFIG, holdDurationMs: doel * 1000 };

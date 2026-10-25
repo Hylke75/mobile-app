@@ -11,3 +11,48 @@ index 1be40e2..96a630d 100644
  
    defaultConfig {
      minSdkVersion 26
+diff --git a/node_modules/react-native-nitro-pose-exercises/android/src/main/java/com/margelo/nitro/nitroposeexercises/NitroPoseExercises.kt b/node_modules/react-native-nitro-pose-exercises/android/src/main/java/com/margelo/nitro/nitroposeexercises/NitroPoseExercises.kt
+index 21bcd3a..52e4978 100644
+--- a/node_modules/react-native-nitro-pose-exercises/android/src/main/java/com/margelo/nitro/nitroposeexercises/NitroPoseExercises.kt
++++ b/node_modules/react-native-nitro-pose-exercises/android/src/main/java/com/margelo/nitro/nitroposeexercises/NitroPoseExercises.kt
+@@ -364,7 +364,6 @@ private fun processExerciseLogic() {
+   val detectedPhase = determinePhase(currentAngles, config)
+ 
+   // Debug log — remove once reps count reliably
+-  println("[Pose] angles=$currentAngles current=$_currentPhase detected=$detectedPhase history=$phaseHistory reps=$_repCount")
+ 
+   if (detectedPhase != _currentPhase && detectedPhase != ExercisePhase.UNKNOWN) {
+     val previousPhase = _currentPhase
+@@ -436,7 +435,8 @@ private fun handlePhaseTransition(
+       val now = System.currentTimeMillis()
+       val repDuration = (now - repStartTime).toDouble()
+ 
+-      if (repDuration < 800) {
++      // Mooove: 450 ms, zodat vlotte jumping jacks ook tellen (800 ms liet de helft vallen)
++      if (repDuration < 450) {
+         phaseHistory = mutableListOf(newPhase)
+         return
+       }
+diff --git a/node_modules/react-native-nitro-pose-exercises/ios/NitroPoseExercises.swift b/node_modules/react-native-nitro-pose-exercises/ios/NitroPoseExercises.swift
+index 1c21499..4ff539e 100644
+--- a/node_modules/react-native-nitro-pose-exercises/ios/NitroPoseExercises.swift
++++ b/node_modules/react-native-nitro-pose-exercises/ios/NitroPoseExercises.swift
+@@ -197,7 +197,6 @@ func processFrameIOS(frame: any HybridFrameSpec) throws {
+     // Create Vision request
+     let request = VNDetectHumanBodyPoseRequest()
+ 
+-      print("[PoseExercise] orientation=\(frame.orientation) isMirrored=\(frame.isMirrored) type=\(type(of: frame.orientation))")
+ 
+       let cgOrient = Self.cgOrientation(orientation: frame.orientation, isMirrored: frame.isMirrored)
+       let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: cgOrient, options: [:])
+@@ -501,8 +500,8 @@ private func isPostureValid(family: PostureFamily, threshold: Double) -> Bool {
+         let now = Date()
+         let repDuration = now.timeIntervalSince(repStartTime) * 1000
+ 
+-        // Minimum 800ms per rep — prevents false counts from noise
+-        guard repDuration > 800 else {
++        // Mooove: minimaal 450 ms per herhaling, zodat vlotte jumping jacks ook tellen
++        guard repDuration > 450 else {
+           phaseHistory = [newPhase]
+           return
+         }
