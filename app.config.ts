@@ -1,5 +1,8 @@
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
+// Alleen development-builds zoeken de ontwikkelserver op het lokale netwerk
+const IS_DEVELOPMENT = (process.env.EAS_BUILD_PROFILE ?? 'development') === 'development';
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Mooove',
@@ -31,8 +34,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       // De camerabibliotheek bevat microfooncode; Mooove vraagt hier nooit om
       NSMicrophoneUsageDescription:
         'Mooove neemt geen geluid op. Camerabeelden worden zonder geluid en alleen op je toestel verwerkt.',
-      NSLocalNetworkUsageDescription:
-        'Alleen in testversies: Mooove zoekt de ontwikkelserver op je lokale netwerk.',
+      ...(IS_DEVELOPMENT && {
+        NSLocalNetworkUsageDescription:
+          'Alleen in testversies: Mooove zoekt de ontwikkelserver op je lokale netwerk.',
+      }),
       // Alleen standaard HTTPS: geen exportdocumentatie nodig
       ITSAppUsesNonExemptEncryption: false,
       CFBundleDevelopmentRegion: 'nl',
@@ -104,6 +109,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           NSPrivacyCollectedDataTypeTracking: false,
           NSPrivacyCollectedDataTypePurposes: ['NSPrivacyCollectedDataTypePurposeAppFunctionality'],
         },
+        {
+          // Feedbackberichten uit Profiel
+          NSPrivacyCollectedDataType: 'NSPrivacyCollectedDataTypeCustomerSupport',
+          NSPrivacyCollectedDataTypeLinked: true,
+          NSPrivacyCollectedDataTypeTracking: false,
+          NSPrivacyCollectedDataTypePurposes: ['NSPrivacyCollectedDataTypePurposeAppFunctionality'],
+        },
       ],
     },
   },
@@ -122,6 +134,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'android.permission.WRITE_EXTERNAL_STORAGE',
       // Komt standaard mee van Expo; Mooove tekent niet over andere apps heen
       'android.permission.SYSTEM_ALERT_WINDOW',
+      // Komt mee van expo-sensors (stappenteller); Mooove gebruikt alleen de versnellingsmeter
+      'android.permission.ACTIVITY_RECOGNITION',
     ],
   },
   web: {

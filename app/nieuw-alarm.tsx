@@ -82,7 +82,7 @@ export default function NieuwAlarmScherm() {
   const [naam, setNaam] = useState(bestaand?.naam ?? standaardNaam);
   const [time, setTime] = useState(bestaand?.tijd ?? '07:00');
   const [days, setDays] = useState<number[]>(bestaand?.dagen ?? [0, 1, 2, 3, 4]);
-  const [level, setLevel] = useState<Niveau>(bestaand?.niveau ?? 'Verplicht');
+  const [level, setLevel] = useState<Niveau>(bestaand?.niveau ?? 'Flexibel');
   const [exercises, setExercises] = useState<MissieId[]>(
     bestaand?.oefeningen ?? ['Squats', 'Bed opmaken'],
   );
@@ -262,7 +262,7 @@ export default function NieuwAlarmScherm() {
               naam: standaardNaam,
               tijd: '07:00',
               dagen: [0, 1, 2, 3, 4],
-              niveau: 'Verplicht',
+              niveau: 'Flexibel',
               oefeningen: ['Squats', 'Bed opmaken'],
               doelen: {},
               wisselend: false,

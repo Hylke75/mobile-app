@@ -32,7 +32,8 @@ const nl = {
     geslaagd: 'Testalarm geslaagd ✓',
     nietGehoordTitel: 'Alarm niet gehoord?',
     nietGehoordTekst:
-      'Controleer of Mooove alarmen en meldingen mag tonen en of je alarmvolume aan staat. Op Android: zet batterij-optimalisatie voor Mooove uit.',
+      'Controleer of Mooove alarmen en meldingen mag tonen en of je alarmvolume aan staat.',
+    nietGehoordAndroid: 'Zet ook batterij-optimalisatie voor Mooove uit.',
     openInstellingen: 'Open instellingen',
     evenTesten: 'Even testen.',
     gehoord: 'Gehoord?',
@@ -157,7 +158,8 @@ export const profiel: Vertalingen<typeof nl> = {
       geslaagd: 'Test alarm passed ✓',
       nietGehoordTitel: 'Didn’t hear the alarm?',
       nietGehoordTekst:
-        'Check that Mooove is allowed to show alarms and notifications and that your alarm volume is on. On Android: turn off battery optimization for Mooove.',
+        'Check that Mooove is allowed to show alarms and notifications and that your alarm volume is on.',
+      nietGehoordAndroid: 'Also turn off battery optimization for Mooove.',
       openInstellingen: 'Open settings',
       evenTesten: 'Quick test.',
       gehoord: 'Heard it?',
@@ -279,7 +281,8 @@ export const profiel: Vertalingen<typeof nl> = {
       geslaagd: 'Alarma de prueba superada ✓',
       nietGehoordTitel: '¿No oíste la alarma?',
       nietGehoordTekst:
-        'Comprueba que Mooove puede mostrar alarmas y notificaciones y que el volumen de alarma está activado. En Android: desactiva la optimización de batería para Mooove.',
+        'Comprueba que Mooove puede mostrar alarmas y notificaciones y que el volumen de alarma está activado.',
+      nietGehoordAndroid: 'Desactiva también la optimización de batería para Mooove.',
       openInstellingen: 'Abrir ajustes',
       evenTesten: 'Vamos a probar.',
       gehoord: '¿La oíste?',
@@ -401,7 +404,8 @@ export const profiel: Vertalingen<typeof nl> = {
       geslaagd: 'Testwecker bestanden ✓',
       nietGehoordTitel: 'Wecker nicht gehört?',
       nietGehoordTekst:
-        'Prüfe, ob Mooove Wecker und Mitteilungen anzeigen darf und ob deine Weckerlautstärke an ist. Unter Android: Schalte die Akku-Optimierung für Mooove aus.',
+        'Prüfe, ob Mooove Wecker und Mitteilungen anzeigen darf und ob deine Weckerlautstärke an ist.',
+      nietGehoordAndroid: 'Schalte außerdem die Akku-Optimierung für Mooove aus.',
       openInstellingen: 'Einstellungen öffnen',
       evenTesten: 'Kurzer Test.',
       gehoord: 'Gehört?',
@@ -525,7 +529,8 @@ export const profiel: Vertalingen<typeof nl> = {
       geslaagd: 'Alarme test réussie ✓',
       nietGehoordTitel: 'Alarme pas entendue ?',
       nietGehoordTekst:
-        'Vérifie que Mooove peut afficher des alarmes et des notifications et que le volume de l’alarme est activé. Sur Android : désactive l’optimisation de la batterie pour Mooove.',
+        'Vérifie que Mooove peut afficher des alarmes et des notifications et que le volume de l’alarme est activé.',
+      nietGehoordAndroid: 'Désactive aussi l’optimisation de la batterie pour Mooove.',
       openInstellingen: 'Ouvrir les réglages',
       evenTesten: 'Petit test.',
       gehoord: 'Entendue ?',
@@ -647,8 +652,8 @@ export const profiel: Vertalingen<typeof nl> = {
       nietGepland: '无法安排测试闹钟。',
       geslaagd: '测试闹钟已通过 ✓',
       nietGehoordTitel: '没听到闹钟？',
-      nietGehoordTekst:
-        '请确认 Mooove 可以显示闹钟和通知，并且闹钟音量已打开。Android 上：请为 Mooove 关闭电池优化。',
+      nietGehoordTekst: '请确认 Mooove 可以显示闹钟和通知，并且闹钟音量已打开。',
+      nietGehoordAndroid: '另外请为 Mooove 关闭电池优化。',
       openInstellingen: '打开设置',
       evenTesten: '快速测试。',
       gehoord: '听到了吗？',

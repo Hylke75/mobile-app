@@ -85,5 +85,9 @@ Draai `lint`, `typecheck` en `test` voordat een taak af is.
 - [x] Testaccount voor de reviewers van Apple en Google (`appreview@linkandlead.nl`, met voorbeelddata)
 - [ ] Google Play: declaratie voor `SCHEDULE_EXACT_ALARM`, `USE_FULL_SCREEN_INTENT` en de foreground service (type `specialUse`, reden: "de service speelt het alarm af tot de gebruiker zijn wekmissie heeft afgerond")
 - [x] App Store: reviewnotities (camera, alarmniveaus, noodstop, account) staan in `docs/store/app-store.md`
+- [ ] Google Play: Health apps-verklaring (Activity and fitness) en een video voor de foreground-servicedeclaratie (zie `docs/store/google-play.md`)
+- [ ] Google Play (persoonlijk account): gesloten test met minimaal 12 testers gedurende 14 dagen vóór productietoegang
+- [ ] App Store: China (vasteland) uitzetten bij de beschikbaarheid (ICP-registratie vereist)
+- [ ] Reviewer-wachtwoord getest vlak voor het indienen (inloggen met `appreview@linkandlead.nl` moet werken)
 - [ ] Definitief icoon en splash (nu het conceptlogo `m.` uit `docs/ontwerp/`)
 - [ ] `version` in `app.config.ts` opgehoogd per release (build-nummers beheert EAS automatisch)

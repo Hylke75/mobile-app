@@ -5,7 +5,8 @@ Deze instellingen staan in het Supabase-dashboard (project `akxnqxuztrtkquzbrsvx
 ## Verplicht
 
 - [ ] **E-mailtemplate** — Authentication → Email Templates → _Magic Link_: de tekst moet `{{ .Token }}` bevatten (de app vraagt om een code, niet om een link). Voorbeeld: `Je Mooove-code is {{ .Token }}. Hij is 1 uur geldig.`
-- [ ] **Eigen SMTP (Resend)** — het domein `mooove-app.com` staat in Resend (regio eu-west-1, zonder open- en kliktracking, TLS verplicht). Stappen:
+- [ ] **Eigen SMTP — verplicht vóór het indienen.** Zonder eigen SMTP stuurt Supabase alleen mail naar leden van het Supabase-team: nieuwe gebruikers én reviewers krijgen dan géén inlogcode. Snelste route zolang `mooove-app.com` niet bestaat: het domein `linkandlead.nl` is al geverifieerd in Resend, dus gebruik afzender `noreply@linkandlead.nl` met dezelfde SMTP-gegevens als hieronder (API-sleutel beperkt tot `linkandlead.nl`). Later overstappen naar `noreply@mooove-app.com`.
+- [ ] **Eigen SMTP (Resend) met het eigen domein** — het domein `mooove-app.com` staat in Resend (regio eu-west-1, zonder open- en kliktracking, TLS verplicht). Stappen:
   1. DNS-records bij de domeinregistrar zetten (staan in Resend → Domains → mooove-app.com):
      - TXT `resend._domainkey` (DKIM, waarde uit Resend)
      - MX `send` → `feedback-smtp.eu-west-1.amazonses.com` (prioriteit 10)

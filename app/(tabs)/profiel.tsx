@@ -293,10 +293,16 @@ export default function ProfielScherm() {
       const fout = await werkProfielBij({ alarmtest_geslaagd_op: new Date().toISOString() });
       showToast(fout ?? t('profiel.test.geslaagd'));
     } else {
-      Alert.alert(t('profiel.test.nietGehoordTitel'), t('profiel.test.nietGehoordTekst'), [
-        { text: t('algemeen.sluiten'), style: 'cancel' },
-        { text: t('profiel.test.openInstellingen'), onPress: () => openAlarmInstellingen() },
-      ]);
+      Alert.alert(
+        t('profiel.test.nietGehoordTitel'),
+        Platform.OS === 'android'
+          ? `${t('profiel.test.nietGehoordTekst')} ${t('profiel.test.nietGehoordAndroid')}`
+          : t('profiel.test.nietGehoordTekst'),
+        [
+          { text: t('algemeen.sluiten'), style: 'cancel' },
+          { text: t('profiel.test.openInstellingen'), onPress: () => openAlarmInstellingen() },
+        ],
+      );
     }
   };
 

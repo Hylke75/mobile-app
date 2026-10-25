@@ -68,18 +68,26 @@ wekker,alarm,ochtend,bewegen,squats,fitness,routine,streak,opstaan,snooze,missie
 - **Wachtwoord:** _staat niet in de repo; zie het bericht van Claude of je wachtwoordkluis_
 - **Notities voor de reviewer** (plak in App Review Information → Notes):
 
-> LOGIN: Tap "Inloggen met wachtwoord" below the button on the login screen and use the demo account above. Regular users sign in with a one-time code sent by email. The demo account contains sample alarms and progress.
+> LOGIN: On the login screen, tap "Log in with password" (Dutch: "Inloggen met wachtwoord") below the main button and use the demo account above. Regular users sign in with a one-time code sent by email. The demo account contains sample alarms and progress. The app follows the device language (English, Dutch, Spanish, German, French or Chinese); it can be changed in Profile → Language.
 >
-> WHY AN ACCOUNT: Mooove stores the user's alarms, streak and workout history in their account so it is kept and synced when they switch or reinstall their phone. The account and all data can be deleted in the app: Profiel → Account verwijderen.
+> WHY AN ACCOUNT: Mooove stores the user's alarms, streak and workout history in their account so it is kept and synced when they switch or reinstall their phone. The account and all data can be deleted in the app: Profile → Delete account.
 >
-> ALARMS: Mooove is an alarm clock built on AlarmKit (iOS 26+). At the levels "Verplicht" and "Hardcore" the alarm only stops after the user completes a short movement mission (e.g. 10 squats). This is the core feature, chosen by the user per alarm. An emergency stop ("Noodstop") is always available during a mission and stops the alarm immediately. At the level "Vrij" the system Stop button works as usual.
+> ALARMS: Mooove is an alarm clock built on AlarmKit (iOS 26+). The user chooses a strictness level per alarm; new alarms start at "Flexible". At the levels "Mandatory" and "Hardcore" the alarm only stops after the user completes a short movement mission (e.g. 10 squats); pressing Stop on the lock screen re-rings the alarm and opens the mission. This is the core feature, chosen by the user. An "Emergency stop" button is always visible during a mission and stops the alarm immediately at every level. At the level "Free" the system Stop button works as usual.
 >
-> QUICK TEST: Profiel → "Test je alarm" rings a test alarm after 30 seconds. Vandaag → "Start je missie nu" starts a mission without an alarm.
+> QUICK TEST: Profile → "Test your alarm" rings a test alarm after 30 seconds. Today → "Start your mission now" starts a mission without an alarm.
 >
-> CAMERA: Used only during a mission for on-device pose detection (Apple Vision), a brightness check (curtains open) and a confirmation photo (bed made). Nothing is stored or sent; no audio is recorded. The microphone usage string exists only because the camera library contains audio code; the app never requests microphone access.
+> CAMERA: Used only during a mission for on-device pose detection (Apple Vision), a brightness check (curtains open) and a confirmation photo (bed made). Nothing is stored or sent; no audio is recorded. The microphone usage string exists only because the camera library contains audio code; the app never requests microphone access. If camera access is denied, missions can be marked as done manually at the levels Free, Flexible and Snoozable.
 >
-> PRIVACY: Profiel → Privacy shows the full privacy policy in the app.
+> PRIVACY: Profile → Privacy shows the full privacy policy in the app.
+
+## Beschikbaarheid
+
+- **China (vasteland) uitzetten** (Pricing and Availability): voor publicatie daar eist Apple een ICP-registratie bij het Chinese ministerie (MIIT). Chinees blijft beschikbaar in o.a. Taiwan, Hongkong, Singapore en Maleisië.
+
+## URL's zolang `mooove-app.com` nog niet bestaat
+
+Gebruik tijdelijk het Vercel-adres (zelfde site, alle talen): `https://mobile-app-sage-ten.vercel.app/privacy` (privacybeleid), `https://mobile-app-sage-ten.vercel.app/` (support en marketing). Vervang ze na het registreren van het domein.
 
 ## Screenshots
 
-Gebruik bij voorkeur de versies met koptekst: `docs/store/screenshots-tekst/<taal>/ios-6.9/` (1320 × 2868) en `ios-6.5/` (1284 × 2778), per taal (`nl`, `en`, `es`, `de`, `fr`). De kale schermen staan in `docs/store/screenshots/`.
+Gebruik bij voorkeur de versies met koptekst: `docs/store/screenshots-tekst/<taal>/ios-6.9/` (1320 × 2868) en `ios-6.5/` (1284 × 2778), per taal (`nl`, `en`, `es`, `de`, `fr`, `zh`). De kale schermen staan in `docs/store/screenshots/`.

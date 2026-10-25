@@ -46,10 +46,26 @@
 
 > De camera wordt alleen tijdens een missie gebruikt om oefeningen op het toestel te herkennen. Er worden geen beelden opgeslagen of verstuurd.
 
+**Video voor de foreground service (verplicht)**
+
+Google vraagt per foreground-servicetype een link naar een video (bijv. YouTube, niet openbaar) die laat zien hoe de functie wordt gestart. Opname van ±30 s op een Android-telefoon: Profiel → Test je alarm → telefoon vergrendelen → het alarm gaat af over het vergrendelscherm en blijft klinken → Start missie → missie afronden (of Noodstop) → het alarm stopt.
+
+## Health apps-verklaring (App-inhoud → Gezondheid)
+
+Verplicht voor elke app. Kies **Activity and fitness** (de app registreert oefeningen en herhalingen). Geen medische functies, geen Health Connect, geen gezondheidsgegevens van andere apps.
+
+## Productietoegang (persoonlijk ontwikkelaarsaccount)
+
+Is het Play-account na 13 november 2023 als **persoonlijk** account aangemaakt, dan moet eerst een gesloten test lopen met minimaal **12 testers die 14 dagen achter elkaar** meedoen; pas daarna kun je productietoegang aanvragen (Dashboard in de Play Console). Start de gesloten test zo vroeg mogelijk met de preview- of productiebuild. Organisatie-accounts zijn hiervan vrijgesteld.
+
+## URL's zolang `mooove-app.com` nog niet bestaat
+
+Privacybeleid: `https://mobile-app-sage-ten.vercel.app/privacy` · Verwijderverzoeken: `https://mobile-app-sage-ten.vercel.app/account-verwijderen` · Website: `https://mobile-app-sage-ten.vercel.app/`.
+
 ## App-toegang (voor reviewers)
 
 - **Inloggegevens:** appreview@linkandlead.nl, wachtwoord: _niet in de repo_
-- **Instructies:** "Tik op het inlogscherm op 'Inloggen met wachtwoord'. Profiel → 'Test je alarm' laat na 30 seconden een alarm afgaan."
+- **Instructies (Engels, plakken in App-toegang):** "On the login screen tap 'Log in with password' (Dutch: 'Inloggen met wachtwoord') and use the credentials above. Profile → 'Test your alarm' rings a test alarm after 30 seconds. During a mission, 'Emergency stop' always stops the alarm."
 
 ## Inhoudsclassificatie
 
