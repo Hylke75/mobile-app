@@ -77,7 +77,7 @@ export default function ProfielScherm() {
   const kl = useKleuren();
   const { showToast } = useToast();
   const { t, locale, keuze, kiesTaal } = useTaal();
-  const { profiel, user, uitloggen, verwijderAccount, werkProfielBij } = useAuth();
+  const { profiel, user, gast, uitloggen, verwijderAccount, werkProfielBij } = useAuth();
   const { statistiek } = useSessies();
   const { regels, allesInOrde, rechten, batterijAan, vraagAlleRechtenAan } = useAlarmCheck();
   const [test, setTest] = useState<'uit' | 'aftellen' | 'vraag'>('uit');
@@ -327,7 +327,7 @@ export default function ProfielScherm() {
   const onUitloggen = () =>
     bevestig(
       t('profiel.uitloggen.titel'),
-      t('profiel.uitloggen.tekst'),
+      gast ? t('profiel.gast.uitloggenTekst') : t('profiel.uitloggen.tekst'),
       t('profiel.uitloggen.label'),
       () => {
         uitloggen();
@@ -537,10 +537,21 @@ export default function ProfielScherm() {
       ))}
 
       <Text style={styles.sectionHeading}>{t('profiel.account')}</Text>
+      {gast && (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => router.push('/koppel-email')}
+          style={styles.setting}
+        >
+          <Icon name="shield" color={kl.ink} />
+          <Text style={styles.settingLabel}>{t('profiel.gast.label')}</Text>
+          <Text style={styles.settingValue}>{t('profiel.gast.waarde')}</Text>
+        </Pressable>
+      )}
       <View style={styles.setting}>
         <Icon name="user" color={kl.ink} />
         <Text style={styles.settingLabel}>{t('profiel.email')}</Text>
-        <Text style={styles.settingValue}>{user?.email}</Text>
+        <Text style={styles.settingValue}>{user?.email || t('profiel.gast.geenEmail')}</Text>
       </View>
       <Pressable accessibilityRole="button" onPress={downloadGegevens} style={styles.setting}>
         <Icon name="shield" color={kl.ink} />

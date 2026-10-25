@@ -1327,6 +1327,16 @@
       }
 
       function verwijderAccount(g) {
+        // Gasten hebben geen e-mailadres om over te typen
+        if (!g.email) {
+          if (
+            confirm(
+              'Dit gastaccount (zonder e-mail) definitief verwijderen, met alle alarmen en missies?',
+            )
+          )
+            actie('verwijderAccount', g.id, null, 'Account verwijderd.');
+          return;
+        }
         const invoer = prompt(
           `Account van ${g.email} definitief verwijderen, met alle alarmen en missies?\nTyp het e-mailadres om te bevestigen.`,
         );
@@ -1618,7 +1628,7 @@
             }
             const mail = document.createElement('div');
             mail.className = 'mail';
-            mail.textContent = g.email;
+            mail.textContent = g.email || 'Gast, zonder e-mail';
             wie.append(naam, mail);
             cel(wie);
             const [klasse, label] = status(g);
@@ -1647,7 +1657,7 @@
                 `Een inlogcode sturen naar ${g.email}?`,
                 'Inlogcode verstuurd.',
               );
-            acties.append(code);
+            if (g.email) acties.append(code);
             if (!g.beheerder) {
               const weg = document.createElement('button');
               weg.className = 'mini gevaar';

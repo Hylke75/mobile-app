@@ -15,6 +15,10 @@ const nl = {
   ietsMis: 'Er ging iets mis. Probeer het opnieuw.',
   alarmenNietGepland: 'Alarmen konden niet op je toestel worden ingepland.',
   alarmenNietGeladen: 'Je alarmen konden niet worden geladen.',
+  gastMislukt:
+    'Doorgaan zonder account lukt nu niet. Controleer je internet of log in met je e-mailadres.',
+  emailBestaat:
+    'Dit e-mailadres hoort al bij een account. Log uit en log in met dat adres; je gegevens als gast gaan dan niet mee.',
 };
 
 export const meldingen: Vertalingen<typeof nl> = {
@@ -33,6 +37,10 @@ export const meldingen: Vertalingen<typeof nl> = {
     ietsMis: 'Something went wrong. Please try again.',
     alarmenNietGepland: 'Your alarms couldn’t be set on your phone.',
     alarmenNietGeladen: 'Your alarms couldn’t be loaded.',
+    gastMislukt:
+      'Continuing without an account didn’t work. Check your internet or log in with your email address.',
+    emailBestaat:
+      'This email address already has an account. Log out and log in with that address; your guest data won’t be carried over.',
   },
   es: {
     nietIngelogd: 'No has iniciado sesión.',
@@ -48,6 +56,10 @@ export const meldingen: Vertalingen<typeof nl> = {
     ietsMis: 'Algo ha salido mal. Inténtalo de nuevo.',
     alarmenNietGepland: 'No se han podido programar las alarmas en tu móvil.',
     alarmenNietGeladen: 'No se han podido cargar tus alarmas.',
+    gastMislukt:
+      'No se ha podido continuar sin cuenta. Revisa tu conexión o inicia sesión con tu correo.',
+    emailBestaat:
+      'Este correo ya tiene una cuenta. Cierra sesión e inicia sesión con ese correo; tus datos de invitado no se trasladarán.',
   },
   de: {
     nietIngelogd: 'Du bist nicht angemeldet.',
@@ -64,6 +76,10 @@ export const meldingen: Vertalingen<typeof nl> = {
     ietsMis: 'Etwas ist schiefgelaufen. Versuche es erneut.',
     alarmenNietGepland: 'Deine Wecker konnten nicht auf deinem Handy eingeplant werden.',
     alarmenNietGeladen: 'Deine Wecker konnten nicht geladen werden.',
+    gastMislukt:
+      'Ohne Konto fortzufahren hat nicht geklappt. Prüfe deine Internetverbindung oder melde dich mit deiner E-Mail-Adresse an.',
+    emailBestaat:
+      'Zu dieser E-Mail-Adresse gibt es bereits ein Konto. Melde dich ab und mit dieser Adresse an; deine Gastdaten werden dann nicht übernommen.',
   },
   fr: {
     nietIngelogd: 'Tu n’es pas connecté·e.',
@@ -78,6 +94,10 @@ export const meldingen: Vertalingen<typeof nl> = {
     ietsMis: 'Un problème est survenu. Réessaie.',
     alarmenNietGepland: 'Tes alarmes n’ont pas pu être programmées sur ton téléphone.',
     alarmenNietGeladen: 'Tes alarmes n’ont pas pu être chargées.',
+    gastMislukt:
+      'Impossible de continuer sans compte. Vérifie ta connexion ou connecte-toi avec ton adresse e-mail.',
+    emailBestaat:
+      'Cette adresse e-mail a déjà un compte. Déconnecte-toi puis connecte-toi avec cette adresse ; tes données d’invité ne seront pas reprises.',
   },
   zh: {
     nietIngelogd: '你尚未登录。',
@@ -92,5 +112,7 @@ export const meldingen: Vertalingen<typeof nl> = {
     ietsMis: '出了点问题，请重试。',
     alarmenNietGepland: '无法在你的手机上设置闹钟。',
     alarmenNietGeladen: '无法加载你的闹钟。',
+    gastMislukt: '暂时无法不注册直接使用。请检查网络连接，或用邮箱地址登录。',
+    emailBestaat: '这个邮箱地址已有账户。请退出登录后用该邮箱登录；你的访客数据不会被带过去。',
   },
 };

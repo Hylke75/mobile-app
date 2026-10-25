@@ -13,7 +13,7 @@ const EMAIL_PATROON = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function InloggenScherm() {
   const { t } = useTaal();
-  const { vraagCodeAan, loginMetWachtwoord } = useAuth();
+  const { vraagCodeAan, loginMetWachtwoord, doorgaanZonderAccount } = useAuth();
   const [email, setEmail] = useState('');
   const [metWachtwoord, setMetWachtwoord] = useState(false);
   const [wachtwoord, setWachtwoord] = useState('');
@@ -36,6 +36,15 @@ export default function InloggenScherm() {
     setBezig(false);
     if (resultaat) return setFout(resultaat);
     router.push({ pathname: '/code', params: { email: adres } });
+  };
+
+  const zonderAccount = async () => {
+    setBezig(true);
+    setFout(null);
+    const resultaat = await doorgaanZonderAccount();
+    setBezig(false);
+    if (resultaat) setFout(resultaat);
+    else router.replace('/');
   };
 
   return (
@@ -90,6 +99,18 @@ export default function InloggenScherm() {
         onPress={bezig ? () => {} : verstuur}
         style={s.knop}
       />
+      {!metWachtwoord && (
+        <>
+          <Pressable
+            accessibilityRole="button"
+            onPress={bezig ? undefined : zonderAccount}
+            style={({ pressed }) => [s.gastKnop, pressed && { opacity: 0.7 }]}
+          >
+            <Text style={s.gastKnopTekst}>{t('auth.gast.knop')}</Text>
+          </Pressable>
+          <Text style={s.gastUitleg}>{t('auth.gast.uitleg')}</Text>
+        </>
+      )}
       <Pressable
         accessibilityRole="button"
         onPress={() => {

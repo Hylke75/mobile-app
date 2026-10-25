@@ -97,6 +97,12 @@ const nl = {
     titel: 'Alarm verwijderen?',
     tekst: 'Dit alarm gaat daarna niet meer af.',
   },
+  streng: {
+    titel: 'Alleen stoppen met je missie',
+    tekst:
+      'Dit alarm stopt pas als je je missie hebt afgerond; snoozen kan niet. Tijdens de missie kun je altijd de noodstop gebruiken.',
+    ok: 'Begrepen',
+  },
 };
 
 export const editor: Vertalingen<typeof nl> = {
@@ -197,6 +203,12 @@ export const editor: Vertalingen<typeof nl> = {
       titel: 'Delete alarm?',
       tekst: 'This alarm won’t go off anymore.',
     },
+    streng: {
+      titel: 'Only stops with your mission',
+      tekst:
+        'This alarm only stops once you’ve finished your mission; you can’t snooze. During the mission you can always use the emergency stop.',
+      ok: 'Got it',
+    },
   },
   es: {
     eigen: {
@@ -293,6 +305,12 @@ export const editor: Vertalingen<typeof nl> = {
     verwijderVraag: {
       titel: '¿Eliminar alarma?',
       tekst: 'Esta alarma dejará de sonar.',
+    },
+    streng: {
+      titel: 'Solo se detiene con tu misión',
+      tekst:
+        'Esta alarma solo se detiene cuando terminas tu misión; no se puede posponer. Durante la misión siempre puedes usar la parada de emergencia.',
+      ok: 'Entendido',
     },
   },
   de: {
@@ -391,6 +409,12 @@ export const editor: Vertalingen<typeof nl> = {
       titel: 'Wecker löschen?',
       tekst: 'Dieser Wecker klingelt danach nicht mehr.',
     },
+    streng: {
+      titel: 'Stoppt nur mit deiner Mission',
+      tekst:
+        'Dieser Wecker stoppt erst, wenn du deine Mission erledigt hast; Schlummern geht nicht. Während der Mission kannst du jederzeit den Notstopp nutzen.',
+      ok: 'Verstanden',
+    },
   },
   fr: {
     eigen: {
@@ -488,6 +512,12 @@ export const editor: Vertalingen<typeof nl> = {
       titel: 'Supprimer l’alarme ?',
       tekst: 'Cette alarme ne sonnera plus.',
     },
+    streng: {
+      titel: 'S’arrête seulement avec ta mission',
+      tekst:
+        'Cette alarme ne s’arrête qu’une fois ta mission terminée ; pas de répétition. Pendant la mission, tu peux toujours utiliser l’arrêt d’urgence.',
+      ok: 'Compris',
+    },
   },
   zh: {
     eigen: {
@@ -583,6 +613,11 @@ export const editor: Vertalingen<typeof nl> = {
     verwijderVraag: {
       titel: '删除闹钟？',
       tekst: '这个闹钟将不再响铃。',
+    },
+    streng: {
+      titel: '只有完成任务才会停',
+      tekst: '这个闹钟只有在你完成任务后才会停止，不能推迟。任务过程中，你随时可以使用紧急停止。',
+      ok: '知道了',
     },
   },
 };

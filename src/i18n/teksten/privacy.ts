@@ -14,7 +14,7 @@ const nl = {
   gegevens: {
     kop: 'Welke gegevens verwerken we?',
     a1: 'We bewaren deze gegevens zolang je account bestaat:',
-    p1: 'E-mailadres: om in te loggen met een eenmalige code en je account te beheren.',
+    p1: 'E-mailadres (alleen als je inlogt met e-mail of er een koppelt; zonder account is het niet nodig): om in te loggen met een eenmalige code en je account te beheren.',
     p2: 'Voornaam: om je in de app te begroeten.',
     p3: 'Alarmen (tijd, dagen, niveau, gekozen oefeningen en aantallen, naam): om je alarmen in te plannen en op al je toestellen beschikbaar te maken.',
     p4: 'Missieresultaten (start- en eindtijd, oefeningen, aantal herhalingen, voltooid of afgebroken): om je streak, voortgang en badges te tonen.',
@@ -88,7 +88,7 @@ export const privacy: Vertalingen<typeof nl> = {
     gegevens: {
       kop: 'What data do we process?',
       a1: 'We keep this data for as long as your account exists:',
-      p1: 'Email address: to log in with a one-time code and manage your account.',
+      p1: 'Email address (only if you log in with email or link one; not needed without an account): to log in with a one-time code and manage your account.',
       p2: 'First name: to greet you in the app.',
       p3: 'Alarms (time, days, level, chosen exercises and amounts, name): to schedule your alarms and make them available on all your devices.',
       p4: 'Mission results (start and end time, exercises, number of reps, completed or stopped): to show your streak, progress and badges.',
@@ -159,7 +159,7 @@ export const privacy: Vertalingen<typeof nl> = {
     gegevens: {
       kop: '¿Qué datos tratamos?',
       a1: 'Conservamos estos datos mientras exista tu cuenta:',
-      p1: 'Correo electrónico: para iniciar sesión con un código de un solo uso y gestionar tu cuenta.',
+      p1: 'Correo electrónico (solo si inicias sesión con correo o vinculas uno; sin cuenta no es necesario): para iniciar sesión con un código de un solo uso y gestionar tu cuenta.',
       p2: 'Nombre: para saludarte en la app.',
       p3: 'Alarmas (hora, días, nivel, ejercicios y cantidades elegidos, nombre): para programar tus alarmas y tenerlas disponibles en todos tus dispositivos.',
       p4: 'Resultados de las misiones (hora de inicio y fin, ejercicios, número de repeticiones, completada o interrumpida): para mostrar tu racha, tu progreso y tus insignias.',
@@ -230,7 +230,7 @@ export const privacy: Vertalingen<typeof nl> = {
     gegevens: {
       kop: 'Welche Daten verarbeiten wir?',
       a1: 'Wir speichern diese Daten, solange dein Konto besteht:',
-      p1: 'E-Mail-Adresse: um dich mit einem einmaligen Code anzumelden und dein Konto zu verwalten.',
+      p1: 'E-Mail-Adresse (nur wenn du dich per E-Mail anmeldest oder eine verknüpfst; ohne Konto nicht nötig): um dich mit einem einmaligen Code anzumelden und dein Konto zu verwalten.',
       p2: 'Vorname: um dich in der App zu begrüßen.',
       p3: 'Alarme (Uhrzeit, Tage, Stufe, gewählte Übungen und Anzahl, Name): um deine Alarme zu planen und auf all deinen Geräten verfügbar zu machen.',
       p4: 'Missionsergebnisse (Start- und Endzeit, Übungen, Anzahl der Wiederholungen, abgeschlossen oder abgebrochen): um deine Serie, deinen Fortschritt und deine Abzeichen anzuzeigen.',
@@ -301,7 +301,7 @@ export const privacy: Vertalingen<typeof nl> = {
     gegevens: {
       kop: 'Quelles données traitons-nous ?',
       a1: 'Nous conservons ces données tant que ton compte existe :',
-      p1: 'Adresse e-mail : pour te connecter avec un code à usage unique et gérer ton compte.',
+      p1: 'Adresse e-mail (uniquement si tu te connectes par e-mail ou en lies une ; inutile sans compte) : pour te connecter avec un code à usage unique et gérer ton compte.',
       p2: 'Prénom : pour te saluer dans l’app.',
       p3: 'Alarmes (heure, jours, niveau, exercices et quantités choisis, nom) : pour programmer tes alarmes et les rendre disponibles sur tous tes appareils.',
       p4: 'Résultats des missions (heure de début et de fin, exercices, nombre de répétitions, terminée ou interrompue) : pour afficher ta série, ta progression et tes badges.',
@@ -371,7 +371,7 @@ export const privacy: Vertalingen<typeof nl> = {
     gegevens: {
       kop: '我们处理哪些数据？',
       a1: '只要你的账户存在，我们就会保留以下数据：',
-      p1: '邮箱地址：用于通过一次性验证码登录和管理你的账户。',
+      p1: '邮箱地址（仅在你用邮箱登录或关联邮箱时；不注册则无需提供）：用于通过一次性验证码登录和管理你的账户。',
       p2: '名字：用于在应用中向你问好。',
       p3: '闹钟（时间、日期、等级、所选运动及数量、名称）：用于安排你的闹钟，并让它们在你的所有设备上可用。',
       p4: '任务结果（开始和结束时间、运动、次数、已完成或已中止）：用于显示你的连续纪录、进度和徽章。',

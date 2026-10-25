@@ -111,6 +111,10 @@ function RootNavigator() {
             name="klaarzetten"
             options={{ contentStyle: { backgroundColor: kleuren.ink }, gestureEnabled: false }}
           />
+          <Stack.Screen
+            name="koppel-email"
+            options={{ contentStyle: { backgroundColor: kleuren.ink } }}
+          />
         </Stack.Protected>
 
         <Stack.Screen

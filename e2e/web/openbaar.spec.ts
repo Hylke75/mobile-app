@@ -5,6 +5,8 @@ test.describe('zonder inloggen', () => {
   test('inlogscherm met code en wachtwoord', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByText('Stuur mij een code')).toBeVisible();
+    // Apple-richtlijn 5.1.1(v): de app is ook zonder account te gebruiken
+    await expect(page.getByRole('button', { name: 'Doorgaan zonder account' })).toBeVisible();
     await page.getByText('Inloggen met wachtwoord', { exact: true }).click();
     await expect(page.getByLabel('Wachtwoord')).toBeVisible();
   });

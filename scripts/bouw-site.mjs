@@ -10,7 +10,7 @@ import { CSS, FAVICON, HREFLANG, landing, navigatie, voettekst } from './site-la
 
 const HIER = path.dirname(fileURLToPath(import.meta.url));
 const SITE = path.join(HIER, '..', 'site');
-const BIJGEWERKT = new Date(2026, 9, 24);
+const BIJGEWERKT = new Date(2026, 9, 25);
 const MAIL = 'hylke@linkandlead.nl';
 export const DOMEIN = 'https://mooove-app.com';
 const TALEN = ['nl', 'en', 'es', 'de', 'fr', 'zh'];

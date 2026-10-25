@@ -61,4 +61,23 @@ export const authStyles = StyleSheet.create({
     color: '#819181',
     textDecorationLine: 'underline',
   },
+  gastKnop: {
+    marginTop: 12,
+    minHeight: 54,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#3A4A3F',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 18,
+  },
+  gastKnopTekst: { fontFamily: fonts.body800, fontSize: 14, color: kleuren.white },
+  gastUitleg: {
+    fontFamily: fonts.body400,
+    fontSize: 11,
+    lineHeight: 16,
+    color: '#819181',
+    textAlign: 'center',
+    marginTop: 8,
+  },
 });

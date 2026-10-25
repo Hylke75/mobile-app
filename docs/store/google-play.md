@@ -64,7 +64,7 @@ Privacybeleid: `https://mobile-app-sage-ten.vercel.app/privacy` · Verwijderverz
 
 ## App-toegang (voor reviewers)
 
-- **Inloggegevens:** appreview@linkandlead.nl, wachtwoord: _niet in de repo_
+- **Inloggen nodig?** Nee: "Continue without an account" geeft toegang tot alles. Voor een ingevuld voorbeeld: appreview@linkandlead.nl, wachtwoord _niet in de repo_.
 - **Instructies (Engels, plakken in App-toegang):** "On the login screen tap 'Log in with password' (Dutch: 'Inloggen met wachtwoord') and use the credentials above. Profile → 'Test your alarm' rings a test alarm after 30 seconds. During a mission, 'Emergency stop' always stops the alarm."
 
 ## Inhoudsclassificatie

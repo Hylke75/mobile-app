@@ -61,6 +61,20 @@ const nl = {
     verder: 'Verder',
     later: 'Later',
   },
+  gast: {
+    knop: 'Doorgaan zonder account',
+    uitleg: 'Je kunt later een e-mailadres koppelen om je alarmen en voortgang te bewaren.',
+  },
+  koppel: {
+    kicker: 'BEWAAR JE VOORTGANG',
+    titel: 'Koppel je ',
+    titelAccent: 'e-mail.',
+    tekst:
+      'Met een e-mailadres blijven je alarmen, streak en voortgang bewaard als je een nieuwe telefoon neemt. Je krijgt een code per e-mail.',
+    codeTekst: 'We hebben een code gestuurd naar {{email}}. Niets ontvangen? Kijk ook in je spam.',
+    bevestig: 'Koppelen',
+    gelukt: 'Je e-mailadres is gekoppeld. Je voortgang is bewaard.',
+  },
 };
 
 export const auth: Vertalingen<typeof nl> = {
@@ -126,6 +140,20 @@ export const auth: Vertalingen<typeof nl> = {
       verder: 'Continue',
       later: 'Later',
     },
+    gast: {
+      knop: 'Continue without an account',
+      uitleg: 'You can link an email address later to keep your alarms and progress.',
+    },
+    koppel: {
+      kicker: 'KEEP YOUR PROGRESS',
+      titel: 'Link your ',
+      titelAccent: 'email.',
+      tekst:
+        'With an email address, your alarms, streak and progress are kept when you get a new phone. You’ll get a code by email.',
+      codeTekst: 'We sent a code to {{email}}. Nothing yet? Check your spam folder too.',
+      bevestig: 'Link',
+      gelukt: 'Your email address is linked. Your progress is safe.',
+    },
   },
   es: {
     inloggen: {
@@ -187,6 +215,20 @@ export const auth: Vertalingen<typeof nl> = {
       testen: 'Listo, probar mi alarma',
       verder: 'Continuar',
       later: 'Más tarde',
+    },
+    gast: {
+      knop: 'Continuar sin cuenta',
+      uitleg: 'Más adelante puedes vincular un correo para conservar tus alarmas y tu progreso.',
+    },
+    koppel: {
+      kicker: 'GUARDA TU PROGRESO',
+      titel: 'Vincula tu ',
+      titelAccent: 'correo.',
+      tekst:
+        'Con un correo electrónico, tus alarmas, tu racha y tu progreso se conservan si cambias de móvil. Recibirás un código por correo.',
+      codeTekst: 'Hemos enviado un código a {{email}}. ¿No te ha llegado? Revisa también el spam.',
+      bevestig: 'Vincular',
+      gelukt: 'Tu correo está vinculado. Tu progreso está a salvo.',
     },
   },
   de: {
@@ -252,6 +294,22 @@ export const auth: Vertalingen<typeof nl> = {
       verder: 'Weiter',
       later: 'Später',
     },
+    gast: {
+      knop: 'Ohne Konto fortfahren',
+      uitleg:
+        'Du kannst später eine E-Mail-Adresse verknüpfen, um deine Wecker und deinen Fortschritt zu behalten.',
+    },
+    koppel: {
+      kicker: 'FORTSCHRITT SICHERN',
+      titel: 'Verknüpfe deine ',
+      titelAccent: 'E-Mail.',
+      tekst:
+        'Mit einer E-Mail-Adresse bleiben deine Wecker, deine Serie und dein Fortschritt erhalten, wenn du ein neues Handy bekommst. Du erhältst einen Code per E-Mail.',
+      codeTekst:
+        'Wir haben einen Code an {{email}} geschickt. Noch nichts da? Schau auch im Spam nach.',
+      bevestig: 'Verknüpfen',
+      gelukt: 'Deine E-Mail-Adresse ist verknüpft. Dein Fortschritt ist gesichert.',
+    },
   },
   fr: {
     inloggen: {
@@ -315,6 +373,21 @@ export const auth: Vertalingen<typeof nl> = {
       verder: 'Continuer',
       later: 'Plus tard',
     },
+    gast: {
+      knop: 'Continuer sans compte',
+      uitleg:
+        'Tu pourras lier une adresse e-mail plus tard pour garder tes alarmes et ta progression.',
+    },
+    koppel: {
+      kicker: 'GARDE TA PROGRESSION',
+      titel: 'Lie ton ',
+      titelAccent: 'e-mail.',
+      tekst:
+        'Avec une adresse e-mail, tes alarmes, ta série et ta progression sont conservées si tu changes de téléphone. Tu recevras un code par e-mail.',
+      codeTekst: 'Nous avons envoyé un code à {{email}}. Rien reçu ? Regarde aussi dans tes spams.',
+      bevestig: 'Lier',
+      gelukt: 'Ton adresse e-mail est liée. Ta progression est en sécurité.',
+    },
   },
   zh: {
     inloggen: {
@@ -375,6 +448,20 @@ export const auth: Vertalingen<typeof nl> = {
       testen: '完成，测试我的闹钟',
       verder: '继续',
       later: '稍后',
+    },
+    gast: {
+      knop: '不注册，直接使用',
+      uitleg: '之后你可以关联邮箱地址，保存你的闹钟和进度。',
+    },
+    koppel: {
+      kicker: '保存你的进度',
+      titel: '关联你的',
+      titelAccent: '邮箱。',
+      tekst:
+        '关联邮箱地址后，即使换了新手机，你的闹钟、连续纪录和进度也会保留。你会收到一封含验证码的邮件。',
+      codeTekst: '我们已将验证码发送到 {{email}}。还没收到？也看看垃圾邮件文件夹。',
+      bevestig: '关联',
+      gelukt: '你的邮箱地址已关联，进度已保存。',
     },
   },
 };

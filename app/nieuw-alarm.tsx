@@ -162,6 +162,21 @@ export default function NieuwAlarmScherm() {
     ]);
   };
 
+  // Bij een streng niveau eerst uitleggen dat het alarm alleen met de missie stopt
+  const kiesNiveau = (nieuw: Niveau) => {
+    const wasStreng = level === 'Verplicht' || level === 'Hardcore';
+    const wordtStreng = nieuw === 'Verplicht' || nieuw === 'Hardcore';
+    setLevel(nieuw);
+    if (!wordtStreng || wasStreng) return;
+    const titel = t('editor.streng.titel');
+    const tekst = t('editor.streng.tekst');
+    if (Platform.OS === 'web') {
+      window.alert(`${titel}\n\n${tekst}`);
+      return;
+    }
+    Alert.alert(titel, tekst, [{ text: t('editor.streng.ok') }]);
+  };
+
   const verplaats = (index: number, richting: 1 | -1) => {
     const nieuw = gekozen.map((m) => m.id);
     const doelIndex = index + richting;
@@ -472,7 +487,7 @@ export default function NieuwAlarmScherm() {
                   key={l}
                   accessibilityRole="button"
                   accessibilityState={{ selected: level === l }}
-                  onPress={() => setLevel(l)}
+                  onPress={() => kiesNiveau(l)}
                   style={[styles.levelChoice, level === l && styles.levelChoiceSelected]}
                 >
                   <Text

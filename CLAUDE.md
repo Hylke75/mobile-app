@@ -19,7 +19,7 @@ Appconfiguratie staat in `app.config.ts` (naam, slug `mobile-app`, bundle ID / p
 
 De app is volledig functioneel. Mooove Coach (V2-concept) is voor de eerste release uit de app gehaald (App Store-richtlijn 2.1: geen placeholder-functies); het ontwerp staat nog in `docs/ontwerp/`.
 
-- **Account** — inloggen met e-mailcode (Supabase OTP), voornaam en weekdoel in `profiles`, uitloggen en account verwijderen (Edge Function `delete-account`, alle data via `on delete cascade`).
+- **Account** — doorgaan zonder account (Supabase anoniem inloggen, `doorgaanZonderAccount` in `useAuth`; gasten kunnen later een e-mailadres koppelen via `app/koppel-email.tsx`, type `email_change`) of inloggen met e-mailcode (Supabase OTP), voornaam en weekdoel in `profiles`, uitloggen en account verwijderen (Edge Function `delete-account`, alle data via `on delete cascade`).
 - **Missies** — 16 ingebouwde missies in `src/constants/oefeningen.ts` (groepen Beweging en Ochtendroutine; methodes pose/licht/foto/timer) plus eigen missies (tabel `eigen_missies`: naam, emoji, timer of foto). In een alarm staan ingebouwde missies op naam en eigen missies als `eigen:<uuid>` (gecontroleerd door `geldige_missies()`, max. 12). Alles wat een missie toont, gaat via `missieInfo`/`missieInfos` in `src/lib/missies.ts`; eigen missies reizen mee in de native metadata (`eigen`) zodat ze ook offline werken.
 - **Alarmen** — tabel `alarms` (incl. eigen aantal per oefening in `doelen`); eigen alarmgeluid per toestel (Profiel); aanmaken, bewerken, aan/uit en verwijderen in `src/hooks/useAlarmen.tsx`. Native planning via `react-native-alarm-scheduler` (iOS AlarmKit vanaf iOS 26, Android exact alarm met volledig scherm) in `src/lib/alarmen.ts`; synchronisatie op basis van `metadata.versie`.
 - **Niveaus** — Vrij: stopknop + snooze. Flexibel: verplaatsen (+15/+30/+60 min). Uitstelbaar: max. 3× snooze. Verplicht: alleen missie. Hardcore: missie + wakker-check na 5 minuten. Alles behalve Vrij is `openAppOnly`: het alarm stopt pas na de missie (`rondWekkerAf`). Tijdens de missie is het alarm 10 minuten uitgesteld; gaat het in die tijd opnieuw af, dan zet de app het stil weer uit zonder de missie te onderbreken (`src/lib/missieStatus.ts`). De noodstop (met bevestiging) stopt het alarm altijd, ook bij strenge niveaus; de missie telt dan als afgebroken. Uitloggen en account verwijderen annuleren alle native alarmen (`annuleerAlles`).
@@ -78,7 +78,7 @@ Draai `lint`, `typecheck` en `test` voordat een taak af is.
 - [x] Account verwijderen kan in de app zelf (Profiel → Account verwijderen)
 - [ ] Web-URL voor verwijderverzoeken (verplicht voor Google Play): `https://mooove-app.com/account-verwijderen`
 - [ ] App Store privacylabels (App Privacy) ingevuld volgens `docs/store/app-store.md`
-- [ ] Supabase: e-mailtemplate "Magic Link" bevat `{{ .Token }}` en eigen SMTP ingesteld
+- [ ] Supabase: anoniem inloggen aan, e-mailtemplates "Magic Link" en "Change Email Address" bevatten `{{ .Token }}` en eigen SMTP ingesteld
 - [ ] iOS-build via TestFlight getest op een iPhone met iOS 26 (alarm, snooze, missie, noodstop); stappenplan in `docs/ios-build.md`
 - [ ] Google Play Data safety-formulier ingevuld
 - [x] Screenshots iPhone 6,9" en 6,5" en Android, plus feature graphic (`docs/store/screenshots/`); met koptekst voor de stores in `docs/store/screenshots-tekst/` (`node scripts/store-screenshots-tekst.mjs`); iPad is uitgeschakeld

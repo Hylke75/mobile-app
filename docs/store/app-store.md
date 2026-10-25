@@ -63,16 +63,18 @@ wekker,alarm,ochtend,bewegen,squats,fitness,routine,streak,opstaan,snooze,missie
 
 ## Gegevens voor de review (App Review Information)
 
-- **Inloggen vereist:** ja
+- **Inloggen vereist:** nee ("Continue without an account"); demo-account voor een ingevuld voorbeeld
 - **Gebruikersnaam:** appreview@linkandlead.nl
 - **Wachtwoord:** _staat niet in de repo; zie het bericht van Claude of je wachtwoordkluis_
 - **Notities voor de reviewer** (plak in App Review Information → Notes):
 
-> LOGIN: On the login screen, tap "Log in with password" (Dutch: "Inloggen met wachtwoord") below the main button and use the demo account above. Regular users sign in with a one-time code sent by email. The demo account contains sample alarms and progress. The app follows the device language (English, Dutch, Spanish, German, French or Chinese); it can be changed in Profile → Language.
+> NO LOGIN REQUIRED: On the first screen, tap "Continue without an account" to use every feature right away. Optionally, a guest can later link an email address in Profile to keep their data on a new phone.
 >
-> WHY AN ACCOUNT: Mooove stores the user's alarms, streak and workout history in their account so it is kept and synced when they switch or reinstall their phone. The account and all data can be deleted in the app: Profile → Delete account.
+> DEMO ACCOUNT (with sample alarms and progress): tap "Log in with password" (Dutch: "Inloggen met wachtwoord") below the main button and use the demo account above. Regular users sign in with a one-time code sent by email. The demo account contains sample alarms and progress. The app follows the device language (English, Dutch, Spanish, German, French or Chinese); it can be changed in Profile → Language.
 >
-> ALARMS: Mooove is an alarm clock built on AlarmKit (iOS 26+). The user chooses a strictness level per alarm; new alarms start at "Flexible". At the levels "Mandatory" and "Hardcore" the alarm only stops after the user completes a short movement mission (e.g. 10 squats); pressing Stop on the lock screen re-rings the alarm and opens the mission. This is the core feature, chosen by the user. An "Emergency stop" button is always visible during a mission and stops the alarm immediately at every level. At the level "Free" the system Stop button works as usual.
+> ACCOUNT: Signing in with email is optional; it keeps alarms, streak and workout history when the user switches or reinstalls their phone. Every account, also a guest account, can be deleted in the app: Profile → Delete account.
+>
+> ALARMS: Mooove is an alarm clock built on AlarmKit (iOS 26+). The user chooses a strictness level per alarm; new alarms start at "Flexible". When the user picks "Mandatory" or "Hardcore", the app first shows an explanation that this alarm only stops via the mission and that the emergency stop always works. At these levels the alarm only stops after the user completes a short movement mission (e.g. 10 squats); pressing Stop on the lock screen re-rings the alarm and opens the mission. This is the core feature, chosen by the user. An "Emergency stop" button is always visible during a mission and stops the alarm immediately at every level. At the level "Free" the system Stop button works as usual.
 >
 > QUICK TEST: Profile → "Test your alarm" rings a test alarm after 30 seconds. Today → "Start your mission now" starts a mission without an alarm.
 >

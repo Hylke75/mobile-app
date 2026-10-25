@@ -124,6 +124,13 @@ const nl = {
     tekst:
       'Je account, alarmen en voortgang worden definitief verwijderd. Dit kun je niet ongedaan maken.',
   },
+  gast: {
+    label: 'Bewaar je voortgang',
+    waarde: 'E-mail koppelen →',
+    geenEmail: 'Gast, geen e-mail',
+    uitloggenTekst:
+      'Je hebt nog geen e-mailadres gekoppeld. Als je uitlogt, ben je je alarmen en voortgang kwijt.',
+  },
 };
 
 export const profiel: Vertalingen<typeof nl> = {
@@ -249,6 +256,13 @@ export const profiel: Vertalingen<typeof nl> = {
       titel: 'Delete account?',
       tekst: 'Your account, alarms and progress will be permanently deleted. This can’t be undone.',
     },
+    gast: {
+      label: 'Keep your progress',
+      waarde: 'Link email →',
+      geenEmail: 'Guest, no email',
+      uitloggenTekst:
+        'You haven’t linked an email address yet. If you log out, your alarms and progress will be lost.',
+    },
   },
   es: {
     titel: 'Perfil',
@@ -371,6 +385,13 @@ export const profiel: Vertalingen<typeof nl> = {
       waarde: 'Definitivo',
       titel: '¿Eliminar cuenta?',
       tekst: 'Tu cuenta, alarmas y progreso se eliminarán para siempre. No se puede deshacer.',
+    },
+    gast: {
+      label: 'Guarda tu progreso',
+      waarde: 'Vincular correo →',
+      geenEmail: 'Invitado, sin correo',
+      uitloggenTekst:
+        'Aún no has vinculado un correo. Si cierras sesión, perderás tus alarmas y tu progreso.',
     },
   },
   de: {
@@ -497,6 +518,13 @@ export const profiel: Vertalingen<typeof nl> = {
       tekst:
         'Dein Konto, deine Wecker und dein Fortschritt werden endgültig gelöscht. Das kann nicht rückgängig gemacht werden.',
     },
+    gast: {
+      label: 'Fortschritt sichern',
+      waarde: 'E-Mail verknüpfen →',
+      geenEmail: 'Gast, keine E-Mail',
+      uitloggenTekst:
+        'Du hast noch keine E-Mail-Adresse verknüpft. Wenn du dich abmeldest, gehen deine Wecker und dein Fortschritt verloren.',
+    },
   },
   fr: {
     titel: 'Profil',
@@ -622,6 +650,13 @@ export const profiel: Vertalingen<typeof nl> = {
       tekst:
         'Ton compte, tes alarmes et ta progression seront définitivement supprimés. C’est irréversible.',
     },
+    gast: {
+      label: 'Garde ta progression',
+      waarde: 'Lier un e-mail →',
+      geenEmail: 'Invité, sans e-mail',
+      uitloggenTekst:
+        'Tu n’as pas encore lié d’adresse e-mail. Si tu te déconnectes, tu perdras tes alarmes et ta progression.',
+    },
   },
   zh: {
     titel: '我的',
@@ -740,6 +775,12 @@ export const profiel: Vertalingen<typeof nl> = {
       waarde: '永久',
       titel: '删除账户？',
       tekst: '你的账户、闹钟和进度将被永久删除，且无法恢复。',
+    },
+    gast: {
+      label: '保存你的进度',
+      waarde: '关联邮箱 →',
+      geenEmail: '访客，无邮箱',
+      uitloggenTekst: '你还没有关联邮箱地址。退出登录后，你的闹钟和进度将会丢失。',
     },
   },
 };

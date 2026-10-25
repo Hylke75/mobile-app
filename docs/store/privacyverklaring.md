@@ -1,6 +1,6 @@
 # Privacyverklaring Mooove
 
-_Laatst bijgewerkt: 24 oktober 2026_
+_Laatst bijgewerkt: 25 oktober 2026_
 
 Mooove is een wekker-app die je helpt om 's ochtends in beweging te komen. Mooove wordt aangeboden door Hylke Thiry ("wij"). In deze verklaring lees je welke gegevens we verwerken, waarom, en welke rechten je hebt.
 
@@ -8,7 +8,7 @@ Mooove is een wekker-app die je helpt om 's ochtends in beweging te komen. Mooov
 
 | Gegeven                                                                                       | Waarvoor                                                                    | Bewaartermijn             |
 | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ------------------------- |
-| E-mailadres                                                                                   | Inloggen met een eenmalige code en je account beheren                       | Zolang je account bestaat |
+| E-mailadres (alleen als je inlogt met e-mail of er een koppelt; zonder account niet nodig)    | Inloggen met een eenmalige code en je account beheren                       | Zolang je account bestaat |
 | Voornaam                                                                                      | Je in de app begroeten                                                      | Zolang je account bestaat |
 | Alarmen (tijd, dagen, niveau, gekozen oefeningen en aantallen, naam)                          | Je alarmen op je toestel inplannen en op al je toestellen beschikbaar maken | Zolang je account bestaat |
 | Missieresultaten (start- en eindtijd, oefeningen, aantal herhalingen, voltooid of afgebroken) | Je streak, voortgang en badges tonen                                        | Zolang je account bestaat |

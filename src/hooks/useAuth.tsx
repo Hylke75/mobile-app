@@ -23,6 +23,11 @@ type AuthContextWaarde = {
   session: Session | null;
   user: User | null;
   profiel: Profiel | null;
+  // Anoniem account (doorgegaan zonder e-mailadres); kan later een e-mailadres koppelen
+  gast: boolean;
+  doorgaanZonderAccount: () => Promise<string | null>;
+  koppelEmail: (email: string) => Promise<string | null>;
+  bevestigKoppeling: (email: string, code: string) => Promise<string | null>;
   vraagCodeAan: (email: string) => Promise<string | null>;
   controleerCode: (email: string, code: string) => Promise<string | null>;
   loginMetWachtwoord: (email: string, wachtwoord: string) => Promise<string | null>;
@@ -131,6 +136,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [laadProfiel],
   );
 
+  const doorgaanZonderAccount = useCallback(async () => {
+    const { data, error } = await supabase.auth.signInAnonymously();
+    if (error || !data.session) return t('meldingen.gastMislukt');
+    await laadProfiel(data.session.user.id);
+    return null;
+  }, [laadProfiel]);
+
+  const koppelEmail = useCallback(async (email: string) => {
+    const { error } = await supabase.auth.updateUser({ email });
+    if (!error) return null;
+    const tekst = error.message.toLowerCase();
+    if (tekst.includes('already') || tekst.includes('exists')) return t('meldingen.emailBestaat');
+    return vertaalFout(error.message);
+  }, []);
+
+  const bevestigKoppeling = useCallback(async (email: string, code: string) => {
+    const { data, error } = await supabase.auth.verifyOtp({
+      email,
+      token: code,
+      type: 'email_change',
+    });
+    if (error) return vertaalFout(error.message);
+    if (data.session) setSession(data.session);
+    else await supabase.auth.refreshSession();
+    return null;
+  }, []);
+
   const werkProfielBij = useCallback(
     async (
       wijziging: Partial<
@@ -183,6 +215,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         session,
         user: session?.user ?? null,
         profiel,
+        gast: session?.user?.is_anonymous === true,
+        doorgaanZonderAccount,
+        koppelEmail,
+        bevestigKoppeling,
         vraagCodeAan,
         controleerCode,
         loginMetWachtwoord,
