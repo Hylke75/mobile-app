@@ -1,0 +1,38 @@
+diff --git a/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerTypes.swift b/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerTypes.swift
+index 0a28ac0..d42d7bf 100644
+--- a/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerTypes.swift
++++ b/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerTypes.swift
+@@ -28,27 +28,27 @@ struct IosAlarmOptionsRecord: Record {
+ }
+ 
+ final class InvalidAlarmException: Exception {
+-  private let message: String
++  private let alarmReason: String
+ 
+   override var reason: String {
+-    message
++    alarmReason
+   }
+ 
+   init(_ reason: String) {
+-    self.message = reason
++    self.alarmReason = reason
+     super.init()
+   }
+ }
+ 
+ final class UnsupportedAlarmException: Exception {
+-  private let message: String
++  private let alarmReason: String
+ 
+   override var reason: String {
+-    message
++    alarmReason
+   }
+ 
+   init(_ reason: String) {
+-    self.message = reason
++    self.alarmReason = reason
+     super.init()
+   }
+ }
