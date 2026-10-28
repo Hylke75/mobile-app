@@ -38,7 +38,7 @@ export const NIEUWSBRIEF_TEKSTEN: Record<Taal, Teksten> = {
     welkomOnderwerp: 'Welkom bij betere ochtenden ☀️',
     welkomTitel: 'Welkom bij The Morning MOOOVE',
     welkomTekst:
-      "Mooove helpt je uit bed door 's ochtends een korte wekmissie te doen. Ongeveer om de week krijg je een praktische ochtendtip en nieuws uit de app.",
+      "Mooove helpt je uit bed door 's ochtends een korte wekmissie te doen. Ongeveer om de twee weken krijg je een praktische ochtendtip en nieuws uit de app.",
     welkomKnop: 'Bekijk Mooove',
     waarom:
       'Je ontvangt deze e-mail omdat je je hebt aangemeld voor The Morning MOOOVE, de nieuwsbrief van Mooove (Hylke Thiry, hylke@linkandlead.nl).',
