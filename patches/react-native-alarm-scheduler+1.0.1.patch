@@ -1,3 +1,46 @@
+diff --git a/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerModule+Scheduling.swift b/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerModule+Scheduling.swift
+index efa20e2..45a2f8a 100644
+--- a/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerModule+Scheduling.swift
++++ b/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerModule+Scheduling.swift
+@@ -39,6 +39,7 @@ extension AlarmSchedulerModule {
+         hour: hour,
+         minute: minute,
+         weekdays: weekdays,
++        timestamp: timestamp,
+         options: alarm.ios,
+         metadata: metadata,
+         soundName: soundName,
+@@ -283,6 +284,7 @@ extension AlarmSchedulerModule {
+     hour: Int,
+     minute: Int,
+     weekdays: [Int],
++    timestamp: Int64,
+     options: IosAlarmOptionsRecord?,
+     metadata: [String: Any],
+     soundName: String?,
+@@ -317,7 +319,7 @@ extension AlarmSchedulerModule {
+       metadata: AlarmSchedulerMetadata(alarmId: id, title: title, values: alarmKitMetadataValues(metadata)),
+       tintColor: Color.accentColor
+     )
+-    let schedule = try makeAlarmKitSchedule(hour: hour, minute: minute, weekdays: weekdays)
++    let schedule = try makeAlarmKitSchedule(hour: hour, minute: minute, weekdays: weekdays, timestamp: timestamp)
+     let effectiveSoundName = alarmSchedulerEffectiveSoundName(soundName)
+     let stopIntent = makeStopIntent(
+       id: id,
+@@ -495,10 +497,11 @@ extension AlarmSchedulerModule {
+   }
+ 
+   @available(iOS 26.0, *)
+-  private func makeAlarmKitSchedule(hour: Int, minute: Int, weekdays: [Int]) throws -> Alarm.Schedule {
++  private func makeAlarmKitSchedule(hour: Int, minute: Int, weekdays: [Int], timestamp: Int64) throws -> Alarm.Schedule {
+     let time = Alarm.Schedule.Relative.Time(hour: hour, minute: minute)
+     if weekdays.isEmpty {
+-      return .relative(.init(time: time, repeats: .never))
++      // One-off alarms fire at the exact timestamp; a relative hour:minute in the current minute would roll over to tomorrow.
++      return .fixed(Date(timeIntervalSince1970: TimeInterval(timestamp) / 1000))
+     }
+     return .relative(.init(time: time, repeats: .weekly(weekdays.map(toLocaleWeekday))))
+   }
 diff --git a/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerTypes.swift b/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerTypes.swift
 index 0a28ac0..d42d7bf 100644
 --- a/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerTypes.swift
