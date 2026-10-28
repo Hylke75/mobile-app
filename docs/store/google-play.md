@@ -7,8 +7,8 @@
 - **Volledige beschrijving:** gebruik de beschrijving uit `app-store.md` en vervang de regel over iOS 26 door: "Werkt op Android 8.0 en nieuwer."
 - **Categorie:** Gezondheid en fitness
 - **Contact-e-mail:** hylke@linkandlead.nl
-- **Privacybeleid-URL:** `https://mooove-app.com/privacy`
-- **Website:** `https://mooove-app.com/`
+- **Privacybeleid-URL:** `https://www.mooove-app.com/privacy`
+- **Website:** `https://www.mooove-app.com/`
 
 ## Gegevensveiligheid (Data safety)
 
@@ -26,7 +26,7 @@
 | Gezondheid en fitness → Fitnessinfo (herhalingen, voltooide oefeningen)                                | Verzameld, verplicht, voor app-functionaliteit                      |
 | Locatie, gezondheidsinfo (medisch), financiële info, contacten, audio                                  | Niet verzameld                                                      |
 
-**URL voor verwijderverzoeken:** `https://mooove-app.com/account-verwijderen`
+**URL voor verwijderverzoeken:** `https://www.mooove-app.com/account-verwijderen`
 
 ## Declaraties voor rechten
 
@@ -58,7 +58,7 @@ Verplicht voor elke app. Kies **Activity and fitness** (de app registreert oefen
 
 Is het Play-account na 13 november 2023 als **persoonlijk** account aangemaakt, dan moet eerst een gesloten test lopen met minimaal **12 testers die 14 dagen achter elkaar** meedoen; pas daarna kun je productietoegang aanvragen (Dashboard in de Play Console). Start de gesloten test zo vroeg mogelijk met de preview- of productiebuild. Organisatie-accounts zijn hiervan vrijgesteld.
 
-## URL's zolang `mooove-app.com` nog niet bestaat
+## URL's zolang `www.mooove-app.com` nog niet bestaat
 
 Privacybeleid: `https://mobile-app-sage-ten.vercel.app/privacy` · Verwijderverzoeken: `https://mobile-app-sage-ten.vercel.app/account-verwijderen` · Website: `https://mobile-app-sage-ten.vercel.app/`.
 

@@ -12,7 +12,7 @@ const HIER = path.dirname(fileURLToPath(import.meta.url));
 const SITE = path.join(HIER, '..', 'site');
 const BIJGEWERKT = new Date(2026, 9, 25);
 const MAIL = 'hylke@linkandlead.nl';
-export const DOMEIN = 'https://mooove-app.com';
+export const DOMEIN = 'https://www.mooove-app.com';
 const TALEN = ['nl', 'en', 'es', 'de', 'fr', 'zh'];
 const TAALNAMEN = {
   nl: 'Nederlands',

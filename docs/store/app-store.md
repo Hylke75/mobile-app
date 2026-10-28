@@ -8,9 +8,9 @@
 - **Subtitel (max. 30):** Wekker die je laat bewegen
 - **Categorie:** Gezondheid en fitness (secundair: Lifestyle)
 - **Leeftijdsclassificatie:** 4+ (vragenlijst: overal "Geen"; geen onbeperkte webtoegang, geen gebruikerscontent, geen medische behandelinformatie, geen gokken, geen contests)
-- **Privacybeleid-URL:** `https://mooove-app.com/privacy` (statische site in `site/`; moet online staan vóór het indienen; per taal zie `vertalingen.md`)
-- **Support-URL:** `https://mooove-app.com/` (bevat contactgegevens)
-- **Marketing-URL:** `https://mooove-app.com/`
+- **Privacybeleid-URL:** `https://www.mooove-app.com/privacy` (statische site in `site/`; moet online staan vóór het indienen; per taal zie `vertalingen.md`)
+- **Support-URL:** `https://www.mooove-app.com/` (bevat contactgegevens)
+- **Marketing-URL:** `https://www.mooove-app.com/`
 - **Exportcompliance:** al beantwoord in de build (`ITSAppUsesNonExemptEncryption = false`, alleen standaard HTTPS)
 - **Inhoudsrechten:** geen inhoud van derden
 
@@ -86,7 +86,7 @@ wekker,alarm,ochtend,bewegen,squats,fitness,routine,streak,opstaan,snooze,missie
 
 - **China (vasteland) uitzetten** (Pricing and Availability): voor publicatie daar eist Apple een ICP-registratie bij het Chinese ministerie (MIIT). Chinees blijft beschikbaar in o.a. Taiwan, Hongkong, Singapore en Maleisië.
 
-## URL's zolang `mooove-app.com` nog niet bestaat
+## URL's zolang `www.mooove-app.com` nog niet bestaat
 
 Gebruik tijdelijk het Vercel-adres (zelfde site, alle talen): `https://mobile-app-sage-ten.vercel.app/privacy` (privacybeleid), `https://mobile-app-sage-ten.vercel.app/` (support en marketing). Vervang ze na het registreren van het domein.
 

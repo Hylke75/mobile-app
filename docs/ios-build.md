@@ -54,7 +54,7 @@ In App Store Connect bij de versie invullen (teksten staan klaar):
 
 - Beschrijving, promotietekst, trefwoorden: `docs/store/app-store.md` (andere talen: `docs/store/vertalingen.md`)
 - Screenshots 6,9" en 6,5": `docs/store/screenshots/ios-6.9` en `ios-6.5` (per taal in `docs/store/screenshots/<taal>/`)
-- Privacybeleid-URL: `https://mooove-app.com/privacy`, support-URL: `https://mooove-app.com/`
+- Privacybeleid-URL: `https://www.mooove-app.com/privacy`, support-URL: `https://www.mooove-app.com/`
 - App Privacy (privacylabels): `docs/store/app-store.md`
 - Reviewnotities en testaccount: `docs/store/app-store.md` (vul het actuele wachtwoord van `appreview@linkandlead.nl` in)
 - Leeftijdsclassificatie: 4+, categorie Gezondheid en fitness

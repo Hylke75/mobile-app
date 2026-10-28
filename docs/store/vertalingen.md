@@ -138,9 +138,9 @@ Na het online zetten van `site/` (zie de checklist in `CLAUDE.md`) per taal invu
 
 | Taal       | Privacyverklaring                   | Account verwijderen                             |
 | ---------- | ----------------------------------- | ----------------------------------------------- |
-| Nederlands | `https://mooove-app.com/privacy`    | `https://mooove-app.com/account-verwijderen`    |
-| Engels     | `https://mooove-app.com/en/privacy` | `https://mooove-app.com/en/account-verwijderen` |
-| Spaans     | `https://mooove-app.com/es/privacy` | `https://mooove-app.com/es/account-verwijderen` |
-| Duits      | `https://mooove-app.com/de/privacy` | `https://mooove-app.com/de/account-verwijderen` |
-| Frans      | `https://mooove-app.com/fr/privacy` | `https://mooove-app.com/fr/account-verwijderen` |
-| Chinees    | `https://mooove-app.com/zh/privacy` | `https://mooove-app.com/zh/account-verwijderen` |
+| Nederlands | `https://www.mooove-app.com/privacy`    | `https://www.mooove-app.com/account-verwijderen`    |
+| Engels     | `https://www.mooove-app.com/en/privacy` | `https://www.mooove-app.com/en/account-verwijderen` |
+| Spaans     | `https://www.mooove-app.com/es/privacy` | `https://www.mooove-app.com/es/account-verwijderen` |
+| Duits      | `https://www.mooove-app.com/de/privacy` | `https://www.mooove-app.com/de/account-verwijderen` |
+| Frans      | `https://www.mooove-app.com/fr/privacy` | `https://www.mooove-app.com/fr/account-verwijderen` |
+| Chinees    | `https://www.mooove-app.com/zh/privacy` | `https://www.mooove-app.com/zh/account-verwijderen` |
