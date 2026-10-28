@@ -43,8 +43,11 @@ Deno.serve(async (req) => {
         .maybeSingle()
     : { data: null };
 
+  // Het Resend-account is gedeeld: meldingen over mail die niet uit onze wachtrij komt, negeren
+  if (!rij) return json({ ok: true, genegeerd: true });
+
   const { error: dubbel } = await db.from('email_delivery_events').insert({
-    outbox_id: rij?.id ?? null,
+    outbox_id: rij.id,
     provider: 'resend',
     provider_event_id: req.headers.get('svix-id'),
     provider_message_id: event.berichtId,
@@ -54,7 +57,6 @@ Deno.serve(async (req) => {
   });
   // Al verwerkt (Resend probeert opnieuw): gewoon bevestigen
   if (dubbel) return json({ ok: true, al: true });
-  if (!rij) return json({ ok: true });
 
   const status =
     event.type === 'delivered'
