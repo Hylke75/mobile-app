@@ -29,6 +29,10 @@
       "android": {
         "track": "internal",
         "releaseStatus": "draft"
+      },
+      "ios": {
+        "appleTeamId": "5H9Q8P4Q7U",
+        "appleId": "hthiry1@me.com"
       }
     }
   }

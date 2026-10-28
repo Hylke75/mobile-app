@@ -26,6 +26,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   ios: {
     bundleIdentifier: 'nl.linkandlead.mobileapp',
+    // Apple Developer Program van Hylke Thiry (particulier)
+    appleTeamId: '5H9Q8P4Q7U',
     buildNumber: '1',
     supportsTablet: false,
     infoPlist: {

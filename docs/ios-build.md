@@ -1,6 +1,7 @@
 # iOS-build en TestFlight
 
-Alles in de code is klaar voor iOS (gecontroleerd met een proef-prebuild): bundle ID `nl.linkandlead.mobileapp`, iOS 26 (AlarmKit), toestemmingsteksten in vijf talen, privacymanifest, geen push-rechten (alleen lokale herinneringen) en `ITSAppUsesNonExemptEncryption: false`. Wat nog ontbreekt, zijn de gegevens van het Apple Developer-account.
+Alles in de code is klaar voor iOS (gecontroleerd met een proef-prebuild): bundle ID `nl.linkandlead.mobileapp`, iOS 26 (AlarmKit), toestemmingsteksten in zes talen, privacymanifest, geen push-rechten (alleen lokale herinneringen) en `ITSAppUsesNonExemptEncryption: false`.
+**Apple-account (gecontroleerd 28 oktober 2026):** Apple Developer Program als particulier (Individual), actief tot 29 oktober 2027; licentieovereenkomst geaccepteerd; Team ID `5H9Q8P4Q7U` (staat in `app.config.ts` en `eas.json`); Apple-account `hthiry1@me.com`. In het account staat nog niets voor Mooove: geen bundle ID, geen app en geen API-sleutel.
 
 ## 1. Wat jij doet (eenmalig, na goedkeuring van Apple)
 
@@ -11,12 +12,12 @@ Alles in de code is klaar voor iOS (gecontroleerd met een proef-prebuild): bundl
    - Bundle ID: `nl.linkandlead.mobileapp` (staat deze nog niet in de lijst, registreer hem dan eerst onder Certificates, Identifiers & Profiles → Identifiers, zonder extra capabilities)
    - SKU: `mooove-ios`
 2. **API-sleutel maken** (App Store Connect → Gebruikers en toegang → Integraties → App Store Connect API → +):
-   - Naam: EAS, toegang: **App Manager**
+   - Naam: EAS, toegang: **Admin** (nodig om certificaten en provisioningprofielen te laten aanmaken)
    - Download het `.p8`-bestand (kan maar één keer) en noteer de **Key ID** en de **Issuer ID**
-3. **Team ID** opzoeken: developer.apple.com → Account → Membership details.
+3. ~~Team ID opzoeken~~ — klaar: `5H9Q8P4Q7U`.
 4. **Apple ID van de app** (een getal, bijv. `6740000000`): App Store Connect → je app → App-informatie → Apple ID.
 
-Stuur mij de Key ID, Issuer ID, Team ID en de app-ID en zet het `.p8`-bestand in de sessie (niet in de repo; `*.p8` staat in `.gitignore`). Dan doe ik stap 2 en 3.
+Stuur mij de Key ID, Issuer ID en de app-ID en zet het `.p8`-bestand in de sessie (niet in de repo; `*.p8` staat in `.gitignore`). Dan doe ik stap 2 en 3.
 
 ## 2. Build en TestFlight (doe ik)
 
@@ -26,10 +27,10 @@ Met de API-sleutel maakt EAS zelf het distributiecertificaat en het provisioning
 export EXPO_ASC_API_KEY_PATH=/pad/naar/AuthKey_XXXX.p8
 export EXPO_ASC_KEY_ID=XXXXXXXXXX
 export EXPO_ASC_ISSUER_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-export EXPO_APPLE_TEAM_ID=XXXXXXXXXX
+export EXPO_APPLE_TEAM_ID=5H9Q8P4Q7U
 
 eas build --platform ios --profile production --non-interactive
-eas submit --platform ios --latest --non-interactive   # met ascAppId in eas.json
+eas submit --platform ios --latest --non-interactive   # na het invullen van ascAppId in eas.json
 ```
 
 Daarna staat de build binnen ±15 minuten in **TestFlight**. Installeer de TestFlight-app op je iPhone (iOS 26 of nieuwer) en test:
