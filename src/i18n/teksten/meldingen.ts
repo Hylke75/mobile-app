@@ -12,6 +12,8 @@ const nl = {
   codeOngeldig: 'Deze code klopt niet of is verlopen.',
   wachtMetCode: 'Even wachten voordat je een nieuwe code aanvraagt.',
   controleerEmail: 'Controleer je e-mailadres.',
+  mailNietVerstuurd:
+    'We konden je nu geen e-mail sturen. Probeer het over een paar minuten opnieuw, of ga verder zonder account.',
   ietsMis: 'Er ging iets mis. Probeer het opnieuw.',
   alarmenNietGepland: 'Alarmen konden niet op je toestel worden ingepland.',
   alarmenNietGeladen: 'Je alarmen konden niet worden geladen.',
@@ -34,6 +36,8 @@ export const meldingen: Vertalingen<typeof nl> = {
     codeOngeldig: 'This code is incorrect or has expired.',
     wachtMetCode: 'Please wait a moment before requesting a new code.',
     controleerEmail: 'Check your email address.',
+    mailNietVerstuurd:
+      'We couldn’t send you an email right now. Try again in a few minutes, or continue without an account.',
     ietsMis: 'Something went wrong. Please try again.',
     alarmenNietGepland: 'Your alarms couldn’t be set on your phone.',
     alarmenNietGeladen: 'Your alarms couldn’t be loaded.',
@@ -53,6 +57,8 @@ export const meldingen: Vertalingen<typeof nl> = {
     codeOngeldig: 'Este código no es correcto o ha caducado.',
     wachtMetCode: 'Espera un momento antes de pedir un código nuevo.',
     controleerEmail: 'Revisa tu dirección de correo.',
+    mailNietVerstuurd:
+      'Ahora no pudimos enviarte un correo. Inténtalo de nuevo en unos minutos o continúa sin cuenta.',
     ietsMis: 'Algo ha salido mal. Inténtalo de nuevo.',
     alarmenNietGepland: 'No se han podido programar las alarmas en tu móvil.',
     alarmenNietGeladen: 'No se han podido cargar tus alarmas.',
@@ -73,6 +79,8 @@ export const meldingen: Vertalingen<typeof nl> = {
     codeOngeldig: 'Dieser Code ist falsch oder abgelaufen.',
     wachtMetCode: 'Warte kurz, bevor du einen neuen Code anforderst.',
     controleerEmail: 'Prüfe deine E-Mail-Adresse.',
+    mailNietVerstuurd:
+      'Wir konnten dir gerade keine E-Mail senden. Versuch es in ein paar Minuten noch einmal oder mach ohne Konto weiter.',
     ietsMis: 'Etwas ist schiefgelaufen. Versuche es erneut.',
     alarmenNietGepland: 'Deine Wecker konnten nicht auf deinem Handy eingeplant werden.',
     alarmenNietGeladen: 'Deine Wecker konnten nicht geladen werden.',
@@ -91,6 +99,8 @@ export const meldingen: Vertalingen<typeof nl> = {
     codeOngeldig: 'Ce code est incorrect ou a expiré.',
     wachtMetCode: 'Patiente un instant avant de demander un nouveau code.',
     controleerEmail: 'Vérifie ton adresse e-mail.',
+    mailNietVerstuurd:
+      'Nous n’avons pas pu t’envoyer d’e-mail pour le moment. Réessaie dans quelques minutes ou continue sans compte.',
     ietsMis: 'Un problème est survenu. Réessaie.',
     alarmenNietGepland: 'Tes alarmes n’ont pas pu être programmées sur ton téléphone.',
     alarmenNietGeladen: 'Tes alarmes n’ont pas pu être chargées.',
@@ -109,6 +119,7 @@ export const meldingen: Vertalingen<typeof nl> = {
     codeOngeldig: '验证码不正确或已过期。',
     wachtMetCode: '请稍等片刻再申请新的验证码。',
     controleerEmail: '请检查你的邮箱地址。',
+    mailNietVerstuurd: '暂时无法给你发送邮件。请几分钟后再试，或不登录账户继续使用。',
     ietsMis: '出了点问题，请重试。',
     alarmenNietGepland: '无法在你的手机上设置闹钟。',
     alarmenNietGeladen: '无法加载你的闹钟。',

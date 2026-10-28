@@ -109,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email,
       options: { shouldCreateUser: true },
     });
-    return error ? vertaalFout(error.message) : null;
+    return error ? vertaalFout(error.message, error.status) : null;
   }, []);
 
   const controleerCode = useCallback(
@@ -148,7 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!error) return null;
     const tekst = error.message.toLowerCase();
     if (tekst.includes('already') || tekst.includes('exists')) return t('meldingen.emailBestaat');
-    return vertaalFout(error.message);
+    return vertaalFout(error.message, error.status);
   }, []);
 
   const bevestigKoppeling = useCallback(async (email: string, code: string) => {
@@ -233,8 +233,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-function vertaalFout(bericht?: string): string {
+function vertaalFout(bericht?: string, status?: number): string {
   const tekst = (bericht ?? '').toLowerCase();
+  // Serverfout bij het versturen (bijv. mailprovider): het adres zelf is dan niet het probleem
+  if ((status ?? 0) >= 500 || tekst.includes('sending')) return t('meldingen.mailNietVerstuurd');
   if (tekst.includes('expired') || tekst.includes('invalid')) {
     return t('meldingen.codeOngeldig');
   }
