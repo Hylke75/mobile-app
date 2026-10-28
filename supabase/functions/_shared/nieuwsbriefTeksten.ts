@@ -13,6 +13,15 @@ type Teksten = {
   alinea2: string;
   knop: string;
   voet: string;
+  // Welkomstmail na bevestiging
+  welkomOnderwerp: string;
+  welkomTitel: string;
+  welkomTekst: string;
+  welkomKnop: string;
+  // Verplichte voettekst onder elke nieuwsbrief
+  waarom: string;
+  afmelden: string;
+  test: string;
 };
 
 export const NIEUWSBRIEF_TEKSTEN: Record<Taal, Teksten> = {
@@ -26,6 +35,15 @@ export const NIEUWSBRIEF_TEKSTEN: Record<Taal, Teksten> = {
     alinea2: 'Bevestig je aanmelding met de knop hieronder. De link is 48 uur geldig.',
     knop: 'Bevestig aanmelding',
     voet: 'Heb je je niet aangemeld? Dan kun je deze e-mail negeren; je ontvangt niets meer van ons. Vragen: hylke@linkandlead.nl.',
+    welkomOnderwerp: 'Welkom bij betere ochtenden ☀️',
+    welkomTitel: 'Welkom bij The Morning MOOOVE',
+    welkomTekst:
+      "Mooove helpt je uit bed door 's ochtends een korte wekmissie te doen. Ongeveer om de week krijg je een praktische ochtendtip en nieuws uit de app.",
+    welkomKnop: 'Bekijk Mooove',
+    waarom:
+      'Je ontvangt deze e-mail omdat je je hebt aangemeld voor The Morning MOOOVE, de nieuwsbrief van Mooove (Hylke Thiry, hylke@linkandlead.nl).',
+    afmelden: 'Afmelden',
+    test: 'TEST — deze mail is alleen naar testadressen verstuurd',
   },
   en: {
     toestemming:
@@ -34,9 +52,19 @@ export const NIEUWSBRIEF_TEKSTEN: Record<Taal, Teksten> = {
     titel: 'One more click',
     alinea1:
       'Thanks for subscribing. About twice a month you’ll get tips for better mornings and news about Mooove.',
-    alinea2: 'Please confirm your subscription with the button below. The link is valid for 48 hours.',
+    alinea2:
+      'Please confirm your subscription with the button below. The link is valid for 48 hours.',
     knop: 'Confirm subscription',
     voet: 'Didn’t sign up? Just ignore this email and you won’t hear from us again. Questions: hylke@linkandlead.nl.',
+    welkomOnderwerp: 'Welcome to better mornings ☀️',
+    welkomTitel: 'Welcome to The Morning MOOOVE',
+    welkomTekst:
+      'Mooove helps you get out of bed by completing a short wake-up mission. About every other week you’ll get a practical morning tip and news from the app.',
+    welkomKnop: 'Discover Mooove',
+    waarom:
+      'You’re receiving this email because you subscribed to The Morning MOOOVE, the Mooove newsletter (Hylke Thiry, hylke@linkandlead.nl).',
+    afmelden: 'Unsubscribe',
+    test: 'TEST — this email was only sent to test addresses',
   },
   es: {
     toestemming:
@@ -48,6 +76,15 @@ export const NIEUWSBRIEF_TEKSTEN: Record<Taal, Teksten> = {
     alinea2: 'Confirma tu suscripción con el botón de abajo. El enlace es válido durante 48 horas.',
     knop: 'Confirmar suscripción',
     voet: '¿No te has suscrito? Ignora este correo y no volverás a saber de nosotros. Preguntas: hylke@linkandlead.nl.',
+    welkomOnderwerp: 'Bienvenido a mañanas mejores ☀️',
+    welkomTitel: 'Bienvenido a The Morning MOOOVE',
+    welkomTekst:
+      'Mooove te ayuda a levantarte con una breve misión al despertar. Más o menos cada dos semanas recibirás un consejo práctico para tus mañanas y novedades de la app.',
+    welkomKnop: 'Descubre Mooove',
+    waarom:
+      'Recibes este correo porque te suscribiste a The Morning MOOOVE, el boletín de Mooove (Hylke Thiry, hylke@linkandlead.nl).',
+    afmelden: 'Darse de baja',
+    test: 'PRUEBA — este correo solo se ha enviado a direcciones de prueba',
   },
   de: {
     toestemming:
@@ -59,6 +96,15 @@ export const NIEUWSBRIEF_TEKSTEN: Record<Taal, Teksten> = {
     alinea2: 'Bestätige deine Anmeldung mit dem Button unten. Der Link ist 48 Stunden gültig.',
     knop: 'Anmeldung bestätigen',
     voet: 'Du hast dich nicht angemeldet? Dann ignoriere diese E-Mail; du hörst nichts mehr von uns. Fragen: hylke@linkandlead.nl.',
+    welkomOnderwerp: 'Willkommen zu besseren Morgen ☀️',
+    welkomTitel: 'Willkommen bei The Morning MOOOVE',
+    welkomTekst:
+      'Mooove hilft dir aus dem Bett, indem du morgens eine kurze Weckmission erledigst. Etwa alle zwei Wochen bekommst du einen praktischen Morgentipp und Neuigkeiten aus der App.',
+    welkomKnop: 'Mooove entdecken',
+    waarom:
+      'Du erhältst diese E-Mail, weil du The Morning MOOOVE abonniert hast, den Newsletter von Mooove (Hylke Thiry, hylke@linkandlead.nl).',
+    afmelden: 'Abmelden',
+    test: 'TEST — diese E-Mail ging nur an Testadressen',
   },
   fr: {
     toestemming:
@@ -70,6 +116,15 @@ export const NIEUWSBRIEF_TEKSTEN: Record<Taal, Teksten> = {
     alinea2: 'Confirme ton inscription avec le bouton ci-dessous. Le lien est valable 48 heures.',
     knop: 'Confirmer l’inscription',
     voet: 'Tu ne t’es pas inscrit ? Ignore simplement cet e-mail, tu ne recevras plus rien de notre part. Questions : hylke@linkandlead.nl.',
+    welkomOnderwerp: 'Bienvenue vers de meilleurs matins ☀️',
+    welkomTitel: 'Bienvenue dans The Morning MOOOVE',
+    welkomTekst:
+      'Mooove t’aide à sortir du lit grâce à une courte mission au réveil. Environ toutes les deux semaines, tu recevras une astuce pratique pour tes matins et des nouvelles de l’app.',
+    welkomKnop: 'Découvrir Mooove',
+    waarom:
+      'Tu reçois cet e-mail parce que tu t’es abonné à The Morning MOOOVE, la newsletter de Mooove (Hylke Thiry, hylke@linkandlead.nl).',
+    afmelden: 'Se désinscrire',
+    test: 'TEST — cet e-mail n’a été envoyé qu’à des adresses de test',
   },
   zh: {
     toestemming:
@@ -80,5 +135,14 @@ export const NIEUWSBRIEF_TEKSTEN: Record<Taal, Teksten> = {
     alinea2: '请点击下方按钮确认订阅。链接 48 小时内有效。',
     knop: '确认订阅',
     voet: '如果你没有订阅，请忽略此邮件，我们不会再联系你。如有疑问：hylke@linkandlead.nl。',
+    welkomOnderwerp: '欢迎开启更美好的早晨 ☀️',
+    welkomTitel: '欢迎订阅 The Morning MOOOVE',
+    welkomTekst:
+      'Mooove 通过一个简短的起床任务帮助你起床。大约每两周你会收到一条实用的早晨建议和应用新闻。',
+    welkomKnop: '了解 Mooove',
+    waarom:
+      '你收到这封邮件是因为你订阅了 Mooove 的新闻通讯 The Morning MOOOVE（Hylke Thiry，hylke@linkandlead.nl）。',
+    afmelden: '退订',
+    test: '测试——此邮件仅发送至测试地址',
   },
 };

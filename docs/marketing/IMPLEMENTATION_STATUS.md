@@ -1,7 +1,7 @@
 # Marketing — implementatiestatus
 
 Bron van de opdracht: `MOOOVE_CLAUDE_CODE_MASTERPROMPT.md` (versie 1.0, 28 oktober 2026).
-Laatst bijgewerkt: 28 oktober 2026, na fase 0 (inventarisatie) en fase 1 (fundament).
+Laatst bijgewerkt: 28 oktober 2026, na fase 2 (nieuwsbriefmodule).
 
 ## 1. Bevestigde stack en bestaande modules (uit de code)
 
@@ -34,8 +34,8 @@ Laatst bijgewerkt: 28 oktober 2026, na fase 0 (inventarisatie) en fase 1 (fundam
 | Fase | Inhoud | Bestanden | Status |
 |---|---|---|---|
 | 0 | Inventarisatie, dit document | `docs/marketing/IMPLEMENTATION_STATUS.md` | ✅ |
-| 1 | Datamodel contacten/consent/suppressie/instellingen/auditlog/events, rollen; nieuwsbriefaanmelding met dubbele bevestiging en afmelden; contacten in het beheer; formulier op de site | `supabase/migrations/20261028140000_marketing_fundament.sql`, `supabase/functions/_shared/marketing.ts` (+ tests in `src/lib/__tests__/marketing.test.ts`), `supabase/functions/_shared/mail.ts`, `supabase/functions/nieuwsbrief/`, `supabase/functions/admin-marketing/`, `scripts/site-admin.html`, `scripts/site-landing.mjs`, `scripts/site-teksten.mjs`, `scripts/bouw-site.mjs`, `src/i18n/teksten/privacy.ts`, `docs/store/privacyverklaring.md` | ✅ code — wacht op migratie + deploy |
-| 2 | Nieuwsbriefmodule: campagnes, blok-editor, sjablonen, preview, testmail, goedkeuring, inplannen, outbox + worker, Resend-webhooks, zes concepten "The Morning MOOOVE" | nieuwe migratie, functies `admin-nieuwsbrief`, `mail-worker`, `mail-webhook`, admin-schermen | gepland |
+| 1 | Datamodel contacten/consent/suppressie/instellingen/auditlog/events, rollen; nieuwsbriefaanmelding met dubbele bevestiging en afmelden; contacten in het beheer; formulier op de site | `supabase/migrations/20261028140000_marketing_fundament.sql`, `supabase/functions/_shared/marketing.ts` (+ tests in `src/lib/__tests__/marketing.test.ts`), `supabase/functions/_shared/mail.ts`, `supabase/functions/nieuwsbrief/`, `supabase/functions/admin-marketing/`, `scripts/site-admin.html`, `scripts/site-landing.mjs`, `scripts/site-teksten.mjs`, `scripts/bouw-site.mjs`, `src/i18n/teksten/privacy.ts`, `docs/store/privacyverklaring.md` | ✅ functies gedeployd — wacht op migratie + secrets |
+| 2 | Nieuwsbriefmodule: campagnes, blok-editor, sjablonen, voorbeeld mobiel/desktop, controle, doelgroep, testmail, goedkeuring, inplannen/pauzeren/annuleren, outbox + worker, Resend-webhook, welkomstmail, zes concepten NL/EN | `supabase/migrations/20261029100000_nieuwsbrief_module.sql`, `supabase/functions/_shared/nieuwsbrief.ts` (+ tests in `src/lib/__tests__/nieuwsbrief.test.ts`), `supabase/functions/_shared/verzending.ts`, `supabase/functions/admin-nieuwsbrief/`, `mail-worker/`, `mail-webhook/`, `scripts/site-admin.html`, `docs/marketing/SETUP.md`, `docs/marketing/NEWSLETTER_OPERATIONS.md` | ✅ code — wacht op akkoord voor deploy, migratie, secrets en cron |
 | 3 | 14-dagenfunnel: events uit de app, flows D0–D17, stopregels (`canSendMarketing`), testklok; koppeling met echte aankopen | migratie, functies, app-events | gepland (hangt af van aankopen) |
 | 4 | Groeidashboard: KPI's, cohorten, UTM, MRR en Lifetime apart | `admin-overzicht`, admin | gepland |
 | 5 | Socialkalender, exportpakketten, creators/referral | migratie, admin | gepland |
@@ -43,6 +43,9 @@ Laatst bijgewerkt: 28 oktober 2026, na fase 0 (inventarisatie) en fase 1 (fundam
 | 7 | Hardening en lanceringschecklist | docs, tests | gepland |
 
 ## 4. Externe afhankelijkheden en handmatige handelingen (eigenaar)
+
+De volledige stappen staan in `docs/marketing/SETUP.md`.
+
 
 - **Migratie uitvoeren** in de Supabase SQL-editor: `supabase/migrations/20261028140000_marketing_fundament.sql` (en eerder al `20261028120000_premium.sql`).
 - **Edge Functions deployen**: `nieuwsbrief` (zonder JWT-controle, openbaar) en `admin-marketing`. Claude Code kan dit doen na goedkeuring.
@@ -70,3 +73,12 @@ TESTS: `npm test` (161 tests, waarvan 28 voor marketing), `npm run lint`, `npm r
 CONFIGURATIE DIE HYLKE NOG MOET DOEN: zie sectie 4.
 RISICO'S/OPEN PUNTEN: geen cron (nodig vanaf fase 2); juridische tekst nalezen.
 VOLGENDE FASE: 2 — nieuwsbriefmodule.
+
+## Fase 2 — overzicht
+
+FASE: 2 — nieuwsbriefmodule
+GEREED: campagnelijst met statusfilter; editor met vaste blokken en live voorbeeld (mobiel/desktop) plus controle; doelgroep op taal met telling; testmail alleen naar testadressen; indienen → goedkeuren → inplannen (nu of later) → verzenden; pauzeren, hervatten, annuleren; sjablonen; verzendwachtrij met claim via `FOR UPDATE SKIP LOCKED`, controle vlak vóór elke mail, herhaalpogingen en dead-letter; Resend-webhook (Svix-handtekening, eenmalige verwerking) met suppressie bij harde bounce en klacht; welkomstmail na bevestiging; afmelden annuleert ingeplande mail; zes concepten "The Morning MOOOVE" in NL en EN.
+TESTS: `npm test` (o.a. `nieuwsbrief.test.ts`: escaping, afmeldlink, TEST-label, controles, backoff, webhookhandtekening, bounces), `npm run lint`, `npm run typecheck`, `deno check` op alle functies, beheer-UI met nepdata in de browser.
+CONFIGURATIE: zie `docs/marketing/SETUP.md` (migratie, secrets, cron, webhook, DMARC).
+RISICO'S/OPEN PUNTEN: nog niet end-to-end getest tegen de echte database (migraties niet uitgevoerd); concepten #6 noemt het verdienmodel dat nog achter een vlag staat; geen opschoonjob voor oude events/outbox (fase 7).
+VOLGENDE FASE: 3 — 14-dagenfunnel (hangt af van echte aankopen via RevenueCat).

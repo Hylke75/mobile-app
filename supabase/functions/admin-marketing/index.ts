@@ -206,6 +206,12 @@ Deno.serve(async (req) => {
         },
         { onConflict: 'email_hash,scope,reason', ignoreDuplicates: true },
       );
+      await db
+        .from('email_outbox')
+        .update({ status: 'cancelled', last_error: 'unsubscribed' })
+        .eq('contact_id', contact.id)
+        .eq('email_kind', 'marketing')
+        .eq('status', 'pending');
       await log('afmelden', 'contact', contact.id, 'Afgemeld door beheer');
       return json({ ok: true });
     }

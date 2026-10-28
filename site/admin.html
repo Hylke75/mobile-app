@@ -665,6 +665,81 @@
         color: var(--muted);
         white-space: pre-wrap;
       }
+      .editor-raster {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 16px;
+        margin-top: 16px;
+      }
+      @media (max-width: 960px) {
+        .editor-raster {
+          grid-template-columns: 1fr;
+        }
+      }
+      .velden {
+        display: grid;
+        gap: 10px;
+      }
+      .blok {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 10px;
+        display: grid;
+        gap: 8px;
+      }
+      .blok-kop {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+      .blok-kop span {
+        margin-right: auto;
+      }
+      .blok textarea,
+      #n-editor textarea {
+        width: 100%;
+        min-height: 80px;
+        font: inherit;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 8px 10px;
+        background: var(--paper);
+        color: var(--tekst);
+      }
+      .voorbeeld {
+        width: 100%;
+        height: 720px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #f3f3ed;
+        display: block;
+        margin: 0 auto;
+      }
+      .controle li {
+        font-size: 13px;
+        margin: 2px 0;
+      }
+      .controle .fout {
+        color: var(--slecht);
+      }
+      .controle .waarschuwing {
+        color: var(--let);
+      }
+      .acties {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+      .talen {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
     </style>
   </head>
   <body>
@@ -857,91 +932,218 @@
           Nieuwsbriefcontacten met toestemmingsbewijs. De wachtlijst (eenmalige lanceringsmail)
           staat hier los van en wordt nooit voor de nieuwsbrief gebruikt.
         </p>
-        <div class="filters">
-          <button type="button" class="zacht" id="m-vernieuw">Vernieuwen</button>
-          <span class="bijgewerkt" id="m-rol"></span>
+        <div class="segment weergave" id="m-sub" role="group" aria-label="Marketingonderdeel">
+          <button type="button" data-sub="contacten" aria-pressed="true">Contacten</button>
+          <button type="button" data-sub="nieuwsbrieven" aria-pressed="false">Nieuwsbrieven</button>
         </div>
-        <div class="melding" id="m-melding" role="alert"></div>
-        <div class="tegels" id="m-tegels"></div>
+        <div id="m-tab-contacten">
+          <div class="filters">
+            <button type="button" class="zacht" id="m-vernieuw">Vernieuwen</button>
+            <span class="bijgewerkt" id="m-rol"></span>
+          </div>
+          <div class="melding" id="m-melding" role="alert"></div>
+          <div class="tegels" id="m-tegels"></div>
 
-        <div class="kaart">
-          <div class="kaart-kop">
-            <div>
-              <h2>Contacten</h2>
-              <p id="m-contacten-sub"></p>
-            </div>
-            <div class="rij">
-              <label class="sr" for="m-zoek">Zoek op e-mail</label>
-              <input id="m-zoek" class="zoek" type="search" placeholder="Zoek op e-mail" />
-            </div>
-          </div>
-          <div class="tabel-wrap gebruikers-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>E-mail</th>
-                  <th>Status</th>
-                  <th>Taal</th>
-                  <th>Bron</th>
-                  <th>Aangemeld</th>
-                  <th>Acties</th>
-                </tr>
-              </thead>
-              <tbody id="m-rijen"></tbody>
-            </table>
-          </div>
-          <div class="rij" style="margin-top: 12px">
-            <button type="button" class="zacht mini" id="m-vorige">Vorige</button>
-            <button type="button" class="zacht mini" id="m-volgende">Volgende</button>
-          </div>
-        </div>
-
-        <div class="kaart verborgen" id="m-detail" style="margin-top: 16px">
-          <div class="kaart-kop">
-            <div>
-              <h2 id="m-detail-titel"></h2>
-              <p id="m-detail-sub"></p>
-            </div>
-            <button type="button" class="zacht mini" id="m-detail-sluit">Sluiten</button>
-          </div>
-          <ul class="berichten" id="m-detail-lijst"></ul>
-        </div>
-
-        <div class="raster" style="grid-template-columns: 1fr 1fr; margin-top: 16px">
           <div class="kaart">
             <div class="kaart-kop">
               <div>
-                <h2>Verzendinstellingen</h2>
-                <p id="m-instellingen-sub"></p>
+                <h2>Contacten</h2>
+                <p id="m-contacten-sub"></p>
               </div>
-            </div>
-            <div class="instelling">
-              <div class="segment" role="group" aria-label="Verzendmodus" id="m-modus">
-                <button type="button" data-modus="disabled">Uit</button>
-                <button type="button" data-modus="test">Test</button>
-                <button type="button" data-modus="live">Live</button>
-              </div>
-              <label for="m-testadressen">Testadressen (één per regel, max. 10)</label>
-              <textarea id="m-testadressen"></textarea>
               <div class="rij">
-                <button type="button" class="zacht" id="m-testadressen-bewaar">
-                  Testadressen bewaren
-                </button>
-                <label class="vink"
-                  ><input type="checkbox" id="m-noodstop" /> Noodstop: alle marketingmail
-                  geblokkeerd</label
-                >
+                <label class="sr" for="m-zoek">Zoek op e-mail</label>
+                <input id="m-zoek" class="zoek" type="search" placeholder="Zoek op e-mail" />
               </div>
             </div>
+            <div class="tabel-wrap gebruikers-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>E-mail</th>
+                    <th>Status</th>
+                    <th>Taal</th>
+                    <th>Bron</th>
+                    <th>Aangemeld</th>
+                    <th>Acties</th>
+                  </tr>
+                </thead>
+                <tbody id="m-rijen"></tbody>
+              </table>
+            </div>
+            <div class="rij" style="margin-top: 12px">
+              <button type="button" class="zacht mini" id="m-vorige">Vorige</button>
+              <button type="button" class="zacht mini" id="m-volgende">Volgende</button>
+            </div>
           </div>
+
+          <div class="kaart verborgen" id="m-detail" style="margin-top: 16px">
+            <div class="kaart-kop">
+              <div>
+                <h2 id="m-detail-titel"></h2>
+                <p id="m-detail-sub"></p>
+              </div>
+              <button type="button" class="zacht mini" id="m-detail-sluit">Sluiten</button>
+            </div>
+            <ul class="berichten" id="m-detail-lijst"></ul>
+          </div>
+
+          <div class="raster" style="grid-template-columns: 1fr 1fr; margin-top: 16px">
+            <div class="kaart">
+              <div class="kaart-kop">
+                <div>
+                  <h2>Verzendinstellingen</h2>
+                  <p id="m-instellingen-sub"></p>
+                </div>
+              </div>
+              <div class="instelling">
+                <div class="segment" role="group" aria-label="Verzendmodus" id="m-modus">
+                  <button type="button" data-modus="disabled">Uit</button>
+                  <button type="button" data-modus="test">Test</button>
+                  <button type="button" data-modus="live">Live</button>
+                </div>
+                <label for="m-testadressen">Testadressen (één per regel, max. 10)</label>
+                <textarea id="m-testadressen"></textarea>
+                <div class="rij">
+                  <button type="button" class="zacht" id="m-testadressen-bewaar">
+                    Testadressen bewaren
+                  </button>
+                  <label class="vink"
+                    ><input type="checkbox" id="m-noodstop" /> Noodstop: alle marketingmail
+                    geblokkeerd</label
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="kaart">
+              <div class="kaart-kop">
+                <div>
+                  <h2>Auditlog</h2>
+                  <p>Laatste 100 wijzigingen</p>
+                </div>
+              </div>
+              <ul class="berichten" id="m-log"></ul>
+            </div>
+          </div>
+        </div>
+
+        <div id="m-tab-nieuwsbrieven" class="verborgen">
+          <div class="melding" id="n-melding" role="alert"></div>
           <div class="kaart">
             <div class="kaart-kop">
               <div>
-                <h2>Auditlog</h2>
-                <p>Laatste 100 wijzigingen</p>
+                <h2>Nieuwsbrieven</h2>
+                <p id="n-sub">The Morning MOOOVE · concepten, goedkeuring en verzending</p>
+              </div>
+              <div class="rij">
+                <label class="sr" for="n-filter">Status</label>
+                <select id="n-filter" style="width: auto">
+                  <option value="">Alle statussen</option>
+                  <option value="draft">Concept</option>
+                  <option value="in_review">Ter goedkeuring</option>
+                  <option value="approved">Goedgekeurd</option>
+                  <option value="scheduled">Gepland</option>
+                  <option value="sending">Bezig</option>
+                  <option value="paused">Gepauzeerd</option>
+                  <option value="completed">Verzonden</option>
+                  <option value="cancelled">Geannuleerd</option>
+                </select>
+                <label class="sr" for="n-nieuw-taal">Taal</label>
+                <select id="n-nieuw-taal" style="width: auto"></select>
+                <button type="button" id="n-nieuw">Nieuwe nieuwsbrief</button>
               </div>
             </div>
-            <ul class="berichten" id="m-log"></ul>
+            <div class="tabel-wrap gebruikers-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Naam</th>
+                    <th>Taal</th>
+                    <th>Status</th>
+                    <th>Gepland</th>
+                    <th class="getal">Verstuurd</th>
+                    <th>Bijgewerkt</th>
+                    <th>Acties</th>
+                  </tr>
+                </thead>
+                <tbody id="n-rijen"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="kaart verborgen" id="n-editor" style="margin-top: 16px">
+            <div class="kaart-kop">
+              <div>
+                <h2 id="n-titel">Nieuwsbrief</h2>
+                <p id="n-status"></p>
+              </div>
+              <button type="button" class="zacht mini" id="n-sluit">Sluiten</button>
+            </div>
+            <div class="acties" id="n-acties"></div>
+            <div class="editor-raster">
+              <div class="velden">
+                <label for="n-naam">Interne naam</label>
+                <input id="n-naam" maxlength="120" />
+                <label for="n-taal">Taal van de mail</label>
+                <select id="n-taal"></select>
+                <label for="n-onderwerp">Onderwerp <span id="n-onderwerp-teller"></span></label>
+                <input id="n-onderwerp" maxlength="150" />
+                <label for="n-preheader">Preheader (voorvertoning in de inbox)</label>
+                <input id="n-preheader" maxlength="200" />
+                <div>
+                  <label>Doelgroep: bevestigde nieuwsbriefabonnees met taal</label>
+                  <div class="talen" id="n-talen"></div>
+                  <p class="sub" id="n-doelgroep" style="margin: 6px 0 0"></p>
+                </div>
+                <h3 style="margin: 10px 0 0">Inhoud</h3>
+                <div class="velden" id="n-blokken"></div>
+                <div class="rij">
+                  <label class="sr" for="n-bloktype">Bloktype</label>
+                  <select id="n-bloktype" style="width: auto">
+                    <option value="titel">Titel</option>
+                    <option value="alinea">Alinea</option>
+                    <option value="knop">Knop</option>
+                    <option value="afbeelding">Afbeelding</option>
+                    <option value="kolommen">Twee kolommen</option>
+                    <option value="scheiding">Scheidingslijn</option>
+                    <option value="handtekening">Handtekening</option>
+                  </select>
+                  <button type="button" class="zacht" id="n-blok-toevoegen">Blok toevoegen</button>
+                </div>
+                <p class="sub" style="margin: 0">
+                  Logo en voettekst met afmeldlink worden automatisch toegevoegd. Links naar
+                  mooove-app.com krijgen UTM-tags; opens en kliks per persoon worden niet gemeten.
+                </p>
+              </div>
+              <div>
+                <div class="rij" style="margin-bottom: 10px">
+                  <div class="segment" role="group" aria-label="Voorbeeldbreedte" id="n-breedte">
+                    <button type="button" data-breedte="375" aria-pressed="true">Mobiel</button>
+                    <button type="button" data-breedte="700" aria-pressed="false">Desktop</button>
+                  </div>
+                  <span class="sub" id="n-voorbeeld-onderwerp" style="margin: 0"></span>
+                </div>
+                <ul class="controle" id="n-controle"></ul>
+                <iframe
+                  class="voorbeeld"
+                  id="n-voorbeeld"
+                  title="Voorbeeld van de nieuwsbrief"
+                  sandbox=""
+                  style="max-width: 375px"
+                ></iframe>
+                <ul class="controle" id="n-resultaten"></ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="kaart" style="margin-top: 16px">
+            <div class="kaart-kop">
+              <div>
+                <h2>Verzendwachtrij</h2>
+                <p id="n-wachtrij-sub"></p>
+              </div>
+              <button type="button" class="zacht" id="n-verwerk">Wachtrij nu verwerken</button>
+            </div>
+            <ul class="berichten" id="n-wachtrij"></ul>
           </div>
         </div>
       </section>
@@ -2175,6 +2377,589 @@
           mPagina = 0;
           laadContacten();
         }, 300);
+      };
+
+      // ---------- Nieuwsbrieven ----------
+      const TALEN_NB = ['nl', 'en', 'es', 'de', 'fr', 'zh'];
+      const CAMPAGNE_STATUS = {
+        draft: ['geen', 'Concept'],
+        in_review: ['nieuw', 'Ter goedkeuring'],
+        approved: ['actief', 'Goedgekeurd'],
+        scheduled: ['actief', 'Gepland'],
+        sending: ['actief', 'Bezig met verzenden'],
+        paused: ['slapend', 'Gepauzeerd'],
+        completed: ['actief', 'Verzonden'],
+        cancelled: ['onbevestigd', 'Geannuleerd'],
+      };
+      const BLOK_NAAM = {
+        titel: 'Titel',
+        alinea: 'Alinea',
+        knop: 'Knop',
+        afbeelding: 'Afbeelding',
+        kolommen: 'Twee kolommen',
+        scheiding: 'Scheidingslijn',
+        handtekening: 'Handtekening',
+      };
+      const BEWERKBAAR = ['draft', 'in_review', 'approved'];
+      let nbRol = null;
+      let campagnes = [];
+      let open = null;
+      let voorbeeldTimer;
+
+      async function nbActie(body) {
+        const { data: antwoord, error } = await sb.functions.invoke('admin-nieuwsbrief', {
+          method: 'POST',
+          body,
+        });
+        if (error) {
+          let reden = 'Het is niet gelukt.';
+          try {
+            reden = (await error.context?.json())?.error ?? reden;
+          } catch {}
+          throw new Error(reden);
+        }
+        return antwoord;
+      }
+      const nMelding = (tekst) => {
+        $('n-melding').textContent = tekst;
+      };
+      const isBeheer = () => ['owner', 'admin'].includes(nbRol);
+      const magBewerken = () => isBeheer() || nbRol === 'marketing_editor';
+
+      for (const id of ['n-nieuw-taal', 'n-taal']) {
+        $(id).replaceChildren(
+          ...TALEN_NB.map((t) => {
+            const o = document.createElement('option');
+            o.value = t;
+            o.textContent = t.toUpperCase();
+            return o;
+          }),
+        );
+      }
+      $('n-talen').replaceChildren(
+        ...TALEN_NB.map((t) => {
+          const label = document.createElement('label');
+          label.className = 'vink';
+          const vak = document.createElement('input');
+          vak.type = 'checkbox';
+          vak.value = t;
+          vak.onchange = () => {
+            telDoelgroep();
+            gewijzigd();
+          };
+          label.append(vak, ` ${t.toUpperCase()}`);
+          return label;
+        }),
+      );
+
+      function kiesSub(naam) {
+        document
+          .querySelectorAll('#m-sub button')
+          .forEach((k) => k.setAttribute('aria-pressed', String(k.dataset.sub === naam)));
+        toon($('m-tab-contacten'), naam === 'contacten');
+        toon($('m-tab-nieuwsbrieven'), naam === 'nieuwsbrieven');
+        if (naam === 'nieuwsbrieven') laadNieuwsbrieven();
+      }
+      document.querySelectorAll('#m-sub button').forEach((knop) => {
+        knop.onclick = () => kiesSub(knop.dataset.sub);
+      });
+
+      async function laadNieuwsbrieven() {
+        nMelding('');
+        try {
+          const antwoord = await nbActie({ actie: 'lijst' });
+          nbRol = antwoord.rol;
+          campagnes = antwoord.campagnes;
+        } catch (e) {
+          return nMelding(e.message);
+        }
+        toon($('n-nieuw'), magBewerken());
+        toon($('n-verwerk'), isBeheer());
+        tekenCampagnes();
+        laadWachtrij();
+      }
+
+      function tekenCampagnes() {
+        const filter = $('n-filter').value;
+        const lijst = campagnes.filter((c) => !filter || c.status === filter);
+        if (!lijst.length) {
+          const tr = document.createElement('tr');
+          const td = document.createElement('td');
+          td.colSpan = 7;
+          td.className = 'leeg';
+          td.textContent = 'Geen nieuwsbrieven gevonden.';
+          tr.append(td);
+          return $('n-rijen').replaceChildren(tr);
+        }
+        $('n-rijen').replaceChildren(
+          ...lijst.map((c) => {
+            const tr = document.createElement('tr');
+            const cel = (inhoud, getalKolom) => {
+              const td = document.createElement('td');
+              if (getalKolom) td.className = 'getal';
+              if (inhoud instanceof Node) td.append(inhoud);
+              else td.textContent = inhoud;
+              tr.append(td);
+            };
+            const wie = document.createElement('div');
+            const naam = document.createElement('div');
+            naam.className = 'naam';
+            naam.textContent = c.name;
+            const onderwerp = document.createElement('div');
+            onderwerp.className = 'mail';
+            onderwerp.textContent = c.subject || '—';
+            wie.append(naam, onderwerp);
+            cel(wie);
+            cel(c.locale.toUpperCase());
+            const [klasse, label] = CAMPAGNE_STATUS[c.status] ?? ['geen', c.status];
+            const pil = document.createElement('span');
+            pil.className = `pil p-${klasse}`;
+            pil.textContent = label;
+            cel(pil);
+            cel(c.scheduled_at ? new Date(c.scheduled_at).toLocaleString('nl-NL') : '—');
+            cel(getal(c.sent_count), true);
+            cel(geleden(c.updated_at));
+            const acties = document.createElement('div');
+            acties.className = 'rij';
+            acties.style.flexWrap = 'nowrap';
+            const openKnop = document.createElement('button');
+            openKnop.className = 'zacht mini';
+            openKnop.textContent = 'Openen';
+            openKnop.onclick = () => openCampagne(c.id);
+            acties.append(openKnop);
+            if (magBewerken()) {
+              const kopie = document.createElement('button');
+              kopie.className = 'zacht mini';
+              kopie.textContent = 'Dupliceren';
+              kopie.onclick = async () => {
+                try {
+                  const a = await nbActie({ actie: 'dupliceren', id: c.id });
+                  await laadNieuwsbrieven();
+                  openCampagne(a.campagne.id);
+                } catch (e) {
+                  alert(e.message);
+                }
+              };
+              acties.append(kopie);
+            }
+            cel(acties);
+            return tr;
+          }),
+        );
+      }
+
+      async function openCampagne(id) {
+        let a;
+        try {
+          a = await nbActie({ actie: 'ophalen', id });
+        } catch (e) {
+          return alert(e.message);
+        }
+        open = { ...a.campagne, blokken: structuredClone(a.campagne.content_blocks_json ?? []) };
+        $('n-titel').textContent = open.name;
+        $('n-naam').value = open.name;
+        $('n-taal').value = open.locale;
+        $('n-onderwerp').value = open.subject;
+        $('n-preheader').value = open.preheader;
+        const talen = open.segment?.talen ?? [];
+        document
+          .querySelectorAll('#n-talen input')
+          .forEach((v) => (v.checked = talen.includes(v.value)));
+        const bewerkbaar = magBewerken() && BEWERKBAAR.includes(open.status);
+        for (const el of document.querySelectorAll(
+          '#n-editor .velden input, #n-editor .velden select, #n-editor .velden textarea, #n-blok-toevoegen',
+        ))
+          el.disabled = !bewerkbaar;
+        tekenBlokken();
+        tekenStatus(a.resultaten);
+        toon($('n-editor'), true);
+        $('n-editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        vernieuwVoorbeeld();
+        telDoelgroep();
+      }
+
+      function inhoud() {
+        return {
+          naam: $('n-naam').value,
+          taal: $('n-taal').value,
+          onderwerp: $('n-onderwerp').value,
+          preheader: $('n-preheader').value,
+          blokken: open.blokken,
+          talen: [...document.querySelectorAll('#n-talen input:checked')].map((v) => v.value),
+        };
+      }
+
+      function veld(blok, sleutel, label, soort = 'input') {
+        const wrap = document.createElement('label');
+        wrap.style.display = 'grid';
+        wrap.style.gap = '4px';
+        wrap.style.fontSize = '13px';
+        wrap.textContent = label;
+        const el = document.createElement(soort);
+        el.value = blok[sleutel] ?? '';
+        el.disabled = !(magBewerken() && BEWERKBAAR.includes(open.status));
+        el.oninput = () => {
+          blok[sleutel] = el.value;
+          gewijzigd();
+        };
+        wrap.append(el);
+        return wrap;
+      }
+
+      function tekenBlokken() {
+        const bewerkbaar = magBewerken() && BEWERKBAAR.includes(open.status);
+        $('n-blokken').replaceChildren(
+          ...open.blokken.map((blok, i) => {
+            const div = document.createElement('div');
+            div.className = 'blok';
+            const kop = document.createElement('div');
+            kop.className = 'blok-kop';
+            const naam = document.createElement('span');
+            naam.textContent = `${i + 1}. ${BLOK_NAAM[blok.type] ?? blok.type}`;
+            kop.append(naam);
+            if (bewerkbaar) {
+              for (const [teken, titel, doe] of [
+                [
+                  '↑',
+                  'Omhoog',
+                  () => i > 0 && open.blokken.splice(i - 1, 0, ...open.blokken.splice(i, 1)),
+                ],
+                [
+                  '↓',
+                  'Omlaag',
+                  () =>
+                    i < open.blokken.length - 1 &&
+                    open.blokken.splice(i + 1, 0, ...open.blokken.splice(i, 1)),
+                ],
+                ['✕', 'Verwijderen', () => open.blokken.splice(i, 1)],
+              ]) {
+                const k = document.createElement('button');
+                k.type = 'button';
+                k.className = 'zacht mini';
+                k.textContent = teken;
+                k.title = titel;
+                k.setAttribute('aria-label', `${titel}: blok ${i + 1}`);
+                k.onclick = () => {
+                  doe();
+                  tekenBlokken();
+                  gewijzigd();
+                };
+                kop.append(k);
+              }
+            }
+            div.append(kop);
+            if (['titel'].includes(blok.type)) div.append(veld(blok, 'tekst', 'Tekst'));
+            if (['alinea', 'handtekening'].includes(blok.type))
+              div.append(veld(blok, 'tekst', 'Tekst (lege regel = nieuwe alinea)', 'textarea'));
+            if (blok.type === 'knop')
+              div.append(veld(blok, 'tekst', 'Knoptekst'), veld(blok, 'url', 'Link (https://)'));
+            if (blok.type === 'afbeelding')
+              div.append(
+                veld(blok, 'url', 'Afbeelding (https://)'),
+                veld(blok, 'alt', 'Alt-tekst (verplicht)'),
+                veld(blok, 'link', 'Link bij klikken (optioneel)'),
+              );
+            if (blok.type === 'kolommen')
+              div.append(
+                veld(blok, 'links', 'Linkerkolom', 'textarea'),
+                veld(blok, 'rechts', 'Rechterkolom', 'textarea'),
+              );
+            return div;
+          }),
+        );
+      }
+
+      $('n-blok-toevoegen').onclick = () => {
+        const type = $('n-bloktype').value;
+        const nieuw = { type };
+        if (['titel', 'alinea', 'handtekening'].includes(type)) nieuw.tekst = '';
+        if (type === 'knop')
+          Object.assign(nieuw, { tekst: '', url: 'https://www.mooove-app.com/' });
+        if (type === 'afbeelding') Object.assign(nieuw, { url: '', alt: '' });
+        if (type === 'kolommen') Object.assign(nieuw, { links: '', rechts: '' });
+        open.blokken.push(nieuw);
+        tekenBlokken();
+        gewijzigd();
+      };
+      for (const id of ['n-naam', 'n-taal', 'n-onderwerp', 'n-preheader'])
+        $(id).addEventListener('input', () => gewijzigd());
+
+      function gewijzigd() {
+        open.gewijzigd = true;
+        $('n-onderwerp-teller').textContent = `(${$('n-onderwerp').value.length}/60)`;
+        tekenStatus();
+        clearTimeout(voorbeeldTimer);
+        voorbeeldTimer = setTimeout(vernieuwVoorbeeld, 600);
+      }
+
+      async function vernieuwVoorbeeld() {
+        if (!open) return;
+        let a;
+        try {
+          a = await nbActie({ actie: 'voorbeeld', ...inhoud() });
+        } catch (e) {
+          return nMelding(e.message);
+        }
+        $('n-voorbeeld').srcdoc = a.html;
+        $('n-voorbeeld-onderwerp').textContent = a.onderwerp ? `Onderwerp: ${a.onderwerp}` : '';
+        $('n-onderwerp-teller').textContent = `(${$('n-onderwerp').value.length}/60)`;
+        const items = [
+          ...a.controle.fouten.map((t) => ['fout', `✕ ${t}`]),
+          ...a.controle.waarschuwingen.map((t) => ['waarschuwing', `! ${t}`]),
+        ];
+        if (!items.length) items.push(['', '✓ Geen problemen gevonden']);
+        $('n-controle').replaceChildren(
+          ...items.map(([klasse, tekst]) => {
+            const li = document.createElement('li');
+            li.className = klasse;
+            li.textContent = tekst;
+            return li;
+          }),
+        );
+      }
+
+      document.querySelectorAll('#n-breedte button').forEach((knop) => {
+        knop.onclick = () => {
+          document
+            .querySelectorAll('#n-breedte button')
+            .forEach((k) => k.setAttribute('aria-pressed', String(k === knop)));
+          $('n-voorbeeld').style.maxWidth = `${knop.dataset.breedte}px`;
+        };
+      });
+
+      let doelgroepTimer;
+      function telDoelgroep() {
+        clearTimeout(doelgroepTimer);
+        doelgroepTimer = setTimeout(async () => {
+          const talen = inhoud().talen;
+          if (!talen.length) {
+            $('n-doelgroep').textContent = 'Kies minstens één taal.';
+            return;
+          }
+          try {
+            const a = await nbActie({ actie: 'doelgroep', talen });
+            $('n-doelgroep').textContent =
+              `${getal(a.aantal)} ontvangers nu` +
+              (a.voorbeelden.length
+                ? ` · bijv. ${a.voorbeelden.map((v) => v.email).join(', ')}`
+                : '') +
+              '. De lijst wordt pas bij verzending definitief bepaald; wachtlijst-adressen horen er nooit bij.';
+          } catch (e) {
+            $('n-doelgroep').textContent = e.message;
+          }
+        }, 300);
+      }
+
+      function knop(tekst, klasse, doe) {
+        const k = document.createElement('button');
+        k.type = 'button';
+        k.className = klasse;
+        k.textContent = tekst;
+        k.onclick = async () => {
+          k.disabled = true;
+          try {
+            await doe();
+          } catch (e) {
+            alert(e.message);
+          } finally {
+            k.disabled = false;
+          }
+        };
+        return k;
+      }
+
+      async function stap(actie, extra = {}, melding) {
+        const a = await nbActie({ actie, id: open.id, ...extra });
+        if (melding) alert(melding);
+        await laadNieuwsbrieven();
+        if (actie !== 'verwijderen') await openCampagne(a.campagne?.id ?? open.id);
+        else toon($('n-editor'), false);
+      }
+
+      async function bewaar() {
+        await nbActie({ actie: 'opslaan', id: open.id, ...inhoud() });
+        open.gewijzigd = false;
+      }
+
+      function tekenStatus(resultaten) {
+        if (!open) return;
+        const [, label] = CAMPAGNE_STATUS[open.status] ?? ['', open.status];
+        $('n-status').textContent =
+          `${label}` +
+          (open.scheduled_at ? ` · ${new Date(open.scheduled_at).toLocaleString('nl-NL')}` : '') +
+          (open.approved_at ? ` · goedgekeurd ${datum(open.approved_at)}` : '') +
+          (open.gewijzigd ? ' · niet opgeslagen' : '');
+        const s = open.status;
+        const acties = [];
+        if (magBewerken() && BEWERKBAAR.includes(s)) {
+          acties.push(
+            knop('Opslaan', '', async () => {
+              await bewaar();
+              await stap('ophalen');
+            }),
+          );
+        }
+        if (magBewerken() && !['cancelled'].includes(s))
+          acties.push(
+            knop('Testmail', 'zacht', async () => {
+              if (open.gewijzigd) await bewaar();
+              const a = await nbActie({ actie: 'testmail', id: open.id });
+              alert(
+                a.resultaat
+                  .map((r) => `${r.aan}: ${r.ok ? 'verstuurd' : 'niet verstuurd'}`)
+                  .join('\n') || 'Geen testadressen.',
+              );
+            }),
+          );
+        if (magBewerken() && s === 'draft')
+          acties.push(
+            knop('Indienen voor goedkeuring', 'zacht', async () => {
+              if (open.gewijzigd) await bewaar();
+              await stap('indienen');
+            }),
+          );
+        if (isBeheer() && s === 'in_review') {
+          acties.push(knop('Goedkeuren', '', () => stap('goedkeuren')));
+          acties.push(knop('Terug naar concept', 'zacht', () => stap('afkeuren')));
+        }
+        if (isBeheer() && s === 'approved' && !open.gewijzigd) {
+          const moment = document.createElement('input');
+          moment.type = 'datetime-local';
+          moment.style.width = 'auto';
+          moment.setAttribute('aria-label', 'Verzendmoment');
+          acties.push(moment);
+          acties.push(
+            knop('Inplannen', '', async () => {
+              const nu = !moment.value;
+              const wanneer = nu ? 'nu' : new Date(moment.value).toISOString();
+              const a = await nbActie({ actie: 'doelgroep', talen: open.segment?.talen ?? [] });
+              const w = await nbActie({ actie: 'wachtrij' });
+              const modus = w.instellingen.sendMode;
+              const uitleg =
+                modus === 'live'
+                  ? `LIVE: deze nieuwsbrief gaat naar ${a.aantal} echte ontvangers.`
+                  : modus === 'test'
+                    ? `Testmodus: alleen testadressen ontvangen hem; de andere ${a.aantal} ontvangers worden overgeslagen.`
+                    : 'Verzendmodus staat uit: hij blijft in de wachtrij tot je Test of Live kiest.';
+              if (
+                !confirm(
+                  `${open.name}\n${nu ? 'Nu versturen' : `Versturen op ${new Date(moment.value).toLocaleString('nl-NL')}`}\n\n${uitleg}\n\nDoorgaan?`,
+                )
+              )
+                return;
+              await stap('inplannen', { moment: wanneer, bevestigd: true });
+            }),
+          );
+          acties.push(knop('Terug naar concept', 'zacht', () => stap('afkeuren')));
+        }
+        if (isBeheer() && ['scheduled', 'sending'].includes(s))
+          acties.push(knop('Pauzeren', '', () => stap('pauzeren')));
+        if (isBeheer() && s === 'paused')
+          acties.push(knop('Hervatten', '', () => stap('hervatten')));
+        if (isBeheer() && !['completed', 'cancelled'].includes(s))
+          acties.push(
+            knop('Annuleren', 'mini gevaar', async () => {
+              if (!confirm('Deze nieuwsbrief annuleren? Openstaande mails worden niet verstuurd.'))
+                return;
+              await stap('annuleren');
+            }),
+          );
+        if (magBewerken())
+          acties.push(
+            knop('Als sjabloon bewaren', 'zacht', async () => {
+              await nbActie({ actie: 'alsSjabloon', id: open.id });
+              alert('Opgeslagen als sjabloon.');
+            }),
+          );
+        if (magBewerken() && s === 'draft')
+          acties.push(
+            knop('Verwijderen', 'mini gevaar', async () => {
+              if (!confirm('Dit concept verwijderen?')) return;
+              await stap('verwijderen');
+            }),
+          );
+        $('n-acties').replaceChildren(...acties);
+        if (resultaten) {
+          const namen = {
+            queued: 'In de wachtrij',
+            sent: 'Verstuurd',
+            delivered: 'Bezorgd',
+            skipped: 'Overgeslagen (geen toestemming, afgemeld of testmodus)',
+            failed: 'Mislukt',
+            bounced: 'Bounce',
+            complained: 'Klacht',
+            cancelled: 'Geannuleerd',
+          };
+          const regels = Object.entries(resultaten).map(
+            ([k, n]) => `${namen[k] ?? k}: ${getal(n)}`,
+          );
+          $('n-resultaten').replaceChildren(
+            ...(regels.length ? ['Resultaten', ...regels] : []).map((t, i) => {
+              const li = document.createElement('li');
+              li.textContent = t;
+              if (i === 0) li.style.fontWeight = '700';
+              return li;
+            }),
+          );
+        }
+      }
+
+      async function laadWachtrij() {
+        let a;
+        try {
+          a = await nbActie({ actie: 'wachtrij' });
+        } catch {
+          return;
+        }
+        const n = a.aantallen;
+        const modus = { disabled: 'uit', test: 'test', live: 'LIVE' }[a.instellingen.sendMode];
+        $('n-wachtrij-sub').textContent =
+          `Verzendmodus ${modus}${a.instellingen.killSwitch ? ' · noodstop aan' : ''} · ` +
+          `wachtend ${getal(n.pending + n.sending)} · verstuurd ${getal(n.sent)} · overgeslagen ${getal(n.skipped)} · mislukt ${getal(n.dead)}`;
+        $('n-wachtrij').replaceChildren(
+          ...(a.fouten.length
+            ? a.fouten.map((f) =>
+                bericht(
+                  [
+                    f.status,
+                    `poging ${f.attempt_count}`,
+                    new Date(f.updated_at).toLocaleString('nl-NL'),
+                  ],
+                  f.last_error,
+                ),
+              )
+            : [leegItem('Geen fouten of overgeslagen mails.')]),
+        );
+      }
+
+      $('n-filter').onchange = () => tekenCampagnes();
+      $('n-sluit').onclick = () => {
+        if (open?.gewijzigd && !confirm('Niet-opgeslagen wijzigingen weggooien?')) return;
+        open = null;
+        toon($('n-editor'), false);
+      };
+      $('n-nieuw').onclick = async () => {
+        const naam = prompt('Naam van de nieuwe nieuwsbrief (alleen intern zichtbaar)');
+        if (!naam) return;
+        try {
+          const a = await nbActie({ actie: 'nieuw', naam, taal: $('n-nieuw-taal').value });
+          await laadNieuwsbrieven();
+          openCampagne(a.campagne.id);
+        } catch (e) {
+          alert(e.message);
+        }
+      };
+      $('n-verwerk').onclick = async () => {
+        try {
+          const a = await nbActie({ actie: 'verwerk' });
+          const r = a.resultaat;
+          alert(
+            `Verwerkt: ${r.geclaimd} · verstuurd ${r.verstuurd} · overgeslagen ${r.overgeslagen} · mislukt ${r.mislukt}`,
+          );
+          laadNieuwsbrieven();
+        } catch (e) {
+          alert(e.message);
+        }
       };
 
       let wachtOpFormaat;

@@ -225,6 +225,16 @@ async function bevestigen(db: Db, invoer: Record<string, unknown>) {
   // Expliciet opnieuw aangemeld: een eerdere afmelding vervalt
   await db.from('marketing_suppressions').delete().eq('email_hash', emailHash).eq('reason', 'unsubscribe');
   await event(db, 'newsletter_confirmed', aanmelding.contact_id);
+  // Welkomstmail via de verzendwachtrij (zelfde controles als elke marketingmail)
+  await db.from('email_outbox').upsert(
+    {
+      contact_id: aanmelding.contact_id,
+      email_kind: 'marketing',
+      render_context_json: { soort: 'welkom' },
+      idempotency_key: `welkom:${aanmelding.id}`,
+    },
+    { onConflict: 'idempotency_key', ignoreDuplicates: true },
+  );
   return json({ ok: true });
 }
 
@@ -252,6 +262,13 @@ async function afmelden(db: Db, invoer: Record<string, unknown>) {
       },
       { onConflict: 'email_hash,scope,reason', ignoreDuplicates: true },
     );
+    // Al ingeplande marketingmail voor dit adres vervalt meteen
+    await db
+      .from('email_outbox')
+      .update({ status: 'cancelled', last_error: 'unsubscribed' })
+      .eq('contact_id', contact.id)
+      .eq('email_kind', 'marketing')
+      .eq('status', 'pending');
     await event(db, 'newsletter_unsubscribed', contact.id);
   }
   return json({ ok: true });

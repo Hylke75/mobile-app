@@ -58,7 +58,7 @@ export function resend(apiKey: string): MailProvider {
   };
 }
 
-const escape = (s: string) =>
+export const escape = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
 // Eenvoudige, toegankelijke opmaak in de Mooove-huisstijl (licht, met limegroene knop)
