@@ -6,21 +6,25 @@ import { em, fonts, kleuren } from '@/constants/theme';
 import { useTaal } from '@/i18n';
 
 export const CAMERA_HOOGTE = 285;
+// Groter beeld bij pose-oefeningen, zodat je ziet of je van hoofd tot voeten in beeld bent
+export const CAMERA_HOOGTE_POSE = 380;
 
 export function CameraFrame({
   label,
   notitie,
   achtergrond,
+  hoog = false,
   children,
 }: {
   label: string;
   notitie?: string;
   achtergrond?: ReactNode;
+  hoog?: boolean;
   children?: ReactNode;
 }) {
   const { t } = useTaal();
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, hoog && { height: CAMERA_HOOGTE_POSE }]}>
       {achtergrond}
       {children}
       <View style={styles.topLeft} pointerEvents="none">

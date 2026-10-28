@@ -11,6 +11,7 @@ import {
 import {
   CALF_RAISE_CONFIG,
   type ExerciseConfig,
+  type ExercisePhase,
   GLUTE_BRIDGE_CONFIG,
   LUNGE_CONFIG,
   nitroPoseExercises,
@@ -37,35 +38,75 @@ export type StapDetectorProps = {
   doel: number;
   onVoortgang: (gedaan: number) => void;
   onFeedback: (tekst: string) => void;
-  onKlaar: (methode: 'camera' | 'licht' | 'foto') => void;
+  onKlaar: (methode: 'camera' | 'licht' | 'foto' | 'handmatig') => void;
+  // Proefronde: laat zien welke fase de camera herkent, om de plaatsing te testen
+  toonFase?: boolean;
 };
 
-const JUMPING_JACK_CONFIG: ExerciseConfig = {
+// Telregels per oefening. De bibliotheek kiest per hoek zelf de best zichtbare lichaamskant
+// (links of rechts), behalve als een configuratie beide kanten afzonderlijk meet. Hoeken zijn
+// echte graden (de bibliotheek corrigeert voor de beeldverhouding).
+const enkel = (naam: string, a: number, b: number, c: number) => ({
+  name: naam,
+  landmarkA: a,
+  landmarkB: b,
+  landmarkC: c,
+});
+const KNIE = enkel('knie', 23, 25, 27);
+const HEUP = enkel('heup', 11, 23, 25);
+const ELLEBOOG = enkel('elleboog', 11, 13, 15);
+const LICHAAM = enkel('lichaam', 11, 23, 27);
+
+const SQUATS: ExerciseConfig = {
+  ...SQUAT_CONFIG,
+  angles: [KNIE, HEUP],
+  phases: [
+    { phase: 'up', angleName: 'knie', minAngle: 155, maxAngle: 180 },
+    { phase: 'down', angleName: 'knie', minAngle: 40, maxAngle: 110 },
+  ],
+  formRules: [],
+};
+const PUSHUPS: ExerciseConfig = {
+  ...PUSHUP_CONFIG,
+  visibilityThreshold: 0.2,
+  cameraAngle: 'side',
+  angles: [ELLEBOOG, LICHAAM],
+  phases: [
+    { phase: 'up', angleName: 'elleboog', minAngle: 145, maxAngle: 180 },
+    { phase: 'down', angleName: 'elleboog', minAngle: 0, maxAngle: 110 },
+  ],
+};
+// Jumping jacks: beide armen samen omlaag en samen omhoog
+const JUMPING_JACKS: ExerciseConfig = {
   name: 'Jumping Jack',
   type: 'rep',
   postureFamily: 'standingUpright',
   visibilityThreshold: 0.3,
   cameraAngle: 'front',
-  angles: [
-    { name: 'leftShoulderAbduction', landmarkA: 23, landmarkB: 11, landmarkC: 15 },
-    { name: 'rightShoulderAbduction', landmarkA: 24, landmarkB: 12, landmarkC: 16 },
-  ],
+  angles: [enkel('armL', 23, 11, 15), enkel('armR', 24, 12, 16)],
   phases: [
-    // Ruime grenzen: bij een vlot tempo komen de armen niet helemaal tot langs het lichaam
-    { phase: 'down', angleName: 'leftShoulderAbduction', minAngle: 0, maxAngle: 60 },
-    { phase: 'up', angleName: 'leftShoulderAbduction', minAngle: 120, maxAngle: 180 },
+    { phase: 'down', angleName: 'armL', minAngle: 0, maxAngle: 55 },
+    { phase: 'down', angleName: 'armR', minAngle: 0, maxAngle: 55 },
+    { phase: 'up', angleName: 'armL', minAngle: 125, maxAngle: 180 },
+    { phase: 'up', angleName: 'armR', minAngle: 125, maxAngle: 180 },
   ],
   repSequence: ['down', 'up', 'down'],
   formRules: [],
   holdDurationMs: 0,
 };
-
-// Aanpassingen op de standaardinstellingen van de bibliotheek, getoetst met een simulatie van de
-// telregels (vanaf de plaatsing die de app per oefening voorschrijft):
-// - lunges: de bibliotheek eist een liggende houding, zijwaarts staand telt dan niets
-// - kuitheffen: van opzij is de enkelhoek in rust ±105° en op de tenen ±115–130°
-// - bruggetje: met de heupen op de grond is de heuphoek ±130–150°, niet 80–120°
-const LUNGE: ExerciseConfig = { ...LUNGE_CONFIG, postureFamily: 'none' };
+// Lunges: staand (rechtop), de voorste knie buigt tot ongeveer 90°
+const LUNGES: ExerciseConfig = {
+  ...LUNGE_CONFIG,
+  postureFamily: 'standingUpright',
+  angles: [KNIE, HEUP],
+  phases: [
+    { phase: 'up', angleName: 'knie', minAngle: 155, maxAngle: 180 },
+    { phase: 'down', angleName: 'knie', minAngle: 65, maxAngle: 115 },
+  ],
+  formRules: [],
+};
+// Kuitheffen: van opzij is de enkelhoek in rust ±105° en op de tenen ±115–130° (alleen Android:
+// Apple Vision herkent geen voeten)
 const KUITHEFFEN: ExerciseConfig = {
   ...CALF_RAISE_CONFIG,
   cameraAngle: 'side',
@@ -74,37 +115,78 @@ const KUITHEFFEN: ExerciseConfig = {
     { phase: 'up', angleName: 'leftAnkle', minAngle: 113, maxAngle: 160 },
   ],
 };
+// Bruggetje: met de heupen op de grond is de heuphoek ±130–150°, opgetild ±165–180°
 const BRUGGETJE: ExerciseConfig = {
   ...GLUTE_BRIDGE_CONFIG,
   phases: [
     { phase: 'down', angleName: 'hipExtension', minAngle: 95, maxAngle: 150 },
     { phase: 'up', angleName: 'hipExtension', minAngle: 160, maxAngle: 180 },
   ],
+  formRules: [],
 };
+
+function vasthouden(config: ExerciseConfig, doel: number): ExerciseConfig {
+  return { ...config, formRules: [], holdDurationMs: doel * 1000 };
+}
 
 function poseConfig(oefening: Oefening, doel: number): ExerciseConfig {
   switch (oefening) {
     case 'Squats':
-      return SQUAT_CONFIG;
+      return SQUATS;
     case 'Push-ups':
-      return PUSHUP_CONFIG;
+      return PUSHUPS;
     case 'Jumping jacks':
-      return JUMPING_JACK_CONFIG;
+      return JUMPING_JACKS;
     case 'Lunges':
-      return LUNGE;
+      return LUNGES;
     case 'Kuitheffen':
       return KUITHEFFEN;
     case 'Bruggetje':
       return BRUGGETJE;
     // Houdingen: zo lang vasthouden als het doel in seconden
     case 'Muurzit':
-      return { ...WALL_SIT_CONFIG, holdDurationMs: doel * 1000 };
+      // Knie en heup beide ongeveer haaks (zittend tegen de muur)
+      return vasthouden(
+        {
+          ...WALL_SIT_CONFIG,
+          angles: [KNIE, HEUP],
+          phases: [
+            { phase: 'hold', angleName: 'knie', minAngle: 70, maxAngle: 120 },
+            { phase: 'hold', angleName: 'heup', minAngle: 65, maxAngle: 125 },
+          ],
+        },
+        doel,
+      );
     case 'Zijplank':
-      return { ...SIDE_PLANK_CONFIG, holdDurationMs: doel * 1000 };
+      return vasthouden(
+        {
+          ...SIDE_PLANK_CONFIG,
+          visibilityThreshold: 0.25,
+          angles: [LICHAAM],
+          phases: [{ phase: 'hold', angleName: 'lichaam', minAngle: 150, maxAngle: 180 }],
+        },
+        doel,
+      );
     case 'Boomhouding':
-      return { ...TREE_POSE_CONFIG, holdDurationMs: doel * 1000 };
+      // De bovenbenen staan uit elkaar doordat één knie opzij is gedraaid (links of rechts)
+      return vasthouden(
+        {
+          ...TREE_POSE_CONFIG,
+          visibilityThreshold: 0.3,
+          angles: [enkel('benen', 25, 23, 26)],
+          phases: [{ phase: 'hold', angleName: 'benen', minAngle: 45, maxAngle: 160 }],
+        },
+        doel,
+      );
     default:
-      return { ...PLANK_CONFIG, holdDurationMs: doel * 1000 };
+      return vasthouden(
+        {
+          ...PLANK_CONFIG,
+          angles: [LICHAAM],
+          phases: [{ phase: 'hold', angleName: 'lichaam', minAngle: 155, maxAngle: 180 }],
+        },
+        doel,
+      );
   }
 }
 
@@ -129,6 +211,16 @@ export function StapDetector(props: StapDetectorProps) {
                 : t('missie.detector.openInstellingen')}
             </Text>
           </Pressable>
+          {/* Licht en foto zijn niet te controleren zonder camera; pose valt na 90 s terug op springen */}
+          {methode !== 'pose' && (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => props.onKlaar('handmatig')}
+              style={styles.link}
+            >
+              <Text style={styles.linkTekst}>{t('missie.detector.zonderCamera')}</Text>
+            </Pressable>
+          )}
         </View>
       </CameraFrame>
     );
@@ -158,11 +250,15 @@ function PoseStap({
   onVoortgang,
   onFeedback,
   onKlaar,
+  toonFase = false,
 }: StapDetectorProps & { oefening: Oefening }) {
   const info = OEFENING_INFO[oefening];
   const runner = useAsyncRunner();
   const [gestart, setGestart] = useState(false);
+  const [inBeeld, setInBeeld] = useState<boolean | null>(null);
+  const [fase, setFase] = useState<ExercisePhase>('unknown');
   const isIos = Platform.OS === 'ios';
+  const donkerGemeld = useRef(false);
   const { t: vertaal } = useTaal();
   // Callbacks via refs: een nieuwe callback (bijv. spraak aan/uit) mag de sessie niet herstarten
   const voortgang = useLaatste(onVoortgang);
@@ -172,7 +268,7 @@ function PoseStap({
   useEffect(() => {
     const stap = OEFENING_INFO[oefening];
     const generatie = ++poseGeneratie;
-    let interval: ReturnType<typeof setInterval> | undefined;
+    let aftellen: ReturnType<typeof setTimeout> | undefined;
     let actief = true;
 
     (async () => {
@@ -186,21 +282,20 @@ function PoseStap({
       nitroPoseExercises.onPostureRegained = () =>
         feedback.current(t('missie.detector.positieTerug'));
       nitroPoseExercises.onPoseLost = () => feedback.current(t('missie.detector.nietInBeeld'));
-      feedback.current(missie.instructie);
-      // De engine verwerkt pas frames als de sessie loopt; houding wordt intern gecontroleerd
-      nitroPoseExercises.startSession(stap.eenheid === 'seconden' ? 1 : doel, 3);
-      interval = setInterval(() => {
-        if (nitroPoseExercises.status === 'active') {
-          clearInterval(interval);
-          setGestart(true);
-          feedback.current(missie.spraak[0] ?? '');
-        }
-      }, 300);
+      feedback.current(`${missie.instructie} ${t('missie.detector.tips')}`);
+      // Drie seconden om in positie te gaan; het aftellen gebeurt hier (de native timer van de
+      // bibliotheek loopt op iOS niet betrouwbaar buiten de hoofdthread)
+      aftellen = setTimeout(() => {
+        if (!actief) return;
+        nitroPoseExercises.startSession(stap.eenheid === 'seconden' ? 1 : doel, 0);
+        setGestart(true);
+        feedback.current(missie.spraak[0] ?? '');
+      }, 3000);
     })();
 
     return () => {
       actief = false;
-      if (interval) clearInterval(interval);
+      if (aftellen) clearTimeout(aftellen);
       nitroPoseExercises.onRepComplete = undefined;
       nitroPoseExercises.onHoldProgress = undefined;
       nitroPoseExercises.onSessionComplete = undefined;
@@ -217,13 +312,54 @@ function PoseStap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [oefening, doel, voortgang, feedback, klaar]);
 
+  // Staat het hele lichaam in beeld? Schouders, heupen, knieën en enkels (minstens één kant)
+  useEffect(() => {
+    if (!gestart) return;
+    const timer = setInterval(
+      () => {
+        const punten = nitroPoseExercises.landmarks;
+        if (!punten.length) return setInBeeld(false);
+        const zichtbaar = (l: number, r: number) =>
+          (punten[l]?.visibility ?? 0) > 0.3 || (punten[r]?.visibility ?? 0) > 0.3;
+        setInBeeld(
+          zichtbaar(11, 12) && zichtbaar(23, 24) && zichtbaar(25, 26) && zichtbaar(27, 28),
+        );
+        if (toonFase) setFase(nitroPoseExercises.currentPhase);
+      },
+      toonFase ? 200 : 500,
+    );
+    return () => clearInterval(timer);
+  }, [gestart, toonFase]);
+
+  const meldDonker = useCallback(
+    (helderheid: number) => {
+      if (helderheid >= DONKER_GRENS || donkerGemeld.current) return;
+      donkerGemeld.current = true;
+      feedback.current(t('missie.detector.teDonker'));
+    },
+    [feedback],
+  );
+
   const frameOutput = useFrameOutput({
-    pixelFormat: 'rgb',
+    // YUV: wat Apple Vision en ML Kit (Android: alleen YUV_420_888) direct verwerken
+    pixelFormat: 'yuv',
     onFrame(frame) {
       'worklet';
       const geaccepteerd = runner.runAsync(() => {
         'worklet';
         try {
+          // Gemiddelde helderheid uit het Y-vlak (steekproef); bij weinig licht een tip
+          const vlak = frame.getPlanes()[0];
+          if (vlak) {
+            const pixels = new Uint8Array(vlak.getPixelBuffer());
+            let som = 0;
+            let aantal = 0;
+            for (let i = 0; i < pixels.length; i += 4999) {
+              som += pixels[i]!;
+              aantal++;
+            }
+            if (aantal > 0) scheduleOnRN(meldDonker, som / aantal);
+          }
           if (isIos) nitroPoseExercises.processFrameIOS(frame);
           else nitroPoseExercises.processFrameAndroid(frame);
         } finally {
@@ -235,17 +371,34 @@ function PoseStap({
   });
 
   return (
-    <CameraFrame label={gestart ? 'POSE DETECTION' : vertaal('missie.detector.inPositie')}>
+    <CameraFrame hoog label={gestart ? 'POSE DETECTION' : vertaal('missie.detector.inPositie')}>
+      {/* Het hele camerabeeld tonen (niet bijsnijden), zodat je ziet of je helemaal in beeld bent */}
       <Camera
         style={StyleSheet.absoluteFill}
         device={info.camera}
         isActive
         outputs={[frameOutput]}
-        resizeMode="cover"
+        resizeMode="contain"
       />
+      {gestart && inBeeld !== null && (
+        <View style={[styles.meter, !inBeeld && styles.meterWaarschuwing]}>
+          <Text style={[styles.meterTekst, !inBeeld && styles.meterTekstWaarschuwing]}>
+            {inBeeld
+              ? `✓ ${vertaal('missie.detector.inBeeld')}`
+              : vertaal('missie.detector.nietHelemaalInBeeld')}
+            {toonFase ? ` · ${vertaal(`missie.detector.fase.${fase}`)}` : ''}
+          </Text>
+        </View>
+      )}
     </CameraFrame>
   );
 }
+
+// JPEG-bytes per pixel waaronder een foto als leeg (zwart/afgedekt) geldt
+const LEGE_FOTO_GRENS = 0.02;
+
+// Gemiddelde helderheid (0–255) waaronder de herkenning merkbaar slechter wordt
+const DONKER_GRENS = 45;
 
 const LICHT_STAPPEN_NODIG = 2;
 const LICHT_OPWARMEN_MS = 1500;
@@ -378,7 +531,13 @@ function FotoStap({ missie, onFeedback, onKlaar }: StapDetectorProps) {
     try {
       // De foto dient alleen als bevestiging en wordt direct weer weggegooid
       const foto = await photoOutput.capturePhoto({ flashMode: 'off' }, {});
+      // Een (bijna) egaal zwarte foto comprimeert extreem goed: lens afgedekt of pikdonker
+      const bytesPerPixel = foto.getFileData().byteLength / Math.max(1, foto.width * foto.height);
       foto.dispose();
+      if (bytesPerPixel < LEGE_FOTO_GRENS) {
+        feedback.current(t('missie.detector.fotoLeeg'));
+        return;
+      }
       setGemaakt(true);
       feedback.current(
         oefening === 'Bed opmaken' ? t('missie.detector.bedKlaar') : t('missie.detector.top'),
@@ -455,6 +614,15 @@ const styles = StyleSheet.create({
     fontSize: 9,
     letterSpacing: em(0.13, 9),
     color: kleuren.lime,
+  },
+  meterWaarschuwing: { backgroundColor: 'rgba(80,40,20,0.85)' },
+  meterTekstWaarschuwing: { color: '#FFC58A' },
+  link: { paddingVertical: 6 },
+  linkTekst: {
+    fontFamily: fonts.body600,
+    fontSize: 12,
+    color: '#C5D6BE',
+    textDecorationLine: 'underline',
   },
   fotoKnopWrap: { position: 'absolute', bottom: 48, left: 0, right: 0, alignItems: 'center' },
   fotoKnop: {

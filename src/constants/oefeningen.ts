@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 import { t } from '@/i18n';
 import type { Doelen, Oefening } from '@/types/app';
 
@@ -41,6 +43,18 @@ export const OEFENING_INFO: Record<Oefening, OefeningInfo> = {
 };
 
 export const OEFENINGEN = Object.keys(OEFENING_INFO) as Oefening[];
+
+// Apple Vision herkent geen voeten, dus kuitheffen kan op iOS niet geteld worden
+const NIET_OP_IOS: readonly Oefening[] = ['Kuitheffen'];
+
+export function oefeningBeschikbaar(oefening: Oefening): boolean {
+  return Platform.OS !== 'ios' || !NIET_OP_IOS.includes(oefening);
+}
+
+// Voor alarmen die een oefening bevatten die op dit toestel niet geteld kan worden
+export function oefeningVoorToestel(oefening: Oefening): Oefening {
+  return oefeningBeschikbaar(oefening) ? oefening : 'Squats';
+}
 
 // Teksten in de gekozen taal; de sleutel (bijv. "Bed opmaken") blijft zo in de database staan
 export function oefeningNaam(oefening: Oefening): string {

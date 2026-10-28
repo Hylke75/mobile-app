@@ -70,6 +70,8 @@ const nl = {
     terugStandaard: 'Je alarmen gebruiken weer het standaardgeluid.',
     zachtGekozen: 'Je alarm begint zacht en wordt langzaam luider.',
     fout: 'Dit geluid kon niet worden gebruikt.',
+    iosEenKeer:
+      'Op iPhone speelt een eigen of zacht geluid één keer af (maximaal 30 seconden). Het standaardgeluid blijft klinken tot je stopt.',
   },
   taal: {
     label: 'Taal',
@@ -203,6 +205,8 @@ export const profiel: Vertalingen<typeof nl> = {
       terugStandaard: 'Your alarms use the default sound again.',
       zachtGekozen: 'Your alarm starts softly and slowly gets louder.',
       fout: 'This sound couldn’t be used.',
+      iosEenKeer:
+        'On iPhone, a custom or gentle sound plays once (up to 30 seconds). The default sound keeps ringing until you stop it.',
     },
     taal: {
       label: 'Language',
@@ -333,6 +337,8 @@ export const profiel: Vertalingen<typeof nl> = {
       terugStandaard: 'Tus alarmas vuelven a usar el sonido predeterminado.',
       zachtGekozen: 'Tu alarma empieza suave y sube poco a poco.',
       fout: 'No se pudo usar este sonido.',
+      iosEenKeer:
+        'En el iPhone, un sonido propio o suave suena una sola vez (hasta 30 segundos). El sonido predeterminado sigue sonando hasta que lo detengas.',
     },
     taal: {
       label: 'Idioma',
@@ -464,6 +470,8 @@ export const profiel: Vertalingen<typeof nl> = {
       terugStandaard: 'Deine Wecker nutzen wieder den Standardton.',
       zachtGekozen: 'Dein Wecker beginnt leise und wird langsam lauter.',
       fout: 'Dieser Ton konnte nicht verwendet werden.',
+      iosEenKeer:
+        'Auf dem iPhone wird ein eigener oder sanfter Ton einmal abgespielt (höchstens 30 Sekunden). Der Standardton klingelt weiter, bis du ihn stoppst.',
     },
     taal: {
       label: 'Sprache',
@@ -596,6 +604,8 @@ export const profiel: Vertalingen<typeof nl> = {
       terugStandaard: 'Tes alarmes utilisent de nouveau le son par défaut.',
       zachtGekozen: 'Ton alarme commence doucement et devient peu à peu plus forte.',
       fout: 'Ce son n’a pas pu être utilisé.',
+      iosEenKeer:
+        'Sur iPhone, un son personnalisé ou doux est joué une seule fois (30 secondes maximum). Le son par défaut continue de sonner jusqu’à ce que tu l’arrêtes.',
     },
     taal: {
       label: 'Langue',
@@ -723,6 +733,8 @@ export const profiel: Vertalingen<typeof nl> = {
       terugStandaard: '你的闹钟已恢复默认铃声。',
       zachtGekozen: '你的闹钟会轻柔开始，慢慢变响。',
       fout: '无法使用这个铃声。',
+      iosEenKeer:
+        '在 iPhone 上，自定义或轻柔铃声只播放一次（最长 30 秒）。默认铃声会一直响，直到你停止它。',
     },
     taal: {
       label: '语言',

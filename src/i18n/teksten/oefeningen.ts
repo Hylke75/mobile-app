@@ -19,7 +19,7 @@ const nl = {
     titel2: 'IT.',
     beschrijving: 'Laat je borst zakken en duw jezelf weer omhoog',
     instructie:
-      'Leg je telefoon op de grond, zo’n 3 meter zijdelings van je af, zodat je hele lichaam zichtbaar is.',
+      'Zet je telefoon rechtop op de grond (bijv. tegen een schoen), zo’n 3 meter zijdelings van je af, zodat je hele lichaam zichtbaar is.',
     spraak1: 'Lichaam recht, daar gaan we!',
     spraak2: 'Sterk! Blijf ademen.',
     spraak3: 'Laatste paar, kom op!',
@@ -40,7 +40,7 @@ const nl = {
     titel2: 'ON.',
     beschrijving: 'Houd je lichaam recht op je onderarmen',
     instructie:
-      'Leg je telefoon op de grond, zo’n 3 meter zijdelings van je af, zodat je hele lichaam zichtbaar is.',
+      'Zet je telefoon rechtop op de grond (bijv. tegen een schoen), zo’n 3 meter zijdelings van je af, zodat je hele lichaam zichtbaar is.',
     spraak1: 'Buik aan, rug recht.',
     spraak2: 'Je doet het goed, vasthouden!',
     spraak3: 'Nog heel even!',
@@ -93,7 +93,7 @@ const nl = {
     titel2: 'IT.',
     beschrijving: 'Lig op je rug en duw je heupen omhoog',
     instructie:
-      'Leg je telefoon op de grond, zo’n 3 meter zijdelings van je af, zodat je hele lichaam zichtbaar is. Zet je voeten dicht bij je billen.',
+      'Zet je telefoon rechtop op de grond (bijv. tegen een schoen), zo’n 3 meter zijdelings van je af, zodat je hele lichaam zichtbaar is. Zet je voeten dicht bij je billen.',
     spraak1: 'Heupen omhoog!',
     spraak2: 'Billen aanspannen.',
     spraak3: 'Laatste paar!',
@@ -114,7 +114,7 @@ const nl = {
     titel2: 'HOLD.',
     beschrijving: 'Steun op één onderarm en houd je lichaam recht',
     instructie:
-      'Leg je telefoon zo’n 3 meter recht voor je op de grond, zodat hij je voorkant en je hele lichaam ziet.',
+      'Zet je telefoon rechtop op de grond, zo’n 3 meter recht voor je, zodat hij je voorkant en je hele lichaam ziet.',
     spraak1: 'Heupen omhoog.',
     spraak2: 'Lekker stabiel, vasthouden!',
     spraak3: 'Bijna, nog even!',
@@ -190,7 +190,7 @@ export const oefeningen: Vertalingen<typeof nl> = {
       titel2: 'IT.',
       beschrijving: 'Lower your chest and push yourself back up',
       instructie:
-        'Put your phone on the floor, about 10 feet (3 meters) to your side, so your whole body is visible.',
+        'Stand your phone upright on the floor (e.g. against a shoe), about 10 feet (3 meters) to your side, so your whole body is visible.',
       spraak1: 'Body straight, here we go!',
       spraak2: 'Strong! Keep breathing.',
       spraak3: 'Last few, come on!',
@@ -211,7 +211,7 @@ export const oefeningen: Vertalingen<typeof nl> = {
       titel2: 'ON.',
       beschrijving: 'Keep your body straight on your forearms',
       instructie:
-        'Put your phone on the floor, about 10 feet (3 meters) to your side, so your whole body is visible.',
+        'Stand your phone upright on the floor (e.g. against a shoe), about 10 feet (3 meters) to your side, so your whole body is visible.',
       spraak1: 'Core tight, back straight.',
       spraak2: 'You’re doing great, hold it!',
       spraak3: 'Just a little longer!',
@@ -264,7 +264,7 @@ export const oefeningen: Vertalingen<typeof nl> = {
       titel2: 'IT.',
       beschrijving: 'Lie on your back and push your hips up',
       instructie:
-        'Put your phone on the floor, about 10 feet (3 meters) to your side, so your whole body is visible. Keep your feet close to your bottom.',
+        'Stand your phone upright on the floor (e.g. against a shoe), about 10 feet (3 meters) to your side, so your whole body is visible. Keep your feet close to your bottom.',
       spraak1: 'Hips up!',
       spraak2: 'Squeeze your glutes.',
       spraak3: 'Last few!',
@@ -286,7 +286,7 @@ export const oefeningen: Vertalingen<typeof nl> = {
       titel2: 'HOLD.',
       beschrijving: 'Rest on one forearm and keep your body straight',
       instructie:
-        'Put your phone on the floor about 10 feet (3 meters) in front of you, so it sees the front of your whole body.',
+        'Stand your phone upright on the floor about 10 feet (3 meters) in front of you, so it sees the front of your whole body.',
       spraak1: 'Hips up.',
       spraak2: 'Nice and stable, hold it!',
       spraak3: 'Almost, just a bit more!',
@@ -359,7 +359,7 @@ export const oefeningen: Vertalingen<typeof nl> = {
       titel2: 'BA!',
       beschrijving: 'Baja el pecho y vuelve a empujar hacia arriba',
       instructie:
-        'Deja el móvil en el suelo, a unos 3 metros a tu lado, para que se vea todo tu cuerpo.',
+        'Pon el móvil de pie en el suelo (por ejemplo, contra un zapato), a unos 3 metros a tu lado, para que se vea todo tu cuerpo.',
       spraak1: 'Cuerpo recto, ¡vamos allá!',
       spraak2: '¡Fuerte! Sigue respirando.',
       spraak3: 'Las últimas, ¡venga!',
@@ -380,7 +380,7 @@ export const oefeningen: Vertalingen<typeof nl> = {
       titel2: 'TA!',
       beschrijving: 'Mantén el cuerpo recto sobre los antebrazos',
       instructie:
-        'Deja el móvil en el suelo, a unos 3 metros a tu lado, para que se vea todo tu cuerpo.',
+        'Pon el móvil de pie en el suelo (por ejemplo, contra un zapato), a unos 3 metros a tu lado, para que se vea todo tu cuerpo.',
       spraak1: 'Abdomen firme, espalda recta.',
       spraak2: 'Lo estás haciendo genial, ¡aguanta!',
       spraak3: '¡Solo un poco más!',
@@ -433,7 +433,7 @@ export const oefeningen: Vertalingen<typeof nl> = {
       titel2: 'BA!',
       beschrijving: 'Túmbate boca arriba y empuja la cadera hacia arriba',
       instructie:
-        'Deja el móvil en el suelo, a unos 3 metros a tu lado, para que se vea todo tu cuerpo. Pon los pies cerca de los glúteos.',
+        'Pon el móvil de pie en el suelo (por ejemplo, contra un zapato), a unos 3 metros a tu lado, para que se vea todo tu cuerpo. Pon los pies cerca de los glúteos.',
       spraak1: '¡Cadera arriba!',
       spraak2: 'Aprieta los glúteos.',
       spraak3: '¡Las últimas!',
@@ -454,7 +454,7 @@ export const oefeningen: Vertalingen<typeof nl> = {
       titel2: 'LADO!',
       beschrijving: 'Apóyate en un antebrazo y mantén el cuerpo recto',
       instructie:
-        'Deja el móvil en el suelo, a unos 3 metros delante de ti, para que vea todo tu cuerpo de frente.',
+        'Pon el móvil de pie en el suelo, a unos 3 metros delante de ti, para que vea todo tu cuerpo de frente.',
       spraak1: 'Cadera arriba.',
       spraak2: 'Muy estable, ¡aguanta!',
       spraak3: '¡Casi, un poco más!',
@@ -529,7 +529,7 @@ export const oefeningen: Vertalingen<typeof nl> = {
       titel2: 'BLEIBEN.',
       beschrijving: 'Senk die Brust ab und drück dich wieder hoch',
       instructie:
-        'Leg dein Handy etwa 3 Meter seitlich von dir auf den Boden, sodass dein ganzer Körper zu sehen ist.',
+        'Stell dein Handy aufrecht etwa 3 Meter seitlich von dir auf den Boden (z. B. an einen Schuh gelehnt), sodass dein ganzer Körper zu sehen ist.',
       spraak1: 'Körper gerade, los geht’s!',
       spraak2: 'Stark! Weiter atmen.',
       spraak3: 'Die letzten paar, komm schon!',
@@ -550,7 +550,7 @@ export const oefeningen: Vertalingen<typeof nl> = {
       titel2: 'HALTEN.',
       beschrijving: 'Halte deinen Körper gerade auf den Unterarmen',
       instructie:
-        'Leg dein Handy etwa 3 Meter seitlich von dir auf den Boden, sodass dein ganzer Körper zu sehen ist.',
+        'Stell dein Handy aufrecht etwa 3 Meter seitlich von dir auf den Boden (z. B. an einen Schuh gelehnt), sodass dein ganzer Körper zu sehen ist.',
       spraak1: 'Bauch fest, Rücken gerade.',
       spraak2: 'Das machst du super, halten!',
       spraak3: 'Nur noch ganz kurz!',
@@ -603,7 +603,7 @@ export const oefeningen: Vertalingen<typeof nl> = {
       titel2: 'DAMIT.',
       beschrijving: 'Leg dich auf den Rücken und drück die Hüfte nach oben',
       instructie:
-        'Leg dein Handy etwa 3 Meter seitlich von dir auf den Boden, sodass dein ganzer Körper zu sehen ist. Stell die Füße nah an den Po.',
+        'Stell dein Handy aufrecht etwa 3 Meter seitlich von dir auf den Boden (z. B. an einen Schuh gelehnt), sodass dein ganzer Körper zu sehen ist. Stell die Füße nah an den Po.',
       spraak1: 'Hüfte hoch!',
       spraak2: 'Po anspannen.',
       spraak3: 'Die letzten paar!',
@@ -625,7 +625,7 @@ export const oefeningen: Vertalingen<typeof nl> = {
       titel2: 'HALTEN.',
       beschrijving: 'Stütz dich auf einen Unterarm und halte den Körper gerade',
       instructie:
-        'Leg dein Handy etwa 3 Meter vor dir auf den Boden, sodass es deinen ganzen Körper von vorn sieht.',
+        'Stell dein Handy aufrecht etwa 3 Meter vor dir auf den Boden, sodass es deinen ganzen Körper von vorn sieht.',
       spraak1: 'Hüfte hoch.',
       spraak2: 'Schön stabil, halten!',
       spraak3: 'Fast, nur noch kurz!',
@@ -700,7 +700,7 @@ export const oefeningen: Vertalingen<typeof nl> = {
       titel2: 'FORCE.',
       beschrijving: 'Descends la poitrine et repousse-toi vers le haut',
       instructie:
-        'Pose ton téléphone au sol, à environ 3 mètres sur le côté, pour que tout ton corps soit visible.',
+        'Pose ton téléphone debout au sol (par ex. contre une chaussure), à environ 3 mètres sur le côté, pour que tout ton corps soit visible.',
       spraak1: 'Corps bien droit, c’est parti !',
       spraak2: 'Solide ! Continue de respirer.',
       spraak3: 'Les dernières, allez !',
@@ -721,7 +721,7 @@ export const oefeningen: Vertalingen<typeof nl> = {
       titel2: 'BON.',
       beschrijving: 'Garde le corps droit sur les avant-bras',
       instructie:
-        'Pose ton téléphone au sol, à environ 3 mètres sur le côté, pour que tout ton corps soit visible.',
+        'Pose ton téléphone debout au sol (par ex. contre une chaussure), à environ 3 mètres sur le côté, pour que tout ton corps soit visible.',
       spraak1: 'Ventre serré, dos droit.',
       spraak2: 'Tu gères, tiens bon !',
       spraak3: 'Encore un tout petit peu !',
@@ -774,7 +774,7 @@ export const oefeningen: Vertalingen<typeof nl> = {
       titel2: 'MONTE.',
       beschrijving: 'Allonge-toi sur le dos et pousse les hanches vers le haut',
       instructie:
-        'Pose ton téléphone au sol, à environ 3 mètres sur le côté, pour que tout ton corps soit visible. Garde les pieds près des fesses.',
+        'Pose ton téléphone debout au sol (par ex. contre une chaussure), à environ 3 mètres sur le côté, pour que tout ton corps soit visible. Garde les pieds près des fesses.',
       spraak1: 'Hanches en haut !',
       spraak2: 'Serre les fessiers.',
       spraak3: 'Les dernières !',
@@ -795,7 +795,7 @@ export const oefeningen: Vertalingen<typeof nl> = {
       titel2: 'CÔTÉ.',
       beschrijving: 'Appuie-toi sur un avant-bras et garde le corps droit',
       instructie:
-        'Pose ton téléphone au sol, à environ 3 mètres devant toi, pour qu’il voie tout ton corps de face.',
+        'Pose ton téléphone debout au sol, à environ 3 mètres devant toi, pour qu’il voie tout ton corps de face.',
       spraak1: 'Hanches en haut.',
       spraak2: 'Bien stable, tiens bon !',
       spraak3: 'Presque, encore un peu !',
@@ -868,7 +868,7 @@ export const oefeningen: Vertalingen<typeof nl> = {
       titel1: '撑',
       titel2: '起来。',
       beschrijving: '胸部下压，再把自己撑起来',
-      instructie: '把手机放在你侧面约 3 米外的地上，让全身都在画面中。',
+      instructie: '把手机竖着立在你侧面约 3 米外的地上（例如靠着一只鞋），让全身都在画面中。',
       spraak1: '身体挺直，开始！',
       spraak2: '很有力！保持呼吸。',
       spraak3: '最后几个，加油！',
@@ -888,7 +888,7 @@ export const oefeningen: Vertalingen<typeof nl> = {
       titel1: '坚持',
       titel2: '住。',
       beschrijving: '用前臂撑地，保持身体挺直',
-      instructie: '把手机放在你侧面约 3 米外的地上，让全身都在画面中。',
+      instructie: '把手机竖着立在你侧面约 3 米外的地上（例如靠着一只鞋），让全身都在画面中。',
       spraak1: '收紧核心，背部挺直。',
       spraak2: '做得很好，坚持住！',
       spraak3: '再坚持一下！',
@@ -938,7 +938,8 @@ export const oefeningen: Vertalingen<typeof nl> = {
       titel1: '抬',
       titel2: '起来。',
       beschrijving: '仰卧，把臀部向上推起',
-      instructie: '把手机放在你侧面约 3 米外的地上，让全身都在画面中。双脚靠近臀部。',
+      instructie:
+        '把手机竖着立在你侧面约 3 米外的地上（例如靠着一只鞋），让全身都在画面中。双脚靠近臀部。',
       spraak1: '臀部抬起！',
       spraak2: '夹紧臀部。',
       spraak3: '最后几个！',
@@ -958,7 +959,7 @@ export const oefeningen: Vertalingen<typeof nl> = {
       titel1: '侧身',
       titel2: '支撑。',
       beschrijving: '用一侧前臂撑地，保持身体挺直',
-      instructie: '把手机放在你正前方约 3 米外的地上，让它从正面看到你的全身。',
+      instructie: '把手机竖着立在你正前方约 3 米外的地上，让它从正面看到你的全身。',
       spraak1: '臀部抬高。',
       spraak2: '很稳，坚持住！',
       spraak3: '快了，再坚持一下！',

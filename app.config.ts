@@ -143,6 +143,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     'expo-router',
+    // Live Activity-widget voor AlarmKit (targets/alarm)
+    '@bacons/apple-targets',
     [
       'expo-localization',
       {

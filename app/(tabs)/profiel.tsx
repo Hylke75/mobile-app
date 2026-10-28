@@ -201,7 +201,8 @@ export default function ProfielScherm() {
   const geluidOpties = () => {
     Alert.alert(
       t('profiel.geluid.label'),
-      t('profiel.geluid.nu', { naam: geluid?.naam ?? t('profiel.geluid.standaard') }),
+      t('profiel.geluid.nu', { naam: geluid?.naam ?? t('profiel.geluid.standaard') }) +
+        (Platform.OS === 'ios' ? `\n\n${t('profiel.geluid.iosEenKeer')}` : ''),
       [
         {
           text: t('profiel.geluid.standaardGeluid'),

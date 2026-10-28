@@ -25,6 +25,7 @@ import {
   doelVoor,
   duurTekst,
   OEFENING_INFO,
+  oefeningBeschikbaar,
   oefeningNaam,
 } from '@/constants/oefeningen';
 import { em, fonts } from '@/constants/theme';
@@ -520,7 +521,11 @@ export default function NieuwAlarmScherm() {
               : t('editor.eigen.groepRoutine')}
           </Text>
           <View style={styles.exerciseOptions}>
-            {OEFENINGEN.filter((o) => OEFENING_INFO[o].groep === groep).map((o) => {
+            {OEFENINGEN.filter(
+              (o) =>
+                OEFENING_INFO[o].groep === groep &&
+                (oefeningBeschikbaar(o) || exercises.includes(o)),
+            ).map((o) => {
               const aan = exercises.includes(o);
               return (
                 <Pressable
@@ -719,6 +724,9 @@ export default function NieuwAlarmScherm() {
                 </Pressable>
               ))}
             </View>
+            {Platform.OS === 'ios' && (
+              <Text style={styles.extraUitleg}>{t('profiel.geluid.iosEenKeer')}</Text>
+            )}
           </View>
         )}
       </View>

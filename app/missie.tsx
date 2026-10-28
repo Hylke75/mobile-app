@@ -20,7 +20,7 @@ import { Screen } from '@/components/Screen';
 import { LevelTag, PrimaryButton } from '@/components/ui';
 import { isStreng } from '@/constants/alarm';
 import { useTaal } from '@/i18n';
-import { doelenUitTekst, OEFENING_INFO } from '@/constants/oefeningen';
+import { doelenUitTekst, OEFENING_INFO, oefeningVoorToestel } from '@/constants/oefeningen';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useAuth } from '@/hooks/useAuth';
@@ -91,8 +91,16 @@ export default function MissieScherm() {
     return kaart;
   }, [eigenMap, params.eigen]);
   // Opnieuw opbouwen bij een taalwissel, zodat namen en uitleg meevertalen
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const gevonden = useMemo(() => missieInfos(ids, eigen, doelen), [ids, eigen, doelen, taal]);
+  const gevonden = useMemo(
+    () =>
+      missieInfos(
+        ids.map((id) => (isOefening(id) ? oefeningVoorToestel(id) : id)),
+        eigen,
+        doelen,
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [ids, eigen, doelen, taal],
+  );
   const oefeningen = gevonden.length ? gevonden : missieInfos(STANDAARD_MISSIE, eigen, doelen);
   const streng = vanWekker ? isStreng(niveau ?? 'Verplicht') : false;
 
@@ -182,7 +190,7 @@ export default function MissieScherm() {
   );
 
   const onKlaar = useCallback(
-    (m: 'camera' | 'licht' | 'foto' | 'timer' | 'beweging') => {
+    (m: StapResultaat['methode']) => {
       setMethode(m);
       setGedaan(doel);
       setStapKlaar(true);
@@ -522,6 +530,7 @@ export default function MissieScherm() {
           onVoortgang={onVoortgang}
           onFeedback={zegt}
           onKlaar={onKlaar}
+          toonFase={proef}
         />
       ) : (
         <View style={styles.stapKlaar}>

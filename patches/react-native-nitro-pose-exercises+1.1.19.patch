@@ -12,10 +12,98 @@ index 1be40e2..96a630d 100644
    defaultConfig {
      minSdkVersion 26
 diff --git a/node_modules/react-native-nitro-pose-exercises/android/src/main/java/com/margelo/nitro/nitroposeexercises/NitroPoseExercises.kt b/node_modules/react-native-nitro-pose-exercises/android/src/main/java/com/margelo/nitro/nitroposeexercises/NitroPoseExercises.kt
-index 21bcd3a..52e4978 100644
+index 21bcd3a..fbc0a25 100644
 --- a/node_modules/react-native-nitro-pose-exercises/android/src/main/java/com/margelo/nitro/nitroposeexercises/NitroPoseExercises.kt
 +++ b/node_modules/react-native-nitro-pose-exercises/android/src/main/java/com/margelo/nitro/nitroposeexercises/NitroPoseExercises.kt
-@@ -364,7 +364,6 @@ private fun processExerciseLogic() {
+@@ -136,6 +136,18 @@ private var postureWasLost = false
+ 
+   // ─── Hold Tracking ──────────────────────────────────────────
+   private var holdStartTime: Long? = null
++  // Mooove: korte haperingen in de herkenning zetten de vasthoud-timer niet meteen op 0
++  private var lastInPositionTime: Long? = null
++  private val holdGraceMs: Long = 1500L
++
++  // Mooove: breedte/hoogte van het (gedraaide) beeld; hoeken worden in echte pixels berekend
++  @Volatile private var aspect: Double = 1.0
++
++  // Links ↔ rechts, om per hoek de best zichtbare lichaamskant te kiezen
++  private val mirrorIndex = mapOf(
++    2 to 5, 5 to 2, 7 to 8, 8 to 7, 11 to 12, 12 to 11, 13 to 14, 14 to 13, 15 to 16, 16 to 15,
++    23 to 24, 24 to 23, 25 to 26, 26 to 25, 27 to 28, 28 to 27, 29 to 30, 30 to 29, 31 to 32, 32 to 31,
++  )
+ 
+   // ═══════════════════════════════════════════════════════════
+   // Lifecycle
+@@ -150,7 +162,6 @@ private var postureWasLost = false
+ 
+       poseDetector = PoseDetection.getClient(options)
+       isInitialized = true
+-      println("[PoseExercise] Initialized with ML Kit Pose Detection (no model file needed)")
+     }
+   }
+ 
+@@ -165,7 +176,7 @@ private var postureWasLost = false
+ override fun isReady(): Boolean {
+   val config = exerciseConfig ?: return false
+   if (_landmarks.isEmpty()) return false
+-  return isPostureValid(config.postureFamily, config.visibilityThreshold)
++  return isPostureValid(config)
+ }
+ 
+   // ═══════════════════════════════════════════════════════════
+@@ -238,6 +249,7 @@ override fun processFrameAndroid(frame: HybridFrameSpec) {
+     val rotated = rotation == 90 || rotation == 270
+     val imageWidth = (if (rotated) mediaImage.height else mediaImage.width).toDouble()
+     val imageHeight = (if (rotated) mediaImage.width else mediaImage.height).toDouble()
++    aspect = if (imageHeight > 0) imageWidth / imageHeight else 1.0
+ 
+     // SYNC inference — the frame's underlying ImageProxy is only valid until
+     // VisionCamera disposes the frame after this method returns. Tasks.await
+@@ -286,7 +298,7 @@ override fun processFrameAndroid(frame: HybridFrameSpec) {
+       }
+     }
+   } catch (e: Exception) {
+-    println("[PoseExercise] processFrameAndroid error: ${e.message}")
++    // Beeld overslaan
+   }
+   // NOTE: we do NOT close the ImageProxy ourselves.
+   // VisionCamera owns the frame lifecycle and will release it when
+@@ -310,7 +322,12 @@ private fun processExerciseLogic() {
+   }
+ 
+   // Posture gate with hysteresis
+-  if (!isPostureValid(config.postureFamily, config.visibilityThreshold)) {
++  if (!isPostureValid(config)) {
++    val last = lastInPositionTime
++    if (config.type == ExerciseType.HOLD && last != null &&
++        System.currentTimeMillis() - last > holdGraceMs) {
++      holdStartTime = null
++    }
+     consecutivePostureFailures += 1
+     if (consecutivePostureFailures >= failureThreshold) {
+       if (!postureWasLost) {
+@@ -343,16 +360,12 @@ private fun processExerciseLogic() {
+     val b = angleDef.landmarkB.toInt()
+     val c = angleDef.landmarkC.toInt()
+ 
+-    if (a >= _landmarks.size || b >= _landmarks.size || c >= _landmarks.size) continue
+-
+-    if (_landmarks[a].visibility <= visThreshold ||
+-        _landmarks[b].visibility <= visThreshold ||
+-        _landmarks[c].visibility <= visThreshold) continue
++    val triple = bestTriple(a, b, c, config, visThreshold) ?: continue
+ 
+     val angle = calculateAngle(
+-      pointA = _landmarks[a],
+-      vertex = _landmarks[b],
+-      pointC = _landmarks[c]
++      pointA = _landmarks[triple.first],
++      vertex = _landmarks[triple.second],
++      pointC = _landmarks[triple.third]
+     )
+ 
+     currentAngles[angleDef.name] = angle
+@@ -364,7 +377,6 @@ private fun processExerciseLogic() {
    val detectedPhase = determinePhase(currentAngles, config)
  
    // Debug log — remove once reps count reliably
@@ -23,7 +111,42 @@ index 21bcd3a..52e4978 100644
  
    if (detectedPhase != _currentPhase && detectedPhase != ExercisePhase.UNKNOWN) {
      val previousPhase = _currentPhase
-@@ -436,7 +435,8 @@ private fun handlePhaseTransition(
+@@ -385,9 +397,10 @@ private fun processExerciseLogic() {
+   // ═══════════════════════════════════════════════════════════
+ 
+   private fun calculateAngle(pointA: Landmark, vertex: Landmark, pointC: Landmark): Double {
+-    val vaX = pointA.x - vertex.x
++    // x schalen naar dezelfde eenheid als y, anders zijn schuine hoeken vertekend (16:9-beeld)
++    val vaX = (pointA.x - vertex.x) * aspect
+     val vaY = pointA.y - vertex.y
+-    val vcX = pointC.x - vertex.x
++    val vcX = (pointC.x - vertex.x) * aspect
+     val vcY = pointC.y - vertex.y
+ 
+     val dot = vaX * vcX + vaY * vcY
+@@ -405,12 +418,18 @@ private fun processExerciseLogic() {
+   // Phase Detection
+   // ═══════════════════════════════════════════════════════════
+ 
++  // Mooove: een fase telt pas als álle drempels van die fase kloppen (bijv. beide armen omhoog)
+   private fun determinePhase(angles: Map<String, Double>, config: ExerciseConfig): ExercisePhase {
++    val checked = mutableListOf<ExercisePhase>()
+     for (phaseThreshold in config.phases) {
+-      val angle = angles[phaseThreshold.angleName] ?: continue
+-      if (angle >= phaseThreshold.minAngle && angle <= phaseThreshold.maxAngle) {
+-        return phaseThreshold.phase
++      val phase = phaseThreshold.phase
++      if (phase in checked) continue
++      checked.add(phase)
++      val matches = config.phases.filter { it.phase == phase }.all { t ->
++        val angle = angles[t.angleName]
++        angle != null && angle >= t.minAngle && angle <= t.maxAngle
+       }
++      if (matches) return phase
+     }
+     return ExercisePhase.UNKNOWN
+   }
+@@ -436,7 +455,8 @@ private fun handlePhaseTransition(
        val now = System.currentTimeMillis()
        val repDuration = (now - repStartTime).toDouble()
  
@@ -33,11 +156,265 @@ index 21bcd3a..52e4978 100644
          phaseHistory = mutableListOf(newPhase)
          return
        }
+@@ -535,6 +555,7 @@ private fun handlePhaseTransition(
+     }
+ 
+     if (inPosition) {
++      lastInPositionTime = System.currentTimeMillis()
+       if (holdStartTime == null) {
+         holdStartTime = System.currentTimeMillis()
+       }
+@@ -554,7 +575,11 @@ private fun handlePhaseTransition(
+         completeSession()
+       }
+     } else {
+-      holdStartTime = null
++      val last = lastInPositionTime
++      // Binnen de marge loopt de timer door
++      if (last == null || System.currentTimeMillis() - last > holdGraceMs) {
++        holdStartTime = null
++      }
+     }
+   }
+ 
+@@ -615,6 +640,7 @@ private fun handlePhaseTransition(
+     sessionFormViolations.clear()
+     lastFormFeedbackTime.clear()
+     holdStartTime = null
++    lastInPositionTime = null
+     poseWasLost = false
+     targetReps = 0.0
+     countdownSeconds = 0.0
+@@ -644,104 +670,110 @@ private fun handlePhaseTransition(
+   // Posture Gates
+   // ═══════════════════════════════════════════════════════════
+ 
+-private fun isPostureValid(family: PostureFamily, threshold: Double): Boolean {
+-  if (_landmarks.size < 33) return false
+-
+-  val ls = _landmarks[11]; val rs = _landmarks[12]
+-  val lh = _landmarks[23]; val rh = _landmarks[24]
+-  val lk = _landmarks[25]; val rk = _landmarks[26]
+-  val la = _landmarks[27]; val ra = _landmarks[28]
+-  val lw = _landmarks[15]; val rw = _landmarks[16]
+-
+-  // Shoulders mandatory; everything below is optional for close-range framing
+-  val shouldersVisible = ls.visibility > threshold && rs.visibility > threshold
+-  if (!shouldersVisible) return false
+-
+-  val hipsVisible = lh.visibility > threshold && rh.visibility > threshold
+-  val kneesVisible = lk.visibility > threshold && rk.visibility > threshold
+-  val anklesVisible = la.visibility > threshold && ra.visibility > threshold
+-  val wristsVisible = lw.visibility > threshold && rw.visibility > threshold
+-  val oneWristVisible = lw.visibility > threshold || rw.visibility > threshold
+-
+-  val shoulderY = (ls.y + rs.y) / 2
+-  val shoulderX = (ls.x + rs.x) / 2
+-  val hipY = if (hipsVisible) (lh.y + rh.y) / 2 else shoulderY
+-  val hipX = if (hipsVisible) (lh.x + rh.x) / 2 else shoulderX
+-  val kneeY = if (kneesVisible) (lk.y + rk.y) / 2 else hipY
+-  val ankleY = if (anklesVisible) (la.y + ra.y) / 2 else kneeY
+-
+-  // Mirror-invariant — works for front and back camera identically
+-  val shoulderWidth = kotlin.math.abs(ls.x - rs.x)
+-
+-  return when (family) {
+-    PostureFamily.HORIZONTALPRONE, PostureFamily.SUPINE -> {
+-      // Case A: side view — full body in horizontal band
+-      if (hipsVisible) {
+-        val ys = if (anklesVisible)
+-          listOf(shoulderY, hipY, ankleY)
+-        else
+-          listOf(shoulderY, hipY)
+-        if ((ys.max() - ys.min()) < 0.25) return true
+-      }
+-
+-      // Case B: front-facing prone — minimum signature is shoulders + at least
+-      // one wrist. Hips often occluded by the body in pushup framings.
+-      if (!oneWristVisible) return false
+-
+-      val wristY = if (wristsVisible)
+-        (lw.y + rw.y) / 2
+-      else
+-        kotlin.math.max(lw.y, rw.y)
++private class JointPair(val x: Double, val y: Double, val visible: Boolean)
++
++// Gemiddelde van de zichtbare kant(en); van opzij is vaak maar één kant goed te zien
++private fun pair(l: Int, r: Int, threshold: Double): JointPair {
++  val a = _landmarks[l]; val b = _landmarks[r]
++  val va = a.visibility > threshold; val vb = b.visibility > threshold
++  return when {
++    va && vb -> JointPair((a.x + b.x) / 2, (a.y + b.y) / 2, true)
++    va -> JointPair(a.x, a.y, true)
++    vb -> JointPair(b.x, b.y, true)
++    else -> JointPair(0.0, 0.0, false)
++  }
++}
+ 
+-      // Geometry: wrists at or below shoulder line, torso reasonably wide.
+-      // Tolerance loosened for deep DOWN phase where shoulders drop close
+-      // to wrist level.
+-      val handsLowerOrLevel = wristY > shoulderY - 0.08
+-      val torsoFacing = shoulderWidth > 0.06
++// Hoek van de lijn p→q ten opzichte van horizontaal, in graden (0 = liggend, 90 = rechtop)
++private fun tiltFromHorizontal(p: JointPair, q: JointPair): Double {
++  val dx = kotlin.math.abs(q.x - p.x) * aspect
++  val dy = kotlin.math.abs(q.y - p.y)
++  return Math.toDegrees(kotlin.math.atan2(dy, dx))
++}
+ 
+-      handsLowerOrLevel && torsoFacing
++private fun isPostureValid(config: ExerciseConfig): Boolean {
++  if (_landmarks.size < 33) return false
++  val threshold = config.visibilityThreshold
++
++  val shoulders = pair(11, 12, threshold)
++  val hips = pair(23, 24, threshold)
++  val knees = pair(25, 26, threshold)
++  val ankles = pair(27, 28, threshold)
++  val elbows = pair(13, 14, threshold)
++  val wrists = pair(15, 16, threshold)
++
++  if (!shoulders.visible) return false
++
++  val torsoLength = if (hips.visible) {
++    val dx = (hips.x - shoulders.x) * aspect
++    val dy = hips.y - shoulders.y
++    sqrt(dx * dx + dy * dy)
++  } else 0.0
++  // Hoe ver de handen/ellebogen onder de schouders staan (steun op de grond)
++  val lowestArm = listOf(elbows, wrists).filter { it.visible }.maxOfOrNull { it.y }
++  val armSupport = if (lowestArm != null) lowestArm - shoulders.y else 0.0
++
++  return when (config.postureFamily) {
++    PostureFamily.HORIZONTALPRONE -> {
++      // Romp (ongeveer) horizontaal; bij vasthouden (plank) ook steun op handen of onderarmen
++      if (!hips.visible || tiltFromHorizontal(shoulders, hips) >= 35) false
++      else if (config.type == ExerciseType.HOLD) torsoLength > 0 && armSupport > torsoLength * 0.3
++      else true
+     }
+ 
++    PostureFamily.SUPINE -> hips.visible && tiltFromHorizontal(shoulders, hips) < 40
++
+     PostureFamily.STANDINGUPRIGHT -> {
+-      if (hipsVisible) {
+-        if (kneesVisible) {
+-          shoulderY < hipY - 0.05 &&
+-          hipY < kneeY + 0.05 &&
+-          (if (anklesVisible) kneeY < ankleY else true)
+-        } else {
+-          shoulderY < hipY - 0.05
+-        }
+-      } else {
+-        // Hips cropped (close-range front-facing) — accept based on shoulder span
+-        shoulderWidth > 0.08
+-      }
++      // Rechtop: schouders boven de heupen en de romp niet ver voorover
++      if (!hips.visible) false
++      else if (shoulders.y >= hips.y - 0.05 || tiltFromHorizontal(shoulders, hips) <= 55) false
++      else if (knees.visible) hips.y < knees.y + 0.10 && (if (ankles.visible) knees.y < ankles.y else true)
++      else true
+     }
+ 
+     PostureFamily.SEATED -> {
+       when {
+-        hipsVisible && kneesVisible -> shoulderY < hipY - 0.05 && kotlin.math.abs(hipY - kneeY) < 0.20
+-        hipsVisible -> shoulderY < hipY - 0.05
+-        else -> shoulderWidth > 0.08
++        !hips.visible -> false
++        knees.visible -> shoulders.y < hips.y - 0.05 && kotlin.math.abs(hips.y - knees.y) < 0.20
++        else -> shoulders.y < hips.y - 0.05
+       }
+     }
+ 
+     PostureFamily.SIDEPLANK -> {
+-      if (!hipsVisible) false
+-      else {
+-        val ySpread = kotlin.math.abs(shoulderY - hipY)
+-        val shoulderHipDx = kotlin.math.abs(shoulderX - hipX)
+-        ySpread < 0.20 && shoulderHipDx < 0.15
+-      }
++      // Lichaam schuin tot horizontaal en gesteund op de onderarm
++      if (!hips.visible || !ankles.visible) false
++      else if (tiltFromHorizontal(shoulders, ankles) >= 45) false
++      else torsoLength > 0 && armSupport > torsoLength * 0.4
+     }
+ 
+     PostureFamily.INVERTED -> {
+-      if (!hipsVisible || !anklesVisible) false
+-      else hipY < shoulderY && hipY < ankleY
++      if (!hips.visible || !ankles.visible) false
++      else hips.y < shoulders.y && hips.y < ankles.y
+     }
+ 
+     PostureFamily.NONE -> true
+   }
+ }
+ 
++// Kiest per hoek de kant (links of rechts) waarvan de drie punten het best zichtbaar zijn,
++// tenzij de configuratie beide kanten al afzonderlijk meet.
++private fun bestTriple(a: Int, b: Int, c: Int, config: ExerciseConfig, threshold: Double): Triple<Int, Int, Int>? {
++  val n = _landmarks.size
++  if (a >= n || b >= n || c >= n) return null
++  val own = minOf(_landmarks[a].visibility, _landmarks[b].visibility, _landmarks[c].visibility)
++
++  val ma = mirrorIndex[a]; val mb = mirrorIndex[b]; val mc = mirrorIndex[c]
++  if (ma != null && mb != null && mc != null && ma < n && mb < n && mc < n) {
++    val definedSeparately = config.angles.any {
++      it.landmarkA.toInt() == ma && it.landmarkB.toInt() == mb && it.landmarkC.toInt() == mc
++    }
++    if (!definedSeparately) {
++      val mirrored = minOf(_landmarks[ma].visibility, _landmarks[mb].visibility, _landmarks[mc].visibility)
++      if (mirrored > own && mirrored > threshold) return Triple(ma, mb, mc)
++    }
++  }
++  return if (own > threshold) Triple(a, b, c) else null
++}
++
+ 
+ }
+\ No newline at end of file
 diff --git a/node_modules/react-native-nitro-pose-exercises/ios/NitroPoseExercises.swift b/node_modules/react-native-nitro-pose-exercises/ios/NitroPoseExercises.swift
-index 1c21499..4ff539e 100644
+index 1c21499..a080fa5 100644
 --- a/node_modules/react-native-nitro-pose-exercises/ios/NitroPoseExercises.swift
 +++ b/node_modules/react-native-nitro-pose-exercises/ios/NitroPoseExercises.swift
-@@ -197,7 +197,6 @@ func processFrameIOS(frame: any HybridFrameSpec) throws {
+@@ -95,6 +95,18 @@ private var postureWasLost = false
+ 
+   // ─── Hold Tracking ──────────────────────────────────────────
+   private var holdStartTime: Date?
++  // Mooove: korte haperingen in de herkenning zetten de vasthoud-timer niet meteen op 0
++  private var lastInPositionTime: Date?
++  private let holdGraceSeconds: TimeInterval = 1.5
++
++  // Mooove: breedte/hoogte van het (gedraaide) beeld; hoeken worden in echte pixels berekend
++  private var aspect: Double = 1.0
++
++  // Links ↔ rechts, om per hoek de best zichtbare lichaamskant te kiezen
++  private static let mirrorIndex: [Int: Int] = [
++    2: 5, 5: 2, 7: 8, 8: 7, 11: 12, 12: 11, 13: 14, 14: 13, 15: 16, 16: 15,
++    23: 24, 24: 23, 25: 26, 26: 25, 27: 28, 28: 27, 29: 30, 30: 29, 31: 32, 32: 31,
++  ]
+ 
+   // ═══════════════════════════════════════════════════════════
+   // MARK: - Lifecycle
+@@ -105,7 +117,6 @@ private var postureWasLost = false
+     return Promise.async { [weak self] in
+       guard let self = self else { return }
+       self.isInitialized = true
+-      print("[PoseExercise] Initialized with Apple Vision (no model file needed)")
+     }
+   }
+ 
+@@ -118,7 +129,7 @@ private var postureWasLost = false
+   func isReady() throws -> Bool {
+   guard let config = exerciseConfig else { return false }
+   guard !_landmarks.isEmpty else { return false }
+-return isPostureValid(family: config.postureFamily, threshold: config.visibilityThreshold)
++return isPostureValid(config: config)
+ }
+ 
+   // ═══════════════════════════════════════════════════════════
+@@ -197,15 +208,25 @@ func processFrameIOS(frame: any HybridFrameSpec) throws {
      // Create Vision request
      let request = VNDetectHumanBodyPoseRequest()
  
@@ -45,7 +422,318 @@ index 1c21499..4ff539e 100644
  
        let cgOrient = Self.cgOrientation(orientation: frame.orientation, isMirrored: frame.isMirrored)
        let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: cgOrient, options: [:])
-@@ -501,8 +500,8 @@ private func isPostureValid(family: PostureFamily, threshold: Double) -> Bool {
+ 
++    // Vision geeft genormaliseerde coördinaten; bij een gedraaid beeld zijn breedte en hoogte omgewisseld
++    let bufferWidth = Double(CVPixelBufferGetWidth(pixelBuffer))
++    let bufferHeight = Double(CVPixelBufferGetHeight(pixelBuffer))
++    switch cgOrient {
++    case .left, .right, .leftMirrored, .rightMirrored:
++      aspect = bufferHeight > 0 ? bufferHeight / bufferWidth : 1.0
++    default:
++      aspect = bufferHeight > 0 ? bufferWidth / bufferHeight : 1.0
++    }
++
+     do {
+       try handler.perform([request])
+ 
+-      guard let observation = request.results?.first else {
++      // Meerdere mensen in beeld: volg de grootste (degene die het dichtst bij staat)
++      guard let observation = request.results?.max(by: { Self.poseArea($0) < Self.poseArea($1) }) else {
+         // No pose detected
+         if !poseWasLost {
+           poseWasLost = true
+@@ -257,10 +278,20 @@ func processFrameIOS(frame: any HybridFrameSpec) throws {
+       }
+ 
+     } catch {
+-      print("[PoseExercise] Vision error: \(error.localizedDescription)")
++      // Beeld overslaan
+     }
+   }
+ 
++  private static func poseArea(_ observation: VNHumanBodyPoseObservation) -> Double {
++    guard let points = try? observation.recognizedPoints(.all) else { return 0 }
++    let visible = points.values.filter { $0.confidence > 0.1 }
++    guard let minX = visible.map({ $0.location.x }).min(),
++          let maxX = visible.map({ $0.location.x }).max(),
++          let minY = visible.map({ $0.location.y }).min(),
++          let maxY = visible.map({ $0.location.y }).max() else { return 0 }
++    return Double((maxX - minX) * (maxY - minY))
++  }
++
+ // func processFrameAndroid(buffer: ArrayBuffer, width: Double, height: Double, rotation: Double) {
+ func processFrameAndroid(frame: any HybridFrameSpec) {
+   // no-op on iOS
+@@ -280,7 +311,11 @@ private func processExerciseLogic() {
+     : postureFailureThreshold
+ 
+   // Posture gate with hysteresis
+-  if !isPostureValid(family: config.postureFamily, threshold: config.visibilityThreshold) {
++  if !isPostureValid(config: config) {
++    if config.type == .hold, let last = lastInPositionTime,
++       Date().timeIntervalSince(last) > holdGraceSeconds {
++      holdStartTime = nil
++    }
+     consecutivePostureFailures += 1
+     if consecutivePostureFailures >= failureThreshold {
+       if !postureWasLost {
+@@ -313,16 +348,12 @@ private func processExerciseLogic() {
+     let b = Int(angleDef.landmarkB)
+     let c = Int(angleDef.landmarkC)
+ 
+-    guard a < _landmarks.count, b < _landmarks.count, c < _landmarks.count else { continue }
+-
+-    guard _landmarks[a].visibility > visThreshold,
+-          _landmarks[b].visibility > visThreshold,
+-          _landmarks[c].visibility > visThreshold else { continue }
++    guard let triple = bestTriple(a, b, c, config: config, threshold: visThreshold) else { continue }
+ 
+     let angle = calculateAngle(
+-      pointA: _landmarks[a],
+-      vertex: _landmarks[b],
+-      pointC: _landmarks[c]
++      pointA: _landmarks[triple.0],
++      vertex: _landmarks[triple.1],
++      pointC: _landmarks[triple.2]
+     )
+ 
+     currentAngles[angleDef.name] = angle
+@@ -333,9 +364,6 @@ private func processExerciseLogic() {
+ 
+   let detectedPhase = determinePhase(from: currentAngles, config: config)
+ 
+-  // Debug log — remove once reps count reliably
+-  print("[Pose] angles=\(currentAngles) current=\(_currentPhase) detected=\(detectedPhase) history=\(phaseHistory) reps=\(_repCount)")
+-
+   if detectedPhase != _currentPhase && detectedPhase != .unknown {
+     let previousPhase = _currentPhase
+     _currentPhase = detectedPhase
+@@ -354,109 +382,125 @@ private func processExerciseLogic() {
+ // MARK: - Posture Gates
+ // ═══════════════════════════════════════════════════════════
+ 
+-private func isPostureValid(family: PostureFamily, threshold: Double) -> Bool {
+-  guard _landmarks.count >= 33 else { return false }
+-
+-  let ls = _landmarks[11], rs = _landmarks[12]
+-  let lh = _landmarks[23], rh = _landmarks[24]
+-  let lk = _landmarks[25], rk = _landmarks[26]
+-  let la = _landmarks[27], ra = _landmarks[28]
+-  let lw = _landmarks[15], rw = _landmarks[16]
+-
+-  // Shoulders mandatory; everything below is optional for close-range framing
+-  let shouldersVisible = ls.visibility > threshold && rs.visibility > threshold
+-  guard shouldersVisible else { return false }
+-
+-  let hipsVisible = lh.visibility > threshold && rh.visibility > threshold
+-  let kneesVisible = lk.visibility > threshold && rk.visibility > threshold
+-  let anklesVisible = la.visibility > threshold && ra.visibility > threshold
+-  let wristsVisible = lw.visibility > threshold && rw.visibility > threshold
+-  let oneWristVisible = lw.visibility > threshold || rw.visibility > threshold
+-
+-  let shoulderY = (ls.y + rs.y) / 2
+-  let shoulderX = (ls.x + rs.x) / 2
+-  let hipY = hipsVisible ? (lh.y + rh.y) / 2 : shoulderY
+-  let hipX = hipsVisible ? (lh.x + rh.x) / 2 : shoulderX
+-  let kneeY = kneesVisible ? (lk.y + rk.y) / 2 : hipY
+-  let ankleY = anklesVisible ? (la.y + ra.y) / 2 : kneeY
+-
+-  // Mirror-invariant — works for front and back camera identically
+-  let shoulderWidth = (ls.x - rs.x).magnitude
+-
+-  switch family {
+-  case .horizontalprone, .supine:
+-    // Case A: side view — full body in horizontal band
+-    if hipsVisible {
+-      let ys: [Double] = anklesVisible
+-        ? [shoulderY, hipY, ankleY]
+-        : [shoulderY, hipY]
+-      let ySpread = (ys.max() ?? 0) - (ys.min() ?? 0)
+-      if ySpread < 0.25 {
+-        return true
+-      }
+-    }
++private struct JointPair {
++  let x: Double
++  let y: Double
++  let visible: Bool
++}
+ 
+-    // Case B: front-facing prone — minimum signature is shoulders + at least
+-    // one wrist. We do NOT require hips because in pushup framings hips are
+-    // often occluded by the body itself.
+-    guard oneWristVisible else { return false }
++// Gemiddelde van de zichtbare kant(en); van opzij is vaak maar één kant goed te zien
++private func pair(_ l: Int, _ r: Int, _ threshold: Double) -> JointPair {
++  let a = _landmarks[l], b = _landmarks[r]
++  let va = a.visibility > threshold, vb = b.visibility > threshold
++  if va && vb { return JointPair(x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, visible: true) }
++  if va { return JointPair(x: a.x, y: a.y, visible: true) }
++  if vb { return JointPair(x: b.x, y: b.y, visible: true) }
++  return JointPair(x: 0, y: 0, visible: false)
++}
+ 
+-    let wristY = wristsVisible
+-      ? (lw.y + rw.y) / 2
+-      : max(lw.y, rw.y)  // whichever wrist we can see
++// Hoek van de lijn p→q ten opzichte van horizontaal, in graden (0 = liggend, 90 = rechtop)
++private func tiltFromHorizontal(_ p: JointPair, _ q: JointPair) -> Double {
++  let dx = abs(q.x - p.x) * aspect
++  let dy = abs(q.y - p.y)
++  return atan2(dy, dx) * 180.0 / .pi
++}
+ 
+-    // Geometry: wrists at or below shoulder line, torso reasonably wide.
+-    // Tolerance loosened to handle deep DOWN phase where shoulders drop
+-    // close to wrist level.
+-    let handsLowerOrLevel = wristY > shoulderY - 0.08
+-    let torsoFacing = shoulderWidth > 0.06
++private func isPostureValid(config: ExerciseConfig) -> Bool {
++  guard _landmarks.count >= 33 else { return false }
++  let threshold = config.visibilityThreshold
++
++  let shoulders = pair(11, 12, threshold)
++  let hips = pair(23, 24, threshold)
++  let knees = pair(25, 26, threshold)
++  let ankles = pair(27, 28, threshold)
++  let elbows = pair(13, 14, threshold)
++  let wrists = pair(15, 16, threshold)
++
++  guard shoulders.visible else { return false }
++
++  let torsoLength = hips.visible
++    ? sqrt(pow((hips.x - shoulders.x) * aspect, 2) + pow(hips.y - shoulders.y, 2))
++    : 0
++  // Hoe ver de handen/ellebogen onder de schouders staan (steun op de grond)
++  let armSupport: Double = {
++    let ys = [elbows, wrists].filter { $0.visible }.map { $0.y }
++    guard let lowest = ys.max() else { return 0 }
++    return lowest - shoulders.y
++  }()
++
++  switch config.postureFamily {
++  case .horizontalprone:
++    // Romp (ongeveer) horizontaal; bij vasthouden (plank) ook steun op handen of onderarmen
++    guard hips.visible, tiltFromHorizontal(shoulders, hips) < 35 else { return false }
++    if config.type == .hold {
++      return torsoLength > 0 && armSupport > torsoLength * 0.3
++    }
++    return true
+ 
+-    return handsLowerOrLevel && torsoFacing
++  case .supine:
++    guard hips.visible else { return false }
++    return tiltFromHorizontal(shoulders, hips) < 40
+ 
+   case .standingupright:
+-    if hipsVisible {
+-      if kneesVisible {
+-        return shoulderY < hipY - 0.05
+-            && hipY < kneeY + 0.05
+-            && (anklesVisible ? kneeY < ankleY : true)
+-      }
+-      return shoulderY < hipY - 0.05
++    // Rechtop: schouders boven de heupen en de romp niet ver voorover
++    guard hips.visible else { return false }
++    guard shoulders.y < hips.y - 0.05, tiltFromHorizontal(shoulders, hips) > 55 else { return false }
++    if knees.visible {
++      return hips.y < knees.y + 0.10 && (ankles.visible ? knees.y < ankles.y : true)
+     }
+-    // Hips cropped (close-range front-facing) — accept based on shoulder span
+-    return shoulderWidth > 0.08
++    return true
+ 
+   case .seated:
+-    if hipsVisible && kneesVisible {
+-      return shoulderY < hipY - 0.05 && (hipY - kneeY).magnitude < 0.20
+-    }
+-    if hipsVisible {
+-      return shoulderY < hipY - 0.05
++    guard hips.visible else { return false }
++    if knees.visible {
++      return shoulders.y < hips.y - 0.05 && abs(hips.y - knees.y) < 0.20
+     }
+-    return shoulderWidth > 0.08
++    return shoulders.y < hips.y - 0.05
+ 
+   case .sideplank:
+-    guard hipsVisible else { return false }
+-    let ySpread = (shoulderY - hipY).magnitude
+-    let shoulderHipDx = (shoulderX - hipX).magnitude
+-    return ySpread < 0.20 && shoulderHipDx < 0.15
++    // Lichaam schuin tot horizontaal en gesteund op de onderarm
++    guard hips.visible, ankles.visible else { return false }
++    guard tiltFromHorizontal(shoulders, ankles) < 45 else { return false }
++    return torsoLength > 0 && armSupport > torsoLength * 0.4
+ 
+   case .inverted:
+-    guard hipsVisible, anklesVisible else { return false }
+-    return hipY < shoulderY && hipY < ankleY
++    guard hips.visible, ankles.visible else { return false }
++    return hips.y < shoulders.y && hips.y < ankles.y
+ 
+   case .none:
+     return true
+   }
+ }
+ 
++// Kiest per hoek de kant (links of rechts) waarvan de drie punten het best zichtbaar zijn,
++// tenzij de configuratie beide kanten al afzonderlijk meet.
++private func bestTriple(_ a: Int, _ b: Int, _ c: Int, config: ExerciseConfig, threshold: Double) -> (Int, Int, Int)? {
++  let n = _landmarks.count
++  guard a < n, b < n, c < n else { return nil }
++  let own = min(_landmarks[a].visibility, _landmarks[b].visibility, _landmarks[c].visibility)
++
++  if let ma = Self.mirrorIndex[a], let mb = Self.mirrorIndex[b], let mc = Self.mirrorIndex[c],
++     ma < n, mb < n, mc < n {
++    let definedSeparately = config.angles.contains {
++      Int($0.landmarkA) == ma && Int($0.landmarkB) == mb && Int($0.landmarkC) == mc
++    }
++    if !definedSeparately {
++      let mirrored = min(_landmarks[ma].visibility, _landmarks[mb].visibility, _landmarks[mc].visibility)
++      if mirrored > own && mirrored > threshold { return (ma, mb, mc) }
++    }
++  }
++  return own > threshold ? (a, b, c) : nil
++}
++
+   // ═══════════════════════════════════════════════════════════
+   // MARK: - Angle Calculation
+   // ═══════════════════════════════════════════════════════════
+ 
+   private func calculateAngle(pointA: Landmark, vertex: Landmark, pointC: Landmark) -> Double {
+-    let vaX = pointA.x - vertex.x
++    // x schalen naar dezelfde eenheid als y, anders zijn schuine hoeken vertekend (16:9-beeld)
++    let vaX = (pointA.x - vertex.x) * aspect
+     let vaY = pointA.y - vertex.y
+-    let vcX = pointC.x - vertex.x
++    let vcX = (pointC.x - vertex.x) * aspect
+     let vcY = pointC.y - vertex.y
+ 
+     let dot = vaX * vcX + vaY * vcY
+@@ -474,12 +518,18 @@ private func isPostureValid(family: PostureFamily, threshold: Double) -> Bool {
+   // MARK: - Phase Detection
+   // ═══════════════════════════════════════════════════════════
+ 
++  // Mooove: een fase telt pas als álle drempels van die fase kloppen (bijv. beide armen omhoog)
+   private func determinePhase(from angles: [String: Double], config: ExerciseConfig) -> ExercisePhase {
++    var checked: [ExercisePhase] = []
+     for phaseThreshold in config.phases {
+-      guard let angle = angles[phaseThreshold.angleName] else { continue }
+-      if angle >= phaseThreshold.minAngle && angle <= phaseThreshold.maxAngle {
+-        return phaseThreshold.phase
++      let phase = phaseThreshold.phase
++      if checked.contains(phase) { continue }
++      checked.append(phase)
++      let matches = config.phases.filter { $0.phase == phase }.allSatisfy { t in
++        guard let angle = angles[t.angleName] else { return false }
++        return angle >= t.minAngle && angle <= t.maxAngle
+       }
++      if matches { return phase }
+     }
+     return .unknown
+   }
+@@ -501,8 +551,8 @@ private func isPostureValid(family: PostureFamily, threshold: Double) -> Bool {
          let now = Date()
          let repDuration = now.timeIntervalSince(repStartTime) * 1000
  
@@ -56,3 +744,28 @@ index 1c21499..4ff539e 100644
            phaseHistory = [newPhase]
            return
          }
+@@ -610,6 +660,7 @@ private func isPostureValid(family: PostureFamily, threshold: Double) -> Bool {
+     }
+ 
+     if inPosition {
++      lastInPositionTime = Date()
+       if holdStartTime == nil {
+         holdStartTime = Date()
+       }
+@@ -628,6 +679,8 @@ private func isPostureValid(family: PostureFamily, threshold: Double) -> Bool {
+       if elapsed >= config.holdDurationMs {
+         completeSession()
+       }
++    } else if let last = lastInPositionTime, Date().timeIntervalSince(last) <= holdGraceSeconds {
++      // Binnen de marge: timer loopt door, geen voortgang melden
+     } else {
+       holdStartTime = nil
+     }
+@@ -698,6 +751,7 @@ private func isPostureValid(family: PostureFamily, threshold: Double) -> Bool {
+     sessionFormViolations = []
+     lastFormFeedbackTime = [:]
+     holdStartTime = nil
++    lastInPositionTime = nil
+     poseWasLost = false
+     targetReps = 0
+     countdownSeconds = 0
