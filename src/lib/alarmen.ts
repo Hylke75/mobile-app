@@ -190,6 +190,37 @@ export function deblokkeerSynchronisatie(): void {
   geblokkeerd = false;
 }
 
+// Test- en wakker-check-alarmen bestaan maar kort. Blijft er een achter (app afgesloten tijdens de
+// test, of een oudere build die hem naar de volgende dag schoof), dan gaat hij onverwacht af.
+// Daarom wordt elk hulpalarm buiten zijn venster (minuten voor/na nu) geannuleerd.
+const HULP_VENSTER: Record<string, [number, number]> = {
+  test: [2, 2],
+  wakkercheck: [2, WAKKERCHECK_MINUTEN + 1],
+};
+
+async function ruimHulpalarmenOp(): Promise<void> {
+  const nu = Date.now();
+  const context = await AlarmScheduler.getCurrentAlarmContextAsync().catch(() => null);
+  const hulp = new Map<string, { type: string; op: number }>();
+  for (const native of await AlarmScheduler.getScheduledAlarmsAsync()) {
+    const type = String(native.metadata?.type ?? '');
+    if (HULP_VENSTER[type]) hulp.set(native.id, { type, op: inMs(native.timestamp) });
+  }
+  const occurrences = await AlarmScheduler.getAlarmOccurrencesAsync().catch(() => []);
+  for (const o of occurrences) {
+    const type = String(o.metadata?.type ?? '');
+    if (!HULP_VENSTER[type] || hulp.has(o.alarmId)) continue;
+    if (o.phase !== 'scheduled' && o.phase !== 'ringing') continue;
+    hulp.set(o.alarmId, { type, op: inMs(o.scheduledFor) });
+  }
+  for (const [id, { type, op }] of hulp) {
+    if (context?.id === id && context.state === 'alerting') continue;
+    const [voor, na] = HULP_VENSTER[type]!;
+    if (op >= nu - voor * 60_000 && op <= nu + na * 60_000) continue;
+    await AlarmScheduler.cancelAlarmAsync(id).catch(() => false);
+  }
+}
+
 // Brengt de native alarmen in lijn met de alarmen uit de database; runs lopen na elkaar
 export function synchroniseer(
   alarms: Alarm[],
@@ -200,6 +231,7 @@ export function synchroniseer(
     if (geblokkeerd) return;
     const rechten = await AlarmScheduler.getPermissionsAsync();
     if (!rechten.canScheduleExactAlarms) return;
+    await ruimHulpalarmenOp();
 
     const profielGeluid = await leesAlarmgeluid();
     const keuzes = await leesGeluidKeuzes();

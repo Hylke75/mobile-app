@@ -31,6 +31,7 @@ jest.mock('react-native-alarm-scheduler', () => ({
       return mockNep.gepland.delete(id);
     }),
     getCurrentAlarmContextAsync: jest.fn(async () => mockNep.context),
+    getAlarmOccurrencesAsync: jest.fn(async () => []),
     getPendingNativeAlarmHandoffAsync: jest.fn(async () => mockNep.handoff),
     clearPendingNativeAlarmHandoffAsync: jest.fn(async () => {
       mockNep.handoff = null;
@@ -107,6 +108,25 @@ beforeEach(() => {
 afterEach(() => jest.useRealTimers());
 
 describe('synchroniseer', () => {
+  it('ruimt achtergebleven test- en wakker-check-alarmen op, maar niet een lopende test', async () => {
+    const nu = Date.now();
+    const hulp = (id: string, type: string, op: number) =>
+      mockNep.gepland.set(id, { id, timestamp: op, metadata: { type } });
+    hulp('oude-test', 'test', nu + 23 * 3600_000); // naar morgen geschoven
+    hulp('vergeten-test', 'test', nu - 3600_000);
+    hulp('lopende-test', 'test', nu + 30_000);
+    hulp('wakkercheck', 'wakkercheck', nu + 4 * 60_000);
+    hulp('afgaande-test', 'test', nu - 10 * 60_000);
+    mockNep.context = { id: 'afgaande-test', state: 'alerting' };
+    await synchroniseer([alarm()]);
+    expect(mockNep.gepland.has('oude-test')).toBe(false);
+    expect(mockNep.gepland.has('vergeten-test')).toBe(false);
+    expect(mockNep.gepland.has('lopende-test')).toBe(true);
+    expect(mockNep.gepland.has('wakkercheck')).toBe(true);
+    expect(mockNep.gepland.has('afgaande-test')).toBe(true);
+    expect(mockNep.gepland.has('a1')).toBe(true);
+  });
+
   it('plant een herhalend alarm op de juiste weekdagen (1 = maandag)', async () => {
     await synchroniseer([alarm()]);
     const i = input();
@@ -186,7 +206,11 @@ describe('synchroniseer', () => {
   });
 
   it('laat testalarmen en wakker-checks met rust', async () => {
-    mockNep.gepland.set('test', { id: 'test', metadata: { type: 'test' } });
+    mockNep.gepland.set('test', {
+      id: 'test',
+      timestamp: Date.now() + 30_000,
+      metadata: { type: 'test' },
+    });
     await synchroniseer([]);
     expect(mockNep.gepland.has('test')).toBe(true);
   });
