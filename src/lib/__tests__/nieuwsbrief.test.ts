@@ -50,7 +50,10 @@ describe('blokken', () => {
 describe('maakMail', () => {
   it('ontsnapt alle tekst en heeft altijd een afmeldlink en tekstversie', () => {
     const mail = maakMail(
-      { ...basis, blokken: [{ type: 'alinea', tekst: '<script>alert(1)</script>' }, ...basis.blokken] },
+      {
+        ...basis,
+        blokken: [{ type: 'alinea', tekst: '<script>alert(1)</script>' }, ...basis.blokken],
+      },
       { afmeldUrl: 'https://www.mooove-app.com/nieuwsbrief/afmelden#t=abc' },
     );
     expect(mail.html).not.toContain('<script>');
@@ -147,7 +150,11 @@ describe('webhooks', () => {
   });
 
   it('herkent harde en zachte bounces en klachten', () => {
-    expect(leesResendEvent(JSON.parse(body))).toMatchObject({ type: 'bounced', hard: true, berichtId: 'abc' });
+    expect(leesResendEvent(JSON.parse(body))).toMatchObject({
+      type: 'bounced',
+      hard: true,
+      berichtId: 'abc',
+    });
     expect(
       leesResendEvent({ type: 'email.bounced', data: { bounce: { type: 'Transient' } } }).hard,
     ).toBe(false);
