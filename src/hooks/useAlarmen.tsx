@@ -13,6 +13,8 @@ import { AppState } from 'react-native';
 import { luisterNaarTaal, t } from '@/i18n';
 import { doelenUitJson } from '@/constants/oefeningen';
 import { useAuth } from '@/hooks/useAuth';
+import { toonPremium, usePremium } from '@/hooks/usePremium';
+import { alarmenBinnenToegang, alarmToegestaan } from '@/lib/premium';
 import { annuleerAlarm, deblokkeerSynchronisatie, synchroniseer } from '@/lib/alarmen';
 import { zetGeluidKeuze, type GeluidKeuze } from '@/lib/alarmgeluid';
 import { leesLokaal, schrijfLokaal, SLEUTELS } from '@/lib/opslag';
@@ -88,9 +90,11 @@ const haalAlarmenOp = () => supabase.from('alarms').select('*').order('tijd');
 const sorteer = (lijst: Alarm[]) => [...lijst].sort((a, b) => a.tijd.localeCompare(b.tijd));
 
 export function AlarmenProvider({ children }: { children: ReactNode }) {
-  const { user, profiel } = useAuth();
+  const { user, profiel, startProef } = useAuth();
   const pauzeTot = profiel?.pauze_tot ?? null;
   const pauze = useRef(pauzeTot);
+  const toegang = usePremium();
+  const toegangRef = useRef(toegang);
   // De lijst hoort bij één gebruiker; na uitloggen of wisselen is hij automatisch leeg
   const [data, setData] = useState<{ eigenaar: string | null; alarms: Alarm[] }>({
     eigenaar: null,
@@ -116,7 +120,8 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
 
   const plan = useCallback((lijst: Alarm[]) => {
     if (!lijstBekend.current) return;
-    synchroniseer(lijst, pauze.current, eigenRef.current)
+    // Zonder Premium gaan alarmen af zoals de proef of de gratis versie toestaat
+    synchroniseer(alarmenBinnenToegang(lijst, toegangRef.current), pauze.current, eigenRef.current)
       .then(() => setFout(null))
       .catch(() => setFout(t('meldingen.alarmenNietGepland')));
   }, []);
@@ -139,6 +144,13 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
 
   // Andere taal: de knoppen en teksten op het native alarm opnieuw zetten
   useEffect(() => luisterNaarTaal(() => plan(huidig.current)), [plan]);
+
+  // Proef gestart of verlopen, of Premium genomen: alles opnieuw inplannen
+  useEffect(() => {
+    if (toegangRef.current.fase === toegang.fase) return;
+    toegangRef.current = toegang;
+    plan(huidig.current);
+  }, [toegang, plan]);
 
   // Pauze aan, uit of verlengd: alles opnieuw inplannen
   useEffect(() => {
@@ -259,6 +271,10 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
   const maakAan = useCallback(
     async (invoer: AlarmInvoer) => {
       if (!user) return t('meldingen.nietIngelogd');
+      if (!alarmToegestaan(huidig.current, toegangRef.current)) {
+        toonPremium('alarmen');
+        return t('premium.slot.alarmen', { n: toegangRef.current.maxAlarmen ?? 0 });
+      }
       // Een nieuw (of teruggezet) alarm begint zonder overgeslagen dag
       const { overslaanOp: _overslaan, geluid, ...velden } = invoer;
       const { data: rij, error } = await supabase
@@ -275,10 +291,12 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
         .single();
       if (error) return t('meldingen.opslaanMisluktInternet');
       if (geluid) await zetGeluidKeuze(rij.id, geluid);
+      // Het eerste alarm start de (eenmalige) proefperiode
+      if (!toegangRef.current.premium) await startProef();
       zetEnSync(user.id, [...huidig.current, naarAlarm(rij)]);
       return null;
     },
-    [user, zetEnSync],
+    [user, zetEnSync, startProef],
   );
 
   const werkBij = useCallback(
@@ -357,6 +375,10 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
     async (id: string) => {
       const alarm = huidig.current.find((a) => a.id === id);
       if (!alarm) return null;
+      if (!alarm.aan && !alarmToegestaan(huidig.current, toegangRef.current)) {
+        toonPremium('alarmen');
+        return t('premium.slot.alarmen', { n: toegangRef.current.maxAlarmen ?? 0 });
+      }
       return werkBij(id, { aan: !alarm.aan });
     },
     [werkBij],

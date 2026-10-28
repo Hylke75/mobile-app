@@ -5,6 +5,7 @@ import Svg, { Circle } from 'react-native-svg';
 
 import { maakStijlen, useKleuren } from '@/hooks/useThema';
 import { Icon } from '@/components/Icon';
+import { ProefBanner } from '@/components/ProefBanner';
 import { Screen } from '@/components/Screen';
 import { useGedeeld, PrimaryButton, SectionTitleRow } from '@/components/ui';
 import { dagenTekst, dagNaam, missiesTekst, niveauNaam } from '@/constants/alarm';
@@ -12,6 +13,7 @@ import { em, fonts } from '@/constants/theme';
 import { useAlarmCheck } from '@/hooks/useAlarmCheck';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useAuth } from '@/hooks/useAuth';
+import { toonPremium, usePremium } from '@/hooks/usePremium';
 import { useSessies } from '@/hooks/useSessies';
 import { useTaal, type t as T } from '@/i18n';
 import { alarmenBeschikbaar } from '@/lib/alarmen';
@@ -42,6 +44,7 @@ export default function VandaagScherm() {
   const { alarms, vernieuw: vernieuwAlarmen, eigenMap } = useAlarmen();
   const { sessies, statistiek, vernieuw, wachtend } = useSessies();
   const { allesInOrde } = useAlarmCheck();
+  const toegang = usePremium();
   const { t, locale } = useTaal();
   const voornaam = profiel?.voornaam ?? '';
 
@@ -93,6 +96,8 @@ export default function VandaagScherm() {
         Let&apos;s get{'\n'}
         <Text style={styles.pageHeadingAccent}>moving.</Text>
       </Text>
+
+      <ProefBanner />
 
       <View style={styles.streakCard}>
         <Svg width={302} height={302} style={styles.streakRings}>
@@ -286,10 +291,12 @@ export default function VandaagScherm() {
       <PrimaryButton
         label={vandaagKlaar ? t('vandaag.missieOpnieuw') : t('vandaag.missieStart')}
         onPress={() =>
-          router.push({
-            pathname: '/missie',
-            params: volgend ? { alarmId: volgend.alarm.id } : {},
-          })
+          toegang.missiesActief
+            ? router.push({
+                pathname: '/missie',
+                params: volgend ? { alarmId: volgend.alarm.id } : {},
+              })
+            : toonPremium('missieStarten')
         }
         style={styles.homeStart}
       />

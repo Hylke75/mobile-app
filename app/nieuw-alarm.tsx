@@ -30,6 +30,7 @@ import {
 } from '@/constants/oefeningen';
 import { em, fonts } from '@/constants/theme';
 import { useAlarmen } from '@/hooks/useAlarmen';
+import { toonPremium, usePremium } from '@/hooks/usePremium';
 import { useTaal } from '@/i18n';
 import { useToast } from '@/hooks/useToast';
 import { alarmenBeschikbaar, haalRechtenOp, vraagRechtenAan } from '@/lib/alarmen';
@@ -37,6 +38,7 @@ import { leesGeluidKeuzes, type GeluidKeuze } from '@/lib/alarmgeluid';
 import { huidigLand } from '@/lib/feestdagen';
 import { cameraStatus, vraagCameraAan } from '@/lib/camera';
 import { eigenNaarTekst, isOefening, missieInfos, naarEigenId } from '@/lib/missies';
+import { alarmToegestaan, missieToegestaan, niveauToegestaan } from '@/lib/premium';
 import { tijdTot, volgendeKeer } from '@/lib/tijd';
 import type { Alarm, Doelen, EigenMissie, MissieId, Niveau, Oefening } from '@/types/app';
 
@@ -86,7 +88,11 @@ export default function NieuwAlarmScherm() {
   const [naam, setNaam] = useState(bestaand?.naam ?? standaardNaam);
   const [time, setTime] = useState(bestaand?.tijd ?? '07:00');
   const [days, setDays] = useState<number[]>(bestaand?.dagen ?? [0, 1, 2, 3, 4]);
-  const [level, setLevel] = useState<Niveau>(bestaand?.niveau ?? 'Flexibel');
+  const toegang = usePremium();
+  // Zonder Premium start een nieuw alarm op een niveau dat bij de proef hoort
+  const [level, setLevel] = useState<Niveau>(
+    bestaand?.niveau ?? (toegang.premium ? 'Flexibel' : 'Vrij'),
+  );
   const [exercises, setExercises] = useState<MissieId[]>(
     bestaand?.oefeningen ?? ['Squats', 'Bed opmaken'],
   );
@@ -123,6 +129,7 @@ export default function NieuwAlarmScherm() {
   const gekozen = missieInfos(exercises, eigenMap, doelen);
 
   const kies = (id: MissieId) => {
+    if (!exercises.includes(id) && !missieToegestaan(toegang, id)) return toonPremium('missie');
     if (!exercises.includes(id) && exercises.length >= MAX_MISSIES) {
       return showToast(t('editor.eigen.max'));
     }
@@ -168,6 +175,7 @@ export default function NieuwAlarmScherm() {
 
   // Bij een streng niveau eerst uitleggen dat het alarm alleen met de missie stopt
   const kiesNiveau = (nieuw: Niveau) => {
+    if (!niveauToegestaan(toegang, nieuw)) return toonPremium('niveau');
     const wasStreng = level === 'Verplicht' || level === 'Hardcore';
     const wordtStreng = nieuw === 'Verplicht' || nieuw === 'Hardcore';
     setLevel(nieuw);
@@ -315,6 +323,7 @@ export default function NieuwAlarmScherm() {
     if (!naam.trim()) return showToast(t('editor.fouten.naam'));
     if (!days.length) return showToast(t('editor.fouten.dag'));
     if (!gekozen.length) return showToast(t('editor.fouten.missie'));
+    if (!bestaand && !alarmToegestaan(alarms, toegang)) return toonPremium('alarmen');
     const dubbel = alarms.find(
       (a) =>
         a.id !== bestaand?.id && a.aan && a.tijd === time && a.dagen.some((d) => days.includes(d)),
@@ -497,6 +506,7 @@ export default function NieuwAlarmScherm() {
                   <Text
                     style={[styles.levelChoiceText, level === l && styles.levelChoiceTextSelected]}
                   >
+                    {niveauToegestaan(toegang, l) ? '' : '🔒 '}
                     {niveauNaam(l)}
                   </Text>
                 </Pressable>
@@ -542,7 +552,11 @@ export default function NieuwAlarmScherm() {
                   style={[styles.exercise, aan && styles.exerciseSelected]}
                 >
                   <Text style={[styles.exerciseText, aan && styles.exerciseTextSelected]}>
-                    {aan ? '✓ ' : `${OEFENING_INFO[o].emoji} `}
+                    {aan
+                      ? '✓ '
+                      : missieToegestaan(toegang, o)
+                        ? `${OEFENING_INFO[o].emoji} `
+                        : '🔒 '}
                     {oefeningNaam(o)}
                   </Text>
                 </Pressable>
@@ -567,7 +581,7 @@ export default function NieuwAlarmScherm() {
               style={[styles.exercise, aan && styles.exerciseSelected]}
             >
               <Text style={[styles.exerciseText, aan && styles.exerciseTextSelected]}>
-                {aan ? '✓ ' : `${m.emoji} `}
+                {aan ? '✓ ' : toegang.eigenMissies ? `${m.emoji} ` : '🔒 '}
                 {m.naam}
               </Text>
             </Pressable>
@@ -575,7 +589,7 @@ export default function NieuwAlarmScherm() {
         })}
         <Pressable
           accessibilityRole="button"
-          onPress={() => setEigenOpen(true)}
+          onPress={() => (toegang.eigenMissies ? setEigenOpen(true) : toonPremium('eigen'))}
           style={[styles.exercise, styles.exerciseNieuw]}
         >
           <Text style={[styles.exerciseText, styles.exerciseTextSelected]}>
@@ -686,7 +700,9 @@ export default function NieuwAlarmScherm() {
             </View>
             <Toggle
               on={wisselend}
-              onPress={() => setWisselend((w) => !w)}
+              onPress={() =>
+                toegang.wisselend || wisselend ? setWisselend((w) => !w) : toonPremium('wisselend')
+              }
               label={t('editor.extra.wisselend')}
             />
           </View>

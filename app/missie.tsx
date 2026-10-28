@@ -24,6 +24,7 @@ import { doelenUitTekst, OEFENING_INFO, oefeningVoorToestel } from '@/constants/
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useAuth } from '@/hooks/useAuth';
+import { usePremium } from '@/hooks/usePremium';
 import { useSchermAan } from '@/hooks/useSchermAan';
 import { useSessies } from '@/hooks/useSessies';
 import { useStartDoel } from '@/hooks/useStartDoel';
@@ -42,6 +43,7 @@ import {
 import { volgendAlarm, volgendeKeer } from '@/lib/tijd';
 import { succes, tik } from '@/lib/trilling';
 import { eigenUitTekst, isOefening, missieInfos, missiesVanDag } from '@/lib/missies';
+import { effectiefAlarm } from '@/lib/premium';
 import type { MissieId, Niveau, StapResultaat } from '@/types/app';
 
 const STANDAARD_MISSIE: MissieId[] = ['Squats', 'Bed opmaken', 'Gordijnen open'];
@@ -68,11 +70,15 @@ export default function MissieScherm() {
   // Proefronde vanuit de editor: eigen oefeningen, niet gekoppeld aan een alarm en niet opgeslagen
   const proef = params.oefen === '1';
   const startDoel = useStartDoel();
+  const toegang = usePremium();
+  // Zonder Premium: de missies en het niveau zoals het alarm in de proef echt afgaat
   const alarm = useMemo(() => {
     if (proef) return null;
-    if (params.alarmId) return alarms.find((a) => a.id === params.alarmId) ?? null;
-    return volgendAlarm(alarms)?.alarm ?? null;
-  }, [alarms, params.alarmId, proef]);
+    const gevonden = params.alarmId
+      ? (alarms.find((a) => a.id === params.alarmId) ?? null)
+      : (volgendAlarm(alarms)?.alarm ?? null);
+    return gevonden ? effectiefAlarm(gevonden, toegang) : null;
+  }, [alarms, params.alarmId, proef, toegang]);
   // Niveau en oefeningen komen ook mee vanuit het native alarm, zodat dit offline werkt
   const niveau = (alarm?.niveau ?? (params.niveau || undefined)) as Niveau | undefined;
   // Bij een wisselend alarm alleen de missie van vandaag (de wekker geeft die al mee)

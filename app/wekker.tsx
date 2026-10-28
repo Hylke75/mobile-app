@@ -12,6 +12,7 @@ import { em, fonts, kleuren } from '@/constants/theme';
 import { useTaal } from '@/i18n';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useAuth } from '@/hooks/useAuth';
+import { usePremium } from '@/hooks/usePremium';
 import { useStartDoel } from '@/hooks/useStartDoel';
 import { useToast } from '@/hooks/useToast';
 import {
@@ -24,6 +25,7 @@ import {
   type WekkerType,
 } from '@/lib/alarmen';
 import { actieveMissie, werkVervolgBij } from '@/lib/missieStatus';
+import { effectiefAlarm } from '@/lib/premium';
 
 function tijdNu(): string {
   const d = new Date();
@@ -71,7 +73,10 @@ export default function WekkerScherm() {
       .catch(() => {});
   }, [params.alarmId, params.occurrenceId]);
 
-  const alarm = alarms.find((a) => a.id === params.alarmId);
+  const toegang = usePremium();
+  // Zoals het alarm echt is ingepland (zonder Premium: proef- of gratis niveau en missies)
+  const opgeslagen = alarms.find((a) => a.id === params.alarmId);
+  const alarm = opgeslagen ? effectiefAlarm(opgeslagen, toegang) : undefined;
   const wekker: Wekker = {
     alarmId: params.alarmId,
     occurrenceId: params.occurrenceId || native?.occurrenceId,
@@ -206,11 +211,15 @@ export default function WekkerScherm() {
           </Text>
         )}
       </View>
-      <PrimaryButton
-        label={wekker.missieBezig ? t('wekker.verder') : t('wekker.start')}
-        onPress={startMissie}
-        style={styles.knop}
-      />
+      {toegang.missiesActief || wekker.missieBezig ? (
+        <PrimaryButton
+          label={wekker.missieBezig ? t('wekker.verder') : t('wekker.start')}
+          onPress={startMissie}
+          style={styles.knop}
+        />
+      ) : (
+        <Text style={styles.streng}>{t('premium.wekker')}</Text>
+      )}
       {!wekker.missieBezig && niveau === 'Vrij' && (
         <>
           <SecondaryButton

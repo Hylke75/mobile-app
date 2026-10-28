@@ -30,6 +30,8 @@ import { useAlarmCheck } from '@/hooks/useAlarmCheck';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useAuth } from '@/hooks/useAuth';
 import { useHerinneringInstellingen } from '@/hooks/useHerinneringen';
+import { toonPremium, usePremium } from '@/hooks/usePremium';
+import { VERDIENMODEL_AAN } from '@/constants/premium';
 import { TAALNAMEN, TALEN, useTaal, type TaalKeuze } from '@/i18n';
 import {
   kiesAlarmgeluid,
@@ -111,10 +113,21 @@ export default function ProfielScherm() {
   const { herplan, alarms } = useAlarmen();
   const [geluid, setGeluid] = useState<Alarmgeluid | null>(null);
   const herinneringen = useHerinneringInstellingen();
+  const toegang = usePremium();
+  const premiumWaarde = profiel?.premium_altijd
+    ? t('premium.profiel.waardePremium')
+    : toegang.fase === 'premium'
+      ? t('premium.profiel.waardePremium')
+      : toegang.fase === 'proef'
+        ? t('premium.profiel.waardeProef', { n: toegang.dagenOver ?? 0 })
+        : toegang.fase === 'proefNietGestart'
+          ? t('premium.profiel.waardeNietGestart')
+          : t('premium.profiel.waardeGratis');
 
   const wisselHerinnering = async (soort: keyof HerinneringInstellingen) => {
     if (!herinneringenBeschikbaar) return showToast(t('herinneringen.alleenOpTelefoon'));
     const aan = !herinneringen[soort];
+    if (aan && !toegang.herinneringen) return toonPremium('herinneringen');
     if (aan && !(await vraagMeldingToestemming())) {
       showToast(t('herinneringen.geenToestemming'));
       return openInstellingen();
@@ -540,6 +553,13 @@ export default function ProfielScherm() {
       ))}
 
       <Text style={styles.sectionHeading}>{t('profiel.account')}</Text>
+      {VERDIENMODEL_AAN && (
+        <Pressable accessibilityRole="button" onPress={() => toonPremium()} style={styles.setting}>
+          <Icon name="flame" color={kl.ink} />
+          <Text style={styles.settingLabel}>{t('premium.naam')}</Text>
+          <Text style={styles.settingValue}>{premiumWaarde}</Text>
+        </Pressable>
+      )}
       {gast && (
         <Pressable
           accessibilityRole="button"

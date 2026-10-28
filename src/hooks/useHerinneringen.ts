@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AppState } from 'react-native';
 
 import { useTaal } from '@/i18n';
 import { useAlarmen } from '@/hooks/useAlarmen';
 import { useAuth } from '@/hooks/useAuth';
+import { usePremium } from '@/hooks/usePremium';
 import { useSessies } from '@/hooks/useSessies';
 import {
   STANDAARD_HERINNERINGEN,
@@ -36,7 +37,13 @@ export function useHerinneringen(): void {
   const { alarms, geladen, eigenMap } = useAlarmen();
   const { sessies } = useSessies();
   const { taal } = useTaal();
-  const instellingen = useHerinneringInstellingen();
+  const ingesteld = useHerinneringInstellingen();
+  // Herinneringen horen bij Premium; zonder Premium worden ze niet ingepland
+  const { herinneringen: toegestaan } = usePremium();
+  const instellingen = useMemo(
+    () => (toegestaan ? ingesteld : STANDAARD_HERINNERINGEN),
+    [toegestaan, ingesteld],
+  );
   const [moment, setMoment] = useState(0);
   const weekdoel = profiel?.weekdoel ?? 7;
   const pauzeTot = profiel?.pauze_tot ?? null;

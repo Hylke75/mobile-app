@@ -115,6 +115,10 @@ function RootNavigator() {
             name="koppel-email"
             options={{ contentStyle: { backgroundColor: kleuren.ink } }}
           />
+          <Stack.Screen
+            name="premium"
+            options={{ contentStyle: { backgroundColor: kleuren.ink }, presentation: 'modal' }}
+          />
         </Stack.Protected>
 
         <Stack.Screen

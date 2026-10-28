@@ -8,6 +8,7 @@ import { useGedeeld, RoundPlus, ScreenHeader, SectionTitleRow } from '@/componen
 import { dagLetter } from '@/constants/alarm';
 import { em, fonts } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
+import { toonPremium, usePremium } from '@/hooks/usePremium';
 import { useSessies } from '@/hooks/useSessies';
 import { useToast } from '@/hooks/useToast';
 import { useTaal } from '@/i18n';
@@ -52,6 +53,7 @@ export default function ProgressieScherm() {
   const hoogste = Math.max(...s.weekBalken, 1);
   const vandaag = dagIndex(new Date());
 
+  const toegang = usePremium();
   const badges = badgesVoor(s);
   const ontgrendeld = badges.filter((b) => b.behaald).length;
 
@@ -110,7 +112,7 @@ export default function ProgressieScherm() {
           </Text>
         </View>
       )}
-      {s.aantalVoltooid > 0 && (
+      {s.aantalVoltooid > 0 && toegang.volledigeVoortgang && (
         <View style={styles.joker} accessible>
           <Text style={styles.jokerTitel}>{t('progressie.gevoel.titel')}</Text>
           <Text style={styles.jokerTekst}>
@@ -192,6 +194,16 @@ export default function ProgressieScherm() {
         titel={t('progressie.badges')}
         rechts={t('progressie.ontgrendeld', { n: ontgrendeld })}
       />
+      {!toegang.volledigeVoortgang && (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => toonPremium('voortgang')}
+          style={styles.joker}
+        >
+          <Text style={styles.jokerTitel}>🔒 {t('premium.naam')}</Text>
+          <Text style={styles.jokerTekst}>{t('premium.slot.voortgang')}</Text>
+        </Pressable>
+      )}
       <View style={styles.badgeRow}>
         {badges.map((b) => (
           <View

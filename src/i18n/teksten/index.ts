@@ -17,6 +17,7 @@ import { meldingen } from './meldingen';
 import { badges } from './badges';
 import { systeem } from './systeem';
 import { herinneringen } from './herinneringen';
+import { premium } from './premium';
 
 export const teksten = {
   algemeen,
@@ -37,4 +38,5 @@ export const teksten = {
   badges,
   systeem,
   herinneringen,
+  premium,
 };

@@ -228,6 +228,9 @@ export type Database = {
           created_at: string;
           id: string;
           pauze_tot: string | null;
+          premium_altijd: boolean;
+          premium_tot: string | null;
+          proef_start: string | null;
           updated_at: string;
           voornaam: string | null;
           weekdoel: number;
@@ -237,6 +240,9 @@ export type Database = {
           created_at?: string;
           id: string;
           pauze_tot?: string | null;
+          premium_altijd?: boolean;
+          premium_tot?: string | null;
+          proef_start?: string | null;
           updated_at?: string;
           voornaam?: string | null;
           weekdoel?: number;
@@ -246,6 +252,9 @@ export type Database = {
           created_at?: string;
           id?: string;
           pauze_tot?: string | null;
+          premium_altijd?: boolean;
+          premium_tot?: string | null;
+          proef_start?: string | null;
           updated_at?: string;
           voornaam?: string | null;
           weekdoel?: number;
@@ -275,7 +284,9 @@ export type Database = {
       };
     };
     Views: { [_ in never]: never };
-    Functions: { [_ in never]: never };
+    Functions: {
+      start_proef: { Args: Record<PropertyKey, never>; Returns: string };
+    };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };
   };

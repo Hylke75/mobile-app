@@ -37,6 +37,8 @@ type AuthContextWaarde = {
       Pick<Profiel, 'voornaam' | 'weekdoel' | 'alarmtest_geslaagd_op' | 'pauze_tot'>
     >,
   ) => Promise<string | null>;
+  // Start de proefperiode (eenmalig, bij het eerste alarm); doet niets als die al liep
+  startProef: () => Promise<void>;
   uitloggen: () => Promise<void>;
   verwijderAccount: () => Promise<string | null>;
 };
@@ -189,6 +191,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [werkProfielBij],
   );
 
+  const startProef = useCallback(async () => {
+    if (!profiel || profiel.proef_start) return;
+    const { data, error } = await supabase.rpc('start_proef');
+    if (error || !data) return;
+    const nieuw = { ...profiel, proef_start: data };
+    setProfiel(nieuw);
+    await schrijfLokaal(SLEUTELS.profiel, nieuw);
+  }, [profiel]);
+
   const uitloggen = useCallback(async () => {
     await annuleerAlles().catch(() => {});
     await annuleerHerinneringen().catch(() => {});
@@ -224,6 +235,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loginMetWachtwoord,
         slaVoornaamOp,
         werkProfielBij,
+        startProef,
         uitloggen,
         verwijderAccount,
       }}
