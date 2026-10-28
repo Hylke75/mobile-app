@@ -2,7 +2,7 @@
 
 ## App-informatie
 
-- **Naam:** Mooove
+- **Naam:** Mooove App (in App Store Connect; op het toestel "Mooove"). Apple ID `6827886983`, SKU `mooove-ios`
 - **Verkoper / ontwikkelaar:** Hylke Thiry (Apple Developer Program als particulier)
 - **Copyright:** © 2026 Hylke Thiry
 - **Subtitel (max. 30):** Wekker die je laat bewegen

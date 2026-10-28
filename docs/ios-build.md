@@ -1,7 +1,9 @@
 # iOS-build en TestFlight
 
 Alles in de code is klaar voor iOS (gecontroleerd met een proef-prebuild): bundle ID `nl.linkandlead.mobileapp`, iOS 26 (AlarmKit), toestemmingsteksten in zes talen, privacymanifest, geen push-rechten (alleen lokale herinneringen) en `ITSAppUsesNonExemptEncryption: false`.
-**Apple-account (gecontroleerd 28 oktober 2026):** Apple Developer Program als particulier (Individual), actief tot 29 oktober 2027; licentieovereenkomst geaccepteerd; Team ID `5H9Q8P4Q7U` (staat in `app.config.ts` en `eas.json`); Apple-account `hthiry1@me.com`. In het account staat nog niets voor Mooove: geen bundle ID, geen app en geen API-sleutel.
+**Apple-account (gecontroleerd 28 oktober 2026):** Apple Developer Program als particulier (Individual), actief tot 29 oktober 2027; licentieovereenkomst geaccepteerd; Team ID `5H9Q8P4Q7U` (staat in `app.config.ts` en `eas.json`); Apple-account `hthiry1@me.com`. Bundle ID `nl.linkandlead.mobileapp` is geregistreerd en de app staat in App Store Connect als **"Mooove App"** (Apple ID `6827886983`, SKU `mooove-ios`, primaire taal Nederlands; `ascAppId` staat in `eas.json`). Op het toestel heet de app "Mooove". De ongebruikte bundle ID `nl.linkandlead.mooove` mag blijven staan of weg.
+
+**Nog nodig voor de build:** een App Store Connect API-sleutel met de rol **Admin** (de eerste sleutel, `2AFYPU7RHD`, kan alleen lezen) en `EXPO_TOKEN` in de omgeving.
 
 ## 1. Wat jij doet (eenmalig, na goedkeuring van Apple)
 
