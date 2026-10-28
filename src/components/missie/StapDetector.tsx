@@ -393,34 +393,37 @@ function PoseStap({
     pixelFormat: 'yuv',
     onFrame(frame) {
       'worklet';
+      // Hulpmetingen op de camerathread; ze mogen de herkenning nooit tegenhouden
+      try {
+        // Breedte/hoogte van het rechtop gedraaide beeld, voor de hoekweergave in de proefronde
+        const gedraaid = frame.orientation === 'left' || frame.orientation === 'right';
+        scheduleOnRN(
+          zetVerhouding,
+          gedraaid ? frame.height / frame.width : frame.width / frame.height,
+        );
+        // Gemiddelde helderheid uit het Y-vlak (steekproef); bij weinig licht een tip
+        const vlak = frame.getPlanes()[0];
+        if (vlak) {
+          const pixels = new Uint8Array(vlak.getPixelBuffer());
+          let som = 0;
+          let aantal = 0;
+          for (let i = 0; i < pixels.length; i += 4999) {
+            som += pixels[i]!;
+            aantal++;
+          }
+          if (aantal > 0) scheduleOnRN(meldDonker, som / aantal);
+        }
+      } catch {
+        // Overslaan
+      }
       const geaccepteerd = runner.runAsync(() => {
         'worklet';
+        // Een fout op deze thread zou de app laten crashen: altijd zelf opvangen
         try {
-          // Hulpmetingen mogen de herkenning nooit tegenhouden
-          try {
-            // Breedte/hoogte van het rechtop gedraaide beeld, voor de hoekweergave in de proefronde
-            const gedraaid = frame.orientation === 'left' || frame.orientation === 'right';
-            scheduleOnRN(
-              zetVerhouding,
-              gedraaid ? frame.height / frame.width : frame.width / frame.height,
-            );
-            // Gemiddelde helderheid uit het Y-vlak (steekproef); bij weinig licht een tip
-            const vlak = frame.getPlanes()[0];
-            if (vlak) {
-              const pixels = new Uint8Array(vlak.getPixelBuffer());
-              let som = 0;
-              let aantal = 0;
-              for (let i = 0; i < pixels.length; i += 4999) {
-                som += pixels[i]!;
-                aantal++;
-              }
-              if (aantal > 0) scheduleOnRN(meldDonker, som / aantal);
-            }
-          } catch {
-            // Overslaan
-          }
           if (isIos) nitroPoseExercises.processFrameIOS(frame);
           else nitroPoseExercises.processFrameAndroid(frame);
+        } catch {
+          // Beeld overslaan
         } finally {
           frame.dispose();
         }
