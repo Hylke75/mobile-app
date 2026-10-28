@@ -108,7 +108,7 @@ export default function ProfielScherm() {
     showToast(t('profiel.feedback.dank'));
   };
   const testId = useRef<string | null>(null);
-  const { herplan } = useAlarmen();
+  const { herplan, alarms } = useAlarmen();
   const [geluid, setGeluid] = useState<Alarmgeluid | null>(null);
   const herinneringen = useHerinneringInstellingen();
 
@@ -293,6 +293,8 @@ export default function ProfielScherm() {
     if (gelukt) {
       const fout = await werkProfielBij({ alarmtest_geslaagd_op: new Date().toISOString() });
       showToast(fout ?? t('profiel.test.geslaagd'));
+      // Werkt het alarm, maar is er nog geen echt alarm? Dan meteen het eerste alarm zetten
+      if (alarms.length === 0) router.push({ pathname: '/nieuw-alarm', params: { eerste: '1' } });
     } else {
       Alert.alert(
         t('profiel.test.nietGehoordTitel'),

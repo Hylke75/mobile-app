@@ -59,6 +59,9 @@ const naarDatum = (tijd: string) => {
 const naarTijd = (d: Date) =>
   `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 
+// Vanaf zoveel missies tonen we de tip dat één of twee missies genoeg is om wakker te worden
+const VEEL_MISSIES = 4;
+
 export default function NieuwAlarmScherm() {
   const styles = useStyles();
   const gedeeld = useGedeeld();
@@ -513,6 +516,9 @@ export default function NieuwAlarmScherm() {
         <Text style={styles.formLabelInRow}>{t('editor.kiesMissies')}</Text>
         <Text style={styles.formLabelHint}>{t('editor.meerdereMogelijk')}</Text>
       </View>
+      {exercises.length >= VEEL_MISSIES && (
+        <Text style={styles.veelMissies}>{t('editor.veelMissies')}</Text>
+      )}
       {(['beweging', 'routine'] as const).map((groep) => (
         <View key={groep}>
           <Text style={styles.groepKop}>
@@ -880,6 +886,13 @@ const useStyles = maakStijlen((k) =>
       marginBottom: 14,
     },
     eersteKop: { fontFamily: fonts.body800, fontSize: 13, color: k.ink },
+    veelMissies: {
+      fontFamily: fonts.body400,
+      fontSize: 12,
+      lineHeight: 17,
+      color: k.tint('#8A5A1F'),
+      marginBottom: 8,
+    },
     eersteTekst: {
       fontFamily: fonts.body400,
       fontSize: 12,

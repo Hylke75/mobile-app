@@ -44,6 +44,8 @@ const nl = {
   vijfOpties: '5 opties',
   kiesMissies: 'Kies jouw missies',
   meerdereMogelijk: 'Meerdere mogelijk',
+  veelMissies:
+    'Tip: één of twee missies is genoeg om echt wakker te worden. Met veel missies duurt je ochtend lang.',
   jouwMissie: 'Jouw missie',
   volgordeEnAantal: 'Volgorde en aantal',
   eerder: '{{oefening}} eerder',
@@ -150,6 +152,8 @@ export const editor: Vertalingen<typeof nl> = {
     vijfOpties: '5 options',
     kiesMissies: 'Choose your missions',
     meerdereMogelijk: 'Pick as many as you like',
+    veelMissies:
+      'Tip: one or two missions are enough to really wake up. With many missions your morning takes a long time.',
     jouwMissie: 'Your mission',
     volgordeEnAantal: 'Order and amount',
     eerder: '{{oefening}} earlier',
@@ -253,6 +257,8 @@ export const editor: Vertalingen<typeof nl> = {
     vijfOpties: '5 opciones',
     kiesMissies: 'Elige tus misiones',
     meerdereMogelijk: 'Puedes elegir varias',
+    veelMissies:
+      'Consejo: una o dos misiones bastan para despertarte de verdad. Con muchas misiones, tu mañana se alarga.',
     jouwMissie: 'Tu misión',
     volgordeEnAantal: 'Orden y cantidad',
     eerder: '{{oefening}} antes',
@@ -356,6 +362,8 @@ export const editor: Vertalingen<typeof nl> = {
     vijfOpties: '5 Optionen',
     kiesMissies: 'Wähle deine Missionen',
     meerdereMogelijk: 'Mehrere möglich',
+    veelMissies:
+      'Tipp: Ein oder zwei Missionen reichen, um richtig wach zu werden. Mit vielen Missionen dauert dein Morgen lange.',
     jouwMissie: 'Deine Mission',
     volgordeEnAantal: 'Reihenfolge und Anzahl',
     eerder: '{{oefening}} früher',
@@ -459,6 +467,8 @@ export const editor: Vertalingen<typeof nl> = {
     vijfOpties: '5 options',
     kiesMissies: 'Choisis tes missions',
     meerdereMogelijk: 'Plusieurs possibles',
+    veelMissies:
+      'Astuce : une ou deux missions suffisent pour vraiment te réveiller. Avec beaucoup de missions, ta matinée s’allonge.',
     jouwMissie: 'Ta mission',
     volgordeEnAantal: 'Ordre et nombre',
     eerder: '{{oefening}} plus tôt',
@@ -561,6 +571,7 @@ export const editor: Vertalingen<typeof nl> = {
     vijfOpties: '5 个选项',
     kiesMissies: '选择你的任务',
     meerdereMogelijk: '可多选',
+    veelMissies: '小提示：一两个任务就足以让你真正清醒。任务太多会让早晨变得很长。',
     jouwMissie: '你的任务',
     volgordeEnAantal: '顺序和数量',
     eerder: '{{oefening}} 提前',
