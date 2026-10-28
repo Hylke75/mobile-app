@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 import { privacy } from '../src/i18n/teksten/privacy.ts';
 import { CSS, FAVICON, HREFLANG, landing, navigatie, voettekst } from './site-landing.mjs';
+import { LANDING } from './site-teksten.mjs';
 
 const HIER = path.dirname(fileURLToPath(import.meta.url));
 const SITE = path.join(HIER, '..', 'site');
@@ -176,11 +177,15 @@ const TEKST = {
   },
 };
 
-const NL_PAGINA = { index: '/', privacy: '/privacy', verwijderen: '/account-verwijderen' };
-const url = (taal, pagina) =>
-  taal === 'nl'
-    ? NL_PAGINA[pagina]
-    : `/${taal}${{ index: '/', privacy: '/privacy', verwijderen: '/account-verwijderen' }[pagina]}`;
+const NL_PAGINA = {
+  index: '/',
+  privacy: '/privacy',
+  verwijderen: '/account-verwijderen',
+  bevestigen: '/nieuwsbrief/bevestigen',
+  afmelden: '/nieuwsbrief/afmelden',
+};
+const url = (taal, pagina) => (taal === 'nl' ? NL_PAGINA[pagina] : `/${taal}${NL_PAGINA[pagina]}`);
+const NIEUWSBRIEF_URL = `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/nieuwsbrief`;
 
 const esc = (s) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -303,6 +308,65 @@ for (const taal of TALEN) {
   );
 }
 
+// Nieuwsbrief: bevestigen (dubbele opt-in) en afmelden zonder login. De token staat in het
+// #-deel van de link, zodat hij niet in serverlogs komt; de pagina stuurt hem naar de functie.
+for (const taal of TALEN) {
+  const n = LANDING[taal].nieuwsbrief;
+  const map = path.join(taal === 'nl' ? SITE : path.join(SITE, taal), 'nieuwsbrief');
+  fs.mkdirSync(map, { recursive: true });
+  const home = `<p><a href="${url(taal, 'index')}">${esc(n.naarHome)} →</a></p>`;
+  fs.writeFileSync(
+    path.join(map, 'bevestigen.html'),
+    pagina(
+      taal,
+      'bevestigen',
+      { titel: `${n.bevestigTitel} · Mooove`, kicker: 'THE MORNING MOOOVE', kop: n.bevestigTitel },
+      `<p id="status" role="status" aria-live="polite">${esc(n.bevestigBezig)}</p>${home}
+<script>
+(async () => {
+  const status = document.getElementById('status');
+  const t = new URLSearchParams(location.hash.slice(1)).get('t');
+  history.replaceState(null, '', location.pathname);
+  const tekst = ${JSON.stringify({ gelukt: n.bevestigGelukt, verlopen: n.bevestigVerlopen, ongeldig: n.bevestigOngeldig })};
+  if (!t) { status.textContent = tekst.ongeldig; return; }
+  try {
+    const r = await fetch('${NIEUWSBRIEF_URL}', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ actie: 'bevestigen', token: t }) });
+    status.textContent = r.ok ? tekst.gelukt : r.status === 410 ? tekst.verlopen : tekst.ongeldig;
+  } catch { status.textContent = tekst.ongeldig; }
+})();
+</script>`,
+    ),
+  );
+  fs.writeFileSync(
+    path.join(map, 'afmelden.html'),
+    pagina(
+      taal,
+      'afmelden',
+      { titel: `${n.afmeldTitel} · Mooove`, kicker: 'THE MORNING MOOOVE', kop: n.afmeldTitel },
+      `<p>${esc(n.afmeldTekst)}</p>
+<p><button id="afmelden" class="knop" type="button">${esc(n.afmeldKnop)}</button></p>
+<p id="status" role="status" aria-live="polite"></p>${home}
+<script>
+(() => {
+  const t = new URLSearchParams(location.hash.slice(1)).get('t');
+  history.replaceState(null, '', location.pathname);
+  const knop = document.getElementById('afmelden');
+  const status = document.getElementById('status');
+  const tekst = ${JSON.stringify({ gelukt: n.afmeldGelukt, fout: n.afmeldFout })};
+  knop.addEventListener('click', async () => {
+    knop.disabled = true;
+    try {
+      const r = await fetch('${NIEUWSBRIEF_URL}', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ actie: 'afmelden', token: t }) });
+      status.textContent = r.ok ? tekst.gelukt : tekst.fout;
+      if (r.ok) knop.remove(); else knop.disabled = false;
+    } catch { status.textContent = tekst.fout; knop.disabled = false; }
+  });
+})();
+</script>`,
+    ),
+  );
+}
+
 // Presentatiepagina in alle talen (Nederlands op /)
 for (const taal of TALEN) {
   const map = taal === 'nl' ? SITE : path.join(SITE, taal);
@@ -315,6 +379,7 @@ for (const taal of TALEN) {
       hreflang: (soort) => hreflang(soort, taal),
       domein: DOMEIN,
       wachtlijstUrl: `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/wachtlijst`,
+      nieuwsbriefUrl: NIEUWSBRIEF_URL,
       privacyLabel: LABELS[taal].privacy,
       verwijderLabel: LABELS[taal].verwijderen,
       mail: MAIL,

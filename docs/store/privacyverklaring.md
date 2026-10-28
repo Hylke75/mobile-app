@@ -1,6 +1,6 @@
 # Privacyverklaring Mooove
 
-_Laatst bijgewerkt: 25 oktober 2026_
+_Laatst bijgewerkt: 28 oktober 2026_
 
 Mooove is een wekker-app die je helpt om 's ochtends in beweging te komen. Mooove wordt aangeboden door Hylke Thiry ("wij"). In deze verklaring lees je welke gegevens we verwerken, waarom, en welke rechten je hebt.
 
@@ -42,6 +42,12 @@ Je gegevens worden opgeslagen bij Supabase (database en inloggen), in een datace
 ## Beheer
 
 Alleen de aanbieder van Mooove kan in een beveiligde beheeromgeving zien welke accounts er zijn: e-mailadres, voornaam, wanneer je je hebt aangemeld en voor het laatst actief was, en hoeveel alarmen en missies je hebt. Dit gebruiken we alleen voor ondersteuning en om de app te verbeteren. Camerabeelden en de inhoud van je eigen missies zijn daar nooit zichtbaar.
+
+## Nieuwsbrief
+
+Meld je je op mooove-app.com aan voor de nieuwsbrief en bevestig je dat via de link in je e-mail (dubbele bevestiging), dan bewaren we je e-mailadres, taal, de bron van je aanmelding en het bewijs van je toestemming (tekst, versie en tijdstip). Grondslag is je toestemming (artikel 6 lid 1 sub a AVG). Bevestig je niet, dan sturen we je geen nieuwsbrief. De mails worden verstuurd via Resend; we meten niet of je een mail opent.
+
+Afmelden kan altijd met één klik onderaan elke mail of via hylke@linkandlead.nl. Daarna bewaren we het bewijs van je toestemming en afmelding zolang dat nodig is om aan te tonen dat we je toestemming hadden. Vraag je om verwijdering, dan wissen we je gegevens en houden we alleen een onleesbaar gemaakte code (hash) van je e-mailadres bij, zodat we je nooit opnieuw mailen. De wachtlijst staat hier los van: wie zich daarvoor aanmeldt, krijgt geen nieuwsbrief.
 
 ## Wachtlijst op de website
 

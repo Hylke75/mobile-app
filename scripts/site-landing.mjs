@@ -191,6 +191,8 @@ section{padding:88px 0}
 .wachtlijst button:disabled{opacity:.6;cursor:default}
 .wachtlijst .wl-melding{min-height:22px;margin:12px 0 4px;color:var(--lime);font-weight:700}
 .wachtlijst small{color:#8A968C;font-size:12.5px}.wachtlijst small a{color:#C7D1C7}
+.wachtlijst .toestemming{display:flex;gap:10px;align-items:flex-start;margin:14px 0 0;color:#C7D1C7;font-size:13.5px;line-height:1.45;cursor:pointer}
+.wachtlijst .toestemming input{flex:none;width:20px;height:20px;margin:1px 0 0;accent-color:var(--lime)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 footer{padding:44px 0 56px;color:var(--muted);font-size:14px}
 footer .wrap{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center}
@@ -266,7 +268,18 @@ export const HREFLANG = { zh: 'zh-Hans' };
 
 export function landing(
   taal,
-  { talen, taalnamen, url, hreflang, privacyLabel, verwijderLabel, mail, domein, wachtlijstUrl },
+  {
+    talen,
+    taalnamen,
+    url,
+    hreflang,
+    privacyLabel,
+    verwijderLabel,
+    mail,
+    domein,
+    wachtlijstUrl,
+    nieuwsbriefUrl,
+  },
 ) {
   const x = LANDING[taal];
   const b = x.schermen.bijschriften;
@@ -380,6 +393,18 @@ ${navigatie(taal, { talen, taalnamen, url }, '')}
     <p class="wl-melding" role="status" aria-live="polite"></p>
     <small>${esc(x.wachtlijst.klein)} <a href="${url(taal, 'privacy')}">→</a></small>
   </form>
+  <form class="wachtlijst" id="nieuwsbrief" novalidate>
+    <h3>${esc(x.nieuwsbrief.titel)}</h3>
+    <p>${esc(x.nieuwsbrief.tekst)}</p>
+    <div class="veld">
+      <label class="sr" for="nb-email">E-mail</label>
+      <input id="nb-email" type="email" name="email" autocomplete="email" required placeholder="${esc(x.nieuwsbrief.plaats)}">
+      <button type="submit">${esc(x.nieuwsbrief.knop)}</button>
+    </div>
+    <label class="toestemming"><input type="checkbox" name="toestemming"> <span>${esc(x.nieuwsbrief.toestemming)}</span></label>
+    <p class="wl-melding" role="status" aria-live="polite"></p>
+    <small>${esc(x.nieuwsbrief.klein)} <a href="${url(taal, 'privacy')}">→</a></small>
+  </form>
 </div></div></section>
 <script>
 (() => {
@@ -395,6 +420,28 @@ ${navigatie(taal, { talen, taalnamen, url }, '')}
     try {
       const antwoord = await fetch('${wachtlijstUrl}', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, taal: '${taal}' }) });
       if (antwoord.ok) { form.classList.add('klaar'); melding.textContent = teksten.gelukt; form.email.value = ''; }
+      else melding.textContent = antwoord.status === 429 ? teksten.teVaak : antwoord.status === 400 ? teksten.ongeldig : teksten.fout;
+    } catch { melding.textContent = teksten.fout; }
+    knop.disabled = false; knop.textContent = teksten.knop;
+  });
+})();
+(() => {
+  // Nieuwsbrief: aparte, niet-aangevinkte toestemming; daarna een bevestigingsmail (dubbele opt-in)
+  const form = document.getElementById('nieuwsbrief');
+  const melding = form.querySelector('.wl-melding');
+  const knop = form.querySelector('button');
+  const teksten = ${JSON.stringify({ bezig: x.nieuwsbrief.bezig, gelukt: x.nieuwsbrief.gelukt, fout: x.nieuwsbrief.fout, ongeldig: x.nieuwsbrief.ongeldig, teVaak: x.nieuwsbrief.teVaak, geenToestemming: x.nieuwsbrief.geenToestemming, knop: x.nieuwsbrief.knop })};
+  const zoek = new URLSearchParams(location.search);
+  const utm = { source: zoek.get('utm_source'), medium: zoek.get('utm_medium'), campaign: zoek.get('utm_campaign'), content: zoek.get('utm_content') };
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = form.email.value.trim();
+    if (!/^[^ @]+@[^ @]+[.][^ @]{2,}$/.test(email)) { melding.textContent = teksten.ongeldig; return; }
+    if (!form.toestemming.checked) { melding.textContent = teksten.geenToestemming; return; }
+    knop.disabled = true; knop.textContent = teksten.bezig; melding.textContent = '';
+    try {
+      const antwoord = await fetch('${nieuwsbriefUrl}', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ actie: 'aanmelden', email, taal: '${taal}', toestemming: true, bron: 'website', pagina: location.pathname, referrer: document.referrer ? new URL(document.referrer).hostname : null, utm }) });
+      if (antwoord.ok) { form.classList.add('klaar'); melding.textContent = teksten.gelukt; form.email.value = ''; form.toestemming.checked = false; }
       else melding.textContent = antwoord.status === 429 ? teksten.teVaak : antwoord.status === 400 ? teksten.ongeldig : teksten.fout;
     } catch { melding.textContent = teksten.fout; }
     knop.disabled = false; knop.textContent = teksten.knop;

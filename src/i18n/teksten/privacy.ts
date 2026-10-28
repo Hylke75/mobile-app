@@ -50,6 +50,11 @@ const nl = {
     kop: 'Beheer',
     a1: 'Alleen de aanbieder van Mooove kan in een beveiligde beheeromgeving zien welke accounts er zijn: e-mailadres, voornaam, wanneer je je hebt aangemeld en voor het laatst actief was, en hoeveel alarmen en missies je hebt. Dit gebruiken we alleen voor ondersteuning en om de app te verbeteren. Camerabeelden en de inhoud van je eigen missies zijn daar nooit zichtbaar.',
   },
+  nieuwsbrief: {
+    kop: 'Nieuwsbrief',
+    a1: 'Meld je je op mooove-app.com aan voor de nieuwsbrief en bevestig je dat via de link in je e-mail (dubbele bevestiging), dan bewaren we je e-mailadres, taal, de bron van je aanmelding en het bewijs van je toestemming (tekst, versie en tijdstip). Grondslag is je toestemming (artikel 6 lid 1 sub a AVG). Bevestig je niet, dan sturen we je geen nieuwsbrief. De mails worden verstuurd via Resend; we meten niet of je een mail opent.',
+    a2: 'Afmelden kan altijd met één klik onderaan elke mail of via hylke@linkandlead.nl. Daarna bewaren we het bewijs van je toestemming en afmelding zolang dat nodig is om aan te tonen dat we je toestemming hadden. Vraag je om verwijdering, dan wissen we je gegevens en houden we alleen een onleesbaar gemaakte code (hash) van je e-mailadres bij, zodat we je nooit opnieuw mailen. De wachtlijst staat hier los van: wie zich daarvoor aanmeldt, krijgt geen nieuwsbrief.',
+  },
   wachtlijst: {
     kop: 'Wachtlijst op de website',
     a1: 'Meld je je op mooove-app.com aan voor de wachtlijst, dan bewaren we je e-mailadres en taal om je één keer te laten weten dat Mooove beschikbaar is. Daarna, of eerder als je dat vraagt via hylke@linkandlead.nl, verwijderen we je adres. Om misbruik te voorkomen bewaren we maximaal twee dagen een onleesbaar gemaakte code (hash) van je IP-adres, nooit het adres zelf.',
@@ -124,6 +129,11 @@ export const privacy: Vertalingen<typeof nl> = {
       kop: 'Administration',
       a1: 'Only the provider of Mooove can see, in a secured admin area, which accounts exist: email address, first name, when you signed up and were last active, and how many alarms and missions you have. We use this only for support and to improve the app. Camera images and the content of your own missions are never visible there.',
     },
+    nieuwsbrief: {
+      kop: 'Newsletter',
+      a1: "If you sign up for the newsletter on mooove-app.com and confirm it via the link in your email (double opt-in), we store your email address, language, where you signed up and proof of your consent (text, version and time). The legal basis is your consent (Article 6(1)(a) GDPR). If you don't confirm, we won't send you the newsletter. Emails are sent via Resend; we don't track whether you open them.",
+      a2: 'You can unsubscribe at any time with one click at the bottom of every email or via hylke@linkandlead.nl. After that, we keep the proof of your consent and unsubscription for as long as needed to show that we had your consent. If you ask us to delete your data, we erase it and keep only an unreadable code (hash) of your email address so we never email you again. The waitlist is separate: signing up for it does not subscribe you to the newsletter.',
+    },
     wachtlijst: {
       kop: 'Waiting list on the website',
       a1: 'If you join the waiting list on mooove-app.com, we keep your email address and language to let you know once that Mooove is available. After that, or earlier if you ask via hylke@linkandlead.nl, we delete your address. To prevent abuse, we keep an unreadable code (hash) of your IP address for at most two days, never the address itself.',
@@ -194,6 +204,11 @@ export const privacy: Vertalingen<typeof nl> = {
     beheer: {
       kop: 'Administración',
       a1: 'Solo el proveedor de Mooove puede ver, en un área de administración protegida, qué cuentas existen: correo electrónico, nombre, cuándo te registraste y tu última actividad, y cuántas alarmas y misiones tienes. Solo lo usamos para dar soporte y mejorar la app. Las imágenes de la cámara y el contenido de tus misiones propias nunca son visibles allí.',
+    },
+    nieuwsbrief: {
+      kop: 'Boletín',
+      a1: 'Si te suscribes al boletín en mooove-app.com y lo confirmas con el enlace de tu correo (doble confirmación), guardamos tu dirección de correo, tu idioma, el origen de la suscripción y la prueba de tu consentimiento (texto, versión y hora). La base legal es tu consentimiento (artículo 6, apartado 1, letra a, del RGPD). Si no confirmas, no te enviamos el boletín. Los correos se envían mediante Resend; no medimos si los abres.',
+      a2: 'Puedes darte de baja en cualquier momento con un clic al final de cada correo o en hylke@linkandlead.nl. Después conservamos la prueba de tu consentimiento y de tu baja el tiempo necesario para demostrar que teníamos tu consentimiento. Si pides que borremos tus datos, los eliminamos y solo guardamos un código ilegible (hash) de tu correo para no volver a escribirte nunca. La lista de espera es independiente: apuntarte a ella no te suscribe al boletín.',
     },
     wachtlijst: {
       kop: 'Lista de espera en la web',
@@ -266,6 +281,11 @@ export const privacy: Vertalingen<typeof nl> = {
       kop: 'Verwaltung',
       a1: 'Nur der Anbieter von Mooove kann in einem geschützten Verwaltungsbereich sehen, welche Konten es gibt: E-Mail-Adresse, Vorname, wann du dich registriert hast und zuletzt aktiv warst und wie viele Wecker und Missionen du hast. Wir nutzen das nur für den Support und um die App zu verbessern. Kamerabilder und der Inhalt deiner eigenen Missionen sind dort nie sichtbar.',
     },
+    nieuwsbrief: {
+      kop: 'Newsletter',
+      a1: 'Wenn du dich auf mooove-app.com für den Newsletter anmeldest und dies über den Link in deiner E-Mail bestätigst (Double-Opt-in), speichern wir deine E-Mail-Adresse, deine Sprache, die Herkunft der Anmeldung und den Nachweis deiner Einwilligung (Text, Version und Zeitpunkt). Rechtsgrundlage ist deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Bestätigst du nicht, erhältst du keinen Newsletter. Die E-Mails werden über Resend versendet; wir messen nicht, ob du sie öffnest.',
+      a2: 'Abmelden kannst du jederzeit mit einem Klick am Ende jeder E-Mail oder über hylke@linkandlead.nl. Danach bewahren wir den Nachweis deiner Einwilligung und Abmeldung so lange auf, wie es nötig ist, um die Einwilligung nachzuweisen. Bittest du um Löschung, löschen wir deine Daten und behalten nur einen unlesbaren Code (Hash) deiner E-Mail-Adresse, damit wir dir nie wieder schreiben. Die Warteliste ist davon getrennt: Wer sich dafür einträgt, erhält keinen Newsletter.',
+    },
     wachtlijst: {
       kop: 'Warteliste auf der Website',
       a1: 'Wenn du dich auf mooove-app.com für die Warteliste einträgst, speichern wir deine E-Mail-Adresse und Sprache, um dir einmal mitzuteilen, dass Mooove verfügbar ist. Danach, oder früher auf Wunsch über hylke@linkandlead.nl, löschen wir deine Adresse. Zum Schutz vor Missbrauch speichern wir höchstens zwei Tage einen unlesbaren Code (Hash) deiner IP-Adresse, nie die Adresse selbst.',
@@ -337,6 +357,11 @@ export const privacy: Vertalingen<typeof nl> = {
       kop: 'Administration',
       a1: 'Seul le fournisseur de Mooove peut voir, dans un espace d’administration sécurisé, quels comptes existent : adresse e-mail, prénom, date d’inscription et dernière activité, et nombre d’alarmes et de missions. Nous l’utilisons uniquement pour l’assistance et pour améliorer l’app. Les images de la caméra et le contenu de tes missions personnalisées n’y sont jamais visibles.',
     },
+    nieuwsbrief: {
+      kop: 'Newsletter',
+      a1: 'Si tu t’inscris à la newsletter sur mooove-app.com et que tu confirmes via le lien reçu par e-mail (double opt-in), nous conservons ton adresse e-mail, ta langue, l’origine de ton inscription et la preuve de ton consentement (texte, version et heure). La base légale est ton consentement (article 6, paragraphe 1, point a, du RGPD). Sans confirmation, tu ne reçois pas la newsletter. Les e-mails sont envoyés via Resend ; nous ne mesurons pas si tu les ouvres.',
+      a2: 'Tu peux te désinscrire à tout moment en un clic en bas de chaque e-mail ou via hylke@linkandlead.nl. Nous conservons ensuite la preuve de ton consentement et de ta désinscription aussi longtemps que nécessaire pour démontrer que nous avions ton consentement. Si tu demandes la suppression de tes données, nous les effaçons et ne gardons qu’un code illisible (hash) de ton adresse e-mail afin de ne plus jamais t’écrire. La liste d’attente est distincte : s’y inscrire ne t’abonne pas à la newsletter.',
+    },
     wachtlijst: {
       kop: 'Liste d’attente sur le site',
       a1: 'Si tu t’inscris sur la liste d’attente de mooove-app.com, nous gardons ton adresse e-mail et ta langue pour te prévenir une fois que Mooove est disponible. Ensuite, ou plus tôt si tu le demandes via hylke@linkandlead.nl, nous supprimons ton adresse. Pour éviter les abus, nous gardons au maximum deux jours un code illisible (hash) de ton adresse IP, jamais l’adresse elle-même.',
@@ -406,6 +431,11 @@ export const privacy: Vertalingen<typeof nl> = {
     beheer: {
       kop: '后台管理',
       a1: '只有 Mooove 的提供者能在受保护的管理后台中看到存在哪些账户：邮箱地址、名字、注册时间和最近活跃时间，以及你有多少个闹钟和任务。我们仅将其用于提供支持和改进应用。相机画面和自定义任务的内容在那里永远不可见。',
+    },
+    nieuwsbrief: {
+      kop: '新闻通讯',
+      a1: '如果你在 mooove-app.com 订阅新闻通讯，并通过邮件中的链接确认（双重确认），我们会保存你的电子邮箱、语言、订阅来源以及你同意的证明（文本、版本和时间）。法律依据是你的同意（GDPR 第 6 条第 1 款 a 项）。如果你未确认，我们不会向你发送新闻通讯。邮件通过 Resend 发送；我们不会追踪你是否打开邮件。',
+      a2: '你可以随时点击每封邮件底部的链接一键退订，或发送邮件至 hylke@linkandlead.nl。退订后，我们会在必要的期限内保留你的同意和退订证明，以证明我们曾获得你的同意。如果你要求删除数据，我们会删除你的数据，只保留你电子邮箱的不可读代码（哈希值），以确保不再给你发邮件。等候名单与此分开：加入等候名单不会让你订阅新闻通讯。',
     },
     wachtlijst: {
       kop: '网站上的等候名单',

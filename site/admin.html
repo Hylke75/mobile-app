@@ -643,6 +643,28 @@
         background: var(--card);
         box-shadow: -1px 0 0 var(--line);
       }
+      .weergave {
+        margin-bottom: 18px;
+      }
+      .instelling {
+        display: grid;
+        gap: 10px;
+      }
+      .instelling textarea {
+        width: 100%;
+        min-height: 70px;
+        font: inherit;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 8px 10px;
+        background: var(--card);
+        color: var(--tekst);
+      }
+      .bewijs {
+        font-size: 12px;
+        color: var(--muted);
+        white-space: pre-wrap;
+      }
     </style>
   </head>
   <body>
@@ -659,6 +681,10 @@
     </header>
 
     <main>
+      <div class="segment weergave verborgen" id="weergave" role="group" aria-label="Weergave">
+        <button type="button" data-weergave="dashboard" aria-pressed="true">Gebruikers</button>
+        <button type="button" data-weergave="marketing" aria-pressed="false">Marketing</button>
+      </div>
       <section id="inloggen" class="kaart">
         <h1>Inloggen</h1>
         <p class="sub">Alleen voor beheerders van Mooove.</p>
@@ -824,6 +850,101 @@
           </div>
         </div>
       </section>
+
+      <section id="marketing" class="verborgen">
+        <h1>Marketing</h1>
+        <p class="sub">
+          Nieuwsbriefcontacten met toestemmingsbewijs. De wachtlijst (eenmalige lanceringsmail)
+          staat hier los van en wordt nooit voor de nieuwsbrief gebruikt.
+        </p>
+        <div class="filters">
+          <button type="button" class="zacht" id="m-vernieuw">Vernieuwen</button>
+          <span class="bijgewerkt" id="m-rol"></span>
+        </div>
+        <div class="melding" id="m-melding" role="alert"></div>
+        <div class="tegels" id="m-tegels"></div>
+
+        <div class="kaart">
+          <div class="kaart-kop">
+            <div>
+              <h2>Contacten</h2>
+              <p id="m-contacten-sub"></p>
+            </div>
+            <div class="rij">
+              <label class="sr" for="m-zoek">Zoek op e-mail</label>
+              <input id="m-zoek" class="zoek" type="search" placeholder="Zoek op e-mail" />
+            </div>
+          </div>
+          <div class="tabel-wrap gebruikers-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>E-mail</th>
+                  <th>Status</th>
+                  <th>Taal</th>
+                  <th>Bron</th>
+                  <th>Aangemeld</th>
+                  <th>Acties</th>
+                </tr>
+              </thead>
+              <tbody id="m-rijen"></tbody>
+            </table>
+          </div>
+          <div class="rij" style="margin-top: 12px">
+            <button type="button" class="zacht mini" id="m-vorige">Vorige</button>
+            <button type="button" class="zacht mini" id="m-volgende">Volgende</button>
+          </div>
+        </div>
+
+        <div class="kaart verborgen" id="m-detail" style="margin-top: 16px">
+          <div class="kaart-kop">
+            <div>
+              <h2 id="m-detail-titel"></h2>
+              <p id="m-detail-sub"></p>
+            </div>
+            <button type="button" class="zacht mini" id="m-detail-sluit">Sluiten</button>
+          </div>
+          <ul class="berichten" id="m-detail-lijst"></ul>
+        </div>
+
+        <div class="raster" style="grid-template-columns: 1fr 1fr; margin-top: 16px">
+          <div class="kaart">
+            <div class="kaart-kop">
+              <div>
+                <h2>Verzendinstellingen</h2>
+                <p id="m-instellingen-sub"></p>
+              </div>
+            </div>
+            <div class="instelling">
+              <div class="segment" role="group" aria-label="Verzendmodus" id="m-modus">
+                <button type="button" data-modus="disabled">Uit</button>
+                <button type="button" data-modus="test">Test</button>
+                <button type="button" data-modus="live">Live</button>
+              </div>
+              <label for="m-testadressen">Testadressen (één per regel, max. 10)</label>
+              <textarea id="m-testadressen"></textarea>
+              <div class="rij">
+                <button type="button" class="zacht" id="m-testadressen-bewaar">
+                  Testadressen bewaren
+                </button>
+                <label class="vink"
+                  ><input type="checkbox" id="m-noodstop" /> Noodstop: alle marketingmail
+                  geblokkeerd</label
+                >
+              </div>
+            </div>
+          </div>
+          <div class="kaart">
+            <div class="kaart-kop">
+              <div>
+                <h2>Auditlog</h2>
+                <p>Laatste 100 wijzigingen</p>
+              </div>
+            </div>
+            <ul class="berichten" id="m-log"></ul>
+          </div>
+        </div>
+      </section>
     </main>
     <footer>
       Mooove beheer · alleen toegankelijk voor accounts met beheerrechten · gegevens worden niet in
@@ -909,6 +1030,8 @@
         await sb.auth.signOut();
         data = null;
         toon($('dashboard'), false);
+        toon($('marketing'), false);
+        toon($('weergave'), false);
         toon($('account'), false);
         toon($('inloggen'), true);
         toon($('form-code'), false);
@@ -939,18 +1062,19 @@
         $('wie').textContent = session.user.email;
         toon($('account'), true);
         toon($('inloggen'), false);
-        toon($('dashboard'), true);
+        toon($('weergave'), true);
+        kiesWeergave(weergave);
         teken();
       }
 
       $('vernieuw').onclick = () => start();
       $('testaccounts').onchange = () => teken();
       $('zoek').oninput = () => tekenTabel();
-      document.querySelectorAll('.segment button').forEach((knop) => {
+      document.querySelectorAll('#dashboard .segment button').forEach((knop) => {
         knop.onclick = () => {
           periode = Number(knop.dataset.dagen);
           document
-            .querySelectorAll('.segment button')
+            .querySelectorAll('#dashboard .segment button')
             .forEach((k) => k.setAttribute('aria-pressed', String(k === knop)));
           teken();
         };
@@ -1711,6 +1835,346 @@
         a.download = `mooove-gebruikers-${dagSleutel(new Date())}.csv`;
         a.click();
         URL.revokeObjectURL(a.href);
+      };
+
+      // ---------- Weergave ----------
+      let weergave = 'dashboard';
+      function kiesWeergave(naam) {
+        weergave = naam;
+        document
+          .querySelectorAll('#weergave button')
+          .forEach((k) => k.setAttribute('aria-pressed', String(k.dataset.weergave === naam)));
+        toon($('dashboard'), naam === 'dashboard');
+        toon($('marketing'), naam === 'marketing');
+        if (naam === 'marketing') laadMarketing();
+      }
+      document.querySelectorAll('#weergave button').forEach((knop) => {
+        knop.onclick = () => kiesWeergave(knop.dataset.weergave);
+      });
+
+      // ---------- Marketing ----------
+      const STATUS_LABEL = {
+        granted: ['actief', 'Ingeschreven'],
+        pending: ['nieuw', 'Wacht op bevestiging'],
+        revoked: ['slapend', 'Afgemeld'],
+        none: ['geen', 'Geen toestemming'],
+      };
+      const MODUS_LABEL = { disabled: 'Uit', test: 'Test', live: 'Live' };
+      let marketing = null;
+      let mPagina = 0;
+      let mZoekTimer;
+
+      async function marketingActie(body) {
+        const { data: antwoord, error } = await sb.functions.invoke('admin-marketing', {
+          method: 'POST',
+          body,
+        });
+        if (error) {
+          let reden = 'Het laden of opslaan is niet gelukt.';
+          try {
+            reden = (await error.context?.json())?.error ?? reden;
+          } catch {}
+          throw new Error(reden);
+        }
+        return antwoord;
+      }
+      const mMelding = (tekst) => {
+        $('m-melding').textContent = tekst;
+      };
+
+      function tegelsIn(houder, tegels) {
+        houder.replaceChildren(
+          ...tegels.map((t) => {
+            const div = document.createElement('div');
+            div.className = 'tegel' + (t.held ? ' held' : '');
+            for (const [klasse, tekst] of [
+              ['lbl', t.lbl],
+              ['waarde', t.waarde],
+              ['extra', t.extra],
+            ]) {
+              const el = document.createElement('div');
+              el.className = klasse;
+              el.textContent = tekst;
+              div.append(el);
+            }
+            return div;
+          }),
+        );
+      }
+
+      async function laadMarketing() {
+        mMelding('');
+        try {
+          marketing = await marketingActie({ actie: 'overzicht' });
+        } catch (e) {
+          return mMelding(e.message);
+        }
+        const n = marketing.nieuwsbrief;
+        $('m-rol').textContent = `Jouw rol: ${marketing.rol}`;
+        tegelsIn($('m-tegels'), [
+          {
+            lbl: 'Nieuwsbrief',
+            waarde: getal(n.granted),
+            extra: 'bevestigd ingeschreven',
+            held: true,
+          },
+          { lbl: 'Wacht op bevestiging', waarde: getal(n.pending), extra: 'double opt-in' },
+          { lbl: 'Afgemeld', waarde: getal(n.revoked), extra: 'toestemming ingetrokken' },
+          { lbl: 'Contacten', waarde: getal(marketing.contacten), extra: 'in de marketinglijst' },
+          {
+            lbl: 'Wachtlijst',
+            waarde: getal(marketing.wachtlijstEenmalig),
+            extra: 'alleen eenmalige lanceringsmail',
+          },
+          {
+            lbl: 'Onderdrukt',
+            waarde: getal(marketing.suppressies),
+            extra: 'afgemeld, bounce, klacht of verwijderd',
+          },
+        ]);
+        tekenInstellingen(marketing.instellingen);
+        const magWijzigen = ['owner', 'admin'].includes(marketing.rol);
+        for (const id of ['m-testadressen', 'm-testadressen-bewaar', 'm-noodstop'])
+          $(id).disabled = !magWijzigen;
+        document.querySelectorAll('#m-modus button').forEach((k) => (k.disabled = !magWijzigen));
+        if (marketing.rol !== 'analyst') laadContacten();
+        if (magWijzigen) laadLog();
+      }
+
+      function tekenInstellingen(inst) {
+        const modus = inst.send_mode ?? 'disabled';
+        document
+          .querySelectorAll('#m-modus button')
+          .forEach((k) => k.setAttribute('aria-pressed', String(k.dataset.modus === modus)));
+        $('m-testadressen').value = (inst.test_recipients ?? []).join('\n');
+        $('m-noodstop').checked = inst.kill_switch === true;
+        $('m-instellingen-sub').textContent =
+          `Verzendmodus: ${MODUS_LABEL[modus] ?? modus}` +
+          (inst.kill_switch ? ' · noodstop aan' : '') +
+          (modus === 'test' ? ' · alleen naar testadressen' : '');
+      }
+
+      async function bewaarInstelling(body) {
+        mMelding('');
+        try {
+          const antwoord = await marketingActie({ actie: 'zetInstellingen', ...body });
+          tekenInstellingen(antwoord.instellingen);
+          laadLog();
+        } catch (e) {
+          mMelding(e.message);
+          if (marketing) tekenInstellingen(marketing.instellingen);
+        }
+      }
+
+      document.querySelectorAll('#m-modus button').forEach((knop) => {
+        knop.onclick = () => {
+          const modus = knop.dataset.modus;
+          if (modus === 'live') {
+            const invoer = prompt(
+              'Live zetten betekent dat echte nieuwsbrieven naar ingeschreven contacten kunnen gaan.\nAlleen de eigenaar kan dit. Typ LIVE om te bevestigen.',
+            );
+            if (invoer !== 'LIVE') return;
+            return bewaarInstelling({ send_mode: 'live', bevestiging: 'LIVE' });
+          }
+          bewaarInstelling({ send_mode: modus });
+        };
+      });
+      $('m-testadressen-bewaar').onclick = () =>
+        bewaarInstelling({
+          test_recipients: $('m-testadressen')
+            .value.split(/[\s,;]+/)
+            .map((a) => a.trim())
+            .filter(Boolean),
+        });
+      $('m-noodstop').onchange = () => {
+        const aan = $('m-noodstop').checked;
+        if (!aan && !confirm('Noodstop uitzetten?')) {
+          $('m-noodstop').checked = true;
+          return;
+        }
+        bewaarInstelling({ kill_switch: aan });
+      };
+
+      async function laadContacten() {
+        let antwoord;
+        try {
+          antwoord = await marketingActie({
+            actie: 'contacten',
+            pagina: mPagina,
+            zoek: $('m-zoek').value,
+          });
+        } catch (e) {
+          return mMelding(e.message);
+        }
+        const { contacten, totaal, perPagina } = antwoord;
+        const van = totaal ? mPagina * perPagina + 1 : 0;
+        $('m-contacten-sub').textContent =
+          `${van}–${mPagina * perPagina + contacten.length} van ${getal(totaal)} contacten`;
+        $('m-vorige').disabled = mPagina === 0;
+        $('m-volgende').disabled = (mPagina + 1) * perPagina >= totaal;
+        if (!contacten.length) {
+          const tr = document.createElement('tr');
+          const td = document.createElement('td');
+          td.colSpan = 6;
+          td.className = 'leeg';
+          td.textContent = 'Geen contacten gevonden.';
+          tr.append(td);
+          return $('m-rijen').replaceChildren(tr);
+        }
+        const magWijzigen = ['owner', 'admin'].includes(marketing?.rol);
+        $('m-rijen').replaceChildren(
+          ...contacten.map((c) => {
+            const tr = document.createElement('tr');
+            const cel = (inhoud) => {
+              const td = document.createElement('td');
+              if (inhoud instanceof Node) td.append(inhoud);
+              else td.textContent = inhoud;
+              tr.append(td);
+            };
+            const mail = document.createElement('div');
+            mail.className = 'naam';
+            mail.textContent = c.email_normalized;
+            for (const reden of c.suppressies) {
+              const tag = document.createElement('span');
+              tag.className = 'tag';
+              tag.textContent = reden;
+              mail.append(tag);
+            }
+            cel(mail);
+            const [klasse, label] = STATUS_LABEL[c.status] ?? STATUS_LABEL.none;
+            const pil = document.createElement('span');
+            pil.className = `pil p-${klasse}`;
+            pil.textContent = label;
+            cel(pil);
+            cel((c.locale ?? '—').toUpperCase());
+            cel([c.source, c.utm_source, c.utm_campaign].filter(Boolean).join(' · ') || '—');
+            cel(datum(c.created_at));
+            const acties = document.createElement('div');
+            acties.className = 'rij';
+            acties.style.flexWrap = 'nowrap';
+            const bekijk = document.createElement('button');
+            bekijk.className = 'zacht mini';
+            bekijk.textContent = 'Bewijs';
+            bekijk.onclick = () => toonContact(c.id);
+            acties.append(bekijk);
+            if (magWijzigen && c.status !== 'revoked' && c.status !== 'none') {
+              const af = document.createElement('button');
+              af.className = 'zacht mini';
+              af.textContent = 'Afmelden';
+              af.onclick = async () => {
+                if (!confirm(`${c.email_normalized} afmelden voor de nieuwsbrief?`)) return;
+                try {
+                  await marketingActie({ actie: 'afmelden', id: c.id });
+                  laadMarketing();
+                } catch (e) {
+                  alert(e.message);
+                }
+              };
+              acties.append(af);
+            }
+            if (magWijzigen) {
+              const weg = document.createElement('button');
+              weg.className = 'mini gevaar';
+              weg.textContent = 'Verwijderen';
+              weg.onclick = async () => {
+                const invoer = prompt(
+                  `Contact ${c.email_normalized} verwijderen op verzoek, met het toestemmingsbewijs?\nAlleen een hash blijft bewaard, zodat dit adres nooit meer gemaild wordt.\nTyp het e-mailadres om te bevestigen.`,
+                );
+                if (invoer === null) return;
+                try {
+                  await marketingActie({ actie: 'verwijderen', id: c.id, bevestiging: invoer });
+                  toon($('m-detail'), false);
+                  laadMarketing();
+                } catch (e) {
+                  alert(e.message);
+                }
+              };
+              acties.append(weg);
+            }
+            cel(acties);
+            return tr;
+          }),
+        );
+      }
+
+      async function toonContact(id) {
+        let d;
+        try {
+          d = await marketingActie({ actie: 'contact', id });
+        } catch (e) {
+          return alert(e.message);
+        }
+        $('m-detail-titel').textContent = d.contact.email_normalized;
+        $('m-detail-sub').textContent =
+          `${(STATUS_LABEL[d.status] ?? STATUS_LABEL.none)[1]} · contact sinds ${datum(d.contact.created_at)}`;
+        const items = [
+          ...(d.consents ?? []).map((c) => {
+            const li = bericht(
+              [
+                `Toestemming ${c.purpose}: ${c.status}`,
+                c.method,
+                new Date(c.created_at).toLocaleString('nl-NL'),
+                c.legal_text_version ? `tekstversie ${c.legal_text_version}` : '',
+              ],
+              c.legal_text_snapshot,
+            );
+            if (c.source_url) {
+              const bron = document.createElement('div');
+              bron.className = 'bewijs';
+              bron.textContent = `Bron: ${c.source_url}`;
+              li.append(bron);
+            }
+            return li;
+          }),
+          ...(d.suppressies ?? []).map((s) =>
+            bericht([`Onderdrukt: ${s.reason}`, s.scope, datum(s.created_at)]),
+          ),
+          ...(d.events ?? []).map((e) =>
+            bericht([e.event_name, new Date(e.occurred_at).toLocaleString('nl-NL')]),
+          ),
+        ];
+        $('m-detail-lijst').replaceChildren(
+          ...(items.length ? items : [leegItem('Geen gegevens.')]),
+        );
+        toon($('m-detail'), true);
+        $('m-detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      async function laadLog() {
+        let antwoord;
+        try {
+          antwoord = await marketingActie({ actie: 'auditlog' });
+        } catch {
+          return;
+        }
+        $('m-log').replaceChildren(
+          ...(antwoord.log.length
+            ? antwoord.log.map((r) =>
+                bericht(
+                  [r.actie, r.object_type, new Date(r.created_at).toLocaleString('nl-NL')],
+                  r.samenvatting,
+                ),
+              )
+            : [leegItem('Nog geen wijzigingen.')]),
+        );
+      }
+
+      $('m-vernieuw').onclick = () => laadMarketing();
+      $('m-detail-sluit').onclick = () => toon($('m-detail'), false);
+      $('m-vorige').onclick = () => {
+        mPagina = Math.max(0, mPagina - 1);
+        laadContacten();
+      };
+      $('m-volgende').onclick = () => {
+        mPagina++;
+        laadContacten();
+      };
+      $('m-zoek').oninput = () => {
+        clearTimeout(mZoekTimer);
+        mZoekTimer = setTimeout(() => {
+          mPagina = 0;
+          laadContacten();
+        }, 300);
       };
 
       let wachtOpFormaat;

@@ -210,6 +210,35 @@ export const LANDING = {
       titel: 'Morgen begint het.',
       tekst: 'Zet je eerste Mooove-alarm en word wakker met een overwinning.',
     },
+    nieuwsbrief: {
+      titel: 'Betere ochtenden in je inbox',
+      tekst:
+        'The Morning MOOOVE: ongeveer twee keer per maand een praktische ochtendtip en nieuws over de app.',
+      plaats: 'jouw@email.nl',
+      knop: 'Aanmelden',
+      toestemming:
+        'Ja, stuur mij de Mooove-nieuwsbrief: ongeveer twee keer per maand tips voor betere ochtenden en nieuws over de app. Afmelden kan altijd met één klik.',
+      bezig: 'Even geduld…',
+      gelukt: 'Bijna klaar! Check je inbox en bevestig je aanmelding.',
+      fout: 'Dat lukte niet. Probeer het later nog eens.',
+      ongeldig: 'Vul een geldig e-mailadres in.',
+      teVaak: 'Te veel pogingen. Probeer het over een uur opnieuw.',
+      geenToestemming: 'Vink het vakje aan om je aan te melden voor de nieuwsbrief.',
+      klein:
+        'Los van de wachtlijst. Afmelden kan met één klik in elke e-mail. Zie de privacyverklaring.',
+      bevestigTitel: 'Aanmelding bevestigen',
+      bevestigBezig: 'Je aanmelding wordt bevestigd…',
+      bevestigGelukt: 'Gelukt! Je bent aangemeld voor The Morning MOOOVE.',
+      bevestigVerlopen: 'Deze link is verlopen. Meld je opnieuw aan op de homepage.',
+      bevestigOngeldig: 'Deze link werkt niet (meer). Meld je opnieuw aan op de homepage.',
+      afmeldTitel: 'Afmelden voor de nieuwsbrief',
+      afmeldTekst:
+        'Wil je geen Mooove-nieuwsbrief meer ontvangen? Bevestig hieronder; je krijgt daarna geen nieuwsbrieven meer.',
+      afmeldKnop: 'Afmelden',
+      afmeldGelukt: 'Je bent afgemeld. Je ontvangt geen nieuwsbrieven meer.',
+      afmeldFout: 'Afmelden lukte niet. Mail ons gerust, dan regelen we het.',
+      naarHome: 'Naar de homepage',
+    },
     wachtlijst: {
       titel: 'Zet je op de wachtlijst',
       tekst:
@@ -433,6 +462,35 @@ export const LANDING = {
     cta: {
       titel: 'It starts tomorrow.',
       tekst: 'Set your first Mooove alarm and wake up with a win.',
+    },
+    nieuwsbrief: {
+      titel: 'Better mornings in your inbox',
+      tekst:
+        'The Morning MOOOVE: about twice a month, one practical morning tip and news about the app.',
+      plaats: 'you@email.com',
+      knop: 'Subscribe',
+      toestemming:
+        'Yes, send me the Mooove newsletter: about twice a month, tips for better mornings and news about the app. You can unsubscribe anytime with one click.',
+      bezig: 'One moment…',
+      gelukt: 'Almost there! Check your inbox and confirm your subscription.',
+      fout: 'That didn’t work. Please try again later.',
+      ongeldig: 'Please enter a valid email address.',
+      teVaak: 'Too many attempts. Try again in an hour.',
+      geenToestemming: 'Tick the box to subscribe to the newsletter.',
+      klein:
+        'Separate from the waiting list. Unsubscribe with one click in every email. See the privacy policy.',
+      bevestigTitel: 'Confirm subscription',
+      bevestigBezig: 'Confirming your subscription…',
+      bevestigGelukt: 'Done! You’re subscribed to The Morning MOOOVE.',
+      bevestigVerlopen: 'This link has expired. Please subscribe again on the homepage.',
+      bevestigOngeldig: 'This link no longer works. Please subscribe again on the homepage.',
+      afmeldTitel: 'Unsubscribe from the newsletter',
+      afmeldTekst:
+        'Don’t want the Mooove newsletter anymore? Confirm below and you won’t receive any more newsletters.',
+      afmeldKnop: 'Unsubscribe',
+      afmeldGelukt: 'You’re unsubscribed. You won’t receive any more newsletters.',
+      afmeldFout: 'Unsubscribing didn’t work. Just email us and we’ll take care of it.',
+      naarHome: 'Go to the homepage',
     },
     wachtlijst: {
       titel: 'Join the waiting list',
@@ -663,6 +721,35 @@ export const LANDING = {
     cta: {
       titel: 'Mañana empieza.',
       tekst: 'Pon tu primera alarma de Mooove y despiértate con una victoria.',
+    },
+    nieuwsbrief: {
+      titel: 'Mañanas mejores en tu bandeja de entrada',
+      tekst:
+        'The Morning MOOOVE: unas dos veces al mes, un consejo práctico para la mañana y novedades de la app.',
+      plaats: 'tu@email.com',
+      knop: 'Suscribirme',
+      toestemming:
+        'Sí, envíame el boletín de Mooove: unas dos veces al mes, consejos para mañanas mejores y novedades de la app. Puedes darte de baja cuando quieras con un clic.',
+      bezig: 'Un momento…',
+      gelukt: '¡Casi listo! Revisa tu bandeja de entrada y confirma tu suscripción.',
+      fout: 'No ha funcionado. Inténtalo más tarde.',
+      ongeldig: 'Introduce un correo electrónico válido.',
+      teVaak: 'Demasiados intentos. Vuelve a intentarlo en una hora.',
+      geenToestemming: 'Marca la casilla para suscribirte al boletín.',
+      klein:
+        'Independiente de la lista de espera. Date de baja con un clic en cada correo. Consulta la política de privacidad.',
+      bevestigTitel: 'Confirmar suscripción',
+      bevestigBezig: 'Confirmando tu suscripción…',
+      bevestigGelukt: '¡Listo! Estás suscrito a The Morning MOOOVE.',
+      bevestigVerlopen: 'Este enlace ha caducado. Vuelve a suscribirte en la página de inicio.',
+      bevestigOngeldig: 'Este enlace ya no funciona. Vuelve a suscribirte en la página de inicio.',
+      afmeldTitel: 'Darse de baja del boletín',
+      afmeldTekst:
+        '¿Ya no quieres recibir el boletín de Mooove? Confírmalo abajo y no recibirás más boletines.',
+      afmeldKnop: 'Darme de baja',
+      afmeldGelukt: 'Te has dado de baja. No recibirás más boletines.',
+      afmeldFout: 'No se pudo completar la baja. Escríbenos y lo solucionamos.',
+      naarHome: 'Ir a la página de inicio',
     },
     wachtlijst: {
       titel: 'Apúntate a la lista de espera',
@@ -898,6 +985,36 @@ export const LANDING = {
       titel: 'Morgen geht’s los.',
       tekst: 'Stell deinen ersten Mooove-Wecker und wach mit einem Erfolg auf.',
     },
+    nieuwsbrief: {
+      titel: 'Bessere Morgen in deinem Postfach',
+      tekst:
+        'The Morning MOOOVE: etwa zweimal im Monat ein praktischer Morgentipp und Neuigkeiten zur App.',
+      plaats: 'du@email.de',
+      knop: 'Anmelden',
+      toestemming:
+        'Ja, schickt mir den Mooove-Newsletter: etwa zweimal im Monat Tipps für bessere Morgen und Neuigkeiten zur App. Abmelden ist jederzeit mit einem Klick möglich.',
+      bezig: 'Einen Moment…',
+      gelukt: 'Fast geschafft! Schau in dein Postfach und bestätige deine Anmeldung.',
+      fout: 'Das hat nicht geklappt. Versuch es später noch einmal.',
+      ongeldig: 'Gib eine gültige E-Mail-Adresse ein.',
+      teVaak: 'Zu viele Versuche. Versuch es in einer Stunde noch einmal.',
+      geenToestemming: 'Setz das Häkchen, um dich für den Newsletter anzumelden.',
+      klein:
+        'Unabhängig von der Warteliste. Abmelden mit einem Klick in jeder E-Mail. Siehe Datenschutzerklärung.',
+      bevestigTitel: 'Anmeldung bestätigen',
+      bevestigBezig: 'Deine Anmeldung wird bestätigt…',
+      bevestigGelukt: 'Geschafft! Du bist für The Morning MOOOVE angemeldet.',
+      bevestigVerlopen: 'Dieser Link ist abgelaufen. Melde dich auf der Startseite erneut an.',
+      bevestigOngeldig:
+        'Dieser Link funktioniert nicht mehr. Melde dich auf der Startseite erneut an.',
+      afmeldTitel: 'Vom Newsletter abmelden',
+      afmeldTekst:
+        'Du möchtest den Mooove-Newsletter nicht mehr bekommen? Bestätige unten, dann bekommst du keine Newsletter mehr.',
+      afmeldKnop: 'Abmelden',
+      afmeldGelukt: 'Du bist abgemeldet. Du bekommst keine Newsletter mehr.',
+      afmeldFout: 'Das Abmelden hat nicht geklappt. Schreib uns einfach, dann erledigen wir das.',
+      naarHome: 'Zur Startseite',
+    },
     wachtlijst: {
       titel: 'Trag dich in die Warteliste ein',
       tekst:
@@ -1131,6 +1248,35 @@ export const LANDING = {
       titel: 'Demain, ça commence.',
       tekst: 'Règle ta première alarme Mooove et réveille-toi avec une victoire.',
     },
+    nieuwsbrief: {
+      titel: 'De meilleurs matins dans ta boîte mail',
+      tekst:
+        'The Morning MOOOVE : environ deux fois par mois, un conseil pratique pour le matin et des nouvelles de l’app.',
+      plaats: 'toi@email.fr',
+      knop: 'M’inscrire',
+      toestemming:
+        'Oui, envoyez-moi la newsletter Mooove : environ deux fois par mois, des conseils pour de meilleurs matins et des nouvelles de l’app. Désinscription possible à tout moment en un clic.',
+      bezig: 'Un instant…',
+      gelukt: 'Presque fini ! Vérifie ta boîte mail et confirme ton inscription.',
+      fout: 'Ça n’a pas marché. Réessaie plus tard.',
+      ongeldig: 'Saisis une adresse e-mail valide.',
+      teVaak: 'Trop de tentatives. Réessaie dans une heure.',
+      geenToestemming: 'Coche la case pour t’inscrire à la newsletter.',
+      klein:
+        'Indépendant de la liste d’attente. Désinscription en un clic dans chaque e-mail. Voir la politique de confidentialité.',
+      bevestigTitel: 'Confirmer l’inscription',
+      bevestigBezig: 'Confirmation de ton inscription…',
+      bevestigGelukt: 'C’est fait ! Tu es inscrit à The Morning MOOOVE.',
+      bevestigVerlopen: 'Ce lien a expiré. Inscris-toi à nouveau sur la page d’accueil.',
+      bevestigOngeldig: 'Ce lien ne fonctionne plus. Inscris-toi à nouveau sur la page d’accueil.',
+      afmeldTitel: 'Se désinscrire de la newsletter',
+      afmeldTekst:
+        'Tu ne veux plus recevoir la newsletter Mooove ? Confirme ci-dessous et tu ne recevras plus de newsletters.',
+      afmeldKnop: 'Me désinscrire',
+      afmeldGelukt: 'Tu es désinscrit. Tu ne recevras plus de newsletters.',
+      afmeldFout: 'La désinscription n’a pas fonctionné. Écris-nous, on s’en occupe.',
+      naarHome: 'Aller à la page d’accueil',
+    },
     wachtlijst: {
       titel: 'Inscris-toi sur la liste d’attente',
       tekst:
@@ -1302,6 +1448,32 @@ export const LANDING = {
       ],
     },
     cta: { titel: '明天就开始。', tekst: '设置你的第一个 Mooove 闹钟，带着胜利醒来。' },
+    nieuwsbrief: {
+      titel: '把更美好的早晨送进你的邮箱',
+      tekst: 'The Morning MOOOVE：大约每月两次，一条实用的晨间建议和应用新闻。',
+      plaats: 'you@email.com',
+      knop: '订阅',
+      toestemming:
+        '是的，请给我发送 Mooove 新闻通讯：大约每月两次，提供更美好早晨的建议和应用新闻。随时可一键退订。',
+      bezig: '请稍候…',
+      gelukt: '快完成了！请查看邮箱并确认订阅。',
+      fout: '没有成功，请稍后再试。',
+      ongeldig: '请输入有效的邮箱地址。',
+      teVaak: '尝试次数过多，请一小时后再试。',
+      geenToestemming: '请勾选方框以订阅新闻通讯。',
+      klein: '与等候名单相互独立。每封邮件中都可一键退订。请参阅隐私政策。',
+      bevestigTitel: '确认订阅',
+      bevestigBezig: '正在确认你的订阅…',
+      bevestigGelukt: '完成！你已订阅 The Morning MOOOVE。',
+      bevestigVerlopen: '此链接已过期。请在首页重新订阅。',
+      bevestigOngeldig: '此链接已失效。请在首页重新订阅。',
+      afmeldTitel: '退订新闻通讯',
+      afmeldTekst: '不想再收到 Mooove 新闻通讯？请在下方确认，之后你将不再收到新闻通讯。',
+      afmeldKnop: '退订',
+      afmeldGelukt: '你已退订，将不再收到新闻通讯。',
+      afmeldFout: '退订未成功。请给我们发邮件，我们会处理。',
+      naarHome: '返回首页',
+    },
     wachtlijst: {
       titel: '加入等候名单',
       tekst: 'Mooove 即将登陆 App Store 和 Google Play。留下你的邮箱地址，我们会通知你一次。',
