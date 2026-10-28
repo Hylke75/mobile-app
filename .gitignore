@@ -47,3 +47,6 @@ yarn-error.*
 .env
 .env.*
 !.env.example
+
+# iOS-certificaten voor EAS (lokaal, nooit committen)
+credentials.json

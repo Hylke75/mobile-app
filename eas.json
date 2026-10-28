@@ -22,6 +22,12 @@
       "environment": "production",
       "channel": "production",
       "autoIncrement": true
+    },
+    "production-lokaal": {
+      "extends": "production",
+      "ios": {
+        "credentialsSource": "local"
+      }
     }
   },
   "submit": {
