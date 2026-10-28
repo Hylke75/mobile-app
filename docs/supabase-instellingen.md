@@ -4,7 +4,7 @@ Deze instellingen staan in het Supabase-dashboard (project `akxnqxuztrtkquzbrsvx
 
 ## Verplicht
 
-- [ ] **E-mailtemplate** — Authentication → Email Templates → _Magic Link_: de tekst moet `{{ .Token }}` bevatten (de app vraagt om een code, niet om een link). Voorbeeld: `Je Mooove-code is {{ .Token }}. Hij is 1 uur geldig.`
+- [ ] **E-mailtemplates** — Authentication → Email Templates → _Magic Link_ én _Confirm signup_ (gebruikt bij de eerste keer inloggen met een nieuw adres): de tekst moet `{{ .Token }}` bevatten (de app vraagt om een code, niet om een link). Voorbeeld: `Je Mooove-code is {{ .Token }}. Hij is 1 uur geldig.`
 - [ ] **Anoniem inloggen aanzetten — verplicht vóór het indienen.** Authentication → Sign In / Providers → _Allow anonymous sign-ins_. Hierop draait "Doorgaan zonder account" (Apple-richtlijn 5.1.1(v): geen verplichte login). Aanbevolen: Authentication → Rate Limits → anonieme aanmeldingen op 30 per uur per IP laten staan.
 - [ ] **E-mailtemplate "Change Email Address"** — moet `{{ .Token }}` bevatten: een gast koppelt zijn e-mailadres met een code (voorbeeld: `Je Mooove-code om je e-mailadres te koppelen is {{ .Token }}.`).
 - [ ] **Eigen SMTP — verplicht vóór het indienen.** Zonder eigen SMTP stuurt Supabase alleen mail naar leden van het Supabase-team: nieuwe gebruikers én reviewers krijgen dan géén inlogcode. Snelste route zolang `mooove-app.com` niet bestaat: het domein `linkandlead.nl` is al geverifieerd in Resend, dus gebruik afzender `noreply@linkandlead.nl` met dezelfde SMTP-gegevens als hieronder (API-sleutel beperkt tot `linkandlead.nl`). Later overstappen naar `noreply@mooove-app.com`.

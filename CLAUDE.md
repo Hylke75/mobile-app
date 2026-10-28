@@ -78,7 +78,7 @@ Draai `lint`, `typecheck` en `test` voordat een taak af is.
 - [x] Account verwijderen kan in de app zelf (Profiel → Account verwijderen)
 - [ ] Web-URL voor verwijderverzoeken (verplicht voor Google Play): `https://mooove-app.com/account-verwijderen`
 - [ ] App Store privacylabels (App Privacy) ingevuld volgens `docs/store/app-store.md`
-- [ ] Supabase: anoniem inloggen aan, e-mailtemplates "Magic Link" en "Change Email Address" bevatten `{{ .Token }}` en eigen SMTP ingesteld
+- [ ] Supabase: anoniem inloggen aan, e-mailtemplates "Magic Link", "Confirm signup" en "Change Email Address" bevatten `{{ .Token }}` en eigen SMTP ingesteld
 - [ ] iOS-build via TestFlight getest op een iPhone met iOS 26 (alarm, snooze, missie, noodstop); stappenplan in `docs/ios-build.md`
 - [ ] Google Play Data safety-formulier ingevuld
 - [x] Screenshots iPhone 6,9" en 6,5" en Android, plus feature graphic (`docs/store/screenshots/`); met koptekst voor de stores in `docs/store/screenshots-tekst/` (`node scripts/store-screenshots-tekst.mjs`); iPad is uitgeschakeld
