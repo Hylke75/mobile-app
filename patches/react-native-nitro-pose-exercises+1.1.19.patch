@@ -12,7 +12,7 @@ index 1be40e2..96a630d 100644
    defaultConfig {
      minSdkVersion 26
 diff --git a/node_modules/react-native-nitro-pose-exercises/android/src/main/java/com/margelo/nitro/nitroposeexercises/NitroPoseExercises.kt b/node_modules/react-native-nitro-pose-exercises/android/src/main/java/com/margelo/nitro/nitroposeexercises/NitroPoseExercises.kt
-index 21bcd3a..fbc0a25 100644
+index 21bcd3a..3620ac2 100644
 --- a/node_modules/react-native-nitro-pose-exercises/android/src/main/java/com/margelo/nitro/nitroposeexercises/NitroPoseExercises.kt
 +++ b/node_modules/react-native-nitro-pose-exercises/android/src/main/java/com/margelo/nitro/nitroposeexercises/NitroPoseExercises.kt
 @@ -136,6 +136,18 @@ private var postureWasLost = false
@@ -309,10 +309,10 @@ index 21bcd3a..fbc0a25 100644
 -        // Hips cropped (close-range front-facing) — accept based on shoulder span
 -        shoulderWidth > 0.08
 -      }
-+      // Rechtop: schouders boven de heupen en de romp niet ver voorover
++      // Rechtop: schouders boven de heupen; bij een squat mag de romp tot ±55° voorover
 +      if (!hips.visible) false
-+      else if (shoulders.y >= hips.y - 0.05 || tiltFromHorizontal(shoulders, hips) <= 55) false
-+      else if (knees.visible) hips.y < knees.y + 0.10 && (if (ankles.visible) knees.y < ankles.y else true)
++      else if (shoulders.y >= hips.y - 0.05 || tiltFromHorizontal(shoulders, hips) <= 35) false
++      else if (knees.visible) hips.y < knees.y + 0.15 && (if (ankles.visible) knees.y < ankles.y else true)
 +      else true
      }
  
@@ -375,7 +375,7 @@ index 21bcd3a..fbc0a25 100644
  }
 \ No newline at end of file
 diff --git a/node_modules/react-native-nitro-pose-exercises/ios/NitroPoseExercises.swift b/node_modules/react-native-nitro-pose-exercises/ios/NitroPoseExercises.swift
-index 1c21499..a080fa5 100644
+index 1c21499..a3dd05d 100644
 --- a/node_modules/react-native-nitro-pose-exercises/ios/NitroPoseExercises.swift
 +++ b/node_modules/react-native-nitro-pose-exercises/ios/NitroPoseExercises.swift
 @@ -95,6 +95,18 @@ private var postureWasLost = false
@@ -633,11 +633,11 @@ index 1c21499..a080fa5 100644
 -            && (anklesVisible ? kneeY < ankleY : true)
 -      }
 -      return shoulderY < hipY - 0.05
-+    // Rechtop: schouders boven de heupen en de romp niet ver voorover
++    // Rechtop: schouders boven de heupen; bij een squat mag de romp tot ±55° voorover
 +    guard hips.visible else { return false }
-+    guard shoulders.y < hips.y - 0.05, tiltFromHorizontal(shoulders, hips) > 55 else { return false }
++    guard shoulders.y < hips.y - 0.05, tiltFromHorizontal(shoulders, hips) > 35 else { return false }
 +    if knees.visible {
-+      return hips.y < knees.y + 0.10 && (ankles.visible ? knees.y < ankles.y : true)
++      return hips.y < knees.y + 0.15 && (ankles.visible ? knees.y < ankles.y : true)
      }
 -    // Hips cropped (close-range front-facing) — accept based on shoulder span
 -    return shoulderWidth > 0.08

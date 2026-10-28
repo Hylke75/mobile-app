@@ -12,6 +12,7 @@ import {
   CALF_RAISE_CONFIG,
   type ExerciseConfig,
   type ExercisePhase,
+  type Landmark,
   GLUTE_BRIDGE_CONFIG,
   LUNGE_CONFIG,
   nitroPoseExercises,
@@ -124,6 +125,47 @@ const BRUGGETJE: ExerciseConfig = {
   ],
   formRules: [],
 };
+
+const SPIEGEL: Record<number, number> = {
+  11: 12,
+  12: 11,
+  13: 14,
+  14: 13,
+  15: 16,
+  16: 15,
+  23: 24,
+  24: 23,
+  25: 26,
+  26: 25,
+  27: 28,
+  28: 27,
+};
+
+// Dezelfde berekening als de bibliotheek: hoek in echte pixels, best zichtbare lichaamskant
+function meetHoek(punten: Landmark[], config: ExerciseConfig, verhouding: number): number | null {
+  const naam = config.phases[0]?.angleName;
+  const def = config.angles.find((a) => a.name === naam);
+  if (!def) return null;
+  const kant = (a: number, b: number, c: number) => {
+    const p = [punten[a], punten[b], punten[c]];
+    if (p.some((x) => !x)) return null;
+    return { p: p as Landmark[], zicht: Math.min(...p.map((x) => x!.visibility)) };
+  };
+  const eigen = kant(def.landmarkA, def.landmarkB, def.landmarkC);
+  const ma = SPIEGEL[def.landmarkA];
+  const mb = SPIEGEL[def.landmarkB];
+  const mc = SPIEGEL[def.landmarkC];
+  const gespiegeld = ma && mb && mc ? kant(ma, mb, mc) : null;
+  const beste = gespiegeld && (!eigen || gespiegeld.zicht > eigen.zicht) ? gespiegeld : eigen;
+  if (!beste || beste.zicht < config.visibilityThreshold) return null;
+  const [a, b, c] = beste.p as [Landmark, Landmark, Landmark];
+  const v1 = [(a.x - b.x) * verhouding, a.y - b.y];
+  const v2 = [(c.x - b.x) * verhouding, c.y - b.y];
+  const lengte = Math.hypot(v1[0]!, v1[1]!) * Math.hypot(v2[0]!, v2[1]!);
+  if (!lengte) return null;
+  const cos = (v1[0]! * v2[0]! + v1[1]! * v2[1]!) / lengte;
+  return Math.round((Math.acos(Math.max(-1, Math.min(1, cos))) * 180) / Math.PI);
+}
 
 function vasthouden(config: ExerciseConfig, doel: number): ExerciseConfig {
   return { ...config, formRules: [], holdDurationMs: doel * 1000 };
@@ -257,6 +299,9 @@ function PoseStap({
   const [gestart, setGestart] = useState(false);
   const [inBeeld, setInBeeld] = useState<boolean | null>(null);
   const [fase, setFase] = useState<ExercisePhase>('unknown');
+  const [hoek, setHoek] = useState<number | null>(null);
+  const [verhouding, zetVerhouding] = useState(9 / 16);
+  const verhoudingRef = useLaatste(verhouding);
   const isIos = Platform.OS === 'ios';
   const donkerGemeld = useRef(false);
   const { t: vertaal } = useTaal();
@@ -324,12 +369,15 @@ function PoseStap({
         setInBeeld(
           zichtbaar(11, 12) && zichtbaar(23, 24) && zichtbaar(25, 26) && zichtbaar(27, 28),
         );
-        if (toonFase) setFase(nitroPoseExercises.currentPhase);
+        if (toonFase) {
+          setFase(nitroPoseExercises.currentPhase);
+          setHoek(meetHoek(punten, poseConfig(oefening, doel), verhoudingRef.current));
+        }
       },
       toonFase ? 200 : 500,
     );
     return () => clearInterval(timer);
-  }, [gestart, toonFase]);
+  }, [gestart, toonFase, oefening, doel, verhoudingRef]);
 
   const meldDonker = useCallback(
     (helderheid: number) => {
@@ -348,17 +396,28 @@ function PoseStap({
       const geaccepteerd = runner.runAsync(() => {
         'worklet';
         try {
-          // Gemiddelde helderheid uit het Y-vlak (steekproef); bij weinig licht een tip
-          const vlak = frame.getPlanes()[0];
-          if (vlak) {
-            const pixels = new Uint8Array(vlak.getPixelBuffer());
-            let som = 0;
-            let aantal = 0;
-            for (let i = 0; i < pixels.length; i += 4999) {
-              som += pixels[i]!;
-              aantal++;
+          // Hulpmetingen mogen de herkenning nooit tegenhouden
+          try {
+            // Breedte/hoogte van het rechtop gedraaide beeld, voor de hoekweergave in de proefronde
+            const gedraaid = frame.orientation === 'left' || frame.orientation === 'right';
+            scheduleOnRN(
+              zetVerhouding,
+              gedraaid ? frame.height / frame.width : frame.width / frame.height,
+            );
+            // Gemiddelde helderheid uit het Y-vlak (steekproef); bij weinig licht een tip
+            const vlak = frame.getPlanes()[0];
+            if (vlak) {
+              const pixels = new Uint8Array(vlak.getPixelBuffer());
+              let som = 0;
+              let aantal = 0;
+              for (let i = 0; i < pixels.length; i += 4999) {
+                som += pixels[i]!;
+                aantal++;
+              }
+              if (aantal > 0) scheduleOnRN(meldDonker, som / aantal);
             }
-            if (aantal > 0) scheduleOnRN(meldDonker, som / aantal);
+          } catch {
+            // Overslaan
           }
           if (isIos) nitroPoseExercises.processFrameIOS(frame);
           else nitroPoseExercises.processFrameAndroid(frame);
@@ -387,6 +446,7 @@ function PoseStap({
               ? `✓ ${vertaal('missie.detector.inBeeld')}`
               : vertaal('missie.detector.nietHelemaalInBeeld')}
             {toonFase ? ` · ${vertaal(`missie.detector.fase.${fase}`)}` : ''}
+            {toonFase && hoek !== null ? ` · ${hoek}°` : ''}
           </Text>
         </View>
       )}
