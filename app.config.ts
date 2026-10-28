@@ -145,6 +145,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-router',
     // Live Activity-widget voor AlarmKit (targets/alarm)
     '@bacons/apple-targets',
+    // Uploadt bij een EAS-build debugsymbolen en source maps (alleen met SENTRY_AUTH_TOKEN in EAS)
+    [
+      '@sentry/react-native/expo',
+      { organization: 'link-lead-hq', project: 'mooove', url: 'https://de.sentry.io/' },
+    ],
     [
       'expo-localization',
       {
