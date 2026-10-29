@@ -15,6 +15,8 @@ const mockNep = {
   },
   handoff: null as null | { alarmId: string; timestamp: number; action?: string },
   log: [] as string[],
+  // Wat AlarmKit echt heeft staan; null = gelijk aan de lijst van de bibliotheek
+  systeem: null as null | string[],
 };
 
 jest.mock('react-native-alarm-scheduler', () => ({
@@ -32,6 +34,12 @@ jest.mock('react-native-alarm-scheduler', () => ({
     }),
     getCurrentAlarmContextAsync: jest.fn(async () => mockNep.context),
     getAlarmOccurrencesAsync: jest.fn(async () => []),
+    getSystemAlarmsAsync: jest.fn(async () =>
+      (mockNep.systeem ?? [...mockNep.gepland.keys()]).map((id) => ({
+        id: id.toUpperCase(),
+        state: 'scheduled',
+      })),
+    ),
     getPendingNativeAlarmHandoffAsync: jest.fn(async () => mockNep.handoff),
     clearPendingNativeAlarmHandoffAsync: jest.fn(async () => {
       mockNep.handoff = null;
@@ -99,6 +107,7 @@ beforeEach(() => {
   mockNep.context = null;
   mockNep.handoff = null;
   mockNep.log = [];
+  mockNep.systeem = null;
   jest.clearAllMocks();
   deblokkeerSynchronisatie();
   // Zondag 25 oktober 2026, 10:00 (Europe/Amsterdam)
@@ -108,6 +117,16 @@ beforeEach(() => {
 afterEach(() => jest.useRealTimers());
 
 describe('synchroniseer', () => {
+  it('plant een alarm opnieuw in als AlarmKit het kwijt is, en telt alleen echte alarmen', async () => {
+    await synchroniseer([alarm()]);
+    expect(syncStatus()).toMatchObject({ verwacht: 1, gepland: 1 });
+    // AlarmKit heeft het alarm geschrapt, de bibliotheek weet van niets
+    mockNep.systeem = [];
+    mockNep.log = [];
+    await synchroniseer([alarm()]);
+    expect(mockNep.log).toEqual(['annuleer:a1', 'plan:a1']);
+  });
+
   it('plant een herhalend alarm opnieuw in nadat het is afgerond', async () => {
     await synchroniseer([alarm()]);
     await rondWekkerAf('a1');

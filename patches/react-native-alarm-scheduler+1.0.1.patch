@@ -41,6 +41,29 @@ index efa20e2..45a2f8a 100644
      }
      return .relative(.init(time: time, repeats: .weekly(weekdays.map(toLocaleWeekday))))
    }
+diff --git a/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerModule.swift b/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerModule.swift
+index 7c9750b..56be86b 100644
+--- a/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerModule.swift
++++ b/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerModule.swift
+@@ -57,6 +57,18 @@ public class AlarmSchedulerModule: Module {
+       return self.visibleScheduledAlarms()
+     }
+ 
++    // Mooove: de alarmen die AlarmKit echt heeft staan (los van de eigen lijst van de bibliotheek),
++    // zodat de app kan controleren of elk ingeschakeld alarm werkelijk afgaat.
++    AsyncFunction("getSystemAlarmsAsync") { () -> [[String: Any]] in
++      #if canImport(AlarmKit)
++      if #available(iOS 26.0, *) {
++        let alarms = (try? AlarmManager.shared.alarms) ?? []
++        return alarms.map { ["id": $0.id.uuidString, "state": self.mapAlarmState($0.state)] }
++      }
++      #endif
++      return []
++    }
++
+     AsyncFunction("getCurrentAlarmContextAsync") { () -> [String: Any]? in
+       return self.currentAlarmContext()
+     }
 diff --git a/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerTypes.swift b/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerTypes.swift
 index 0a28ac0..d42d7bf 100644
 --- a/node_modules/react-native-alarm-scheduler/ios/AlarmScheduler/AlarmSchedulerTypes.swift

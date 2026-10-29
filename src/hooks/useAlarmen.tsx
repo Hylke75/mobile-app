@@ -17,6 +17,7 @@ import { toonPremium, usePremium } from '@/hooks/usePremium';
 import { alarmenBinnenToegang, alarmToegestaan } from '@/lib/premium';
 import { annuleerAlarm, deblokkeerSynchronisatie, synchroniseer } from '@/lib/alarmen';
 import { zetGeluidKeuze, type GeluidKeuze } from '@/lib/alarmgeluid';
+import { meldFout } from '@/lib/fouten';
 import { leesLokaal, schrijfLokaal, SLEUTELS } from '@/lib/opslag';
 import { supabase } from '@/lib/supabase';
 import type { Alarm, EigenMissie, MissieId, Niveau } from '@/types/app';
@@ -123,7 +124,10 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
     // Zonder Premium gaan alarmen af zoals de proef of de gratis versie toestaat
     synchroniseer(alarmenBinnenToegang(lijst, toegangRef.current), pauze.current, eigenRef.current)
       .then(() => setFout(null))
-      .catch(() => setFout(t('meldingen.alarmenNietGepland')));
+      .catch((e) => {
+        meldFout(e);
+        setFout(t('meldingen.alarmenNietGepland'));
+      });
   }, []);
 
   const zetEnSync = useCallback(

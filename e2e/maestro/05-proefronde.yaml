@@ -1,0 +1,15 @@
+# Proefronde vanuit de alarm-editor: missie openen, een stap zonder camera afronden en weer
+# sluiten. Controleert dat het missiescherm altijd sluit. Vereist een ingelogde sessie.
+appId: nl.linkandlead.mobileapp
+---
+- launchApp
+- tapOn: 'Alarmen'
+- tapOn: 'Maak een alarm'
+- scrollUntilVisible:
+    element: 'Oefen deze missie'
+- tapOn: 'Oefen deze missie'
+- assertVisible: 'Noodstop'
+- tapOn: 'Noodstop'
+- tapOn: 'Doorgaan'
+# Terug in de editor: het missiescherm is gesloten
+- assertNotVisible: 'Noodstop'

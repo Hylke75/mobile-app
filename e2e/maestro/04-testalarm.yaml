@@ -1,0 +1,21 @@
+# Echt testalarm van 30 seconden: inplannen, laten afgaan en afronden. Vereist een ingelogde
+# sessie en toestemming voor alarmen. Draai dit vóór elke TestFlight-build op een iPhone of
+# simulator met iOS 26 (AlarmKit), of op Android.
+appId: nl.linkandlead.mobileapp
+---
+- launchApp
+- tapOn: 'Profiel'
+- scrollUntilVisible:
+    element: 'Test je alarm'
+- tapOn: 'Test je alarm'
+- assertVisible: 'Even testen.'
+# Het alarm gaat na 30 seconden af; de app vraagt daarna of het te horen was
+- extendedWaitUntil:
+    visible: 'Ja, test geslaagd'
+    timeout: 60000
+- tapOn: 'Ja, test geslaagd'
+- assertVisible: 'Testalarm geslaagd ✓'
+# Na afloop mag er geen testalarm meer klaarstaan: de Alarm-check blijft groen
+- scrollUntilVisible:
+    element: 'Alarm-check'
+- assertVisible: 'Alarm-check'

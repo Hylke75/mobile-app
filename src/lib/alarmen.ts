@@ -14,7 +14,10 @@ import {
   leesGeluidKeuzes,
   type Alarmgeluid,
 } from '@/lib/alarmgeluid';
+import { Platform } from 'react-native';
+
 import { huidigeTaal, t } from '@/i18n';
+import { meldFout } from '@/lib/fouten';
 import { planMoment } from '@/lib/tijd';
 import { eigenNaarTekst, eigenUitTekst, isEigen, type EigenMissies } from '@/lib/missies';
 import type { Alarm, Doelen, EigenMissie, MissieId, Niveau } from '@/types/app';
@@ -226,6 +229,21 @@ async function ruimHulpalarmenOp(): Promise<void> {
   }
 }
 
+// De alarmen die AlarmKit echt heeft staan (ids in kleine letters); null buiten iOS of zonder
+// de functie uit onze patch van react-native-alarm-scheduler
+async function systeemAlarmen(): Promise<Set<string> | null> {
+  const module = AlarmScheduler as unknown as {
+    getSystemAlarmsAsync?: () => Promise<{ id: string; state: string }[]>;
+  };
+  if (Platform.OS !== 'ios' || typeof module.getSystemAlarmsAsync !== 'function') return null;
+  try {
+    const lijst = await module.getSystemAlarmsAsync();
+    return new Set(lijst.map((a) => a.id.toLowerCase()));
+  } catch {
+    return null;
+  }
+}
+
 // Brengt de native alarmen in lijn met de alarmen uit de database; runs lopen na elkaar
 export function synchroniseer(
   alarms: Alarm[],
@@ -275,14 +293,27 @@ export function synchroniseer(
       await AlarmScheduler.scheduleAlarmAsync(alarmInput(alarm, p.geluid, p.eerste, eigen));
     }
 
-    // Controle achteraf: staat elk ingeschakeld alarm echt op het toestel?
-    const opToestel = new Set(
-      (await AlarmScheduler.getScheduledAlarmsAsync()).map((native) => native.id),
-    );
+    // Controle achteraf: staat elk ingeschakeld alarm echt in iOS? De lijst van de bibliotheek
+    // kan een alarm nog bevatten dat AlarmKit al heeft geschrapt; dat plannen we opnieuw in.
+    const echt = await systeemAlarmen();
+    if (echt) {
+      for (const alarm of gewenst.values()) {
+        if (echt.has(alarm.id.toLowerCase())) continue;
+        meldFout(new Error('Alarm ontbrak in AlarmKit en is opnieuw ingepland'));
+        const p = plan.get(alarm.id)!;
+        await AlarmScheduler.cancelAlarmAsync(alarm.id).catch(() => false);
+        await AlarmScheduler.scheduleAlarmAsync(alarmInput(alarm, p.geluid, p.eerste, eigen));
+      }
+    }
+    const opToestel =
+      (await systeemAlarmen()) ??
+      new Set((await AlarmScheduler.getScheduledAlarmsAsync()).map((native) => native.id));
     laatsteSync = {
       op: new Date(),
       verwacht: gewenst.size,
-      gepland: [...gewenst.keys()].filter((id) => opToestel.has(id)).length,
+      gepland: [...gewenst.keys()].filter(
+        (id) => opToestel.has(id.toLowerCase()) || opToestel.has(id),
+      ).length,
     };
     for (const luisteraar of syncLuisteraars) luisteraar(laatsteSync);
   });
