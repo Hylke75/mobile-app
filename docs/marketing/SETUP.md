@@ -10,6 +10,7 @@ repo of in de browser.
 2. `supabase/migrations/20261028140000_marketing_fundament.sql`
 3. `supabase/migrations/20261029100000_nieuwsbrief_module.sql` (maakt ook de zes concepten aan)
 4. `supabase/migrations/20261029120000_app_events.sql` (proeffunnel)
+5. `supabase/migrations/20261029140000_groei_beheer.sql` (uitnodigingscodes, opschonen, beheerstatus)
 
 Alle migraties zijn additief. Terugdraaien: de nieuwe tabellen `newsletter_*`, `email_*` en
 `marketing_*` droppen; de app gebruikt ze niet.
@@ -65,6 +66,15 @@ select cron.schedule(
 
 Stoppen: `select cron.unschedule('mooove-mail-worker');`. Zonder cron kan de wachtrij ook met de
 knop **Wachtrij nu verwerken** in het beheer worden verwerkt.
+
+Dagelijks opschonen (bewaartermijnen: misbruikrem 2 dagen, wachtrij en bezorgmeldingen 90 dagen,
+onbevestigde contacten 30 dagen, events 25 maanden, beheerlog 1 jaar, auditlog 2 jaar):
+
+```sql
+select cron.schedule('mooove-opschonen', '17 3 * * *', $$ select public.marketing_opschonen(); $$);
+```
+
+Het tabblad **Marketing → Status** in het beheer toont of beide jobs bestaan.
 
 ## 5. Resend-webhook
 

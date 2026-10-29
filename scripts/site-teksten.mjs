@@ -210,6 +210,8 @@ export const LANDING = {
       titel: 'Morgen begint het.',
       tekst: 'Zet je eerste Mooove-alarm en word wakker met een overwinning.',
     },
+    uitnodiging:
+      'Je bent uitgenodigd! Download Mooove en vul code {code} in bij Profiel → Vrienden uitnodigen. Dan krijgen jullie allebei een maand Premium.',
     nieuwsbrief: {
       titel: 'Betere ochtenden in je inbox',
       tekst:
@@ -463,6 +465,8 @@ export const LANDING = {
       titel: 'It starts tomorrow.',
       tekst: 'Set your first Mooove alarm and wake up with a win.',
     },
+    uitnodiging:
+      'You’re invited! Download Mooove and enter code {code} under Profile → Invite friends. You’ll both get a month of Premium.',
     nieuwsbrief: {
       titel: 'Better mornings in your inbox',
       tekst:
@@ -722,6 +726,8 @@ export const LANDING = {
       titel: 'Mañana empieza.',
       tekst: 'Pon tu primera alarma de Mooove y despiértate con una victoria.',
     },
+    uitnodiging:
+      '¡Te han invitado! Descarga Mooove e introduce el código {code} en Perfil → Invitar a amigos. Los dos recibiréis un mes de Premium.',
     nieuwsbrief: {
       titel: 'Mañanas mejores en tu bandeja de entrada',
       tekst:
@@ -985,6 +991,8 @@ export const LANDING = {
       titel: 'Morgen geht’s los.',
       tekst: 'Stell deinen ersten Mooove-Wecker und wach mit einem Erfolg auf.',
     },
+    uitnodiging:
+      'Du bist eingeladen! Lade Mooove herunter und gib den Code {code} unter Profil → Freunde einladen ein. Ihr bekommt beide einen Monat Premium.',
     nieuwsbrief: {
       titel: 'Bessere Morgen in deinem Postfach',
       tekst:
@@ -1248,6 +1256,8 @@ export const LANDING = {
       titel: 'Demain, ça commence.',
       tekst: 'Règle ta première alarme Mooove et réveille-toi avec une victoire.',
     },
+    uitnodiging:
+      'Tu es invité ! Télécharge Mooove et saisis le code {code} dans Profil → Inviter des amis. Vous recevrez tous les deux un mois de Premium.',
     nieuwsbrief: {
       titel: 'De meilleurs matins dans ta boîte mail',
       tekst:
@@ -1448,6 +1458,8 @@ export const LANDING = {
       ],
     },
     cta: { titel: '明天就开始。', tekst: '设置你的第一个 Mooove 闹钟，带着胜利醒来。' },
+    uitnodiging:
+      '你收到了邀请！下载 Mooove，并在“个人资料 → 邀请好友”中输入邀请码 {code}，你们都将获得一个月 Premium。',
     nieuwsbrief: {
       titel: '把更美好的早晨送进你的邮箱',
       tekst: 'The Morning MOOOVE：大约每月两次，一条实用的晨间建议和应用新闻。',

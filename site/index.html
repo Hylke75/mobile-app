@@ -178,6 +178,7 @@ section{padding:88px 0}
 .wachtlijst .wl-melding{min-height:22px;margin:12px 0 4px;color:var(--lime);font-weight:700}
 .wachtlijst small{color:#8A968C;font-size:12.5px}.wachtlijst small a{color:#C7D1C7}
 .wachtlijst .toestemming{display:flex;gap:10px;align-items:flex-start;margin:14px 0 0;color:#C7D1C7;font-size:13.5px;line-height:1.45;cursor:pointer}
+.uitnodiging{max-width:880px;margin:18px auto 0;padding:14px 18px;border-radius:16px;background:#D9F36B;color:#151F18;font-weight:700;font-size:15px;line-height:1.45;text-align:center}
 .wachtlijst .toestemming input{flex:none;width:20px;height:20px;margin:1px 0 0;accent-color:var(--lime)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 footer{padding:44px 0 56px;color:var(--muted);font-size:14px}
@@ -211,6 +212,17 @@ html[lang^=zh] :is(h1,h2,h3,.kop,.kop2,.kicker,.lead){letter-spacing:0}
     <div class="tel t1 wissel"><img src="/beelden/nl/01-vandaag.webp" width="640" height="1391" alt="Je dag in één oogopslag" loading="eager" decoding="async"><img src="/beelden/nl/03-alarm-instellen.webp" width="640" height="1391" alt="" aria-hidden="true" loading="lazy" decoding="async"><img src="/beelden/nl/05-klaar.webp" width="640" height="1391" alt="" aria-hidden="true" loading="lazy" decoding="async"><img src="/beelden/nl/04-progressie.webp" width="640" height="1391" alt="" aria-hidden="true" loading="lazy" decoding="async"></div>
   </div>
 </div></header>
+<p class="uitnodiging" hidden role="status"></p>
+<script>
+(() => {
+  // Uitnodigingslink (?code=ABC234): laat de code en wat je ermee doet zien
+  const code = (new URLSearchParams(location.search).get('code') || '').toUpperCase();
+  if (!/^[A-Z0-9]{6}$/.test(code)) return;
+  const balk = document.querySelector('.uitnodiging');
+  balk.textContent = "Je bent uitgenodigd! Download Mooove en vul code {code} in bij Profiel → Vrienden uitnodigen. Dan krijgen jullie allebei een maand Premium.".replace('{code}', code);
+  balk.hidden = false;
+})();
+</script>
 
 <main>
 <section><div class="wrap duo">

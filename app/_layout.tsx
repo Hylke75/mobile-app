@@ -119,6 +119,10 @@ function RootNavigator() {
             name="premium"
             options={{ contentStyle: { backgroundColor: kleuren.ink }, presentation: 'modal' }}
           />
+          <Stack.Screen
+            name="uitnodigen"
+            options={{ contentStyle: { backgroundColor: kleuren.ink } }}
+          />
         </Stack.Protected>
 
         <Stack.Screen

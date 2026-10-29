@@ -52,12 +52,13 @@ wekker,alarm,ochtend,bewegen,squats,fitness,routine,streak,opstaan,snooze,missie
 - Gebruiksdata → Productinteractie (alarmen, missieresultaten) — App-functionaliteit
 - Gebruikerscontent → Overige gebruikerscontent (namen van eigen missies, ochtendgevoel na een missie, feedbackberichten) — App-functionaliteit
 - Gebruikerscontent → Klantenservice (feedbackberichten uit de app) — App-functionaliteit
+- Aankopen → Aankoopgeschiedenis (Premium via App Store, verwerkt door RevenueCat) — App-functionaliteit
 
 **Data die niet aan je identiteit is gekoppeld** (alleen als Sentry aan staat)
 
 - Diagnostiek → Crashgegevens — App-functionaliteit
 
-**Niet verzameld:** locatie, gezondheid (medisch), foto's of video's (camerabeelden blijven op het toestel), audio, contacten, aankopen, apparaat-ID's, advertentiedata.
+**Niet verzameld:** locatie, gezondheid (medisch), foto's of video's (camerabeelden blijven op het toestel), audio, contacten, apparaat-ID's, advertentiedata.
 **Gebruikt voor tracking:** nee. Deze antwoorden komen overeen met het privacymanifest in de build (`ios.privacyManifests` in `app.config.ts`).
 **Tracking:** nee.
 

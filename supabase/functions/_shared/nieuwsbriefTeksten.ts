@@ -22,6 +22,12 @@ type Teksten = {
   waarom: string;
   afmelden: string;
   test: string;
+  // Eenmalige lanceringsmail aan de wachtlijst
+  lanceringOnderwerp: string;
+  lanceringTitel: string;
+  lanceringTekst: string;
+  lanceringKnop: string;
+  lanceringVoet: string;
 };
 
 export const NIEUWSBRIEF_TEKSTEN: Record<Taal, Teksten> = {
@@ -44,6 +50,11 @@ export const NIEUWSBRIEF_TEKSTEN: Record<Taal, Teksten> = {
       'Je ontvangt deze e-mail omdat je je hebt aangemeld voor The Morning MOOOVE, de nieuwsbrief van Mooove (Hylke Thiry, hylke@linkandlead.nl).',
     afmelden: 'Afmelden',
     test: 'TEST — deze mail is alleen naar testadressen verstuurd',
+    lanceringOnderwerp: 'Mooove is er! ☀️',
+    lanceringTitel: 'Mooove is beschikbaar',
+    lanceringTekst: 'Je zette je op de wachtlijst, en hier is hij: Mooove, de wekker die pas stopt als je in beweging bent. Download de app en zet je eerste alarm.',
+    lanceringKnop: 'Download Mooove',
+    lanceringVoet: 'Dit was de eenmalige mail die we je beloofden. Je adres is nu van de wachtlijst verwijderd. Vragen: hylke@linkandlead.nl.',
   },
   en: {
     toestemming:
@@ -65,6 +76,11 @@ export const NIEUWSBRIEF_TEKSTEN: Record<Taal, Teksten> = {
       'You’re receiving this email because you subscribed to The Morning MOOOVE, the Mooove newsletter (Hylke Thiry, hylke@linkandlead.nl).',
     afmelden: 'Unsubscribe',
     test: 'TEST — this email was only sent to test addresses',
+    lanceringOnderwerp: 'Mooove is here! ☀️',
+    lanceringTitel: 'Mooove is available',
+    lanceringTekst: 'You joined the waitlist, and here it is: Mooove, the alarm that only stops once you’re moving. Download the app and set your first alarm.',
+    lanceringKnop: 'Download Mooove',
+    lanceringVoet: 'This was the one-time email we promised you. Your address has now been removed from the waitlist. Questions: hylke@linkandlead.nl.',
   },
   es: {
     toestemming:
@@ -85,6 +101,11 @@ export const NIEUWSBRIEF_TEKSTEN: Record<Taal, Teksten> = {
       'Recibes este correo porque te suscribiste a The Morning MOOOVE, el boletín de Mooove (Hylke Thiry, hylke@linkandlead.nl).',
     afmelden: 'Darse de baja',
     test: 'PRUEBA — este correo solo se ha enviado a direcciones de prueba',
+    lanceringOnderwerp: '¡Mooove ya está aquí! ☀️',
+    lanceringTitel: 'Mooove ya está disponible',
+    lanceringTekst: 'Te apuntaste a la lista de espera y aquí está: Mooove, la alarma que solo se para cuando te mueves. Descarga la app y pon tu primera alarma.',
+    lanceringKnop: 'Descargar Mooove',
+    lanceringVoet: 'Este era el único correo que te prometimos. Tu dirección se ha eliminado de la lista de espera. Preguntas: hylke@linkandlead.nl.',
   },
   de: {
     toestemming:
@@ -105,6 +126,11 @@ export const NIEUWSBRIEF_TEKSTEN: Record<Taal, Teksten> = {
       'Du erhältst diese E-Mail, weil du The Morning MOOOVE abonniert hast, den Newsletter von Mooove (Hylke Thiry, hylke@linkandlead.nl).',
     afmelden: 'Abmelden',
     test: 'TEST — diese E-Mail ging nur an Testadressen',
+    lanceringOnderwerp: 'Mooove ist da! ☀️',
+    lanceringTitel: 'Mooove ist verfügbar',
+    lanceringTekst: 'Du hast dich auf die Warteliste gesetzt, und hier ist sie: Mooove, der Wecker, der erst aufhört, wenn du in Bewegung bist. Lade die App und stell deinen ersten Wecker.',
+    lanceringKnop: 'Mooove herunterladen',
+    lanceringVoet: 'Das war die einmalige E-Mail, die wir dir versprochen haben. Deine Adresse wurde jetzt von der Warteliste gelöscht. Fragen: hylke@linkandlead.nl.',
   },
   fr: {
     toestemming:
@@ -125,6 +151,11 @@ export const NIEUWSBRIEF_TEKSTEN: Record<Taal, Teksten> = {
       'Tu reçois cet e-mail parce que tu t’es abonné à The Morning MOOOVE, la newsletter de Mooove (Hylke Thiry, hylke@linkandlead.nl).',
     afmelden: 'Se désinscrire',
     test: 'TEST — cet e-mail n’a été envoyé qu’à des adresses de test',
+    lanceringOnderwerp: 'Mooove est là ! ☀️',
+    lanceringTitel: 'Mooove est disponible',
+    lanceringTekst: 'Tu t’es inscrit sur la liste d’attente, et la voici : Mooove, le réveil qui ne s’arrête que quand tu bouges. Télécharge l’app et règle ta première alarme.',
+    lanceringKnop: 'Télécharger Mooove',
+    lanceringVoet: 'C’était l’unique e-mail que nous t’avions promis. Ton adresse a été supprimée de la liste d’attente. Questions : hylke@linkandlead.nl.',
   },
   zh: {
     toestemming:
@@ -144,5 +175,10 @@ export const NIEUWSBRIEF_TEKSTEN: Record<Taal, Teksten> = {
       '你收到这封邮件是因为你订阅了 Mooove 的新闻通讯 The Morning MOOOVE（Hylke Thiry，hylke@linkandlead.nl）。',
     afmelden: '退订',
     test: '测试——此邮件仅发送至测试地址',
+    lanceringOnderwerp: 'Mooove 上线了！☀️',
+    lanceringTitel: 'Mooove 现已推出',
+    lanceringTekst: '你加入了等候名单，现在它来了：Mooove，只有你动起来才会停止的闹钟。下载应用并设置你的第一个闹钟。',
+    lanceringKnop: '下载 Mooove',
+    lanceringVoet: '这是我们承诺的唯一一封邮件。你的地址已从等候名单中删除。如有疑问：hylke@linkandlead.nl。',
   },
 };

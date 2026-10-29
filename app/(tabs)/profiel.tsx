@@ -560,6 +560,17 @@ export default function ProfielScherm() {
           <Text style={styles.settingValue}>{premiumWaarde}</Text>
         </Pressable>
       )}
+      {VERDIENMODEL_AAN && (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => router.push('/uitnodigen')}
+          style={styles.setting}
+        >
+          <Icon name="heart" color={kl.ink} />
+          <Text style={styles.settingLabel}>{t('uitnodigen.rij')}</Text>
+          <Icon name="chevron" size={16} color={kl.muted} />
+        </Pressable>
+      )}
       {gast && (
         <Pressable
           accessibilityRole="button"

@@ -6,7 +6,7 @@
 // 3. Campagnes zonder openstaande mails afronden.
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 
-import { resend } from './mail.ts';
+import { opmaak, resend } from './mail.ts';
 import {
   consentStatus,
   isTaal,
@@ -18,6 +18,7 @@ import {
   type Taal,
 } from './marketing.ts';
 import { maakMail, schoonBlokken, volgendePoging, welkomCampagne, type Campagne } from './nieuwsbrief.ts';
+import { NIEUWSBRIEF_TEKSTEN } from './nieuwsbriefTeksten.ts';
 
 type Db = SupabaseClient;
 
@@ -165,6 +166,10 @@ export async function verwerkWachtrij(db: Db): Promise<Resultaat> {
       resultaat.overgeslagen++;
       await zetRij(db, rij, { status: 'skipped', last_error: reden }, { status: 'skipped', failure_code: reden });
     };
+    if (rij.render_context_json?.soort === 'lancering') {
+      await verstuurLancering(db, rij, instellingen, provider, resultaat);
+      continue;
+    }
     if (!rij.contact_id) {
       await overslaan('geen_contact');
       continue;
@@ -288,6 +293,74 @@ export async function verwerkWachtrij(db: Db): Promise<Resultaat> {
     await slaap(PAUZE_MS);
   }
   return await rondAf(db, resultaat);
+}
+
+// Eenmalige lanceringsmail aan een wachtlijstadres; daarna gaat het adres van de wachtlijst af
+async function verstuurLancering(
+  db: Db,
+  rij: OutboxRij,
+  instellingen: Awaited<ReturnType<typeof verzendInstellingen>>,
+  provider: ReturnType<typeof resend> | null,
+  resultaat: Resultaat,
+) {
+  const email = String(rij.render_context_json.email ?? '');
+  const taal: Taal = isTaal(rij.render_context_json.taal) ? rij.render_context_json.taal : 'en';
+  const { data: onderdrukt } = await db
+    .from('marketing_suppressions')
+    .select('reason, scope')
+    .eq('email_hash', await sha256(email));
+  const besluit = magVersturen({
+    soort: 'transactional',
+    email,
+    consent: 'none',
+    suppressies: (onderdrukt ?? []) as { reason: SuppressieReden; scope: 'marketing' | 'all' }[],
+    ...instellingen,
+  });
+  if (!besluit.ok || !provider) {
+    resultaat.overgeslagen++;
+    await zetRij(db, rij, {
+      status: besluit.ok ? 'pending' : 'skipped',
+      next_retry_at: new Date(Date.now() + 60 * 60_000).toISOString(),
+      last_error: besluit.ok ? 'geen_resend_sleutel' : besluit.reden,
+    });
+    return;
+  }
+  const t = NIEUWSBRIEF_TEKSTEN[taal];
+  const { html, tekst } = opmaak({
+    taal,
+    titel: t.lanceringTitel,
+    alineas: [t.lanceringTekst],
+    knop: { tekst: t.lanceringKnop, url: `${SITE()}/${taal === 'nl' ? '' : `${taal}/`}?utm_source=wachtlijst&utm_medium=email&utm_campaign=lancering` },
+    voet: t.lanceringVoet,
+  });
+  const verstuurd = await provider.verstuur({
+    aan: email,
+    onderwerp: t.lanceringOnderwerp,
+    html,
+    tekst,
+    idempotencyKey: rij.idempotency_key,
+  });
+  if (verstuurd.ok) {
+    resultaat.verstuurd++;
+    // Belofte op de site: één bericht, daarna verwijderen we je adres
+    await zetRij(db, rij, {
+      status: 'sent',
+      provider_message_id: verstuurd.id,
+      last_error: null,
+      render_context_json: { soort: 'lancering', taal },
+    });
+    await db.from('wachtlijst').delete().eq('email', email);
+  } else {
+    resultaat.mislukt++;
+    const opnieuw = volgendePoging(rij.attempt_count);
+    await zetRij(
+      db,
+      rij,
+      opnieuw
+        ? { status: 'pending', next_retry_at: opnieuw.toISOString(), last_error: verstuurd.fout }
+        : { status: 'dead', last_error: verstuurd.fout },
+    );
+  }
 }
 
 async function rondAf(db: Db, resultaat: Resultaat) {

@@ -935,6 +935,7 @@
         <div class="segment weergave" id="m-sub" role="group" aria-label="Marketingonderdeel">
           <button type="button" data-sub="contacten" aria-pressed="true">Contacten</button>
           <button type="button" data-sub="nieuwsbrieven" aria-pressed="false">Nieuwsbrieven</button>
+          <button type="button" data-sub="status" aria-pressed="false">Status</button>
         </div>
         <div id="m-tab-contacten">
           <div class="filters">
@@ -1025,6 +1026,40 @@
               </div>
               <ul class="berichten" id="m-log"></ul>
             </div>
+          </div>
+        </div>
+
+        <div id="m-tab-status" class="verborgen">
+          <div class="melding" id="st-melding" role="alert"></div>
+          <div class="tegels" id="st-tegels"></div>
+          <div class="raster" style="grid-template-columns: 1fr 1fr; margin-top: 16px">
+            <div class="kaart">
+              <div class="kaart-kop">
+                <div>
+                  <h2>Instellingen en geheimen</h2>
+                  <p>Geheimen worden nooit getoond, alleen of ze zijn ingesteld</p>
+                </div>
+              </div>
+              <ul class="berichten" id="st-secrets"></ul>
+            </div>
+            <div class="kaart">
+              <div class="kaart-kop">
+                <div>
+                  <h2>Geplande taken en webhooks</h2>
+                  <p id="st-taken-sub"></p>
+                </div>
+              </div>
+              <ul class="berichten" id="st-taken"></ul>
+            </div>
+          </div>
+          <div class="kaart" style="margin-top: 16px">
+            <div class="kaart-kop">
+              <div>
+                <h2>Nog te doen voor de lancering</h2>
+                <p>Uit de checklist in CLAUDE.md en docs/marketing/SETUP.md</p>
+              </div>
+            </div>
+            <ul class="berichten" id="st-checklist"></ul>
           </div>
         </div>
 
@@ -1143,7 +1178,12 @@
                 <h2>Verzendwachtrij</h2>
                 <p id="n-wachtrij-sub"></p>
               </div>
-              <button type="button" class="zacht" id="n-verwerk">Wachtrij nu verwerken</button>
+              <div class="rij">
+                <button type="button" class="zacht" id="n-lancering">
+                  Lanceringsmail wachtlijst
+                </button>
+                <button type="button" class="zacht" id="n-verwerk">Wachtrij nu verwerken</button>
+              </div>
             </div>
             <ul class="berichten" id="n-wachtrij"></ul>
           </div>
@@ -2487,7 +2527,9 @@
           .forEach((k) => k.setAttribute('aria-pressed', String(k.dataset.sub === naam)));
         toon($('m-tab-contacten'), naam === 'contacten');
         toon($('m-tab-nieuwsbrieven'), naam === 'nieuwsbrieven');
+        toon($('m-tab-status'), naam === 'status');
         if (naam === 'nieuwsbrieven') laadNieuwsbrieven();
+        if (naam === 'status') laadStatus();
       }
       document.querySelectorAll('#m-sub button').forEach((knop) => {
         knop.onclick = () => kiesSub(knop.dataset.sub);
@@ -2978,6 +3020,103 @@
           alert(e.message);
         }
       };
+      $('n-lancering').onclick = async () => {
+        if (
+          !confirm(
+            'De eenmalige lanceringsmail naar de wachtlijst sturen?\n\nIn testmodus alleen naar testadressen die ook op de wachtlijst staan. Na verzending wordt elk adres van de wachtlijst verwijderd.',
+          )
+        )
+          return;
+        try {
+          const a = await nbActie({ actie: 'lancering', bevestigd: true });
+          alert(
+            `${a.aantal} adressen in de wachtrij. Ze worden bij de volgende verwerking verstuurd.`,
+          );
+          laadNieuwsbrieven();
+        } catch (e) {
+          alert(e.message);
+        }
+      };
+
+      // ---------- Status ----------
+      const CHECKLIST = [
+        'Migraties uitgevoerd (supabase/migrations, SQL-editor)',
+        'Function-secrets ingevuld (zie hiernaast)',
+        'Cron-taken mooove-mail-worker en mooove-opschonen aangezet',
+        'Webhooks in Resend en RevenueCat ingesteld',
+        'DMARC-record bij TransIP',
+        'Anoniem inloggen aan in Supabase',
+        'Paid Apps-overeenkomst, bank en belasting in App Store Connect',
+        'App Privacy-labels (incl. Purchases) in App Store Connect',
+        'Site online op www.mooove-app.com',
+        'TestFlight-build getest op een iPhone met iOS 26',
+      ];
+      async function laadStatus() {
+        $('st-melding').textContent = '';
+        let a;
+        try {
+          a = await marketingActie({ actie: 'status' });
+        } catch (e) {
+          return ($('st-melding').textContent = e.message);
+        }
+        const modus =
+          { disabled: 'Uit', test: 'Test', live: 'LIVE' }[a.instellingen.send_mode] ?? '—';
+        const ontbreekt = Object.values(a.secrets).filter((v) => !v).length;
+        tegelsIn($('st-tegels'), [
+          {
+            lbl: 'Verzendmodus',
+            waarde: modus,
+            extra: a.instellingen.kill_switch ? 'noodstop aan' : 'noodstop uit',
+            held: true,
+          },
+          {
+            lbl: 'Geheimen',
+            waarde: ontbreekt ? `${ontbreekt} ontbreekt` : 'Compleet',
+            extra: 'function-secrets',
+          },
+          {
+            lbl: 'Wachtrij',
+            waarde: getal(a.wachtrij.wachtend),
+            extra: `${getal(a.wachtrij.mislukt)} mislukt`,
+          },
+          { lbl: 'Wachtlijst', waarde: getal(a.wachtlijst), extra: 'nog niet gemaild' },
+        ]);
+        $('st-secrets').replaceChildren(
+          ...Object.entries(a.secrets).map(([naam, ok]) =>
+            bericht([ok ? '✓' : '✕', naam, ok ? 'ingesteld' : 'ontbreekt']),
+          ),
+        );
+        const taken = a.systeem.taken ?? [];
+        $('st-taken-sub').textContent = taken.length
+          ? `${taken.length} geplande taken`
+          : 'Geen geplande taken gevonden (pg_cron uit?)';
+        $('st-taken').replaceChildren(
+          ...taken.map((tk) =>
+            bericht([
+              tk.actief ? '✓' : '✕',
+              tk.taak,
+              tk.schema,
+              tk.laatste
+                ? `laatste ${new Date(tk.laatste).toLocaleString('nl-NL')} (${tk.status})`
+                : 'nog niet gedraaid',
+            ]),
+          ),
+          bericht([
+            'Laatste bezorgmelding (Resend)',
+            a.systeem.laatsteBezorgmelding
+              ? new Date(a.systeem.laatsteBezorgmelding).toLocaleString('nl-NL')
+              : 'nog geen',
+          ]),
+          bericht([
+            'Laatste winkelmelding (RevenueCat)',
+            a.systeem.laatsteWinkelmelding
+              ? new Date(a.systeem.laatsteWinkelmelding).toLocaleString('nl-NL')
+              : 'nog geen',
+          ]),
+        );
+        $('st-checklist').replaceChildren(...CHECKLIST.map((regel) => bericht(['☐', regel])));
+      }
+
       $('n-verwerk').onclick = async () => {
         try {
           const a = await nbActie({ actie: 'verwerk' });

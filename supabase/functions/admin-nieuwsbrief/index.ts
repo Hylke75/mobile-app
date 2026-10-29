@@ -440,6 +440,37 @@ Deno.serve(async (req) => {
       });
     }
 
+    case 'lancering': {
+      // Eenmalige lanceringsmail aan de wachtlijst (de belofte op de site). Alleen de eigenaar.
+      if (rol !== 'owner') return geenToegang();
+      if (invoer.bevestigd !== true) return json({ error: 'Bevestiging ontbreekt' }, 400);
+      const instellingen = await verzendInstellingen(db);
+      if (instellingen.sendMode === 'disabled') {
+        return json({ error: 'Zet de verzendmodus eerst op Test of Live' }, 409);
+      }
+      const { data: lijst } = await db.from('wachtlijst').select('email, taal').limit(50_000);
+      // In testmodus alleen de testadressen die ook op de wachtlijst staan
+      const ontvangers = (lijst ?? []).filter(
+        (w) => instellingen.sendMode === 'live' || instellingen.testontvangers.includes(w.email),
+      );
+      for (let i = 0; i < ontvangers.length; i += 500) {
+        const deel = ontvangers.slice(i, i + 500);
+        const rijen = await Promise.all(
+          deel.map(async (w) => ({
+            email_kind: 'transactional',
+            render_context_json: { soort: 'lancering', email: w.email, taal: w.taal },
+            idempotency_key: `lancering:${await sha256(w.email)}`,
+          })),
+        );
+        await db.from('email_outbox').upsert(rijen, {
+          onConflict: 'idempotency_key',
+          ignoreDuplicates: true,
+        });
+      }
+      await log('lancering', 'wachtlijst', `${ontvangers.length} adressen in de wachtrij`);
+      return json({ ok: true, aantal: ontvangers.length });
+    }
+
     case 'verwerk': {
       if (!isBeheer) return geenToegang();
       const resultaat = await verwerkWachtrij(db);

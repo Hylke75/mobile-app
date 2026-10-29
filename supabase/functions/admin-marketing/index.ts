@@ -311,6 +311,36 @@ Deno.serve(async (req) => {
       return json({ ok: true, instellingen: await instellingen() });
     }
 
+    case 'status': {
+      // Werkt alles? Geheimen (alleen of ze er zijn), wachtrij, geplande taken en webhooks
+      const secrets = Object.fromEntries(
+        [
+          'RESEND_API_KEY',
+          'MARKETING_TOKEN_SECRET',
+          'MARKETING_SITE_URL',
+          'MARKETING_CRON_SECRET',
+          'RESEND_WEBHOOK_SECRET',
+          'REVENUECAT_WEBHOOK_SECRET',
+        ].map((naam) => [naam, Boolean(Deno.env.get(naam))]),
+      );
+      const tel = async (status: string) =>
+        (await db.from('email_outbox').select('id', { count: 'exact', head: true }).eq('status', status))
+          .count ?? 0;
+      const [wachtend, mislukt, { data: systeem }, { count: wachtlijst }] = await Promise.all([
+        tel('pending'),
+        tel('dead'),
+        db.rpc('beheer_status'),
+        db.from('wachtlijst').select('id', { count: 'exact', head: true }),
+      ]);
+      return json({
+        secrets,
+        instellingen: await instellingen(),
+        wachtrij: { wachtend, mislukt },
+        systeem: systeem ?? {},
+        wachtlijst: wachtlijst ?? 0,
+      });
+    }
+
     case 'auditlog': {
       if (!magWijzigen) return json({ error: 'Geen toegang' }, 403);
       const { data } = await db

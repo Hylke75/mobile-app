@@ -18,6 +18,7 @@ import { badges } from './badges';
 import { systeem } from './systeem';
 import { herinneringen } from './herinneringen';
 import { premium } from './premium';
+import { uitnodigen } from './uitnodigen';
 
 export const teksten = {
   algemeen,
@@ -39,4 +40,5 @@ export const teksten = {
   systeem,
   herinneringen,
   premium,
+  uitnodigen,
 };

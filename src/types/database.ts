@@ -286,6 +286,8 @@ export type Database = {
     Views: { [_ in never]: never };
     Functions: {
       start_proef: { Args: Record<PropertyKey, never>; Returns: string };
+      mijn_verwijzingscode: { Args: Record<PropertyKey, never>; Returns: string };
+      verzilver_code: { Args: { invoer: string }; Returns: string };
       log_app_event: {
         Args: { naam: string; eigenschappen?: Json; extern_id?: string | null };
         Returns: undefined;
