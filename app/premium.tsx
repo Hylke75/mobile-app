@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AuthScreen } from '@/components/AuthScreen';
@@ -11,19 +11,45 @@ import { PRIJZEN } from '@/constants/premium';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
 import { usePremium } from '@/hooks/usePremium';
+import { useToast } from '@/hooks/useToast';
 import { useTaal, type Sleutel } from '@/i18n';
-
-type Plan = 'jaar' | 'maand' | 'lifetime';
+import {
+  aankopenBeschikbaar,
+  haalPakketten,
+  herstel,
+  koop,
+  type Pakketten,
+  type Plan,
+} from '@/lib/aankopen';
+import { logAppEvent } from '@/lib/appEvents';
 
 // Standaard-EULA van Apple; eigen gebruiksvoorwaarden volgen met de echte aankopen
 const VOORWAARDEN_URL = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
 
 export default function PremiumScherm() {
-  const { t } = useTaal();
+  const { t, locale } = useTaal();
   const { reden } = useLocalSearchParams<{ reden?: string }>();
   const { profiel } = useAuth();
   const toegang = usePremium();
   const [plan, setPlan] = useState<Plan>('jaar');
+  const [pakketten, setPakketten] = useState<Pakketten>({});
+  const [bezig, setBezig] = useState(false);
+  const { showToast } = useToast();
+
+  useEffect(() => {
+    logAppEvent('paywall_viewed', { reden: reden ?? null });
+    haalPakketten().then(setPakketten);
+  }, [reden]);
+
+  // Prijs zoals de winkel die toont (valuta en land); zonder winkel de vaste prijs
+  const prijsVan = (p: Plan) => pakketten[p]?.prijs ?? PRIJZEN[p];
+  const jaarProduct = pakketten.jaar?.pakket.product;
+  const jaarPerMaand = jaarProduct
+    ? new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency: jaarProduct.currencyCode,
+      }).format(jaarProduct.price / 12)
+    : PRIJZEN.jaarPerMaand;
 
   const tekst =
     toegang.fase === 'gratis'
@@ -38,11 +64,38 @@ export default function PremiumScherm() {
     lifetime: t('premium.lifetime'),
   };
 
-  const kies = () => {
-    // Aankopen worden in fase 3 gekoppeld (StoreKit / Google Play Billing via RevenueCat)
-    const melding = t('premium.binnenkort');
+  const meld = (melding: string) => {
     if (Platform.OS === 'web') window.alert(melding);
     else Alert.alert(t('premium.naam'), melding);
+  };
+
+  const kies = async () => {
+    const pakket = pakketten[plan]?.pakket;
+    if (!aankopenBeschikbaar || !pakket) return meld(t('premium.binnenkort'));
+    setBezig(true);
+    logAppEvent('purchase_started', { plan });
+    const uitkomst = await koop(pakket);
+    setBezig(false);
+    if (uitkomst === 'gekocht') {
+      logAppEvent('purchase_completed', { plan });
+      showToast(t('premium.gekocht'));
+      router.back();
+    } else if (uitkomst === 'fout') {
+      meld(t('premium.mislukt'));
+    }
+  };
+
+  const herstelAankopen = async () => {
+    if (!aankopenBeschikbaar) return meld(t('premium.binnenkort'));
+    setBezig(true);
+    const gelukt = await herstel();
+    setBezig(false);
+    if (gelukt) {
+      showToast(t('premium.hersteld'));
+      router.back();
+    } else {
+      meld(t('premium.nietsHersteld'));
+    }
   };
 
   if (toegang.premium) {
@@ -83,16 +136,16 @@ export default function PremiumScherm() {
         onPress={() => setPlan('jaar')}
         titel={t('premium.jaar')}
         sub={t('premium.jaarSub', { n: PRIJZEN.besparing })}
-        prijs={PRIJZEN.jaar}
+        prijs={prijsVan('jaar')}
         eenheid={t('premium.perJaar')}
-        extra={t('premium.jaarPerMaand', { prijs: PRIJZEN.jaarPerMaand })}
+        extra={t('premium.jaarPerMaand', { prijs: jaarPerMaand })}
       />
       <PlanKaart
         gekozen={plan === 'maand'}
         onPress={() => setPlan('maand')}
         titel={t('premium.maand')}
         sub={t('premium.maandSub')}
-        prijs={PRIJZEN.maand}
+        prijs={prijsVan('maand')}
         eenheid={t('premium.perMaand')}
       />
       <PlanKaart
@@ -100,19 +153,19 @@ export default function PremiumScherm() {
         onPress={() => setPlan('lifetime')}
         titel={t('premium.lifetime')}
         sub={t('premium.lifetimeSub')}
-        prijs={PRIJZEN.lifetime}
+        prijs={prijsVan('lifetime')}
         eenheid={t('premium.eenmalig')}
         extra={t('premium.lifetimeNa', { prijs: PRIJZEN.lifetimeNa })}
       />
 
       <PrimaryButton
-        label={t('premium.kies', { plan: planNaam[plan] })}
-        onPress={kies}
+        label={bezig ? t('premium.bezig') : t('premium.kies', { plan: planNaam[plan] })}
+        onPress={bezig ? () => {} : kies}
         style={s.knop}
       />
       <Text style={styles.voorwaarden}>{t('premium.voorwaarden')}</Text>
       <View style={styles.links}>
-        <Pressable accessibilityRole="button" onPress={kies} style={styles.linkKnop}>
+        <Pressable accessibilityRole="button" onPress={herstelAankopen} style={styles.linkKnop}>
           <Text style={s.linkTekst}>{t('premium.herstel')}</Text>
         </Pressable>
         <Pressable

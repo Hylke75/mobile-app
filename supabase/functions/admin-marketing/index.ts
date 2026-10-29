@@ -101,8 +101,44 @@ Deno.serve(async (req) => {
         const s = consentStatus(lijst);
         if (s !== 'none') telling[s]++;
       }
+      // Proeffunnel: aantal verschillende accounts per stap (uit app-, server- en winkelgebeurtenissen)
+      const STAPPEN = [
+        'trial_started',
+        'first_alarm_created',
+        'first_mission_completed',
+        'day7_active',
+        'paywall_viewed',
+        'purchase_completed',
+        'store_initial_purchase',
+        'store_non_renewing_purchase',
+      ];
+      const { data: gebeurtenissen } = await db
+        .from('marketing_events')
+        .select('event_name, subject_user_id')
+        .in('event_name', STAPPEN)
+        .limit(50_000);
+      const perStap = new Map<string, Set<string>>();
+      for (const g of gebeurtenissen ?? []) {
+        if (!g.subject_user_id) continue;
+        const set = perStap.get(g.event_name) ?? new Set<string>();
+        set.add(g.subject_user_id);
+        perStap.set(g.event_name, set);
+      }
+      const kopers = new Set([
+        ...(perStap.get('store_initial_purchase') ?? []),
+        ...(perStap.get('store_non_renewing_purchase') ?? []),
+      ]);
+      const funnel = {
+        proef: perStap.get('trial_started')?.size ?? 0,
+        eersteAlarm: perStap.get('first_alarm_created')?.size ?? 0,
+        eersteMissie: perStap.get('first_mission_completed')?.size ?? 0,
+        dag7: perStap.get('day7_active')?.size ?? 0,
+        betaalscherm: perStap.get('paywall_viewed')?.size ?? 0,
+        gekocht: kopers.size,
+      };
       return json({
         rol,
+        funnel,
         contacten,
         wachtlijstEenmalig: wachtlijst,
         suppressies,

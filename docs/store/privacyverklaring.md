@@ -1,6 +1,6 @@
 # Privacyverklaring Mooove
 
-_Laatst bijgewerkt: 28 oktober 2026_
+_Laatst bijgewerkt: 29 oktober 2026_
 
 Mooove is een wekker-app die je helpt om 's ochtends in beweging te komen. Mooove wordt aangeboden door Hylke Thiry ("wij"). In deze verklaring lees je welke gegevens we verwerken, waarom, en welke rechten je hebt.
 
@@ -37,7 +37,7 @@ Crasht de app, dan kan Mooove een technisch foutrapport sturen naar Sentry (serv
 
 ## Verwerkers
 
-Je gegevens worden opgeslagen bij Supabase (database en inloggen), in een datacenter in de Europese Unie (Frankfurt, Duitsland). Foutrapporten gaan naar Sentry, eveneens in de EU. Beide verwerken de gegevens uitsluitend in onze opdracht.
+Je gegevens worden opgeslagen bij Supabase (database en inloggen), in een datacenter in de Europese Unie (Frankfurt, Duitsland). Foutrapporten gaan naar Sentry, eveneens in de EU. Neem je Premium, dan verloopt de betaling via de App Store of Google Play; RevenueCat (VS) verwerkt daarbij alleen je account-ID en welke aankoop je deed, om Premium te activeren. Al deze partijen verwerken de gegevens uitsluitend in onze opdracht.
 
 ## Beheer
 

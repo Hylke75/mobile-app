@@ -286,6 +286,10 @@ export type Database = {
     Views: { [_ in never]: never };
     Functions: {
       start_proef: { Args: Record<PropertyKey, never>; Returns: string };
+      log_app_event: {
+        Args: { naam: string; eigenschappen?: Json; extern_id?: string | null };
+        Returns: undefined;
+      };
     };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };

@@ -44,7 +44,7 @@ const nl = {
   },
   verwerkers: {
     kop: 'Verwerkers',
-    a1: 'Je gegevens worden opgeslagen bij Supabase (database en inloggen), in een datacenter in de Europese Unie (Frankfurt, Duitsland). Foutrapporten gaan naar Sentry, eveneens in de EU. Beide verwerken de gegevens uitsluitend in onze opdracht.',
+    a1: 'Je gegevens worden opgeslagen bij Supabase (database en inloggen), in een datacenter in de Europese Unie (Frankfurt, Duitsland). Foutrapporten gaan naar Sentry, eveneens in de EU. Neem je Premium, dan verloopt de betaling via de App Store of Google Play; RevenueCat (VS) verwerkt daarbij alleen je account-ID en welke aankoop je deed, om Premium te activeren. Al deze partijen verwerken de gegevens uitsluitend in onze opdracht.',
   },
   beheer: {
     kop: 'Beheer',
@@ -123,7 +123,7 @@ export const privacy: Vertalingen<typeof nl> = {
     },
     verwerkers: {
       kop: 'Processors',
-      a1: 'Your data is stored with Supabase (database and login), in a data center in the European Union (Frankfurt, Germany). Error reports go to Sentry, also in the EU. Both process the data solely on our behalf.',
+      a1: 'Your data is stored with Supabase (database and login), in a data center in the European Union (Frankfurt, Germany). Error reports go to Sentry, also in the EU. If you get Premium, payment goes through the App Store or Google Play; RevenueCat (US) only processes your account ID and which purchase you made, to activate Premium. All of these parties process the data solely on our behalf.',
     },
     beheer: {
       kop: 'Administration',
@@ -199,7 +199,7 @@ export const privacy: Vertalingen<typeof nl> = {
     },
     verwerkers: {
       kop: 'Encargados del tratamiento',
-      a1: 'Tus datos se guardan en Supabase (base de datos e inicio de sesión), en un centro de datos de la Unión Europea (Fráncfort, Alemania). Los informes de errores van a Sentry, también en la UE. Ambos tratan los datos exclusivamente por encargo nuestro.',
+      a1: 'Tus datos se guardan en Supabase (base de datos e inicio de sesión), en un centro de datos de la Unión Europea (Fráncfort, Alemania). Los informes de errores van a Sentry, también en la UE. Si contratas Premium, el pago se realiza a través de App Store o Google Play; RevenueCat (EE. UU.) solo trata tu ID de cuenta y qué compra hiciste, para activar Premium. Todas estas partes tratan los datos exclusivamente por encargo nuestro.',
     },
     beheer: {
       kop: 'Administración',
@@ -275,7 +275,7 @@ export const privacy: Vertalingen<typeof nl> = {
     },
     verwerkers: {
       kop: 'Auftragsverarbeiter',
-      a1: 'Deine Daten werden bei Supabase (Datenbank und Anmeldung) in einem Rechenzentrum in der Europäischen Union (Frankfurt, Deutschland) gespeichert. Fehlerberichte gehen an Sentry, ebenfalls in der EU. Beide verarbeiten die Daten ausschließlich in unserem Auftrag.',
+      a1: 'Deine Daten werden bei Supabase (Datenbank und Anmeldung) in einem Rechenzentrum in der Europäischen Union (Frankfurt, Deutschland) gespeichert. Fehlerberichte gehen an Sentry, ebenfalls in der EU. Wenn du Premium nimmst, läuft die Zahlung über den App Store oder Google Play; RevenueCat (USA) verarbeitet dabei nur deine Konto-ID und welchen Kauf du getätigt hast, um Premium zu aktivieren. Alle diese Parteien verarbeiten die Daten ausschließlich in unserem Auftrag.',
     },
     beheer: {
       kop: 'Verwaltung',
@@ -351,7 +351,7 @@ export const privacy: Vertalingen<typeof nl> = {
     },
     verwerkers: {
       kop: 'Sous-traitants',
-      a1: 'Tes données sont stockées chez Supabase (base de données et connexion), dans un centre de données de l’Union européenne (Francfort, Allemagne). Les rapports d’erreur vont à Sentry, également dans l’UE. Tous deux traitent les données uniquement pour notre compte.',
+      a1: 'Tes données sont stockées chez Supabase (base de données et connexion), dans un centre de données de l’Union européenne (Francfort, Allemagne). Les rapports d’erreur vont à Sentry, également dans l’UE. Si tu prends Premium, le paiement passe par l’App Store ou Google Play ; RevenueCat (États-Unis) ne traite que ton identifiant de compte et l’achat effectué, pour activer Premium. Toutes ces parties traitent les données uniquement pour notre compte.',
     },
     beheer: {
       kop: 'Administration',
@@ -426,7 +426,7 @@ export const privacy: Vertalingen<typeof nl> = {
     },
     verwerkers: {
       kop: '数据处理方',
-      a1: '你的数据存储在 Supabase（数据库和登录），位于欧盟的数据中心（德国法兰克福）。错误报告发送至同样位于欧盟的 Sentry。两者仅代表我们处理数据。',
+      a1: '你的数据存储在 Supabase（数据库和登录），位于欧盟的数据中心（德国法兰克福）。错误报告发送至同样位于欧盟的 Sentry。如果你购买 Premium，付款通过 App Store 或 Google Play 完成；RevenueCat（美国）仅处理你的账户 ID 和购买内容，用于激活 Premium。所有这些方仅代表我们处理数据。',
     },
     beheer: {
       kop: '后台管理',

@@ -29,7 +29,7 @@ type PremiumVelden = Pick<Profiel, 'proef_start' | 'premium_tot' | 'premium_alti
 
 const DAG = 24 * 60 * 60 * 1000;
 
-const VOLLEDIG: Toegang = {
+export const VOLLEDIG: Toegang = {
   fase: 'premium',
   premium: true,
   proefEinde: null,

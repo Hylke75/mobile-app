@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 
 import { Icon } from '@/components/Icon';
+import { PremiumMoment } from '@/components/PremiumMoment';
 import { BewegingStap, SPRONGEN_DOEL } from '@/components/missie/BewegingStap';
 import { StapDetector } from '@/components/missie/StapDetector';
 import { TimerStap } from '@/components/missie/TimerStap';
@@ -30,6 +31,7 @@ import { useSessies } from '@/hooks/useSessies';
 import { useStartDoel } from '@/hooks/useStartDoel';
 import { useToast } from '@/hooks/useToast';
 import { alarmenBeschikbaar, planWakkerCheck, rondWekkerAf } from '@/lib/alarmen';
+import { logAppEvent } from '@/lib/appEvents';
 import { vraagBeoordelingNaStreak } from '@/lib/beoordeling';
 import { actieveMissie, zetActieveMissie } from '@/lib/missieStatus';
 import { spreek, stopSpraak } from '@/lib/spraak';
@@ -66,7 +68,8 @@ export default function MissieScherm() {
   const { slaOp, zetGevoel, statistiek, sessies } = useSessies();
   const { showToast } = useToast();
   const { t, taal } = useTaal();
-  const weekdoel = useAuth().profiel?.weekdoel ?? 7;
+  const { profiel } = useAuth();
+  const weekdoel = profiel?.weekdoel ?? 7;
 
   const vanWekker = params.vanWekker === '1';
   // Proefronde vanuit de editor: eigen oefeningen, niet gekoppeld aan een alarm en niet opgeslagen
@@ -253,6 +256,16 @@ export default function MissieScherm() {
       }
     }
     if (proef) return;
+    // Proeffunnel: eerste voltooide missie en nog actief na een week
+    if (status === 'voltooid' && profiel) {
+      if (!sessies.some((s) => s.status === 'voltooid')) {
+        logAppEvent('first_mission_completed', {}, profiel.id);
+      }
+      const proefStart = profiel.proef_start ? new Date(profiel.proef_start).getTime() : null;
+      if (proefStart && Date.now() - proefStart >= 6 * 86400000) {
+        logAppEvent('day7_active', {}, profiel.id);
+      }
+    }
     const fout = await slaOp({
       alarmId: alarm?.id ?? params.alarmId ?? null,
       gestartOp,
@@ -478,6 +491,7 @@ export default function MissieScherm() {
               </View>
             </View>
           )}
+          {!proef && <PremiumMoment streak={statistiek.streak} />}
           <PrimaryButton
             label={t('missie.klaar.terug')}
             onPress={() => {

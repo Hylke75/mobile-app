@@ -943,6 +943,8 @@
           </div>
           <div class="melding" id="m-melding" role="alert"></div>
           <div class="tegels" id="m-tegels"></div>
+          <h2 style="margin: 18px 0 10px">Proeffunnel</h2>
+          <div class="tegels" id="m-funnel"></div>
 
           <div class="kaart">
             <div class="kaart-kop">
@@ -2132,6 +2134,33 @@
             lbl: 'Onderdrukt',
             waarde: getal(marketing.suppressies),
             extra: 'afgemeld, bounce, klacht of verwijderd',
+          },
+        ]);
+        const f = marketing.funnel ?? {};
+        const pct = (a, b) =>
+          b ? `${Math.round((a / b) * 100)}% van de vorige stap` : 'nog geen data';
+        tegelsIn($('m-funnel'), [
+          {
+            lbl: 'Proef gestart',
+            waarde: getal(f.proef ?? 0),
+            extra: 'eerste alarm gezet',
+            held: true,
+          },
+          {
+            lbl: 'Eerste missie',
+            waarde: getal(f.eersteMissie ?? 0),
+            extra: pct(f.eersteMissie, f.proef),
+          },
+          { lbl: 'Dag 7 actief', waarde: getal(f.dag7 ?? 0), extra: pct(f.dag7, f.eersteMissie) },
+          {
+            lbl: 'Betaalscherm gezien',
+            waarde: getal(f.betaalscherm ?? 0),
+            extra: pct(f.betaalscherm, f.dag7),
+          },
+          {
+            lbl: 'Gekocht',
+            waarde: getal(f.gekocht ?? 0),
+            extra: pct(f.gekocht, f.proef).replace('vorige stap', 'proefstarters'),
           },
         ]);
         tekenInstellingen(marketing.instellingen);

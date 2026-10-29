@@ -39,6 +39,7 @@ export const SLEUTELS = {
   // Per toestel (niet per account): kalibratie en welke plaatsingsuitleg al gezien is
   kalibratie: 'mooove.kalibratie',
   plaatsingGezien: 'mooove.plaatsing-gezien',
+  premiumMoment: 'mooove.premium-moment',
 } as const;
 
 export async function wisLokaal(): Promise<void> {

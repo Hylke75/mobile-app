@@ -1,6 +1,16 @@
 import type { Vertalingen } from '@/i18n/talen';
 
 const nl = {
+  gekocht: 'Welkom bij Mooove Premium! 🎉',
+  hersteld: 'Je aankopen zijn hersteld.',
+  nietsHersteld: 'Er zijn geen eerdere aankopen gevonden voor dit account.',
+  mislukt:
+    'De aankoop is niet gelukt. Probeer het opnieuw of kijk in de instellingen van je App Store-account.',
+  bezig: 'Even geduld…',
+  momentTitel: 'Je bent al {{n}} ochtenden op rij in beweging.',
+  momentTekst:
+    'Houd je streak vast: met Premium blijven alle missies en niveaus beschikbaar na je proef.',
+  momentKnop: 'Bekijk Premium',
   naam: 'Mooove Premium',
   kicker: 'MOOOVE PREMIUM',
   titel: 'Blijf in ',
@@ -72,6 +82,15 @@ const nl = {
 export const premium: Vertalingen<typeof nl> = {
   nl,
   en: {
+    gekocht: 'Welcome to Mooove Premium! 🎉',
+    hersteld: 'Your purchases have been restored.',
+    nietsHersteld: 'No previous purchases were found for this account.',
+    mislukt: 'The purchase didn’t go through. Try again or check your App Store account settings.',
+    bezig: 'One moment…',
+    momentTitel: 'You’ve been moving {{n}} mornings in a row.',
+    momentTekst:
+      'Keep your streak going: with Premium all missions and levels stay available after your trial.',
+    momentKnop: 'See Premium',
     naam: 'Mooove Premium',
     kicker: 'MOOOVE PREMIUM',
     titel: 'Keep ',
@@ -140,6 +159,16 @@ export const premium: Vertalingen<typeof nl> = {
     },
   },
   es: {
+    gekocht: '¡Bienvenido a Mooove Premium! 🎉',
+    hersteld: 'Tus compras se han restaurado.',
+    nietsHersteld: 'No se han encontrado compras anteriores para esta cuenta.',
+    mislukt:
+      'La compra no se ha completado. Inténtalo de nuevo o revisa los ajustes de tu cuenta de App Store.',
+    bezig: 'Un momento…',
+    momentTitel: 'Llevas {{n}} mañanas seguidas en movimiento.',
+    momentTekst:
+      'Mantén tu racha: con Premium todas las misiones y niveles siguen disponibles después de la prueba.',
+    momentKnop: 'Ver Premium',
     naam: 'Mooove Premium',
     kicker: 'MOOOVE PREMIUM',
     titel: 'Sigue en ',
@@ -209,6 +238,16 @@ export const premium: Vertalingen<typeof nl> = {
     },
   },
   de: {
+    gekocht: 'Willkommen bei Mooove Premium! 🎉',
+    hersteld: 'Deine Käufe wurden wiederhergestellt.',
+    nietsHersteld: 'Für dieses Konto wurden keine früheren Käufe gefunden.',
+    mislukt:
+      'Der Kauf hat nicht geklappt. Versuch es erneut oder prüf die Einstellungen deines App-Store-Kontos.',
+    bezig: 'Einen Moment …',
+    momentTitel: 'Du bist schon {{n}} Morgen in Folge in Bewegung.',
+    momentTekst:
+      'Halte deine Serie: Mit Premium bleiben alle Missionen und Stufen nach dem Test verfügbar.',
+    momentKnop: 'Premium ansehen',
     naam: 'Mooove Premium',
     kicker: 'MOOOVE PREMIUM',
     titel: 'Bleib in ',
@@ -278,6 +317,15 @@ export const premium: Vertalingen<typeof nl> = {
     },
   },
   fr: {
+    gekocht: 'Bienvenue dans Mooove Premium ! 🎉',
+    hersteld: 'Tes achats ont été restaurés.',
+    nietsHersteld: 'Aucun achat précédent n’a été trouvé pour ce compte.',
+    mislukt: 'L’achat n’a pas abouti. Réessaie ou vérifie les réglages de ton compte App Store.',
+    bezig: 'Un instant…',
+    momentTitel: 'Tu bouges depuis {{n}} matins d’affilée.',
+    momentTekst:
+      'Garde ta série : avec Premium, toutes les missions et tous les niveaux restent disponibles après l’essai.',
+    momentKnop: 'Voir Premium',
     naam: 'Mooove Premium',
     kicker: 'MOOOVE PREMIUM',
     titel: 'Reste en ',
@@ -347,6 +395,14 @@ export const premium: Vertalingen<typeof nl> = {
     },
   },
   zh: {
+    gekocht: '欢迎加入 Mooove Premium！🎉',
+    hersteld: '你的购买已恢复。',
+    nietsHersteld: '此账户没有找到以前的购买记录。',
+    mislukt: '购买未成功。请重试或检查你的 App Store 账户设置。',
+    bezig: '请稍候…',
+    momentTitel: '你已经连续 {{n}} 个早晨保持运动。',
+    momentTekst: '保持你的连续记录：有了 Premium，试用结束后所有任务和级别仍可使用。',
+    momentKnop: '查看 Premium',
     naam: 'Mooove Premium',
     kicker: 'MOOOVE PREMIUM',
     titel: '保持',

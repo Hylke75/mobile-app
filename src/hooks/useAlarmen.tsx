@@ -17,6 +17,7 @@ import { toonPremium, usePremium } from '@/hooks/usePremium';
 import { alarmenBinnenToegang, alarmToegestaan } from '@/lib/premium';
 import { annuleerAlarm, deblokkeerSynchronisatie, synchroniseer } from '@/lib/alarmen';
 import { zetGeluidKeuze, type GeluidKeuze } from '@/lib/alarmgeluid';
+import { logAppEvent } from '@/lib/appEvents';
 import { meldFout } from '@/lib/fouten';
 import { leesLokaal, schrijfLokaal, SLEUTELS } from '@/lib/opslag';
 import { supabase } from '@/lib/supabase';
@@ -297,6 +298,7 @@ export function AlarmenProvider({ children }: { children: ReactNode }) {
       if (geluid) await zetGeluidKeuze(rij.id, geluid);
       // Het eerste alarm start de (eenmalige) proefperiode
       if (!toegangRef.current.premium) await startProef();
+      if (!huidig.current.length) logAppEvent('first_alarm_created', {}, user.id);
       zetEnSync(user.id, [...huidig.current, naarAlarm(rij)]);
       return null;
     },

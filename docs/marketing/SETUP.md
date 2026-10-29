@@ -9,6 +9,7 @@ repo of in de browser.
 1. `supabase/migrations/20261028120000_premium.sql`
 2. `supabase/migrations/20261028140000_marketing_fundament.sql`
 3. `supabase/migrations/20261029100000_nieuwsbrief_module.sql` (maakt ook de zes concepten aan)
+4. `supabase/migrations/20261029120000_app_events.sql` (proeffunnel)
 
 Alle migraties zijn additief. Terugdraaien: de nieuwe tabellen `newsletter_*`, `email_*` en
 `marketing_*` droppen; de app gebruikt ze niet.
@@ -22,6 +23,7 @@ Alle migraties zijn additief. Terugdraaien: de nieuwe tabellen `newsletter_*`, `
 | `MARKETING_SITE_URL` | `https://www.mooove-app.com` | links in mails |
 | `MARKETING_CRON_SECRET` | lange willekeurige tekst | mail-worker (cron) |
 | `RESEND_WEBHOOK_SECRET` | `whsec_…` uit Resend → Webhooks | mail-webhook |
+| `REVENUECAT_WEBHOOK_SECRET` | lange willekeurige tekst, ook ingevuld in RevenueCat | revenuecat-webhook |
 
 Zonder `RESEND_API_KEY` of `MARKETING_TOKEN_SECRET` blijft marketingmail in de wachtrij staan
 (er gaat dan nooit mail zonder afmeldlink de deur uit).
@@ -35,6 +37,7 @@ Zonder `RESEND_API_KEY` of `MARKETING_TOKEN_SECRET` blijft marketingmail in de w
 | `admin-nieuwsbrief` | aan | campagnes, voorbeeld, testmail, goedkeuren, inplannen, wachtrij |
 | `mail-worker` | uit (eigen geheim `x-cron-secret`) | verzendwachtrij verwerken |
 | `mail-webhook` | uit (Svix-handtekening) | bezorgmeldingen van Resend |
+| `revenuecat-webhook` | uit (eigen geheim in de Authorization-header) | aankopen → `profiles.premium_tot` |
 
 ## 4. Cron: elke minuut de wachtrij verwerken
 
@@ -86,3 +89,11 @@ Na een paar weken zonder problemen aanscherpen naar `p=quarantine`.
 `marketing_settings.send_mode` staat standaard op `disabled`. Testen: Beheer → Marketing →
 Verzendinstellingen → **Test** en testadressen invullen. **Live** kan alleen de eigenaar (rol
 `owner`), met getypte bevestiging, en wordt in het auditlog vastgelegd.
+
+## 8. RevenueCat-webhook
+
+RevenueCat → Project → Integrations → Webhooks → Add:
+
+- URL: `https://akxnqxuztrtkquzbrsvx.supabase.co/functions/v1/revenuecat-webhook`
+- Authorization header: `Bearer <REVENUECAT_WEBHOOK_SECRET>` (dezelfde waarde als het secret)
+- Omgevingen: Production en Sandbox (TestFlight-aankopen zijn sandbox)

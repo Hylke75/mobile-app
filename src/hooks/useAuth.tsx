@@ -10,6 +10,7 @@ import {
 } from 'react';
 
 import { t } from '@/i18n';
+import { koppelGebruiker } from '@/lib/aankopen';
 import { annuleerAlles } from '@/lib/alarmen';
 import { annuleerHerinneringen } from '@/lib/herinneringen';
 import { leesLokaal, schrijfLokaal, SLEUTELS, wisLokaal } from '@/lib/opslag';
@@ -65,6 +66,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfiel(data);
     await schrijfLokaal(SLEUTELS.profiel, data);
   }, []);
+
+  // Winkelaankopen horen bij het ingelogde account (ook gasten)
+  const winkelGebruiker = session?.user.id ?? null;
+  useEffect(() => {
+    koppelGebruiker(winkelGebruiker);
+  }, [winkelGebruiker]);
 
   const profielVan = useRef<string | null>(null);
 
