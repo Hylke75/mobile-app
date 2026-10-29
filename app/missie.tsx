@@ -44,6 +44,7 @@ import { volgendAlarm, volgendeKeer } from '@/lib/tijd';
 import { succes, tik } from '@/lib/trilling';
 import { eigenUitTekst, isOefening, missieInfos, missiesVanDag } from '@/lib/missies';
 import { effectiefAlarm } from '@/lib/premium';
+import { metTijdslimiet } from '@/lib/tijdslimiet';
 import type { MissieId, Niveau, StapResultaat } from '@/types/app';
 
 const STANDAARD_MISSIE: MissieId[] = ['Squats', 'Bed opmaken', 'Gordijnen open'];
@@ -228,10 +229,19 @@ export default function MissieScherm() {
     if (vanWekker && params.alarmId) {
       const vervolgId = actieveMissie()?.vervolgId ?? params.vervolgId;
       zetActieveMissie(null);
-      await rondWekkerAf(params.alarmId, params.occurrenceId, vervolgId).catch(() => {});
+      // Hooguit 5 seconden wachten op het alarmsysteem, zodat de missie altijd sluit
+      await metTijdslimiet(
+        rondWekkerAf(params.alarmId, params.occurrenceId, vervolgId).catch(() => {}),
+        5000,
+        'rondWekkerAf',
+      );
       herplan();
       if (status === 'voltooid' && niveau === 'Hardcore') {
-        await planWakkerCheck(params.alarmId).catch(() => {});
+        await metTijdslimiet(
+          planWakkerCheck(params.alarmId).catch(() => {}),
+          5000,
+          'wakkerCheck',
+        );
         showToast(t('missie.wakkerCheckToast'));
       }
     }
@@ -311,7 +321,8 @@ export default function MissieScherm() {
 
   const noodstop = () =>
     bevestig(t('missie.noodstop'), t('missie.noodstopTekst'), async () => {
-      await rondAf('afgebroken', resultaten);
+      // Opslaan via internet mag het sluiten niet ophouden
+      await metTijdslimiet(rondAf('afgebroken', resultaten), 6000, 'noodstop');
       if (proef) {
         router.back();
         return;

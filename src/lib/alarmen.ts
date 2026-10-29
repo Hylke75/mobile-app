@@ -162,6 +162,11 @@ export async function openAlarmInstellingen(): Promise<void> {
   }
 }
 
+// Afgeronde alarmen: completeNativeAlarmAsync annuleert op iOS ook het herhalende AlarmKit-alarm,
+// terwijl de bibliotheek het in haar eigen lijst laat staan. Bij de volgende synchronisatie worden
+// deze alarmen daarom altijd opnieuw ingepland.
+const opnieuwInplannen = new Set<string>();
+
 let wachtrij: Promise<void> = Promise.resolve();
 // Tijdens uitloggen mag niets opnieuw worden ingepland
 let geblokkeerd = false;
@@ -249,10 +254,17 @@ export function synchroniseer(
       if (native.metadata?.type !== 'alarm') continue;
       const alarm = gewenst.get(native.id);
       const p = plan.get(native.id);
-      if (!alarm || !p || native.metadata?.versie !== versieVan(alarm, p.geluid, p.eerste, eigen)) {
+      if (
+        !alarm ||
+        !p ||
+        opnieuwInplannen.has(native.id) ||
+        native.metadata?.versie !== versieVan(alarm, p.geluid, p.eerste, eigen)
+      ) {
         await AlarmScheduler.cancelAlarmAsync(native.id);
       }
     }
+
+    opnieuwInplannen.clear();
 
     const nogGepland = new Set(
       (await AlarmScheduler.getScheduledAlarmsAsync()).map((native) => native.id),
@@ -427,6 +439,7 @@ export async function rondWekkerAf(
       idempotencyKey: `klaar:${occurrenceId}`,
     }).catch(() => null);
   }
+  opnieuwInplannen.add(alarmId);
   await AlarmScheduler.completeNativeAlarmAsync(alarmId);
   await AlarmScheduler.cancelNativeAlarmBackupAsync(alarmId).catch(() => false);
   // Herhalende alarmen moeten bij de volgende keer weer volledig afgeschermd zijn

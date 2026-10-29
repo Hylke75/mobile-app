@@ -108,6 +108,18 @@ beforeEach(() => {
 afterEach(() => jest.useRealTimers());
 
 describe('synchroniseer', () => {
+  it('plant een herhalend alarm opnieuw in nadat het is afgerond', async () => {
+    await synchroniseer([alarm()]);
+    await rondWekkerAf('a1');
+    mockNep.log = [];
+    await synchroniseer([alarm()]);
+    expect(mockNep.log).toEqual(['annuleer:a1', 'plan:a1']);
+    // Daarna gewoon weer stabiel
+    mockNep.log = [];
+    await synchroniseer([alarm()]);
+    expect(mockNep.log).toEqual([]);
+  });
+
   it('ruimt achtergebleven test- en wakker-check-alarmen op, maar niet een lopende test', async () => {
     const nu = Date.now();
     const hulp = (id: string, type: string, op: number) =>
