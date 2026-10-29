@@ -4,9 +4,13 @@ import { streakInGevaar } from '@/lib/statistiek';
 import { dagIndex, hervatOp, naarDatumSleutel, startVanDag } from '@/lib/tijd';
 import type { Alarm, Sessie } from '@/types/app';
 
-export type HerinneringInstellingen = { avond: boolean; streak: boolean };
+export type HerinneringInstellingen = { avond: boolean; streak: boolean; bedtijd: boolean };
 
-export const STANDAARD_HERINNERINGEN: HerinneringInstellingen = { avond: false, streak: false };
+export const STANDAARD_HERINNERINGEN: HerinneringInstellingen = {
+  avond: false,
+  streak: false,
+  bedtijd: false,
+};
 
 export type Herinnering = { id: string; titel: string; tekst: string; op: Date };
 
@@ -16,6 +20,8 @@ const STREAK_UUR = 19;
 // Alleen ochtendalarmen krijgen een melding op de avond ervoor
 const OCHTEND_TOT = '12:00';
 const DAGEN_VOORUIT = 7;
+// Bedtijd: acht uur slaap plus een half uur om in slaap te vallen vóór het alarm
+const BEDTIJD_MINUTEN_VOOR_ALARM = 8 * 60 + 30;
 
 type Invoer = {
   alarms: Alarm[];
@@ -39,6 +45,40 @@ export function planHerinneringen({
 }: Invoer): Herinnering[] {
   const lijst: Herinnering[] = [];
   const hervat = hervatOp(pauzeTot, nu);
+
+  // Het eerste ochtendalarm van een dag (rekening houdend met pauze en overslaan)
+  const eersteOchtendalarm = (dag: Date) => {
+    if (hervat && dag < hervat) return undefined;
+    const sleutel = naarDatumSleutel(dag);
+    return alarms
+      .filter(
+        (a) =>
+          a.aan &&
+          a.tijd < OCHTEND_TOT &&
+          a.dagen.includes(dagIndex(dag)) &&
+          a.overslaanOp !== sleutel,
+      )
+      .sort((a, b) => a.tijd.localeCompare(b.tijd))[0];
+  };
+
+  if (instellingen.bedtijd) {
+    for (let i = 1; i <= DAGEN_VOORUIT; i++) {
+      const dag = startVanDag(nu);
+      dag.setDate(dag.getDate() + i);
+      const eerste = eersteOchtendalarm(dag);
+      if (!eerste) continue;
+      const [uur, minuut] = eerste.tijd.split(':').map(Number);
+      const op = new Date(dag);
+      op.setHours(uur ?? 7, (minuut ?? 0) - BEDTIJD_MINUTEN_VOOR_ALARM, 0, 0);
+      if (op <= nu) continue;
+      lijst.push({
+        id: `${HERINNERING_PREFIX}bedtijd-${naarDatumSleutel(dag)}`,
+        titel: t('herinneringen.bedtijd.titel'),
+        tekst: t('herinneringen.bedtijd.tekst', { tijd: eerste.tijd }),
+        op,
+      });
+    }
+  }
 
   if (instellingen.avond) {
     for (let i = 1; i <= DAGEN_VOORUIT; i++) {

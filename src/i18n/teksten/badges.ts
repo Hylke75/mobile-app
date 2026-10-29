@@ -1,6 +1,7 @@
 import type { Vertalingen } from '@/i18n/talen';
 
 const nl = {
+  snelleStarter: { naam: 'Snelle starter', detail: '5 ochtenden binnen 2 min' },
   eersteStap: { naam: 'Eerste stap', detail: 'Eerste missie' },
   earlyMover: { naam: 'Early mover', detail: '5 vroege starts' },
   weekendWarrior: { naam: 'Weekend warrior', detail: 'Za én zo bewogen' },
@@ -15,6 +16,7 @@ const nl = {
 export const badges: Vertalingen<typeof nl> = {
   nl,
   en: {
+    snelleStarter: { naam: 'Quick starter', detail: '5 mornings within 2 min' },
     eersteStap: { naam: 'First step', detail: 'First mission' },
     earlyMover: { naam: 'Early mover', detail: '5 early starts' },
     weekendWarrior: { naam: 'Weekend warrior', detail: 'Moved Sat and Sun' },
@@ -26,6 +28,7 @@ export const badges: Vertalingen<typeof nl> = {
     honderd: { naam: 'Centurion', detail: '100 missions' },
   },
   es: {
+    snelleStarter: { naam: 'Arranque rápido', detail: '5 mañanas en menos de 2 min' },
     eersteStap: { naam: 'Primer paso', detail: 'Primera misión' },
     earlyMover: { naam: 'Madrugador', detail: '5 inicios tempranos' },
     weekendWarrior: { naam: 'Guerrero del finde', detail: 'Sáb y dom en marcha' },
@@ -37,6 +40,7 @@ export const badges: Vertalingen<typeof nl> = {
     honderd: { naam: 'Centenario', detail: '100 misiones' },
   },
   de: {
+    snelleStarter: { naam: 'Schnellstarter', detail: '5 Morgen in 2 Min.' },
     eersteStap: { naam: 'Erster Schritt', detail: 'Erste Mission' },
     earlyMover: { naam: 'Frühaufsteher', detail: '5 frühe Starts' },
     weekendWarrior: { naam: 'Wochenendkrieger', detail: 'Sa und So bewegt' },
@@ -48,6 +52,7 @@ export const badges: Vertalingen<typeof nl> = {
     honderd: { naam: 'Hunderter', detail: '100 Missionen' },
   },
   fr: {
+    snelleStarter: { naam: 'Démarrage éclair', detail: '5 matins en moins de 2 min' },
     eersteStap: { naam: 'Premier pas', detail: 'Première mission' },
     earlyMover: { naam: 'Lève-tôt', detail: '5 départs matinaux' },
     weekendWarrior: { naam: 'Guerrier du week-end', detail: 'Sam et dim en action' },
@@ -59,6 +64,7 @@ export const badges: Vertalingen<typeof nl> = {
     honderd: { naam: 'Centurion', detail: '100 missions' },
   },
   zh: {
+    snelleStarter: { naam: '快速起步', detail: '5 个早晨 2 分钟内起床' },
     eersteStap: {
       naam: '第一步',
       detail: '第一个任务',

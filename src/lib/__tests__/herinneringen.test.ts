@@ -44,7 +44,7 @@ describe('planHerinneringen', () => {
     const lijst = planHerinneringen({
       ...basis,
       alarms: [alarm()],
-      instellingen: { avond: false, streak: false },
+      instellingen: { avond: false, streak: false, bedtijd: false },
     });
     expect(lijst).toEqual([]);
   });
@@ -53,7 +53,7 @@ describe('planHerinneringen', () => {
     const lijst = planHerinneringen({
       ...basis,
       alarms: [alarm()],
-      instellingen: { avond: true, streak: false },
+      instellingen: { avond: true, streak: false, bedtijd: false },
     });
     expect(lijst.map((h) => h.op)).toEqual([
       new Date(2026, 9, 25, 21, 0),
@@ -71,7 +71,7 @@ describe('planHerinneringen', () => {
       ...basis,
       pauzeTot: '2026-10-27',
       alarms: [alarm({ overslaanOp: '2026-10-29' }), alarm({ id: 'b', tijd: '14:00' })],
-      instellingen: { avond: true, streak: false },
+      instellingen: { avond: true, streak: false, bedtijd: false },
     });
     expect(lijst.map((h) => h.op)).toEqual([
       new Date(2026, 9, 27, 21, 0),
@@ -83,7 +83,7 @@ describe('planHerinneringen', () => {
     const lijst = planHerinneringen({
       ...basis,
       alarms: [alarm({ dagen: [0] }), alarm({ id: 'b', naam: 'Vroeg', tijd: '05:45', dagen: [0] })],
-      instellingen: { avond: true, streak: false },
+      instellingen: { avond: true, streak: false, bedtijd: false },
     });
     expect(lijst).toHaveLength(1);
     expect(lijst[0]!.titel).toBe('Morgen om 05:45: Vroeg');
@@ -94,7 +94,7 @@ describe('planHerinneringen', () => {
       ...basis,
       sessies: [sessie(19), sessie(21), sessie(22), sessie(23)],
       alarms: [],
-      instellingen: { avond: false, streak: true },
+      instellingen: { avond: false, streak: true, bedtijd: false },
     });
     expect(lijst).toHaveLength(1);
     expect(lijst[0]!.op).toEqual(new Date(2026, 9, 24, 19, 0));
@@ -107,15 +107,29 @@ describe('planHerinneringen', () => {
       nu: new Date(2026, 9, 24, 20, 0),
       sessies: [sessie(22), sessie(23)],
       alarms: [],
-      instellingen: { avond: false, streak: true },
+      instellingen: { avond: false, streak: true, bedtijd: false },
     });
     const gedaan = planHerinneringen({
       ...basis,
       sessies: [sessie(23), sessie(24)],
       alarms: [],
-      instellingen: { avond: false, streak: true },
+      instellingen: { avond: false, streak: true, bedtijd: false },
     });
     expect(laat).toEqual([]);
     expect(gedaan).toEqual([]);
+  });
+});
+
+describe('bedtijd', () => {
+  it('herinnert 8,5 uur voor het eerste ochtendalarm, de avond ervoor', () => {
+    const lijst = planHerinneringen({
+      ...basis,
+      // Maandag 26 oktober om 06:30 → zondag 25 oktober om 22:00
+      alarms: [alarm({ dagen: [0] })],
+      instellingen: { avond: false, streak: false, bedtijd: true },
+    });
+    expect(lijst).toHaveLength(1);
+    expect(lijst[0]!.op).toEqual(new Date(2026, 9, 25, 22, 0));
+    expect(lijst[0]!.tekst).toContain('06:30');
   });
 });

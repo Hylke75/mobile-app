@@ -1,4 +1,4 @@
-import { useRef, type ComponentRef } from 'react';
+import { useMemo, useRef, type ComponentRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { maakStijlen, useKleuren } from '@/hooks/useThema';
@@ -7,13 +7,14 @@ import { Screen } from '@/components/Screen';
 import { useGedeeld, RoundPlus, ScreenHeader, SectionTitleRow } from '@/components/ui';
 import { dagLetter } from '@/constants/alarm';
 import { em, fonts } from '@/constants/theme';
+import { useAlarmen } from '@/hooks/useAlarmen';
 import { useAuth } from '@/hooks/useAuth';
 import { toonPremium, usePremium } from '@/hooks/usePremium';
 import { useSessies } from '@/hooks/useSessies';
 import { useToast } from '@/hooks/useToast';
 import { useTaal } from '@/i18n';
 import { deelAlsAfbeelding } from '@/lib/delen';
-import { badgesVoor } from '@/lib/statistiek';
+import { badgesVoor, snelleWeken } from '@/lib/statistiek';
 import { dagIndex } from '@/lib/tijd';
 
 // Korte maandnaam in de gekozen taal, bijvoorbeeld "OKT"
@@ -42,7 +43,9 @@ export default function ProgressieScherm() {
   const styles = useStyles();
   const gedeeld = useGedeeld();
   const kl = useKleuren();
-  const { statistiek, vernieuw } = useSessies();
+  const { statistiek, sessies, vernieuw } = useSessies();
+  const { alarms } = useAlarmen();
+  const alarmTijden = useMemo(() => new Map(alarms.map((a) => [a.id, a.tijd])), [alarms]);
   const { showToast } = useToast();
   const kaart = useRef<ComponentRef<typeof View>>(null);
   const { profiel } = useAuth();
@@ -54,7 +57,7 @@ export default function ProgressieScherm() {
   const vandaag = dagIndex(new Date());
 
   const toegang = usePremium();
-  const badges = badgesVoor(s);
+  const badges = badgesVoor(s, { snelleWeken: snelleWeken(sessies, alarmTijden) });
   const ontgrendeld = badges.filter((b) => b.behaald).length;
 
   return (

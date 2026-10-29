@@ -190,7 +190,8 @@ type BadgeId =
   | 'plankmeester'
   | 'streakMaster'
   | 'legend'
-  | 'honderd';
+  | 'honderd'
+  | 'snelleStarter';
 
 const badge = (id: BadgeId, emoji: string, waarde: number, doel: number): Badge => ({
   id,
@@ -202,7 +203,8 @@ const badge = (id: BadgeId, emoji: string, waarde: number, doel: number): Badge 
   doel,
 });
 
-export function badgesVoor(s: Statistiek): Badge[] {
+// extra: gegevens die niet uit de sessies alleen volgen (zoals gehaalde weekuitdagingen)
+export function badgesVoor(s: Statistiek, extra: { snelleWeken?: number } = {}): Badge[] {
   const totaal = (o: Oefening) => s.totaalPerOefening[o] ?? 0;
   return [
     badge('eersteStap', '🌱', s.aantalVoltooid, 1),
@@ -215,6 +217,7 @@ export function badgesVoor(s: Statistiek): Badge[] {
     badge('streakMaster', '🔥', s.langsteStreak, 10),
     badge('legend', '🏆', s.langsteStreak, 30),
     badge('honderd', '💯', s.aantalVoltooid, 100),
+    badge('snelleStarter', '⏱️', extra.snelleWeken ?? 0, 1),
   ];
 }
 
@@ -274,5 +277,73 @@ export function vorigeWeek(sessies: Sessie[], nu = new Date()): Weekoverzicht {
     actieveDagen: new Set(inWeek.map((s) => dagSleutel(s.afgerondOp))).size,
     missies: inWeek.length,
     reps: inWeek.reduce((som, s) => som + s.totaalHerhalingen, 0),
+  };
+}
+
+// Weekuitdaging: in één week op vijf ochtenden binnen twee minuten na het alarm begonnen
+export const SNEL_MINUTEN = 2;
+export const UITDAGING_DAGEN = 5;
+
+// Ochtenden (dagen) waarop een voltooide missie snel na het alarm begon, per week
+function snelleDagenPerWeek(
+  sessies: Sessie[],
+  alarmTijden: Map<string, string>,
+): Map<string, Set<string>> {
+  const perWeek = new Map<string, Set<string>>();
+  for (const s of sessies) {
+    if (s.status !== 'voltooid' || !s.alarmId) continue;
+    const tijd = alarmTijden.get(s.alarmId);
+    const minuten = tijd ? minutenNaAlarm(s.gestartOp, tijd) : null;
+    if (minuten === null || minuten > SNEL_MINUTEN) continue;
+    const week = dagSleutel(startVanWeek(s.gestartOp));
+    const dagen = perWeek.get(week) ?? new Set<string>();
+    dagen.add(dagSleutel(s.gestartOp));
+    perWeek.set(week, dagen);
+  }
+  return perWeek;
+}
+
+export function weekUitdaging(
+  sessies: Sessie[],
+  alarmTijden: Map<string, string>,
+  nu = new Date(),
+): { gehaald: number; doel: number } {
+  const dagen = snelleDagenPerWeek(sessies, alarmTijden).get(dagSleutel(startVanWeek(nu)));
+  return { gehaald: Math.min(dagen?.size ?? 0, UITDAGING_DAGEN), doel: UITDAGING_DAGEN };
+}
+
+// Aantal weken waarin de uitdaging is gehaald (voor de badge)
+export function snelleWeken(sessies: Sessie[], alarmTijden: Map<string, string>): number {
+  return [...snelleDagenPerWeek(sessies, alarmTijden).values()].filter(
+    (d) => d.size >= UITDAGING_DAGEN,
+  ).length;
+}
+
+export type Ochtendrapport = {
+  missies: number;
+  reps: number;
+  // Minuten tussen alarm en start van de eerste missie van vandaag
+  reactie: number | null;
+  gevoel: number | null;
+};
+
+// Wat je vandaag al hebt gedaan; null als er vandaag nog geen missie is voltooid
+export function ochtendrapport(
+  sessies: Sessie[],
+  alarmTijden: Map<string, string>,
+  nu = new Date(),
+): Ochtendrapport | null {
+  const vandaag = sessies
+    .filter((s) => s.status === 'voltooid' && dagSleutel(s.afgerondOp) === dagSleutel(nu))
+    .sort((a, b) => a.gestartOp.getTime() - b.gestartOp.getTime());
+  if (!vandaag.length) return null;
+  // Reactietijd: de eerste missie van vandaag die bij een alarm hoort
+  const metAlarm = vandaag.find((s) => s.alarmId && alarmTijden.has(s.alarmId));
+  const tijd = metAlarm ? alarmTijden.get(metAlarm.alarmId!) : undefined;
+  return {
+    missies: vandaag.length,
+    reps: vandaag.reduce((som, s) => som + s.totaalHerhalingen, 0),
+    reactie: metAlarm && tijd ? minutenNaAlarm(metAlarm.gestartOp, tijd) : null,
+    gevoel: vandaag.find((s) => s.gevoel)?.gevoel ?? null,
   };
 }

@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
@@ -20,7 +20,8 @@ import { alarmenBeschikbaar } from '@/lib/alarmen';
 import { datumKicker } from '@/lib/datum';
 import { useNu } from '@/hooks/useNu';
 import { leesLokaal, schrijfLokaal, SLEUTELS } from '@/lib/opslag';
-import { vorigeWeek } from '@/lib/statistiek';
+import { deelAlsAfbeelding } from '@/lib/delen';
+import { ochtendrapport, vorigeWeek, weekUitdaging } from '@/lib/statistiek';
 import { dagIndex, dagSleutel, hervatOp, startVanDag, tijdTot, volgendAlarm } from '@/lib/tijd';
 import { missieInfos, missiesVanDag } from '@/lib/missies';
 import type { MissieId } from '@/types/app';
@@ -68,6 +69,26 @@ export default function VandaagScherm() {
     eigenMap,
     volgend?.alarm.doelen,
   );
+  const alarmTijden = useMemo(() => new Map(alarms.map((a) => [a.id, a.tijd])), [alarms]);
+  const rapport = ochtendrapport(sessies, alarmTijden, nu);
+  const uitdaging = weekUitdaging(sessies, alarmTijden, nu);
+  const rapportKaart = useRef<ComponentRef<typeof View>>(null);
+  const gevoelNaam = (g: number) =>
+    t(`missie.klaar.gevoel.${g === 1 ? 'moe' : g === 2 ? 'oke' : 'sterk'}`).toLocaleLowerCase(
+      locale,
+    );
+  const rapportRegels = rapport
+    ? [
+        rapport.reactie !== null
+          ? rapport.reactie <= 0
+            ? t('vandaag.rapport.reactieDirect')
+            : t('vandaag.rapport.reactie', { n: rapport.reactie })
+          : null,
+        t('vandaag.rapport.missies', { n: rapport.missies }),
+        rapport.reps > 0 ? t('vandaag.rapport.reps', { n: rapport.reps }) : null,
+        rapport.gevoel ? t('vandaag.rapport.gevoel', { gevoel: gevoelNaam(rapport.gevoel) }) : null,
+      ].filter((r): r is string => !!r)
+    : [];
   const vandaagKlaar = sessies.some(
     (s) =>
       s.status === 'voltooid' &&
@@ -178,6 +199,50 @@ export default function VandaagScherm() {
           >
             <Icon name="close" size={16} color={kl.opDonker} />
           </Pressable>
+        </View>
+      )}
+
+      {rapport && (
+        <View ref={rapportKaart} collapsable={false} style={styles.week}>
+          <View style={styles.flex}>
+            <Text style={styles.weekKicker}>{t('vandaag.rapport.kop')}</Text>
+            <Text style={styles.weekTekst}>
+              🔥 {statistiek.streak} · {rapportRegels[0]}
+            </Text>
+            <Text style={styles.weekSub}>{rapportRegels.slice(1).join(' · ')}</Text>
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('vandaag.rapport.delen')}
+            hitSlop={10}
+            onPress={() =>
+              deelAlsAfbeelding(
+                rapportKaart,
+                t('vandaag.rapport.deelTekst', { samenvatting: rapportRegels.join(', ') }),
+              ).catch(() => {})
+            }
+          >
+            <Text style={styles.deelLink}>{t('vandaag.rapport.delen')} ↗</Text>
+          </Pressable>
+        </View>
+      )}
+
+      {alarms.some((a) => a.aan) && (
+        <View style={styles.uitdaging} accessibilityRole="summary">
+          <Text style={styles.uitdagingKop}>{t('vandaag.uitdaging.kop')}</Text>
+          <Text style={styles.uitdagingTekst}>
+            {uitdaging.gehaald >= uitdaging.doel
+              ? t('vandaag.uitdaging.gehaald')
+              : t('vandaag.uitdaging.tekst', uitdaging)}
+          </Text>
+          <View style={styles.uitdagingBalk}>
+            <View
+              style={[
+                styles.uitdagingVulling,
+                { width: `${(uitdaging.gehaald / uitdaging.doel) * 100}%` },
+              ]}
+            />
+          </View>
         </View>
       )}
 
@@ -349,6 +414,25 @@ const useStyles = maakStijlen((k) =>
       padding: 16,
       marginBottom: 14,
     },
+    deelLink: { fontFamily: fonts.body800, fontSize: 11, color: k.lime },
+    uitdaging: {
+      backgroundColor: k.white,
+      borderRadius: 19,
+      borderWidth: 1,
+      borderColor: k.line,
+      padding: 16,
+      marginBottom: 14,
+    },
+    uitdagingKop: { fontFamily: fonts.body800, fontSize: 10, letterSpacing: 1.4, color: k.muted },
+    uitdagingTekst: { fontFamily: fonts.body700, fontSize: 14, color: k.ink, marginTop: 6 },
+    uitdagingBalk: {
+      height: 6,
+      borderRadius: 3,
+      backgroundColor: k.line,
+      marginTop: 10,
+      overflow: 'hidden',
+    },
+    uitdagingVulling: { height: 6, borderRadius: 3, backgroundColor: k.lime },
     weekKicker: { fontFamily: fonts.body800, fontSize: 10, letterSpacing: 1.4, color: k.lime },
     weekTekst: { fontFamily: fonts.body800, fontSize: 15, color: k.opDonker, marginTop: 6 },
     weekSub: { fontFamily: fonts.body400, fontSize: 12, color: k.tint('#B2C2B0'), marginTop: 4 },

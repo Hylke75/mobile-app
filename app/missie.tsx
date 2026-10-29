@@ -35,6 +35,7 @@ import { actieveMissie, zetActieveMissie } from '@/lib/missieStatus';
 import { spreek, stopSpraak } from '@/lib/spraak';
 import {
   badgesVoor,
+  snelleWeken,
   berekenStatistiek,
   bereiktMijlpaal,
   gemiddeldeReactie,
@@ -342,16 +343,19 @@ export default function MissieScherm() {
 
   if (klaar) {
     // Vergelijk met de voortgang zonder deze missie, zodat alleen echt nieuwe badges verschijnen
-    const voor = berekenStatistiek(
-      sessies.filter((s) => Math.abs(s.gestartOp.getTime() - gestartOp.getTime()) > 1000),
-      weekdoel,
+    const zonderDeze = sessies.filter(
+      (s) => Math.abs(s.gestartOp.getTime() - gestartOp.getTime()) > 1000,
     );
+    const voor = berekenStatistiek(zonderDeze, weekdoel);
+    const alarmTijden = new Map(alarms.map((a) => [a.id, a.tijd]));
     const alBehaald = new Set(
-      badgesVoor(voor)
+      badgesVoor(voor, { snelleWeken: snelleWeken(zonderDeze, alarmTijden) })
         .filter((b) => b.behaald)
         .map((b) => b.id),
     );
-    const nieuweBadges = badgesVoor(statistiek).filter((b) => b.behaald && !alBehaald.has(b.id));
+    const nieuweBadges = badgesVoor(statistiek, {
+      snelleWeken: snelleWeken(sessies, alarmTijden),
+    }).filter((b) => b.behaald && !alBehaald.has(b.id));
     const mijlpaal = bereiktMijlpaal(voor.streak, statistiek.streak);
     const zichtbaar = nieuweBadges.slice(0, mijlpaal ? 2 : 3);
     const meer = nieuweBadges.length - zichtbaar.length;

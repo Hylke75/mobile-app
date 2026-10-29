@@ -3,6 +3,12 @@ import type { Vertalingen } from '@/i18n/talen';
 // Lokale meldingen (src/lib/herinneringen.ts) en de instellingen ervan in Profiel
 const nl = {
   kop: 'HERINNERINGEN',
+  bedtijd: {
+    label: 'Bedtijd',
+    uitleg: 'Een melding 8,5 uur voor je ochtendalarm, zodat je genoeg slaapt.',
+    titel: 'Tijd om naar bed te gaan 🌙',
+    tekst: 'Je alarm gaat morgen om {{tijd}}. Zo krijg je acht uur slaap.',
+  },
   avond: {
     label: 'De avond ervoor',
     uitleg: 'Om 21:00 zie je welk ochtendalarm en welke missies er morgen klaarstaan.',
@@ -25,6 +31,12 @@ export const herinneringen: Vertalingen<typeof nl> = {
   nl,
   en: {
     kop: 'REMINDERS',
+    bedtijd: {
+      label: 'Bedtime',
+      uitleg: 'A reminder 8.5 hours before your morning alarm, so you get enough sleep.',
+      titel: 'Time to head to bed 🌙',
+      tekst: 'Your alarm goes off at {{tijd}} tomorrow. This way you get eight hours of sleep.',
+    },
     avond: {
       label: 'The evening before',
       uitleg: 'At 9:00 pm you’ll see which morning alarm and missions are set for tomorrow.',
@@ -44,6 +56,12 @@ export const herinneringen: Vertalingen<typeof nl> = {
   },
   es: {
     kop: 'RECORDATORIOS',
+    bedtijd: {
+      label: 'Hora de dormir',
+      uitleg: 'Un aviso 8,5 horas antes de tu alarma de la mañana, para que duermas lo suficiente.',
+      titel: 'Hora de irse a la cama 🌙',
+      tekst: 'Tu alarma suena mañana a las {{tijd}}. Así duermes ocho horas.',
+    },
     avond: {
       label: 'La noche anterior',
       uitleg: 'A las 21:00 verás qué alarma de la mañana y qué misiones tienes para mañana.',
@@ -63,6 +81,12 @@ export const herinneringen: Vertalingen<typeof nl> = {
   },
   de: {
     kop: 'ERINNERUNGEN',
+    bedtijd: {
+      label: 'Schlafenszeit',
+      uitleg: 'Eine Erinnerung 8,5 Stunden vor deinem Morgenwecker, damit du genug schläfst.',
+      titel: 'Zeit fürs Bett 🌙',
+      tekst: 'Dein Wecker klingelt morgen um {{tijd}}. So bekommst du acht Stunden Schlaf.',
+    },
     avond: {
       label: 'Am Abend davor',
       uitleg: 'Um 21:00 Uhr siehst du, welcher Morgenwecker und welche Missionen morgen anstehen.',
@@ -83,6 +107,12 @@ export const herinneringen: Vertalingen<typeof nl> = {
   },
   fr: {
     kop: 'RAPPELS',
+    bedtijd: {
+      label: 'Heure du coucher',
+      uitleg: 'Un rappel 8 h 30 avant ton réveil du matin, pour dormir suffisamment.',
+      titel: 'Il est temps d’aller au lit 🌙',
+      tekst: 'Ton réveil sonne demain à {{tijd}}. Ainsi, tu dors huit heures.',
+    },
     avond: {
       label: 'La veille au soir',
       uitleg: 'À 21 h, tu vois quelle alarme du matin et quelles missions t’attendent demain.',
@@ -102,6 +132,12 @@ export const herinneringen: Vertalingen<typeof nl> = {
   },
   zh: {
     kop: '提醒',
+    bedtijd: {
+      label: '就寝时间',
+      uitleg: '在早晨闹钟前 8.5 小时提醒你，确保睡眠充足。',
+      titel: '该睡觉了 🌙',
+      tekst: '你的闹钟明天 {{tijd}} 响起。这样你能睡足八小时。',
+    },
     avond: {
       label: '前一天晚上',
       uitleg: '晚上 9 点告诉你明天早上设了哪个闹钟和哪些任务。',

@@ -1,4 +1,12 @@
-import { badgesVoor, berekenStatistiek, bereiktMijlpaal, streakInGevaar } from '@/lib/statistiek';
+import {
+  badgesVoor,
+  berekenStatistiek,
+  bereiktMijlpaal,
+  ochtendrapport,
+  snelleWeken,
+  streakInGevaar,
+  weekUitdaging,
+} from '@/lib/statistiek';
 import type { Sessie } from '@/types/app';
 
 // Vaste "nu": zaterdag 24 oktober 2026, 12:00
@@ -153,5 +161,32 @@ describe('streakInGevaar', () => {
 
   it('is niet in gevaar zonder streak', () => {
     expect(streakInGevaar([], 7, AVOND)).toBeNull();
+  });
+});
+
+describe('weekuitdaging en ochtendrapport', () => {
+  // Alarm om 07:30; sessies van maandag 19 t/m vrijdag 23 oktober
+  const tijden = new Map([['a', '07:30']]);
+  const snel = (dag: number, minuten: number) =>
+    sessie(dag, { alarmId: 'a', gestartOp: new Date(2026, 9, dag, 7, 30 + minuten) });
+
+  it('telt ochtenden binnen twee minuten na het alarm, per week', () => {
+    const week = [snel(19, 1), snel(20, 2), snel(21, 5), snel(22, 0), snel(23, 1)];
+    expect(weekUitdaging(week, tijden, NU)).toEqual({ gehaald: 4, doel: 5 });
+    expect(snelleWeken(week, tijden)).toBe(0);
+    expect(snelleWeken([...week, snel(24, 1)], tijden)).toBe(1);
+  });
+
+  it('geeft de badge Snelle starter na een gehaalde week', () => {
+    const s = berekenStatistiek([], 7, NU);
+    expect(badgesVoor(s, { snelleWeken: 1 }).find((b) => b.id === 'snelleStarter')?.behaald).toBe(
+      true,
+    );
+  });
+
+  it('vat de ochtend van vandaag samen', () => {
+    expect(ochtendrapport([], tijden, NU)).toBeNull();
+    const rapport = ochtendrapport([snel(24, 3), sessie(24, { gevoel: 3 })], tijden, NU);
+    expect(rapport).toEqual({ missies: 2, reps: 20, reactie: 3, gevoel: 3 });
   });
 });

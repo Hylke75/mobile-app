@@ -538,7 +538,7 @@ export default function ProfielScherm() {
       </Pressable>
 
       <Text style={styles.sectionHeading}>{t('herinneringen.kop')}</Text>
-      {(['avond', 'streak'] as const).map((soort) => (
+      {(['avond', 'bedtijd', 'streak'] as const).map((soort) => (
         <View key={soort} style={styles.setting}>
           <View style={styles.herinneringTekst}>
             <Text style={styles.settingLabel}>{t(`herinneringen.${soort}.label`)}</Text>

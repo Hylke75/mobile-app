@@ -1,6 +1,21 @@
 import type { Vertalingen } from '@/i18n/talen';
 
 const nl = {
+  rapport: {
+    kop: 'JOUW OCHTEND',
+    reactie: '{{n}} min na je alarm begonnen',
+    reactieDirect: 'Direct na je alarm begonnen',
+    missies: '{{n}} missie(s)',
+    reps: '{{n}} herhalingen',
+    gevoel: 'Je voelde je {{gevoel}}',
+    delen: 'Deel je ochtend',
+    deelTekst: 'Mijn ochtend met Mooove: {{samenvatting}}',
+  },
+  uitdaging: {
+    kop: 'WEEKUITDAGING',
+    tekst: '{{gehaald}}/{{doel}} ochtenden binnen 2 minuten na je alarm begonnen',
+    gehaald: 'Uitdaging gehaald! ⏱️ Je hebt de badge Snelle starter.',
+  },
   groet: 'Hey {{naam}} ✌️',
   profielOpenen: 'Open profiel',
   jouwStreak: 'JOUW STREAK',
@@ -43,6 +58,21 @@ const nl = {
 export const vandaag: Vertalingen<typeof nl> = {
   nl,
   en: {
+    rapport: {
+      kop: 'YOUR MORNING',
+      reactie: 'Started {{n}} min after your alarm',
+      reactieDirect: 'Started right after your alarm',
+      missies: '{{n}} mission(s)',
+      reps: '{{n}} reps',
+      gevoel: 'You felt {{gevoel}}',
+      delen: 'Share your morning',
+      deelTekst: 'My morning with Mooove: {{samenvatting}}',
+    },
+    uitdaging: {
+      kop: 'WEEKLY CHALLENGE',
+      tekst: '{{gehaald}}/{{doel}} mornings started within 2 minutes of your alarm',
+      gehaald: 'Challenge complete! ⏱️ You earned the Quick starter badge.',
+    },
     groet: 'Hey {{naam}} ✌️',
     profielOpenen: 'Open profile',
     jouwStreak: 'YOUR STREAK',
@@ -82,6 +112,21 @@ export const vandaag: Vertalingen<typeof nl> = {
     wachtTekst: 'They already count and will be sent automatically. Tap to try now.',
   },
   es: {
+    rapport: {
+      kop: 'TU MAÑANA',
+      reactie: 'Empezaste {{n}} min después de tu alarma',
+      reactieDirect: 'Empezaste justo después de tu alarma',
+      missies: '{{n}} misión(es)',
+      reps: '{{n}} repeticiones',
+      gevoel: 'Te sentiste {{gevoel}}',
+      delen: 'Comparte tu mañana',
+      deelTekst: 'Mi mañana con Mooove: {{samenvatting}}',
+    },
+    uitdaging: {
+      kop: 'RETO SEMANAL',
+      tekst: '{{gehaald}}/{{doel}} mañanas empezando en menos de 2 minutos tras la alarma',
+      gehaald: '¡Reto superado! ⏱️ Has ganado la insignia Arranque rápido.',
+    },
     groet: 'Hola {{naam}} ✌️',
     profielOpenen: 'Abrir perfil',
     jouwStreak: 'TU RACHA',
@@ -121,6 +166,21 @@ export const vandaag: Vertalingen<typeof nl> = {
     wachtTekst: 'Ya cuentan y se enviarán solas. Toca para intentarlo ahora.',
   },
   de: {
+    rapport: {
+      kop: 'DEIN MORGEN',
+      reactie: '{{n}} Min. nach dem Wecker gestartet',
+      reactieDirect: 'Direkt nach dem Wecker gestartet',
+      missies: '{{n}} Mission(en)',
+      reps: '{{n}} Wiederholungen',
+      gevoel: 'Du hast dich {{gevoel}} gefühlt',
+      delen: 'Teile deinen Morgen',
+      deelTekst: 'Mein Morgen mit Mooove: {{samenvatting}}',
+    },
+    uitdaging: {
+      kop: 'WOCHEN-CHALLENGE',
+      tekst: '{{gehaald}}/{{doel}} Morgen innerhalb von 2 Minuten nach dem Wecker gestartet',
+      gehaald: 'Challenge geschafft! ⏱️ Du hast das Abzeichen Schnellstarter.',
+    },
     groet: 'Hey {{naam}} ✌️',
     profielOpenen: 'Profil öffnen',
     jouwStreak: 'DEINE STREAK',
@@ -161,6 +221,21 @@ export const vandaag: Vertalingen<typeof nl> = {
       'Sie zählen schon mit und werden automatisch gesendet. Tippe, um es jetzt zu versuchen.',
   },
   fr: {
+    rapport: {
+      kop: 'TON MATIN',
+      reactie: 'Commencé {{n}} min après ton réveil',
+      reactieDirect: 'Commencé juste après ton réveil',
+      missies: '{{n}} mission(s)',
+      reps: '{{n}} répétitions',
+      gevoel: 'Tu te sentais {{gevoel}}',
+      delen: 'Partage ton matin',
+      deelTekst: 'Mon matin avec Mooove : {{samenvatting}}',
+    },
+    uitdaging: {
+      kop: 'DÉFI DE LA SEMAINE',
+      tekst: '{{gehaald}}/{{doel}} matins commencés moins de 2 minutes après le réveil',
+      gehaald: 'Défi réussi ! ⏱️ Tu as gagné le badge Démarrage éclair.',
+    },
     groet: 'Salut {{naam}} ✌️',
     profielOpenen: 'Ouvrir le profil',
     jouwStreak: 'TA SÉRIE',
@@ -201,6 +276,21 @@ export const vandaag: Vertalingen<typeof nl> = {
       'Elles comptent déjà et seront envoyées automatiquement. Touche pour réessayer maintenant.',
   },
   zh: {
+    rapport: {
+      kop: '你的早晨',
+      reactie: '闹钟响后 {{n}} 分钟开始',
+      reactieDirect: '闹钟一响就开始了',
+      missies: '{{n}} 个任务',
+      reps: '{{n}} 次',
+      gevoel: '你感觉{{gevoel}}',
+      delen: '分享你的早晨',
+      deelTekst: '我和 Mooove 的早晨：{{samenvatting}}',
+    },
+    uitdaging: {
+      kop: '每周挑战',
+      tekst: '{{gehaald}}/{{doel}} 个早晨在闹钟响后 2 分钟内开始',
+      gehaald: '挑战完成！⏱️ 你获得了“快速起步”徽章。',
+    },
     groet: '嗨，{{naam}} ✌️',
     profielOpenen: '打开个人资料',
     jouwStreak: '你的连续纪录',
