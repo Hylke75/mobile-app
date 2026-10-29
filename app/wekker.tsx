@@ -26,6 +26,7 @@ import {
 } from '@/lib/alarmen';
 import { actieveMissie, werkVervolgBij } from '@/lib/missieStatus';
 import { effectiefAlarm } from '@/lib/premium';
+import { metTijdslimiet } from '@/lib/tijdslimiet';
 
 function tijdNu(): string {
   const d = new Date();
@@ -98,7 +99,8 @@ export default function WekkerScherm() {
     if (bezig) return;
     setBezig(true);
     try {
-      await actie();
+      // Nooit eindeloos 'bezig': na 10 seconden komt de knop weer vrij
+      await metTijdslimiet(actie(), 10_000, 'wekkeractie');
     } catch {
       showToast(t('wekker.fout'));
     } finally {
@@ -108,7 +110,13 @@ export default function WekkerScherm() {
 
   const startMissie = () =>
     voerUit(async () => {
-      const vervolgId = await startMissieVanuitWekker(wekker);
+      // Antwoordt het alarmsysteem niet op tijd, dan toch de missie openen; het alarm gaat dan
+      // hooguit door tot de missie is afgerond
+      const vervolgId = await metTijdslimiet(
+        startMissieVanuitWekker(wekker).catch(() => undefined),
+        3000,
+        'startMissieVanuitWekker',
+      );
       // Loopt de missie voor dit alarm al, dan gaan we daar gewoon mee verder
       if (actieveMissie()?.alarmId === wekker.alarmId) {
         werkVervolgBij(wekker.alarmId, vervolgId);
