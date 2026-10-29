@@ -73,22 +73,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [profiel]);
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data }) => {
-      setSession(data.session);
-      if (data.session) {
-        const userId = data.session.user.id;
-        // Laatst bekende profiel direct gebruiken; vernieuwen gebeurt op de achtergrond
-        const lokaal = await leesLokaal<Profiel>(SLEUTELS.profiel);
-        if (lokaal?.id === userId) {
-          setProfiel(lokaal);
-          setLaden(false);
-          laadProfiel(userId);
-          return;
+    // Kan de sessie (nog) niet gelezen worden, bijvoorbeeld bij een alarm terwijl de telefoon op
+    // slot zit, dan na 4 seconden toch verder: het wekker- en missiescherm werken zonder login.
+    // De sessie volgt zodra hij leesbaar is.
+    const vangnet = setTimeout(() => setLaden(false), 4000);
+    supabase.auth
+      .getSession()
+      .then(async ({ data }) => {
+        clearTimeout(vangnet);
+        setSession(data.session);
+        if (data.session) {
+          const userId = data.session.user.id;
+          // Laatst bekende profiel direct gebruiken; vernieuwen gebeurt op de achtergrond
+          const lokaal = await leesLokaal<Profiel>(SLEUTELS.profiel);
+          if (lokaal?.id === userId) {
+            setProfiel(lokaal);
+            setLaden(false);
+            laadProfiel(userId);
+            return;
+          }
+          await laadProfiel(userId);
         }
-        await laadProfiel(userId);
-      }
-      setLaden(false);
-    });
+        setLaden(false);
+      })
+      .catch(() => {
+        clearTimeout(vangnet);
+        setLaden(false);
+      });
 
     const { data } = supabase.auth.onAuthStateChange((_event, nieuweSession) => {
       setSession(nieuweSession);
@@ -103,7 +114,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    return () => data.subscription.unsubscribe();
+    return () => {
+      clearTimeout(vangnet);
+      data.subscription.unsubscribe();
+    };
   }, [laadProfiel]);
 
   const vraagCodeAan = useCallback(async (email: string) => {
