@@ -143,6 +143,8 @@ export default function MissieScherm() {
   // Herkent de camera je niet, dan mag je in plaats daarvan springen met je telefoon
   const [alternatief, setAlternatief] = useState(false);
   const [wisselZichtbaar, setWisselZichtbaar] = useState(false);
+  // Laatst gemelde reden waarom de camera je niet herkent
+  const [probleem, setProbleem] = useState<'donker' | 'beeld' | null>(null);
   const doel = alternatief ? SPRONGEN_DOEL : missie.doel;
   const laatsteStap = stap === oefeningen.length - 1;
 
@@ -158,7 +160,8 @@ export default function MissieScherm() {
 
   useEffect(() => {
     if (info.methode !== 'pose' || stapKlaar || alternatief || gedaan > 0) return;
-    const timer = setTimeout(() => setWisselZichtbaar(true), 90000);
+    // Na 45 seconden zonder herkenning het alternatief aanbieden (met de reden erbij)
+    const timer = setTimeout(() => setWisselZichtbaar(true), 45000);
     return () => clearTimeout(timer);
   }, [info.methode, stapKlaar, alternatief, gedaan, stap, poging]);
 
@@ -179,7 +182,8 @@ export default function MissieScherm() {
   const onVoortgang = useCallback(
     (waarde: number) => {
       const begrensd = Math.min(waarde, doel);
-      if (begrensd > teller.current) {
+      const nieuw = begrensd > teller.current;
+      if (nieuw) {
         tik();
         if (begrensd % 5 === 0 || begrensd === doel) {
           AccessibilityInfo.announceForAccessibility(t('missie.teller', { n: begrensd, doel }));
@@ -191,9 +195,11 @@ export default function MissieScherm() {
         const zin =
           tekst.spraak[Math.min(Math.floor((begrensd / doel) * 3), tekst.spraak.length - 1)];
         if (zin && begrensd > 0 && begrensd % 5 === 0 && begrensd < doel) zegt(zin);
+        // Elke herhaling hardop tellen, zodat je niet naar het scherm hoeft te kijken
+        else if (nieuw && begrensd < doel && !stil) spreek(String(begrensd));
       }
     },
-    [info, tekst, doel, zegt, t],
+    [info, tekst, doel, zegt, t, stil],
   );
 
   const onKlaar = useCallback(
@@ -548,6 +554,7 @@ export default function MissieScherm() {
           onFeedback={zegt}
           onKlaar={onKlaar}
           toonFase={proef}
+          onProbleem={setProbleem}
         />
       ) : (
         <View style={styles.stapKlaar}>
@@ -560,6 +567,9 @@ export default function MissieScherm() {
 
       {wisselZichtbaar && !stapKlaar && !alternatief && (
         <Pressable accessibilityRole="button" onPress={kiesAlternatief} style={styles.wissel}>
+          <Text style={styles.wisselReden}>
+            {t(`missie.wisselReden.${probleem ?? 'onbekend'}`)}
+          </Text>
           <Text style={styles.wisselTekst}>{t('missie.wissel', { n: SPRONGEN_DOEL })}</Text>
         </Pressable>
       )}
@@ -786,6 +796,7 @@ const styles = StyleSheet.create({
     paddingVertical: 11,
     paddingHorizontal: 14,
   },
+  wisselReden: { fontFamily: fonts.body500, fontSize: 13, color: kleuren.muted, marginBottom: 4 },
   wisselTekst: {
     fontFamily: fonts.body800,
     fontSize: 12,

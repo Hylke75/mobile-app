@@ -36,6 +36,9 @@ export const SLEUTELS = {
   thema: 'mooove.thema',
   proefMelding: 'mooove.proef-melding',
   proefOvergang: 'mooove.proef-overgang',
+  // Per toestel (niet per account): kalibratie en welke plaatsingsuitleg al gezien is
+  kalibratie: 'mooove.kalibratie',
+  plaatsingGezien: 'mooove.plaatsing-gezien',
 } as const;
 
 export async function wisLokaal(): Promise<void> {

@@ -80,6 +80,18 @@ const nl = {
     notitie: 'CAMERA · OP JE TOESTEL',
     alleenInApp: 'ALLEEN IN DE APP',
   },
+  plaatsing: {
+    titel: 'Zo zet je je telefoon neer',
+    p1: 'Zet je telefoon rechtop tegen iets stevigs, met het scherm naar je toe.',
+    p2: 'Loop 2 tot 3 meter achteruit tot je van hoofd tot voeten in beeld bent.',
+    p3: 'Zorg voor genoeg licht en ga niet met je rug naar een raam staan.',
+    knop: 'Begrepen, start',
+  },
+  wisselReden: {
+    donker: 'Het lijkt te donker voor de camera.',
+    beeld: 'Je bent niet helemaal in beeld.',
+    onbekend: 'De camera herkent de beweging nog niet.',
+  },
   detector: {
     cameraNodig: 'CAMERA NODIG',
     cameraUitleg:
@@ -106,6 +118,8 @@ const nl = {
     nietHelemaalInBeeld: 'NIET HELEMAAL IN BEELD',
     teDonker: 'Het is te donker. Doe het licht aan, dan zie ik je beter.',
     zonderCamera: 'Bevestig zonder camera',
+    kalibratie:
+      'Gemeten: je diepste squat was {{hoek}}°. Mooove telt een squat voortaan vanaf {{grens}}°.',
     fase: {
       up: 'OMHOOG',
       down: 'OMLAAG',
@@ -207,6 +221,18 @@ export const missie: Vertalingen<typeof nl> = {
       notitie: 'CAMERA · ON YOUR DEVICE',
       alleenInApp: 'APP ONLY',
     },
+    plaatsing: {
+      titel: 'How to set up your phone',
+      p1: 'Stand your phone upright against something sturdy, screen facing you.',
+      p2: 'Step back 2 to 3 metres until you’re in view from head to toe.',
+      p3: 'Make sure there’s enough light and don’t stand with your back to a window.',
+      knop: 'Got it, start',
+    },
+    wisselReden: {
+      donker: 'It seems too dark for the camera.',
+      beeld: 'You’re not fully in view.',
+      onbekend: 'The camera doesn’t recognise the movement yet.',
+    },
     detector: {
       cameraNodig: 'CAMERA NEEDED',
       cameraUitleg: 'Mooove uses your camera to check your mission. Images stay on your device.',
@@ -232,6 +258,8 @@ export const missie: Vertalingen<typeof nl> = {
       nietHelemaalInBeeld: 'NOT FULLY IN FRAME',
       teDonker: 'It’s too dark. Turn on the light so I can see you better.',
       zonderCamera: 'Confirm without camera',
+      kalibratie:
+        'Measured: your deepest squat was {{hoek}}°. Mooove now counts a squat from {{grens}}°.',
       fase: { up: 'UP', down: 'DOWN', hold: 'HOLDING', transition: 'MOVING', unknown: '—' },
       fotoLeeg:
         'I can’t see anything in the photo. Turn on the light and keep your finger off the camera.',
@@ -326,6 +354,18 @@ export const missie: Vertalingen<typeof nl> = {
       notitie: 'CÁMARA · EN TU DISPOSITIVO',
       alleenInApp: 'SOLO EN LA APP',
     },
+    plaatsing: {
+      titel: 'Cómo colocar el móvil',
+      p1: 'Apoya el móvil en vertical contra algo firme, con la pantalla hacia ti.',
+      p2: 'Retrocede de 2 a 3 metros hasta que se te vea de la cabeza a los pies.',
+      p3: 'Asegúrate de que haya suficiente luz y no te pongas de espaldas a una ventana.',
+      knop: 'Entendido, empezar',
+    },
+    wisselReden: {
+      donker: 'Parece que está demasiado oscuro para la cámara.',
+      beeld: 'No se te ve entero.',
+      onbekend: 'La cámara aún no reconoce el movimiento.',
+    },
     detector: {
       cameraNodig: 'SE NECESITA CÁMARA',
       cameraUitleg:
@@ -352,6 +392,8 @@ export const missie: Vertalingen<typeof nl> = {
       nietHelemaalInBeeld: 'NO SE TE VE ENTERO',
       teDonker: 'Está demasiado oscuro. Enciende la luz para que te vea mejor.',
       zonderCamera: 'Confirmar sin cámara',
+      kalibratie:
+        'Medido: tu sentadilla más profunda fue de {{hoek}}°. Mooove cuenta ahora una sentadilla desde {{grens}}°.',
       fase: {
         up: 'ARRIBA',
         down: 'ABAJO',
@@ -452,6 +494,18 @@ export const missie: Vertalingen<typeof nl> = {
       notitie: 'KAMERA · AUF DEINEM GERÄT',
       alleenInApp: 'NUR IN DER APP',
     },
+    plaatsing: {
+      titel: 'So stellst du dein Handy auf',
+      p1: 'Stell dein Handy aufrecht an etwas Stabiles, Bildschirm zu dir.',
+      p2: 'Geh 2 bis 3 Meter zurück, bis du von Kopf bis Fuß im Bild bist.',
+      p3: 'Sorg für genug Licht und steh nicht mit dem Rücken zu einem Fenster.',
+      knop: 'Verstanden, los',
+    },
+    wisselReden: {
+      donker: 'Es scheint zu dunkel für die Kamera zu sein.',
+      beeld: 'Du bist nicht ganz im Bild.',
+      onbekend: 'Die Kamera erkennt die Bewegung noch nicht.',
+    },
     detector: {
       cameraNodig: 'KAMERA BENÖTIGT',
       cameraUitleg:
@@ -479,6 +533,8 @@ export const missie: Vertalingen<typeof nl> = {
       nietHelemaalInBeeld: 'NICHT GANZ IM BILD',
       teDonker: 'Es ist zu dunkel. Mach das Licht an, dann sehe ich dich besser.',
       zonderCamera: 'Ohne Kamera bestätigen',
+      kalibratie:
+        'Gemessen: Deine tiefste Kniebeuge war {{hoek}}°. Mooove zählt eine Kniebeuge jetzt ab {{grens}}°.',
       fase: {
         up: 'OBEN',
         down: 'UNTEN',
@@ -580,6 +636,18 @@ export const missie: Vertalingen<typeof nl> = {
       notitie: 'CAMÉRA · SUR TON APPAREIL',
       alleenInApp: 'UNIQUEMENT DANS L’APP',
     },
+    plaatsing: {
+      titel: 'Comment poser ton téléphone',
+      p1: 'Pose ton téléphone debout contre quelque chose de stable, écran vers toi.',
+      p2: 'Recule de 2 à 3 mètres jusqu’à être visible de la tête aux pieds.',
+      p3: 'Assure-toi qu’il y a assez de lumière et ne te mets pas dos à une fenêtre.',
+      knop: 'Compris, c’est parti',
+    },
+    wisselReden: {
+      donker: 'Il semble faire trop sombre pour la caméra.',
+      beeld: 'Tu n’es pas entièrement dans le cadre.',
+      onbekend: 'La caméra ne reconnaît pas encore le mouvement.',
+    },
     detector: {
       cameraNodig: 'CAMÉRA NÉCESSAIRE',
       cameraUitleg:
@@ -607,6 +675,8 @@ export const missie: Vertalingen<typeof nl> = {
       nietHelemaalInBeeld: 'PAS ENTIÈREMENT VISIBLE',
       teDonker: 'Il fait trop sombre. Allume la lumière pour que je te voie mieux.',
       zonderCamera: 'Confirmer sans caméra',
+      kalibratie:
+        'Mesuré : ton squat le plus profond était de {{hoek}}°. Mooove compte maintenant un squat à partir de {{grens}}°.',
       fase: {
         up: 'EN HAUT',
         down: 'EN BAS',
@@ -710,6 +780,18 @@ export const missie: Vertalingen<typeof nl> = {
       notitie: '相机 · 仅在你的设备上',
       alleenInApp: '仅限应用',
     },
+    plaatsing: {
+      titel: '手机这样摆放',
+      p1: '把手机竖着靠在稳固的物体上，屏幕朝向你。',
+      p2: '后退 2 到 3 米，直到从头到脚都在画面中。',
+      p3: '确保光线充足，不要背对窗户。',
+      knop: '明白了，开始',
+    },
+    wisselReden: {
+      donker: '光线似乎太暗，摄像头看不清。',
+      beeld: '你没有完全在画面中。',
+      onbekend: '摄像头还没有识别出动作。',
+    },
     detector: {
       cameraNodig: '需要相机',
       cameraUitleg: 'Mooove 使用相机检查你的任务。画面只保留在你的设备上。',
@@ -735,6 +817,7 @@ export const missie: Vertalingen<typeof nl> = {
       nietHelemaalInBeeld: '未完整入镜',
       teDonker: '光线太暗。请开灯，这样我能更好地看到你。',
       zonderCamera: '不用相机确认',
+      kalibratie: '测量结果：你最深的深蹲为 {{hoek}}°。Mooove 现在从 {{grens}}° 开始计一次深蹲。',
       fase: { up: '向上', down: '向下', hold: '保持中', transition: '移动中', unknown: '—' },
       fotoLeeg: '照片里什么都看不到。请开灯，并且不要用手指挡住摄像头。',
       geenCamera: '没有相机',

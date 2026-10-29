@@ -29,7 +29,10 @@ import { CameraFrame } from '@/components/missie/CameraFrame';
 import { OEFENING_INFO } from '@/constants/oefeningen';
 import { em, fonts, kleuren } from '@/constants/theme';
 import { t, useTaal } from '@/i18n';
+import { type Kalibratie, squatGrens, STANDAARD_SQUAT_GRENS } from '@/lib/kalibratie';
 import { missieInfo, type MissieInfo } from '@/lib/missies';
+import { leesLokaal, schrijfLokaal, SLEUTELS } from '@/lib/opslag';
+import { tik } from '@/lib/trilling';
 import type { Oefening } from '@/types/app';
 
 export type StapDetectorProps = {
@@ -42,6 +45,8 @@ export type StapDetectorProps = {
   onKlaar: (methode: 'camera' | 'licht' | 'foto' | 'handmatig') => void;
   // Proefronde: laat zien welke fase de camera herkent, om de plaatsing te testen
   toonFase?: boolean;
+  // Waarom de camera je (nog) niet herkent, voor de uitleg bij het alternatief
+  onProbleem?: (probleem: 'donker' | 'beeld') => void;
 };
 
 // Telregels per oefening. De bibliotheek kiest per hoek zelf de best zichtbare lichaamskant
@@ -171,10 +176,17 @@ function vasthouden(config: ExerciseConfig, doel: number): ExerciseConfig {
   return { ...config, formRules: [], holdDurationMs: doel * 1000 };
 }
 
-function poseConfig(oefening: Oefening, doel: number): ExerciseConfig {
+function poseConfig(oefening: Oefening, doel: number, kalibratie?: Kalibratie): ExerciseConfig {
   switch (oefening) {
-    case 'Squats':
-      return SQUATS;
+    case 'Squats': {
+      // Gekalibreerd in de proefronde: een squat telt vanaf een ruimere kniehoek
+      const grens = kalibratie?.squatGrens;
+      if (!grens || grens <= STANDAARD_SQUAT_GRENS) return SQUATS;
+      return {
+        ...SQUATS,
+        phases: SQUATS.phases.map((f) => (f.phase === 'down' ? { ...f, maxAngle: grens } : f)),
+      };
+    }
     case 'Push-ups':
       return PUSHUPS;
     case 'Jumping jacks':
@@ -293,6 +305,7 @@ function PoseStap({
   onFeedback,
   onKlaar,
   toonFase = false,
+  onProbleem,
 }: StapDetectorProps & { oefening: Oefening }) {
   const info = OEFENING_INFO[oefening];
   const runner = useAsyncRunner();
@@ -309,6 +322,14 @@ function PoseStap({
   const voortgang = useLaatste(onVoortgang);
   const feedback = useLaatste(onFeedback);
   const klaar = useLaatste(onKlaar);
+  const probleem = useLaatste(onProbleem);
+  // Eerste keer met deze oefening: eerst uitleg over het neerzetten van de telefoon
+  const [toonUitleg, setToonUitleg] = useState(false);
+  const bevestigUitleg = useRef<() => void>(() => {});
+  const kalibratieRef = useRef<Kalibratie | undefined>(undefined);
+  // Proefronde squats: diepste kniehoek, om de telgrens op dit lichaam af te stellen
+  const diepste = useRef<number | null>(null);
+  const [gemeten, setGemeten] = useState<{ hoek: number; grens: number } | null>(null);
 
   useEffect(() => {
     const stap = OEFENING_INFO[oefening];
@@ -319,17 +340,34 @@ function PoseStap({
     (async () => {
       await nitroPoseExercises.initialize('');
       if (!actief) return;
-      nitroPoseExercises.loadExercise(poseConfig(oefening, doel));
+      const gezien = (await leesLokaal<string[]>(SLEUTELS.plaatsingGezien)) ?? [];
+      if (!gezien.includes(oefening)) {
+        setToonUitleg(true);
+        await new Promise<void>((klaar) => (bevestigUitleg.current = klaar));
+        if (!actief) return;
+        setToonUitleg(false);
+        schrijfLokaal(SLEUTELS.plaatsingGezien, [...gezien, oefening]);
+      }
+      kalibratieRef.current = (await leesLokaal<Kalibratie>(SLEUTELS.kalibratie)) ?? undefined;
+      if (!actief) return;
+      nitroPoseExercises.loadExercise(poseConfig(oefening, doel, kalibratieRef.current));
       nitroPoseExercises.onRepComplete = (data) => voortgang.current(data.repNumber);
       nitroPoseExercises.onHoldProgress = (p) => voortgang.current(Math.floor(p.elapsedMs / 1000));
       nitroPoseExercises.onSessionComplete = () => klaar.current('camera');
       nitroPoseExercises.onPostureLost = () => feedback.current(t('missie.detector.positieKwijt'));
       nitroPoseExercises.onPostureRegained = () =>
         feedback.current(t('missie.detector.positieTerug'));
-      nitroPoseExercises.onPoseLost = () => feedback.current(t('missie.detector.nietInBeeld'));
+      nitroPoseExercises.onPoseLost = () => {
+        feedback.current(t('missie.detector.nietInBeeld'));
+        probleem.current?.('beeld');
+      };
       feedback.current(`${missie.instructie} ${t('missie.detector.tips')}`);
       // Drie seconden om in positie te gaan; het aftellen gebeurt hier (de native timer van de
       // bibliotheek loopt op iOS niet betrouwbaar buiten de hoofdthread)
+      // Voelbaar aftellen: drie tikken, dan begint het tellen
+      tik();
+      setTimeout(() => actief && tik(), 1000);
+      setTimeout(() => actief && tik(), 2000);
       aftellen = setTimeout(() => {
         if (!actief) return;
         nitroPoseExercises.startSession(stap.eenheid === 'seconden' ? 1 : doel, 0);
@@ -355,7 +393,7 @@ function PoseStap({
     };
     // missie-teksten bewust niet als afhankelijkheid: een taalwissel herstart de sessie niet
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [oefening, doel, voortgang, feedback, klaar]);
+  }, [oefening, doel, voortgang, feedback, klaar, probleem]);
 
   // Staat het hele lichaam in beeld? Schouders, heupen, knieën en enkels (minstens één kant)
   useEffect(() => {
@@ -366,26 +404,42 @@ function PoseStap({
         if (!punten.length) return setInBeeld(false);
         const zichtbaar = (l: number, r: number) =>
           (punten[l]?.visibility ?? 0) > 0.3 || (punten[r]?.visibility ?? 0) > 0.3;
-        setInBeeld(
-          zichtbaar(11, 12) && zichtbaar(23, 24) && zichtbaar(25, 26) && zichtbaar(27, 28),
-        );
+        const helemaal =
+          zichtbaar(11, 12) && zichtbaar(23, 24) && zichtbaar(25, 26) && zichtbaar(27, 28);
+        setInBeeld(helemaal);
+        if (!helemaal) probleem.current?.('beeld');
         if (toonFase) {
           setFase(nitroPoseExercises.currentPhase);
-          setHoek(meetHoek(punten, poseConfig(oefening, doel), verhoudingRef.current));
+          const gemetenHoek = meetHoek(
+            punten,
+            poseConfig(oefening, doel, kalibratieRef.current),
+            verhoudingRef.current,
+          );
+          setHoek(gemetenHoek);
+          // Squats in de proefronde: telgrens afstellen op de diepste squat die we zien
+          if (oefening === 'Squats' && gemetenHoek !== null && gemetenHoek < 150) {
+            if (diepste.current === null || gemetenHoek < diepste.current) {
+              diepste.current = gemetenHoek;
+              const grens = squatGrens(gemetenHoek);
+              setGemeten({ hoek: gemetenHoek, grens });
+              schrijfLokaal<Kalibratie>(SLEUTELS.kalibratie, { squatGrens: grens });
+            }
+          }
         }
       },
       toonFase ? 200 : 500,
     );
     return () => clearInterval(timer);
-  }, [gestart, toonFase, oefening, doel, verhoudingRef]);
+  }, [gestart, toonFase, oefening, doel, verhoudingRef, probleem]);
 
   const meldDonker = useCallback(
     (helderheid: number) => {
       if (helderheid >= DONKER_GRENS || donkerGemeld.current) return;
       donkerGemeld.current = true;
       feedback.current(t('missie.detector.teDonker'));
+      probleem.current?.('donker');
     },
-    [feedback],
+    [feedback, probleem],
   );
 
   const frameOutput = useFrameOutput({
@@ -451,6 +505,31 @@ function PoseStap({
             {toonFase ? ` · ${vertaal(`missie.detector.fase.${fase}`)}` : ''}
             {toonFase && hoek !== null ? ` · ${hoek}°` : ''}
           </Text>
+        </View>
+      )}
+      {toonFase && gemeten && gemeten.grens > STANDAARD_SQUAT_GRENS && (
+        <View style={styles.kalibratie}>
+          <Text style={styles.kalibratieTekst}>
+            {vertaal('missie.detector.kalibratie', gemeten)}
+          </Text>
+        </View>
+      )}
+      {toonUitleg && (
+        <View style={styles.uitlegLaag}>
+          <Text style={styles.uitlegTitel}>{vertaal('missie.plaatsing.titel')}</Text>
+          {(['p1', 'p2', 'p3'] as const).map((regel, i) => (
+            <Text key={regel} style={styles.uitlegRegel}>
+              {`${i + 1}. ${vertaal(`missie.plaatsing.${regel}`)}`}
+            </Text>
+          ))}
+          <Text style={styles.uitlegRegel}>{missie.instructie}</Text>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => bevestigUitleg.current()}
+            style={styles.knop}
+          >
+            <Text style={styles.knopTekst}>{vertaal('missie.plaatsing.knop')}</Text>
+          </Pressable>
         </View>
       )}
     </CameraFrame>
@@ -663,6 +742,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
   },
   knopTekst: { fontFamily: fonts.body800, fontSize: 13, color: kleuren.ink },
+  kalibratie: {
+    position: 'absolute',
+    top: 52,
+    left: 12,
+    right: 12,
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: 'rgba(14,20,16,0.82)',
+  },
+  kalibratieTekst: { fontFamily: fonts.body700, fontSize: 13, color: kleuren.lime },
+  uitlegLaag: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(14,20,16,0.9)',
+    padding: 20,
+    justifyContent: 'center',
+    gap: 10,
+  },
+  uitlegTitel: { fontFamily: fonts.head700, fontSize: 22, color: kleuren.white },
+  uitlegRegel: { fontFamily: fonts.body500, fontSize: 15, lineHeight: 21, color: kleuren.white },
   meter: {
     position: 'absolute',
     top: 10,
