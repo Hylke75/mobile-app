@@ -3,7 +3,7 @@ import { huidigeLocale, t, type Sleutel } from '@/i18n';
 // Inhoud van docs/store/privacyverklaring.md, zodat de verklaring ook offline in de app te lezen is.
 // De teksten staan per taal in src/i18n/teksten/privacy.ts. Pas alles aan als de verklaring verandert
 // (ook site/privacy.html); de Nederlandse tekst is leidend.
-export const PRIVACY_BIJGEWERKT = '2026-10-29';
+export const PRIVACY_BIJGEWERKT = '2026-10-30';
 
 // Datum van de laatste wijziging, opgemaakt voor de huidige taal
 export function privacyBijgewerkt(locale: string = huidigeLocale()): string {
@@ -37,6 +37,7 @@ const SECTIES: readonly SectieSleutels[] = [
       'privacy.gegevens.p6',
       'privacy.gegevens.p7',
       'privacy.gegevens.p8',
+      'privacy.gegevens.p9',
     ],
   },
   { kop: 'privacy.camera.kop', alineas: ['privacy.camera.a1', 'privacy.camera.a2'] },

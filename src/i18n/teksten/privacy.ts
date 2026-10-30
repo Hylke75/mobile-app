@@ -22,6 +22,7 @@ const nl = {
     p6: 'Eigen missies (naam, icoon, timer of foto en duur): om ze in je alarmen te gebruiken.',
     p7: 'Ochtendgevoel na een missie (moe, oké of sterk; alleen als je het invult): om je trend in Progressie te tonen.',
     p8: 'Feedback die je in de app stuurt (soort, bericht, appversie en type toestel): om je vraag te beantwoorden en de app te verbeteren.',
+    p9: 'Uitnodigingen (je persoonlijke uitnodigingscode en, als iemand die code gebruikt, welke twee accounts aan elkaar gekoppeld zijn en wanneer): om jullie allebei 30 dagen Premium te geven en misbruik te voorkomen. We zien daarbij geen namen of e-mailadressen van de ander.',
   },
   camera: {
     kop: 'Camera',
@@ -101,6 +102,7 @@ export const privacy: Vertalingen<typeof nl> = {
       p6: 'Your own missions (name, icon, timer or photo and duration): to use them in your alarms.',
       p7: 'Morning mood after a mission (tired, okay or strong; only if you fill it in): to show your trend in Progress.',
       p8: 'Feedback you send in the app (type, message, app version and device type): to answer your question and improve the app.',
+      p9: 'Invitations (your personal invite code and, if someone uses that code, which two accounts were linked and when): to give you both 30 days of Premium and prevent abuse. Neither of you sees the other’s name or email address.',
     },
     camera: {
       kop: 'Camera',
@@ -177,6 +179,7 @@ export const privacy: Vertalingen<typeof nl> = {
       p6: 'Tus misiones propias (nombre, icono, temporizador o foto y duración): para usarlas en tus alarmas.',
       p7: 'Ánimo tras una misión (cansado, bien o fuerte; solo si lo indicas): para mostrar tu tendencia en Progreso.',
       p8: 'Comentarios que envías desde la app (tipo, mensaje, versión de la app y tipo de dispositivo): para responderte y mejorar la app.',
+      p9: 'Invitaciones (tu código de invitación personal y, si alguien usa ese código, qué dos cuentas se vincularon y cuándo): para daros a ambos 30 días de Premium y evitar abusos. Ninguno ve el nombre ni el correo del otro.',
     },
     camera: {
       kop: 'Cámara',
@@ -253,6 +256,7 @@ export const privacy: Vertalingen<typeof nl> = {
       p6: 'Eigene Missionen (Name, Symbol, Timer oder Foto und Dauer): um sie in deinen Weckern zu verwenden.',
       p7: 'Morgenstimmung nach einer Mission (müde, okay oder stark; nur wenn du sie angibst): um deinen Verlauf unter Fortschritt zu zeigen.',
       p8: 'Feedback, das du in der App sendest (Art, Nachricht, App-Version und Gerätetyp): um deine Frage zu beantworten und die App zu verbessern.',
+      p9: 'Einladungen (dein persönlicher Einladungscode und, wenn jemand ihn nutzt, welche zwei Konten wann verknüpft wurden): um euch beiden 30 Tage Premium zu geben und Missbrauch zu verhindern. Keiner sieht dabei Namen oder E-Mail-Adresse des anderen.',
     },
     camera: {
       kop: 'Kamera',
@@ -329,6 +333,7 @@ export const privacy: Vertalingen<typeof nl> = {
       p6: 'Tes missions perso (nom, icône, minuteur ou photo et durée) : pour les utiliser dans tes alarmes.',
       p7: 'Humeur après une mission (fatigué, bien ou en forme ; seulement si tu l’indiques) : pour afficher ta tendance dans Progrès.',
       p8: 'Avis envoyés depuis l’app (type, message, version de l’app et type d’appareil) : pour te répondre et améliorer l’app.',
+      p9: 'Invitations (ton code d’invitation personnel et, si quelqu’un l’utilise, quels deux comptes ont été liés et quand) : pour vous offrir à tous les deux 30 jours de Premium et éviter les abus. Aucun de vous ne voit le nom ou l’adresse e-mail de l’autre.',
     },
     camera: {
       kop: 'Caméra',
@@ -404,6 +409,7 @@ export const privacy: Vertalingen<typeof nl> = {
       p6: '你的自定义任务（名称、图标、计时或照片及时长）：用于在你的闹钟中使用。',
       p7: '任务后的早晨状态（累、还行或很棒；仅在你填写时）：用于在“进度”中显示你的趋势。',
       p8: '你在应用中发送的反馈（类型、消息、应用版本和设备类型）：用于回答你的问题并改进应用。',
+      p9: '邀请（你的个人邀请码；如有人使用该邀请码，则记录哪两个账户在何时关联）：用于为你们双方提供 30 天 Premium 并防止滥用。双方都看不到对方的姓名或电子邮件地址。',
     },
     camera: {
       kop: '相机',

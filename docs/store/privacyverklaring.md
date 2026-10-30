@@ -1,21 +1,22 @@
 # Privacyverklaring Mooove
 
-_Laatst bijgewerkt: 29 oktober 2026_
+_Laatst bijgewerkt: 30 oktober 2026_
 
 Mooove is een wekker-app die je helpt om 's ochtends in beweging te komen. Mooove wordt aangeboden door Hylke Thiry ("wij"). In deze verklaring lees je welke gegevens we verwerken, waarom, en welke rechten je hebt.
 
 ## Welke gegevens verwerken we?
 
-| Gegeven                                                                                       | Waarvoor                                                                    | Bewaartermijn             |
-| --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ------------------------- |
-| E-mailadres (alleen als je inlogt met e-mail of er een koppelt; zonder account niet nodig)    | Inloggen met een eenmalige code en je account beheren                       | Zolang je account bestaat |
-| Voornaam                                                                                      | Je in de app begroeten                                                      | Zolang je account bestaat |
-| Alarmen (tijd, dagen, niveau, gekozen oefeningen en aantallen, naam)                          | Je alarmen op je toestel inplannen en op al je toestellen beschikbaar maken | Zolang je account bestaat |
-| Missieresultaten (start- en eindtijd, oefeningen, aantal herhalingen, voltooid of afgebroken) | Je streak, voortgang en badges tonen                                        | Zolang je account bestaat |
-| Weekdoel en datum van je laatste geslaagde alarmtest                                          | Je instellingen en alarm-check tonen                                        | Zolang je account bestaat |
-| Eigen missies (naam, icoon, timer of foto en duur)                                            | Ze in je alarmen gebruiken                                                  | Zolang je account bestaat |
-| Ochtendgevoel na een missie (moe, oké of sterk; alleen als je het invult)                     | Je trend in Progressie tonen                                                | Zolang je account bestaat |
-| Feedback uit de app (soort, bericht, appversie en type toestel)                               | Je vraag beantwoorden en de app verbeteren                                  | Zolang je account bestaat |
+| Gegeven                                                                                                                                                | Waarvoor                                                                    | Bewaartermijn             |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------- | ------------------------- |
+| E-mailadres (alleen als je inlogt met e-mail of er een koppelt; zonder account niet nodig)                                                             | Inloggen met een eenmalige code en je account beheren                       | Zolang je account bestaat |
+| Voornaam                                                                                                                                               | Je in de app begroeten                                                      | Zolang je account bestaat |
+| Alarmen (tijd, dagen, niveau, gekozen oefeningen en aantallen, naam)                                                                                   | Je alarmen op je toestel inplannen en op al je toestellen beschikbaar maken | Zolang je account bestaat |
+| Missieresultaten (start- en eindtijd, oefeningen, aantal herhalingen, voltooid of afgebroken)                                                          | Je streak, voortgang en badges tonen                                        | Zolang je account bestaat |
+| Weekdoel en datum van je laatste geslaagde alarmtest                                                                                                   | Je instellingen en alarm-check tonen                                        | Zolang je account bestaat |
+| Eigen missies (naam, icoon, timer of foto en duur)                                                                                                     | Ze in je alarmen gebruiken                                                  | Zolang je account bestaat |
+| Ochtendgevoel na een missie (moe, oké of sterk; alleen als je het invult)                                                                              | Je trend in Progressie tonen                                                | Zolang je account bestaat |
+| Feedback uit de app (soort, bericht, appversie en type toestel)                                                                                        | Je vraag beantwoorden en de app verbeteren                                  | Zolang je account bestaat |
+| Uitnodigingen (je uitnodigingscode en, als iemand die gebruikt, welke twee accounts wanneer gekoppeld zijn; geen namen of e-mailadressen van de ander) | Jullie allebei 30 dagen Premium geven en misbruik voorkomen                 | Zolang je account bestaat |
 
 ## Camera
 
