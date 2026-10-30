@@ -299,7 +299,7 @@ export function synchroniseer(
     if (echt) {
       for (const alarm of gewenst.values()) {
         if (echt.has(alarm.id.toLowerCase())) continue;
-        meldFout(new Error('Alarm ontbrak in AlarmKit en is opnieuw ingepland'));
+        meldFout(new Error(`Alarm ontbrak in AlarmKit en is opnieuw ingepland (${alarm.niveau})`));
         const p = plan.get(alarm.id)!;
         await AlarmScheduler.cancelAlarmAsync(alarm.id).catch(() => false);
         await AlarmScheduler.scheduleAlarmAsync(alarmInput(alarm, p.geluid, p.eerste, eigen));
@@ -401,7 +401,11 @@ export async function huidigeWekker(): Promise<Wekker | null> {
   const hoortBijContext = Boolean(handoff && context && handoff.alarmId === context.id);
 
   if (context?.state === 'alerting' || (handoffRecent && hoortBijContext)) {
-    const afgeschermd = context!.metadata?.afgeschermd !== false;
+    // Vrij heeft altijd een gewone stopknop, ook als de metadata het vlagje kwijt is
+    const afgeschermd =
+      String(context!.metadata?.niveau ?? '') !== 'Vrij' &&
+      context!.metadata?.afgeschermd !== false &&
+      context!.metadata?.afgeschermd !== 0;
     if (handoff?.action === 'nativeStop' && handoff.alarmId === context!.id) {
       // Bij een alarm met stopknop is "stop" gewoon stoppen; bij een afgeschermd alarm niet
       if (!afgeschermd) return null;
@@ -415,8 +419,12 @@ export async function huidigeWekker(): Promise<Wekker | null> {
 // Haalt bij een geopend wekker-scherm de actuele occurrence en metadata op
 export async function contextVoor(alarmId: string): Promise<Wekker | null> {
   const context = await AlarmScheduler.getCurrentAlarmContextAsync();
-  if (!context || context.id !== alarmId) return null;
-  return leesWekker(context.id, context.occurrenceId, context.metadata);
+  if (context && context.id === alarmId) {
+    return leesWekker(context.id, context.occurrenceId, context.metadata);
+  }
+  // Gaat het alarm niet meer af, dan in elk geval niveau en missies uit het ingeplande alarm
+  const gepland = (await AlarmScheduler.getScheduledAlarmsAsync()).find((a) => a.id === alarmId);
+  return gepland ? leesWekker(gepland.id, undefined, gepland.metadata) : null;
 }
 
 export function luisterNaarAlarmen(callback: () => void): () => void {

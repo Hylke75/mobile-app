@@ -228,7 +228,7 @@ export default function WekkerScherm() {
       ) : (
         <Text style={styles.streng}>{t('premium.wekker')}</Text>
       )}
-      {!wekker.missieBezig && niveau === 'Vrij' && (
+      {niveau === 'Vrij' && (
         <>
           <SecondaryButton
             label={t('wekker.snooze', { n: SNOOZE_MINUTEN })}

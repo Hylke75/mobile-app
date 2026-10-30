@@ -321,6 +321,13 @@ describe('afgaand alarm', () => {
     expect(mockNep.log).toEqual([]);
   });
 
+  it('stop bij Vrij zonder vlagje in de metadata: ook gewoon gestopt', async () => {
+    mockNep.context = { id: 'a1', state: 'stopped', metadata: { niveau: 'Vrij' } };
+    mockNep.handoff = { alarmId: 'a1', timestamp: Date.now(), action: 'nativeStop' };
+    expect(await huidigeWekker()).toBeNull();
+    expect(mockNep.log).toEqual([]);
+  });
+
   it('een handoff ouder dan 15 minuten wordt genegeerd', async () => {
     mockNep.context = { id: 'a1', state: 'stopped' };
     mockNep.handoff = { alarmId: 'a1', timestamp: Date.now() - 16 * 60_000 };
