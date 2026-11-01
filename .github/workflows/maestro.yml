@@ -40,7 +40,7 @@ jobs:
             adb wait-for-device && adb install -r app.apk
             maestro test -e WACHTWOORD="$WACHTWOORD" --format junit --output maestro-rapport.xml e2e/maestro/01-reviewer-login.yaml e2e/maestro/02-alarm-aanmaken.yaml e2e/maestro/03-tabs.yaml
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: maestro-rapport
           path: |
